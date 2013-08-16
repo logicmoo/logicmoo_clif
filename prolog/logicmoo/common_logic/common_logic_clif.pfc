@@ -19,7 +19,7 @@ vim: set filetype=md:
 % :- set_fileAssertMt(baseKB).
 % :- set_defaultAssertMt(baseKB).
 
-:- dynamic((if/2,iif/2)).
+:- kb_shared((if/2,iif/2)).
 
 :- virtualize_source_file.
 
@@ -48,34 +48,23 @@ workflow_holder_queue(Atom) ==>
    kb_shared(Atom/1)},
   rtArgsVerbatum(Atom),
   {mpred_trace(Atom)},
-  arity(Atom,1).
-  %(t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
+  arity(Atom,1),
+  (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
-
-
-((boxlog(P)/(P==prove_not_t)) ==> {break}).
-((poss(_,NT)/(NT == ~t)) ==> {break}).
-
-% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-({kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
-% Remove negations probably
-    ( (~CLIF/is_kif_clause(CLIF) ==> clif(~CLIF)),
-      ( CLIF/is_kif_clause(CLIF) ==> clif( CLIF)))).
-% Remove negations probably
-% %% compile_clif==> 
-  
 
 % %% compile_clif ==> 
 (clif(CLIF)/ (\+ is_kif_clause(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+% %% compile_clif==> 
 (clif(CLIF)/is_kif_clause(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+% %% compile_clif==> 
 (clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 % {sanity(is_entailed_u(CLIF))}
 
-compile_boxlog ==> 
+% %% compile_boxlog ==> 
 (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG),must_be_unqualified(PROLOG)} ==> pfclog(PROLOG)).
 % {sanity(are_clauses_entailed(BOXLOG))}
 
-compile_pfclog ==> 
+% %% compile_pfclog ==> 
 (pfclog(PROLOG) ==> PROLOG).
 % {(sanity(is_pfc_entailed(PROLOG)))}
 % or maybe
@@ -86,7 +75,7 @@ compile_pfclog ==>
 % P/(mpred_non_neg_literal(P),\+ contains_modal(P)) ==> poss(P).
 
 % when sometnhing begins to be possible remove the negation and remove the impossibility
-poss(P) ==> \+ ~ P, \+ ~poss(P).
+poss(P) ==>     \+ ~ P, \+ ~poss(P).
 
 % when something begins to be impossibile, make sure it is false, remove it and remove the possibility of it 
 ~poss(P) ==> (~P, \+ P, \+ poss(P)).
@@ -100,10 +89,23 @@ poss(P) ==> \+ ~ P, \+ ~poss(P).
 :- ain(~poss(G) :-  {nonvar(G), call_u(~G)}).
 
 % when something begins to be definately false, remove it.
-((~P)/(nonvar(P),mpred_positive_literal(P))) ==>  \+ P.
+% ((~P)/(nonvar(P),mpred_positive_literal(P))) ==>  \+ P.
 
 % also when something begins to be definately false remove it and remove the possibility of it
-(((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
+% feature_setting(delete_neg_poss,true)==> (((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
 
 
-prove_holds_t(F, A, B):- atom(F),current_predicate(F/2),call(F,A,B).
+% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
+% {kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
+% Remove negations probably
+    ( % (~CLIF/is_kif_clause(CLIF) ==> clif(~CLIF)),
+      ( CLIF/is_kif_clause(CLIF) ==> clif( CLIF))).
+% Remove negations probably
+  
+
+
+:- meta_predicate prove_holds_t(*,?,?).
+prove_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
+:- meta_predicate prove_holds_t(*,?,?,?).
+prove_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
+

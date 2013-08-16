@@ -421,7 +421,7 @@ isa(Col1, ttObjectType) ==> ~isa(Col1, ttExpressionType).
 ==> tCol(tRelation).
 ==> tCol(ttSpatialType).
 ==> tCol(ttExpressionType).
-==> tCol(functorDeclares).
+==> ~tCol(functorDeclares).
 % tCol(ArgsIsa):-mpred_is_trigger(ArgsIsa).
 % TODO decide if OK
 %tCol(F):-t(functorDeclares,F).

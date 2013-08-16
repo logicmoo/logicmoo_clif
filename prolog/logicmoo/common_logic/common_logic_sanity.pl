@@ -213,9 +213,15 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 
 :- fixup_exports.
 
+:- if(false).
 :- set_prolog_flag(gc,true).
+:- trim_stacks.
+:- garbage_collect_atoms.   
+:- garbage_collect_clauses.
 :- garbage_collect.
+:- statistics.
 :- set_prolog_flag(gc,false).
+:- endif.
 
 
 

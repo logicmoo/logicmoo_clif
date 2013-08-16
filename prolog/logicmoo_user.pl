@@ -49,32 +49,32 @@
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
 */
 
-:- set_prolog_flag(pfc_booted,false).
-:- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
-:- user:use_module(logicmoo_snark).
-:- user:use_module(library(pfc)).
-:- user:use_module(library(xlisting)).
-:- user:use_module(library(gvar_syntax)).
-:- user:use_module(library(dictoo)).
-:- set_prolog_flag(pfc_booted,false).
-
-
-/*
 :- set_prolog_flag(report_error,true).
-:- set_prolog_flag(fileerrors,false).
 :- set_prolog_flag(access_level,system).
 :- set_prolog_flag(debug_on_error,true).
+:- set_prolog_flag(optimise,false).
+:- set_prolog_flag(last_call_optimisation,false).
+/*
+:- set_prolog_flag(fileerrors,false).
 :- set_prolog_flag(debug,true).
 :- set_prolog_flag(gc,false).
 :- set_prolog_flag(gc,true).
-:- set_prolog_flag(optimise,false).
-:- set_prolog_flag(last_call_optimisation,false).
 :- debug.
 */
-% :- after_boot((ignore((hook_database:call(retract,(ereq(G):- find_and_call(G))),fail)))).
 
-% % :- set_prolog_flag(mpred_te,true).
- % :- set_prolog_flag(subclause_expansion,true).
+:- set_prolog_flag(pfc_booted,false).
+:- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
+:- user:use_module(library(gvar_syntax)).
+:- user:use_module(library(dictoo)).
+:- user:use_module(library(xlisting)).
+:- ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
+:- user:use_module(library(pfc)).
+:- user:use_module(logicmoo_swilib).
+:- user:use_module(logicmoo_snark).
+:- user:use_module(logicmoo_plarkc).
+:- set_prolog_flag(pfc_booted,false).
+
+
 :- set_prolog_flag(pfc_booted,true).
 :- create_prolog_flag(retry_undefined,default,[type(term),keep(true)]).
 :- set_prolog_flag(retry_undefined,true).

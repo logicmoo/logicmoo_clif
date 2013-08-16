@@ -990,6 +990,7 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    correct_flattened([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
 kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTReal):- 
+ flag(skolem_count,_,1),
   maplist(must_det,[
    must_be_unqualified(WffIn0),
    unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
@@ -1029,13 +1030,17 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTReal):-
    
    % cf(Why,KB,Wff6669,PNF666,FlattenedO),!.
 
+correct_flattened(KB,_Why,Flattened,FlattenedO):-
+  demodal_clauses3(KB,Flattened,FlattenedO),!.
 correct_flattened(_KB,_Why,FlattenedO,FlattenedO):-!.
 correct_flattened(KB,Why,FlattenedM,FlattenedO):-
-  correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),demodal_clauses3(KB,FlattenedOOO,FlattenedO).
+  correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
+  demodal_clauses3(KB,FlattenedOOO,FlattenedO).
 
 :- meta_predicate(to_tlog(+,+,*,-)).
 :- meta_predicate(to_tlog_lit(+,+,+,*,-)).
 
+to_tlog(args,_KB,Var, Var):-!.  % for now
 to_tlog(_,_KB,Var, Var):- quietly(leave_as_is_logically(Var)),!.
 to_tlog(MD,KB,M:H,M:HH):- !, to_tlog(MD,KB,H,HH).
 to_tlog(MD,KB,[H|T],[HH|TT]):- !, to_tlog(MD,KB,H,HH),to_tlog(MD,KB,T,TT).
@@ -1053,7 +1058,7 @@ to_tlog(MD,KB, n(XF),  n(HH)):- !,to_tlog(MD,KB,XF, HH).
 to_tlog(MD,KB, nesc(XF),(HH)):- !,to_tlog(MD,KB,XF, HH).
 to_tlog(_,KB,H,HH ):- H=..[F,ARG],is_holds_functor(F),!,(is_ftVar(ARG)->HH=H;to_tlog(F,KB,ARG,HH)).
 to_tlog(_,KB, poss(XF),  HH):- !, to_tlog(poss_t,KB, XF,  HH).
-to_tlog(MD,KB,H,HH):- H=..[F|ARGS],must_maplist(to_tlog(MD,KB),ARGS,ARGSO),to_tlog_lit(MD,KB,F,ARGSO,HH).
+to_tlog(MD,KB,H,HH):- H=..[F|ARGS],must_maplist(to_tlog(args,KB),ARGS,ARGSO),to_tlog_lit(MD,KB,F,ARGSO,HH).
 
 tlog_is_sentence_functor(F):- \+ atom(F),!,fail.
 tlog_is_sentence_functor(F):- upcase_atom(F,F).
@@ -1085,14 +1090,19 @@ maybe_wrap_modal(MD,HH,HHH):-HHH=..[MD,HH].
 
 
 % get_holds_wrapper(isa,c).
-get_holds_wrapper(isa,h).
-get_holds_wrapper(arity,h).
-get_holds_wrapper(quotedIsa,h).
-get_holds_wrapper(quotedArgIsa,h).
-get_holds_wrapper(genls,h).
-get_holds_wrapper(admittedArgument,h).
-get_holds_wrapper(argIsa,h).
-get_holds_wrapper(disjointWith,h).
+get_holds_wrapper(isa,c).
+get_holds_wrapper(arity,c).
+get_holds_wrapper(need,c).
+get_holds_wrapper(skolem,c).
+get_holds_wrapper(quotedIsa,c).
+get_holds_wrapper(resultIsa,c).
+get_holds_wrapper(quotedArgIsa,c).
+get_holds_wrapper(ISA,c):- tinyKB(isa(ISA,_)).
+get_holds_wrapper(IST,c):- atom_contains(IST,ist). % relationAllExists ist etc
+get_holds_wrapper(genls,c).
+get_holds_wrapper(admittedArgument,c).
+get_holds_wrapper(argIsa,c).
+get_holds_wrapper(disjointWith,c).
 %get_holds_wrapper(_,_):-!,fail.
 %get_holds_wrapper(_P,t).
 
@@ -1463,13 +1473,13 @@ kif_add(InS):-
 kif_add(Goal0):-  call_unwrap(Goal0,Goal),!,kif_add(Goal).
 kif_add([]).
 kif_add([H|T]):- !,kif_add(H),kif_add(T).
-kif_add((H <- B)):- !, ain((H <- B)).
-kif_add((H :- B)):- !, ain((H :- B)).
-kif_add((P ==> Q)):- !, ain((P ==> Q)). 
-kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
+%kif_add((H <- B)):- !, ain((H <- B)).
+%kif_add((H :- B)):- !, ain((H :- B)).
+%kif_add((P ==> Q)):- !, ain((P ==> Q)). 
+%kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
 kif_add(WffIn):- show_call(ain(WffIn)),!.
 % unnumbervars_with_names(WffIn,Wff),
-kif_add(WffIn):- show_call(ain(clif(WffIn))),!.
+%kif_add(WffIn):- show_call(ain(clif(WffIn))),!.
 
 
 
@@ -1478,8 +1488,9 @@ kif_add(WffIn):- show_call(ain(clif(WffIn))),!.
 
 kif_add(_,[]).
 kif_add(Why,[H|T]):- !,must_det_l((kif_add(Why,H),kb_incr(Why,Why2),kif_add(Why2,T))).
+kif_add(Why,P):- !, mpred_ain(P,Why). 
 kif_add(Why,(H <- B)):- !, mpred_ain((H <- B),Why).
-kif_add(Why,(P ==> Q)):- !, ain((P ==> Q),Why). 
+%kif_add(Why,(P ==> Q)):- !, ain((P ==> Q),Why). 
 
 
 kif_add(Why,Wff):-

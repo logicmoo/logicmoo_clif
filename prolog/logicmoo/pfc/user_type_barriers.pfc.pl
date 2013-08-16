@@ -15,9 +15,15 @@ ttBarrierStr(A),{atomic_list_concat([A,"Type"],AType0),
   if_defined(do_renames(AType0,TypeType),true)} ==> barrierSpindle(TypeType,Type).
 
 
+:- if(false).
 :- set_prolog_flag(gc,true).
+:- trim_stacks.
+:- garbage_collect_atoms.   
+:- garbage_collect_clauses.
 :- garbage_collect.
+:- statistics.
 :- set_prolog_flag(gc,false).
+:- endif.
 
 
 barrierSpindle(TypeType,Type)==> 

@@ -255,15 +255,17 @@ get_op_alias_compile(_,fwc).
 % Datalog Converted To Prolog Forward Chaining.
 %
 boxlog_to_pfc(H0,H0):- is_ftVar(H0),!.
-boxlog_to_pfc(PFCM,PFC):- is_list(PFCM),!,must_maplist(boxlog_to_pfc,PFCM,PFC).
+boxlog_to_pfc([H|T],[HH|TT]):- !,boxlog_to_pfc(H,HH),boxlog_to_pfc(T,TT).
 boxlog_to_pfc((A,B),C):- !, must_maplist(boxlog_to_pfc,[A,B],[AA,BB]),conjoin(AA,BB,C).
+boxlog_to_pfc(unused(P),unused(P)).
+boxlog_to_pfc( (unused(H) :- B), (unused(H) :- B)).     
 boxlog_to_pfc(H0,PFCO):-
   sumo_to_pdkb(H0,H00),
   subst(H00,('not'),('~'),H),
   get_op_alias_compile((:-),TYPE),!,  
   with_vars_locked(throw,H,((maybe_notrace((boxlog_to_pfc_pass_1(TYPE,H,OUTPUTM))),!,
     OUTPUTM=OUTPUT))),
-  subst(OUTPUT,(not),(~),PFCO).
+  subst(OUTPUT,('not'),('~'),PFCO).
 
 
 

@@ -161,7 +161,7 @@ isa_db(I,C):-clause(isa(I,C),true).
 
 :- set_module(elmt:class(development)).
 :- kb_shared(arity/2).
-:- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
+:- forall(between(4,9,N),kb_shared(elmt:exactlyAssertedELMT/N)).
 
 /*
 :- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
@@ -288,7 +288,7 @@ tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_tiny(CycLIn,Cy
   CycL=..[F|Args], append(Args,[MT,_STR],WMT),
   CCALL=..[exactlyAssertedELMT,F|WMT],!,
   ((baseKB:clause(elmt:CCALL,true), CCALL=CALL) ; baseKB:clause(elmt:CCALL,(CALL,_))).
-tiny_support(CycLOut,MT,CALL):- between(4,7,Len),
+tiny_support(CycLOut,MT,CALL):- between(4,9,Len),
  functor(CCALL,exactlyAssertedELMT,Len),
  CCALL=..[exactlyAssertedELMT,F|WMT],
  append(Args,[MT,_STR],WMT),
@@ -304,7 +304,6 @@ logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
 
 :- set_module(elmt:class(development)).
 :- kb_shared(arity/2).
-:- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 
 %:- dynamic((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
@@ -331,8 +330,6 @@ logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
 :- set_prolog_flag(double_quotes,string).
 :- set_prolog_flag(access_level,system).
 %:- discontiguous elmt:exactlyAssertedELMT/5. 
-:- forall(between(4,7,A),kb_shared(elmt:exactlyAssertedELMT/A)).
-:- forall(between(4,7,A),multifile(elmt:exactlyAssertedELMT/A)).
 
 elmt:exactlyAssertedELMT(A,B,MT,STR):- exactlyAssertedEL_first(A,B,MT,STR),true.
 elmt:exactlyAssertedELMT(A,B,C,MT,STR):- exactlyAssertedEL_first(A,B,C,MT,STR),true.
@@ -356,6 +353,9 @@ elmt:exactlyAssertedELMT(not,What,MT,STR):- assertedTinyKB_not(What,MT,STR),true
 exactlyAssertedEL_first(isa, xor, 'LogicalConnective', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'CommutativeRelation', 'UniversalVocabularyMt', vStrDef).
+
+:- listing(exactlyAssertedEL_first/5).
+:- sanity(clause_asserted(exactlyAssertedEL_first(isa, xor, rtLogicalConnective, iUniversalVocabularyMt, vStrDef))).
 
 exactlyAssertedEL_first(isa, xor, 'BinaryRelation', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'AssociativeRelation', 'UniversalVocabularyMt', vStrDef).

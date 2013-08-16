@@ -1666,7 +1666,7 @@ convert_string(A,B):- logicmoo_util_strings:convert_to_cycString(A,B),!.
 
 do_renames(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 do_renames(A,B):- var(A),!,A=B,!,nb_setval('$has_var',t),!.
-do_renames(uN(P,ARGS),B):-!,do_renames([P|ARGS],List),compound_name_args_safe(B,uT,List).
+do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),compound_name_args_safe(B,uT,List)).
 do_renames(uU('SubLQuoteFn',A),uSubLQuoteFn(A)):-var(A),!,nb_setval('$has_var',t),!.
 do_renames(uU('SubLQuoteFn','$VAR'(A)),uSubLQuoteFn(A)):-!,nb_setval('$has_quote',t),!,nb_setval('$has_var',t),!.
 do_renames('$KW'(A),'$VAR'(B)):- catch((fix_var_name(A,B),!,nb_setval('$has_kw',t)),E,(dtrace(dmsg(E)))),!.
@@ -1972,12 +1972,22 @@ kb_7166_assertions:- ensure_loaded_with(library('pldata/kb_7166_assertions.pl'),
 
 
 
-system:clause_expansion(I, O):- compound(I), 
+system:term_expansion(I, O):- compound(I), 
+   current_prolog_flag(do_renames,term_expansion),
+   b_getval('$term', Term),Term==I, 
+   (nb_current('$term_exp_skip', Was)->Was\==I;true),
+   must(do_renames(I,O))->I\==O -> 
+   b_setval('$term', O),
+   b_setval('$term_exp_skip', Term),
+   nop(dmsg(do_renames(I)-->O)).
+/*
+system_clause_expansion(I, O):- compound(I), 
    current_prolog_flag(do_renames,term_expansion),
    % b_getval('$term', Term),Term==I, 
    must(do_renames(I,O))->I\==O -> 
    % b_setval('$term', O),
      nop(dmsg(do_renames(I)-->O)).
+*/
 
 :- fixup_exports.
 

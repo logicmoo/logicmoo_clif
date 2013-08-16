@@ -20,7 +20,7 @@
 :- module(logicmoo_i_cyc_kb,[          
           is_better_backchained/1,
           addCycL/1,
-          addCycL0/1,
+          addCycL1/1,
           addCycL1/1,
           cycl_to_mpred/2,
           as_cycl/2,
@@ -84,60 +84,57 @@ as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists
 
 kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(M,O)).
 
+:- kb_shared(baseKB:and/7).
+
+tiny_to_kif:- 
+  forall(load_order(C),forall(tinyKB(C,MT,STR),with_current_why(tinyKB(C,MT,STR),addCycL(C)))).
+
+load_order(isa(_,tFunction)).
+load_order(isa(_,ttExpressionType)).
+load_order(isa(_,tRelation)).
+load_order(isa(_,tCol)).
+load_order(P):- tinyKB(isa(F,rtWFFConstraintSatisfactionPredicate)),tinyKB(arity(F,A)),functor(P,F,A).
+load_order(P):- tinyKB(isa(F,rtWFFConstraintPredicate)),tinyKB(arity(F,A)),functor(P,F,A).
+load_order(P):- when(nonvar(P),\+ kif_hook(P)).
+load_order(P):- when(nonvar(P), kif_hook(P)).
+
 :- dynamic(addTiny_added/1).
-addCycL(V):-addTiny_added(V),!.
-addCycL(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL(M),!.
-addCycL(V):-defunctionalize('implies',V,VE),V\=@=VE,!,addCycL(VE).
-addCycL(V):-cyc_to_pdkb(V,VE),V\=@=VE,!,addCycL(VE).
-addCycL(V):-is_simple_gaf(V),!,addCycL0(V),!.
-addCycL(V):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,addCycL0(VE)).
-addCycL(V):-addCycL0(V),!.
+addCycL(V):- must_be(nonvar,V),cycl_to_mpred(V,VC),addCycL1(VC),!.
 
-addCycL0(V):-addCycL1(V).
-
-addCycL1(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL0(M),!.
-addCycL1(V):-cyc_to_pdkb(V,VE),V\=@=VE,!,addCycL0(VE).
-addCycL1((TRUE=>V)):-is_true(TRUE),addCycL0(V),!.
-addCycL1(<=(V , TRUE)):-is_true(TRUE),addCycL0(V),!.
-addCycL1((V :- TRUE)):-is_true(TRUE),addCycL0(V),!.
-addCycL1((V :- A)):- show_call(tiny_kb,addCycL0((A => V))).
-addCycL1((A => (V1 , V2))):-not(is_ftVar(V1)),!,show_call(tiny_kb,addCycL0((A => V1))) , show_call(tiny_kb,addCycL0((A => V2))).
-addCycL1((V1 , V2)):-!,addCycL0(V1),addCycL0(V2),!.
-addCycL1([V1 | V2]):-!,addCycL0(V1),addCycL0(V2),!.
 addCycL1(V):-addTiny_added(V),!.
 addCycL1(V):-asserta(addTiny_added(V)),unnumbervars(V,VE),
   % must(nop(remQueuedTinyKB(VE))),
-  ain(VE).
+  show_call(ain(VE)).
 
 
 sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL), ignore((tiny_support(CycL,_MT,CALL),retract(CALL))),must(cycl_to_mpred(CycL,Consequent)),!.
 
 
-cycl_to_mpred(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred(M,CP),!.
-cycl_to_mpred(V,CP):-cyc_to_pdkb(V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
-cycl_to_mpred(V,CP):-is_simple_gaf(V),!,cycl_to_mpred0(V,CP),!.
-cycl_to_mpred(V,CP):-defunctionalize('implies',V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
-cycl_to_mpred(V,CP):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,cycl_to_mpred0(VE,CP)).
-cycl_to_mpred(V,CP):-cycl_to_mpred0(V,CP),!.
+cycl_to_mpred(V,Out):-cycl_to_mpred0(V,Out).
 
-cycl_to_mpred0(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,CP),!.
-cycl_to_mpred0(V,CP):-cyc_to_pdkb(V,VE),V\=@=VE,!,cycl_to_mpred0(VE,CP).
-cycl_to_mpred0((TRUE => V),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
-cycl_to_mpred0((V <=> TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
-cycl_to_mpred0((V :- TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
-cycl_to_mpred0((V :- A),CP):- show_call(tiny_kb,cycl_to_mpred0((A => V),CP)).
-cycl_to_mpred0((A => (V1 , V2)),CP):-not(is_ftVar(V1)),!,cycl_to_mpred0((A=> (V1/consistent(V2))),V1P),
-   cycl_to_mpred0((A=> (V2/consistent(V1))),V2P) ,!,conjoin(V1P,V2P,CP).
-cycl_to_mpred0((V1 , V2),CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
-cycl_to_mpred0([V1 | V2],CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
-cycl_to_mpred0(V,V).
+cycl_to_mpred0(V,V):- var(V),!.
+cycl_to_mpred0((V1 , V2),Out):-!,cycl_to_mpred0(V1,Out),cycl_to_mpred0(V2,Out),!.
+cycl_to_mpred0([V1 | V2],Out):-!,cycl_to_mpred0(V1,Out),cycl_to_mpred0(V2,Out),!.
+cycl_to_mpred0((TRUE=>V),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0(<=(V , TRUE),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0((V :- TRUE),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0(V,Out):- into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,Out),!.
+cycl_to_mpred0((V :- A),(V :- A)):- !.
+cycl_to_mpred0(V,Out):- cyc_to_pdkb(V,VE),cycl_to_mpred1(VE,Out).
+
+cycl_to_mpred1(V,Out):-defunctionalize('implies',V,VE),V\=@=VE,!,cycl_to_mpred1(VE,Out).
+cycl_to_mpred1(V,Out):-is_simple_gaf(V),!,cycl_to_mpred2(V,Out),!.
+cycl_to_mpred1(V,Out):-kif_to_boxlog_ex(V,VP),[V]\=@=VP,!,as_cycl(VP,VE),cycl_to_mpred0(VE,Out).
+cycl_to_mpred1(V,Out):-cycl_to_mpred2(V,Out),!.
+
+cycl_to_mpred2(V,Out):-unnumbervars(V,Out),!.
 
 %  cycl_to_mpred( (grandparent('$VAR'('G'),'$VAR'('C')) => exists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
 
 
 
 into_mpred_form_locally(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
-into_mpred_form_locally(V,R):- into_mpred_form(V,R),!. 
+into_mpred_form_locally(V,R):- maybe_notrace((into_mpred_form(V,R), R\= isa(_,not))),!. 
 
 freeze_u(V,G):- freeze(V,call_u(G)).
 
@@ -163,9 +160,9 @@ tAsserted(P):-
 
 ist(MT,P):- istAsserted(MT,P).
 
-istAsserted(MT,P):- kb7166:assertion_content(ist,MT,P,_).
+istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail).
 %istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
-istAsserted(MT,P):- asserted_id(P,ID),assertion_mt(ID,MT).
+istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT)).
 
 % Y=verbSemTrans(xIndicateTheWord,X,xTransitiveThatClauseFrame,and(isa('ACTION',eventInformationTransferEvent),informationOrigin('ACTION','SUBJECT'),infoTransferred('ACTION','CLAUSE'))),rtrace(kif_to_boxlog(Y,BL)).
 
