@@ -190,7 +190,7 @@ asserted_id(PO,ID):- var(PO),
     litterally_guard(ID,P,PO))).
 
 
-litterally_guard(ID,I,O):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),
+litterally_guard(ID,I,O):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,ListE)),exclude(skip_guard,ListE,List),
    add_guard_list(I,List,O),!.
 litterally_guard(_,IO,IO).
 
@@ -202,9 +202,10 @@ guardify(ID):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Gu
   must_maplist(maybe_add_guard,List).
 guardify(_).
 
-maybe_add_guard('quotedIsa'(_,'ftExpression')).
-maybe_add_guard(G):-term_variables(G,Vars),maplist(maybe_add_guard_2(G),Vars).
+skip_guard('quotedIsa'(_,EXPR)):-EXPR='ftExpression'.
 
+maybe_add_guard(G):- skip_guard(G),!.
+maybe_add_guard(G):- term_variables(G,Vars),maplist(maybe_add_guard_2(G),Vars).
 maybe_add_guard_2(G,Var):-add_dom(Var,G).
 
 and_conj_to_list(C,[C]):- var(C),!.
