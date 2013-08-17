@@ -299,7 +299,7 @@ is_using_feature(Feature):- t_l:using_feature(Feature).
 
 %= 	 	 
 
-%% to_poss(KB, ?BDT, ?BDT) is semidet.
+%% to_poss(KB, ?BDT, ?BDT) is det.
 %
 % Converted To Possibility.
 %
@@ -328,7 +328,7 @@ nnf(KB,FmlNV,NNF):-
 
 %= 	 	 
 
-%% nnf0( ?KB, ?Fml, ?NNF) is semidet.
+%% nnf0( ?KB, ?Fml, ?NNF) is det.
 %
 % Negated Normal Form Primary Helper.
 %
@@ -341,7 +341,7 @@ nnf0(KB,Fml,NNF):-
 
 %= 	 	 
 
-%% is_skolem_setting( ?S) is semidet.
+%% is_skolem_setting( ?S) is det.
 %
 % If Is A Skolem Setting.
 %
@@ -363,7 +363,7 @@ is_skolem_setting(S):- t_l:skolem_setting(SS)->S=SS;is_skolem_setting_default(S)
 
 %= 	 	 
 
-%% nnf_dnf( ?KB, ?Fml, ?DNF) is semidet.
+%% nnf_dnf( ?KB, ?Fml, ?DNF) is det.
 %
 % Negated Normal Form Disjunctive Normal Form.
 %
@@ -377,7 +377,7 @@ nnf_dnf(KB,Fml,DNF):-
 
 %= 	 	 
 
-%% get_quantifier_isa( ?VALUE1, ?VALUE2, ?VALUE3) is semidet.
+%% get_quantifier_isa( ?VALUE1, ?VALUE2, ?VALUE3) is det.
 %
 % get quantifier  (isa/2).
 %
@@ -386,7 +386,7 @@ get_quantifier_isa([X,Col],X,Col):-nonvar(Col).
 
 
 
-%% logically_matches( ?KB, ?A, ?B) is semidet.
+%% logically_matches( ?KB, ?A, ?B) is det.
 %
 % Logically Matches.
 %
@@ -412,6 +412,9 @@ is_leave_alone_pfa(_,mudEquals,2).
 :- discontiguous(nnf1/5).
 :- discontiguous(axiom_lhs_to_rhs/3).
 
+discovered_var(_Fml,_Slots).
+discovered_term_slots(_Fml,_Slots).
+
 % =================================
 % ====== drive negation inward ===
 % =================================
@@ -430,28 +433,20 @@ nnf(KB,Lit,FreeV,LitO,N):-
 % for tracing
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
-% NonVar used in OUTPUT
+% NonVar used in OUTPUT VAR
 nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
-
+nnf1(KB,Lit,FreeV,LitO,N):-var(FreeV),!,trace_or_throw(bad_nnf(KB,Lit,FreeV,LitO,N)).
 
 % Sentence was a Variable
-%nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,trace_or_throw(bad_numbervars(Lit)),ignore(FreeV=[Lit]).
-% % nnf1(KB,Lit,FreeV,Pos,Paths):- is_ftVar(Lit),!,nnf(KB,true_t(Lit),FreeV,Pos,Paths).
-% % nnf1(_KB,true_t(Lit),_FreeV,true_t(Lit),1):- is_ftVar(Lit),!.
-nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
-nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
-% % nnf1(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf1(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
+nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!,push_dom(Lit,ftSentence),discovered_var(Lit,FreeV).
+nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,push_dom(Lit,ftSentence),discovered_var(Lit,FreeV).
 
 % Skipped Args
-nnf1(_KB,Lit,[],Lit,1):- is_list(Lit),!.
-nnf1(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
-nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
-
-
-% nnf1(_KB,Fml,_,Fml,1):- leave_as_is_logically(Fml), !. 
+nnf1(_KB,Lit,FreeV,Lit,1):- is_list(Lit),!,discovered_term_slots(Lit,FreeV).
+nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,discovered_term_slots(Lit,FreeV).
 
 % Catch and REwrite Temporal/Modals missed by preprocessor
-nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F), Fin \=@= F,!,nnf(KB,F,FreeV,NNF,Paths).
+nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F)-> Fin \=@= F,!,nnf(KB,F,FreeV,NNF,Paths).
 
 /*
 nnf1(KB,'tColOfCollectionSubsetFn'(Col,'tSetOfTheSetOfFn'(Var,Formulas)),FreeV,Var,2):- is_ftVar(Var), \+ is_ftVar(Col),
@@ -464,11 +459,21 @@ nnf1(KB,'tColOfCollectionSubsetFn'(Col,'tSetOfTheSetOfFn'(Var,Formulas)),FreeV,V
 % Necessity, Always
 % =================================
 
-nnf1(KB,Fin,FreeV,BOX,Paths):- corrected_modal(KB,Fin,nesc(BDT,F)),
+nnf1(KB,nesc(BDT,F),FreeV,BOX,Paths):- 
    nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX).
 
 
-%% axiom_lhs_to_rhs( ?KB, :LHS, :RHS) is semidet.
+% =================================
+% Possibly, Eventually / Beliefs / Knowns
+% =================================
+
+nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
+      (Fml = (beliefs(BDT,~F)) -> Fml1 = knows(BDT, ( F));
+       Fml = (knows(BDT,~F)) -> Fml1 = beliefs(BDT, ( F))
+	),!,
+       nnf(KB,Fml1,FreeV,NNF,Paths).
+
+%% axiom_lhs_to_rhs( ?KB, :LHS, :RHS) is det.
 %
 % Axiom Left-hand-side Converted To Right-hand-side.
 %
@@ -479,15 +484,13 @@ axiom_lhs_to_rhs(_KB, all(Vs,poss(BDT,A & B)) ,  ~exists(Vs,nesc(BDT,A & B))).
 % disabled
 nnf1(KB,Fin,FreeV,DIA,Paths):-  fail,  copy_term(Fin,Fml),axiom_lhs_to_rhs(KB,F1,F2) , 
  \+ \+ (numbervars(Fin,0,_,[attvar(bind)]),logically_matches(KB,Fin,F1)),
-  show_success(nnf,(nop(Fml),logically_matches(KB,Fin,F1))),show_call(why,nnf1(KB,F2,FreeV,DIA,Paths)).
-
-% =================================
-% Possibly, Eventually / Beliefs / Knowns
-% =================================
+  show_success(nnf,(nop(Fml),logically_matches(KB,Fin,F1))),show_call(why,nnf(KB,F2,FreeV,DIA,Paths)).
 
 %   poss(beliefs(A,~F1)) ->  poss(~knows(A,F1)) ->  ~nesc(knows(A,F1))
-nnf1(KB,Fin,FreeV,CIR,Paths):- corrected_modal(KB,Fin,cir(CT,F)),
-      nnf(KB,F,FreeV,NNF,Paths), cirRule(KB,cir(CT,NNF), CIR),!.
+
+nnf1(KB,cir(CT,F),FreeV,CIR,Paths):-
+      nnf(KB,F,FreeV,NNF,Paths), 
+      cirRule(KB,cir(CT,NNF), CIR),!.
 
 % % axiom_lhs_to_rhs(KB,poss(- (- LIT)),poss(LIT)):-set_is_lit(LIT).
 :- style_check(+singleton).
@@ -504,12 +507,25 @@ nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
             nnf(KB,all(X,NNF),FreeV,FmlO,Paths);
             nnf(KB,all(X,all(MORE,NNF)),FreeV,FmlO,Paths)))).
 
+
+% =================================
+% Typed (Exactly 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
+% =================================
+
+nnf1(KB,exactly(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      nnf(KB,exactly(N,X,isa(X,Col)=>NNF),FreeV,FmlO,Paths);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            nnf(KB,exactly(N,X,NNF),FreeV,FmlO,Paths);
+            nnf(KB,exactly(N,X,exactly(N,MORE,NNF)),FreeV,FmlO,Paths)))).
+
 % =================================
 % Typed (Exists ((?x Man)(?y Woman)) ... )
 % =================================
 
 nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- nonvar(TypedX),get_quantifier_isa(TypedX,X,Col),!,
-    nnf(KB,exists(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths).
+    nnf(KB,exists(X,isa(X,Col) & NNF),FreeV,FmlO,Paths).
 nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X],!,
     nnf(KB,exists(X,NNF),FreeV,FmlO,Paths).
 nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
@@ -530,7 +546,20 @@ nnf1(KB,all(X,NNF),FreeV, NNF2, Paths):- is_using_feature(quants_removed_in_NNF)
 % =================================
 % Existential Skolem Setting (only one of the next two clauses are used)  ========
 % =================================
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!, trace_or_throw(bad_nnf(KB,exists(X,Fml),FreeV,NNF,Paths)).
+% maybe this instead ? nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
+
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+   nnf(KB,Fml,FreeV,NNF1,_Paths),
+   term_slots(Fml+FreeV+NNF1,Slots),
+    delete_eq(Slots,X,SlotsV1),
+    delete_eq(SlotsV1,KB,SlotsV2),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    
+%    nnf(KB,(skolem(X,SkF) => NNF1),[X|Slots],NNF,Paths), % push_skolem(X,SkF),
+   subst(NNF1,X,SkF,SkFml),nnf(KB, SkFml ,[X|Slots],NNF,Paths),
+          !)),!.
 
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
@@ -562,16 +591,16 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf),!,
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(push_skolem),!, wdmsg(nnf1(skolemizing(push_skolem,exists(X,Fml)))),
    push_skolem(X,true),
-   must(nnf1(KB,Fml,FreeV,NNF,Paths)).
+   nnf(KB,Fml,FreeV,NNF,Paths).
 
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(old_mk_skolem),!, wdmsg(nnf1(skolemizing(exists(X,Fml),with(FreeV)))),
    must(mk_skolem(KB,Fml,X,FreeV,FmlSk)),
-   must(nnf1(KB,FmlSk,FreeV,NNF,Paths)).
+   nnf(KB,FmlSk,FreeV,NNF,Paths).
 
 % exists(X,nesc(f(X)))  ->  exists(X, ~( poss( ~( f(X))))) ->   ~( poss( ~( f(X))))
 % disabled
-nnf1(KB,exists(_X,Fml),FreeV,NNF,Paths):- fail, nnf1(KB, ~( poss(b_d(KB,nesc,poss), ~( Fml))),FreeV,NNF,Paths).
+nnf1(KB,exists(_X,Fml),FreeV,NNF,Paths):- fail, nnf(KB, ~( poss(b_d(KB,nesc,poss), ~( Fml))),FreeV,NNF,Paths).
 
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(label),
@@ -623,7 +652,7 @@ nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- is_using_feature(list_macros),!,
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 % AtLeast N:  Non list macro PFCLog version (Might prefer this?)
-nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- is_using_feature(inline_prolog),!,
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- % is_using_feature(inline_prolog),!,
     X= Skolem,
     NEWFORM =  
        ({between(1,N,Id)} => equals(Skolem, skolemIDAndFormFN(Id,Fml))),
@@ -660,6 +689,12 @@ nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
   nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 
+% Exactly N: "There exists 1 more than the exact 1 smaller group"
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- number(X), N>1, NewN is N - 1, !,
+    subst_except(Fml,X,Y,FmlY),      
+    NEWFORM = exists(Y, (FmlY & (different(X,Y) =>  exactly(NewN,X,Fml)))),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
 % Exactly N: states "There is AtMost N /\ AtLeast N"
 nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):-            !,
    NEWFORM = (atleast(N,X,Fml) & atmost(N,X,Fml)),
@@ -671,12 +706,7 @@ nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
      NEWFORM = (exists(X,Fml) & exists(Y,FmlY))=>equals(X,Y),
     nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
-% Exactly N: "There exists 1 more than the exact 1 smaller group"
-nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):-  !,
-    subst_except(Fml,X,Y,FmlY),
-    NewN is N - 1,    
-    NEWFORM = exists(Y, (FmlY & (different(X,Y) =>  exactly(NewN,X,Fml)))),
-    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
 
 % =================================
 % ==== basic macros ========
@@ -742,7 +772,18 @@ nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  nnf(KB,temporallySubsumes(TI
 nnf1(KB,temporallySubsumes(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
  nnf(KB,(until(CT,TRUTH,~TIMESPAN)&until(CT,~TRUTH,TIMESPAN)),FreeV,NNF,Paths).
 
+% =================================
+% Equality
+% =================================
 
+nnf1(KB, ~( different(X , Y)),FreeV,NNF,Paths):- !, nnf(KB, ( equals(X , Y)),FreeV,NNF,Paths).
+nnf1(KB, ~( equals(X , Y)),FreeV,NNF,Paths):- !, nnf(KB, ( different(X , Y)),FreeV,NNF,Paths).
+
+nnf1(KB, ~( ~different(X , Y)),FreeV,NNF,Paths):- !, nnf(KB, ( ~equals(X , Y)),FreeV,NNF,Paths).
+nnf1(KB, ~( ~equals(X , Y)),FreeV,NNF,Paths):- !, nnf(KB, ( ~different(X , Y)),FreeV,NNF,Paths).
+
+%nnf1(KB,hasName(Entity,Name),FreeV,NNF,Paths):- nonvar(Entity),
+%   nnf(KB,equals(Entity,Entity0) => hasName(Entity0,Name),FreeV,NNF,Paths).
 
 % =================================
 % Back to Normal NNF-ing 
@@ -771,7 +812,8 @@ nnf1(KB,(C => (A & B)),FreeV,NNFO,PathsO):- is_using_feature(two_implications),!
 % not disabled
 nnf1(KB,(A & B),FreeV,NNF,Paths):- fail, nb_current('$nnf_outer',[_,Was|_]), \+ has_modals(Was),!,
   % is_using_feature(co_mingling),!,
-   NEWFORM = ((poss(B) => A) & (poss(A) => B)) ,
+  to_poss(KB,A,PA),to_poss(KB,B,PB),
+   NEWFORM = ((PB => A) & (PA => B)) ,
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 nnf1(KB,(A & B),FreeV,NNF,Paths):- !,
@@ -797,13 +839,7 @@ nnf1(KB,(A v B),FreeV,NNF,Paths):-
 		            NNF = (NNF1 v NNF2)).
 
 
-nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
-      (Fml = (beliefs(BDT,~F)) -> Fml1 = knows(BDT, ( F));
-       Fml = (knows(BDT,~F)) -> Fml1 = beliefs(BDT, ( F));
-       Fml = ('<=>'(A,B)) -> Fml1 = v(&(A,  ~( B)) , &( ~( A), B) )
-	),!,
-       must(nnf1(KB,Fml1,FreeV,NNF,Paths)).
-
+nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml), Fml = ~( A) ,!, nnf(KB,A,FreeV,NNF,Paths).
 nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
 
         (Fml = ( ~( A)) -> must(double_neg(KB,A,Fml1));
@@ -814,8 +850,7 @@ nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),
 	 Fml = (until(CT,A,B)) -> 
             (nnf(KB, ~( A),FreeV,NNA,_), nnf(KB, ~( B),FreeV,NNB,_),Fml1 = v(always(CT,NNB), until(CT,NNB,&(NNA,NNB))));
              
-	 Fml = (all(X,F)) -> Fml1 = exists(X, ~( F));
-	 Fml = (exists(X,F)) -> Fml1 = all(X, ~( F));
+         Fml = (exists(X,F)) -> Fml1 = all(X, ~( F));
 
 	 Fml = (atleast(N,X,F)) -> Fml1 = atmost(N,X,F);
 	 Fml = (atmost(N,X,F)) -> Fml1 = atleast(N,X,F);
@@ -826,7 +861,7 @@ nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),
 	 Fml = ('<=>'(A,B)) -> Fml1 = v(&(A,  ~( B)) , &( ~( A), B) )
 	),!,
         must((share_scopes(KB,BDT),share_scopes(KB,CT))),!,
-	must(nnf1(KB,Fml1,FreeV,NNF,Paths)).
+	nnf(KB,Fml1,FreeV,NNF,Paths).
 
 nnf1(KB,Fml,FreeV,NNF,Paths):-  
 	(Fml = '=>'(A,B) -> Fml1 = v( ~( A), B );         
@@ -877,27 +912,29 @@ nnf1(KB,Fml,FreeV,FmlO,Paths):- no_poss(Fml),
 % Logical Atoms
 % =================================
 
-nnf1(_, ~( Fml),_FreeV, ~( Fml),1):- is_ftVar(Fml),!,push_dom(Fml,ftSentence).
-
 nnf1(_KB,mudEquals(A,B),FreeV,mudEquals(A,B),1):- is_ftVar(A), !,no_freev(FreeV).
 
-nnf1(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
-
+nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml), Fml = all(X,F), nnf(KB,exists(X, ~( F)),FreeV,NNF,Paths).
 
 nnf1(KB,Fml,FreeV,FmlO,N):- 
   compound(Fml),
   \+ is_precond_like(Fml),
   arg(_,Fml,Function),
   compound(Function),
-  notrace(is_function_expr(Function)),
+  notrace(is_function_expr('=>',Function)),
   % notrace(\+ has_function(Function)),
   function_to_predicate(Function,NewVar,PredifiedFunction),!,
   subst(Fml,Function,NewVar,FmlMid),!,
   nnf(KB,all(NewVar,(PredifiedFunction => FmlMid)),FreeV,FmlO,N).
 
+nnf1(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
+
+
 % nnf(KB, IN,FreeV,OUT,Paths):- simplify_cheap(IN,MID),IN\=@=MID,nnf(KB, MID,FreeV,OUT,Paths).
 % nnf(_KB , IN,[],OUT,1):- mnf(IN,OUT),IN\=OUT,!.
+
 nnf1(KB,Fml,FreeV,FmlO,N):- must((nonegate(KB,Fml,FmlM),nnf_lit(KB,FmlM,FreeV,FmlO,N))).
+
 nnf1(_KB,Fml,_,Fml,1):-!.
 
 
@@ -934,7 +971,7 @@ nnf_args(_Sent,_F,_N,_KB,[],_FreeV,[],0):- !.
 nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-  
  nop(closure_push(FA,admittedArgument(FA,N,F))),
  % push_dom(A,argIsaFn(F,N)),
- must((nnf_arg(KB,A,_FreeV,FA,N1),sanity(number(N1)))),!,
+ must((nnf_arg(KB,A,FreeV,FA,N1),sanity(number(N1)))),!,
  % push_dom(FA,argIsaFn(F,N)),
  % annote(lit,FA,Sent),
   NPlus1 is N + 1,
@@ -948,7 +985,7 @@ nnf_arg(KB,A,FreeV,FA,N1):-  nnf(KB,A,FreeV,FA,N1).
 is_arg_leave_alone(A):- ground(A).
 is_arg_leave_alone(A):- is_lit_atom(A).
 
-%% is_lit_atom( ?IN) is semidet.
+%% is_lit_atom( ?IN) is det.
 %
 % If Is A Literal Atom.
 %
@@ -1081,6 +1118,7 @@ breakup_nnf(KB,knows(E,P),knows(E,Q)) :- nnf(KB,P,[],Q,_), !.
 breakup_nnf(_KB,X,X).
 
 
+
 /*
 mnf(Var,Var):-leave_as_is_logically(Var),!.
 mnf(Fml,Out):-boxRule(_,Fml,M),Fml\=M,mnf(M,Out).
@@ -1102,7 +1140,7 @@ mnf(Var,Var):-!.
 
 %= 	 	 
 
-%% third_order( ?VALUE1) is semidet.
+%% third_order( ?VALUE1) is det.
 %
 % Third Order.
 %
@@ -1113,7 +1151,7 @@ third_order(asserted_t).
 
 %= 	 	 
 
-%% boxRule( ?KB, ?BOX, ?BOX) is semidet.
+%% boxRule( ?KB, ?BOX, ?BOX) is det.
 %
 % Datalog Rule.
 %
@@ -1134,7 +1172,7 @@ leave_as_is_logically(LIST):- is_list(LIST),!, maplist(leave_as_is_logically,LIS
 
 %= 	 	 
 
-%% diaRule( ?KB, ?A, ?B) is semidet.
+%% diaRule( ?KB, ?A, ?B) is det.
 %
 % Dia Rule.
 %
@@ -1146,7 +1184,7 @@ diaRule(_KB,DIA, DIA).
 
 %= 	 	 
 
-%% cirRule( ?KB, ?A, ?B) is semidet.
+%% cirRule( ?KB, ?A, ?B) is det.
 %
 % Cir Rule.
 %
@@ -1160,7 +1198,7 @@ cirRule(_KB,CIR, CIR).
 
 %= 	 	 
 
-%% corrected_modal_recurse( ?VALUE1, ?Var, ?OUT) is semidet.
+%% corrected_modal_recurse( ?VALUE1, ?Var, ?OUT) is det.
 %
 % Corrected Modal Recurse.
 %
@@ -1172,7 +1210,7 @@ corrected_modal_recurse(KB, IN, OUTM):- corrected_modal_recurse0(KB, IN, M),!,
 
 %= 	 	 
 
-%% corrected_modal_recurse0( ?VALUE1, ?Var, ?OUT) is semidet.
+%% corrected_modal_recurse0( ?VALUE1, ?Var, ?OUT) is det.
 %
 % Corrected Modal Recurse Primary Helper.
 %
@@ -1186,7 +1224,7 @@ corrected_modal_recurse0(_, INOUT,  INOUT):- !.
 
 %= 	 	 
 
-%% corrected_modal( ?KB, ?IN, ?OUTM) is semidet.
+%% corrected_modal( ?KB, ?IN, ?OUTM) is det.
 %
 % Corrected Modal.
 %
@@ -1197,7 +1235,7 @@ corrected_modal(KB,IN,OUTM):-
 
 %= 	 	 
 
-%% corrected_modal0( ?VALUE1, ?Var, :TermARG3) is semidet.
+%% corrected_modal0( ?VALUE1, ?Var, :TermARG3) is det.
 %
 % Corrected Modal Primary Helper.
 %
@@ -1218,7 +1256,7 @@ corrected_modal0(KB,CF,until(ct(KB,CT),A,B)):- CF=..[CT,KB,A,B],until_op(CT).
 
 %= 	 	 
 
-%% share_scopes( ?KB, ?BDT) is semidet.
+%% share_scopes( ?KB, ?BDT) is det.
 %
 % Share Scopes.
 %
@@ -1237,7 +1275,7 @@ share_scopes(KB,Neg,CT,BDT):- ignore(Neg=ct(KB,SymNeg)),ignore(BDT=bt(KB,SymNesc
 
 %= 	 	 
 
-%% until_op( ?VALUE1) is semidet.
+%% until_op( ?VALUE1) is det.
 %
 % Until Oper..
 %
@@ -1246,7 +1284,7 @@ until_op(until).
 
 %= 	 	 
 
-%% ct_op( ?VALUE1) is semidet.
+%% ct_op( ?VALUE1) is det.
 %
 % Ct Oper..
 %
@@ -1260,7 +1298,7 @@ ct_op(nextly).
 
 %= 	 	 
 
-%% neg_op( ?VALUE1) is semidet.
+%% neg_op( ?VALUE1) is det.
 %
 % Negated Oper..
 %
@@ -1273,7 +1311,7 @@ neg_op('\\+').
 
 %= 	 	 
 
-%% b_d_p( ?VALUE1, ?VALUE2) is semidet.
+%% b_d_p( ?VALUE1, ?VALUE2) is det.
 %
 % Backtackable (debug) Pred.
 %
@@ -1292,7 +1330,7 @@ b_d_p_1(sometimes,always).
 
 %= 	 	 
 
-%% cnf( ?KB, ?A, ?B) is semidet.
+%% cnf( ?KB, ?A, ?B) is det.
 %
 % Confunctive Normal Form.
 %
@@ -1305,7 +1343,7 @@ cnf(_KB,CNF,       CNF).
 
 %= 	 	 
 
-%% cnf1( ?KB, ?AS_IS, ?AS_IS) is semidet.
+%% cnf1( ?KB, ?AS_IS, ?AS_IS) is det.
 %
 % Confunctive Normal Form Secondary Helper.
 %
@@ -1317,7 +1355,7 @@ cnf1(_KB, CNF,                 CNF).
 
 %= 	 	 
 
-%% nonvar_unify( ?NONVAR, ?UNIFY) is semidet.
+%% nonvar_unify( ?NONVAR, ?UNIFY) is det.
 %
 % Nonvar Unify.
 %
@@ -1330,7 +1368,7 @@ nonvar_unify(NONVAR,UNIFY):- \+ leave_as_is_logically(NONVAR),  NONVAR=UNIFY.
 
 %= 	 	 
 
-%% dnf( ?KB, ?A, ?B) is semidet.
+%% dnf( ?KB, ?A, ?B) is det.
 %
 % Disjunctive Normal Form.
 %
@@ -1343,7 +1381,7 @@ dnf(_KB,DNF,       DNF).
 
 %= 	 	 
 
-%% dnf1( ?KB, ?DNF, ?DNF) is semidet.
+%% dnf1( ?KB, ?DNF, ?DNF) is det.
 %
 % Disjunctive Normal Form Secondary Helper.
 %
@@ -1355,7 +1393,7 @@ dnf1(_KB,DNF,                  DNF ).
 
 %= 	 	 
 
-%% simplify_cheap( :TermIN, ?IN) is semidet.
+%% simplify_cheap( :TermIN, ?IN) is det.
 %
 % Simplify Cheap.
 %
@@ -1375,7 +1413,7 @@ simplify_cheap( ~( poss(_,  ~(  F))), F):-nonvar(F),!.
 
 %= 	 	 
 
-%% simplify_cheap_must( ?IN, ?IN) is semidet.
+%% simplify_cheap_must( ?IN, ?IN) is det.
 %
 % Simplify Cheap Must Be Successfull.
 %
@@ -1394,7 +1432,7 @@ simplify_cheap_must(IN,IN).
 
 %= 	 	 
 
-%% pnf( ?KB, ?F, ?PNF) is semidet.
+%% pnf( ?KB, ?F, ?PNF) is det.
 %
 % Pnf.
 %
@@ -1405,7 +1443,7 @@ pnf(KB, F,PNF):- pnf(KB,F,[],PNF),!.
 
 %= 	 	 
 
-%% pnf( ?A, ?B, ?C, ?D) is semidet.
+%% pnf( ?A, ?B, ?C, ?D) is det.
 %
 % Pnf.
 %
@@ -1471,12 +1509,12 @@ pnf(_KB,          PNF, _,       PNF ).
 % cf(Why,KB,A,B,C):- convertAndCall(as_dlog,cf(Why,KB,A,B,C)).
 
 
-%% cf( ?Why, ?KB, ?Original, ?PNF, ?CLAUSESET) is semidet.
+%% cf( ?Why, ?KB, ?Original, ?PNF, ?CLAUSESET) is det.
 %
 % Convert to Clausal Form
 %
 
-cf(Why,KB,_Original,PNF, FlattenedO):- 
+cf(Why,KB,_Original,PNF, FlattenedOUT):- 
  must_det_l((
   check_kif_varnames(PNF),
   removeQ(KB,PNF,[], UnQ),
@@ -1491,10 +1529,8 @@ cf(Why,KB,_Original,PNF, FlattenedO):-
   cf_to_flattened_clauses(KB,Why,SET,Flattened),
   list_to_set(Flattened,FlattenedM),!,
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
-  demodal_clauses(KB,FlattenedOOO,FlattenedO2),
-  demodal_clauses(KB,FlattenedO2,FlattenedO3),
-  demodal_clauses(KB,FlattenedO3,FlattenedO4),
-  remove_unused_clauses(FlattenedO4,FlattenedO),
+  demodal_clauses3(KB,FlattenedOOO,FlattenedO),  
+  maplist(defunctionalize,FlattenedO,FlattenedOUT),
   nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
   maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),
   pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
@@ -1510,7 +1546,7 @@ check_kif_varnames(_KIF):-!.
 
 %= 	 	 
 
-%% clean_repeats_d( ?PTTP, ?PTTP) is semidet.
+%% clean_repeats_d( ?PTTP, ?PTTP) is det.
 %
 % Clean Repeats (debug).
 %
@@ -1522,7 +1558,7 @@ clean_repeats_d(PTTP,PTTP).
 
 %= 	 	 
 
-%% invert_modal(+KB, +A, -B) is semidet.
+%% invert_modal(+KB, +A, -B) is det.
 %
 % Invert Modal.
 %
@@ -1545,7 +1581,7 @@ double_neg(_,IO,IO):-!.
 
 %= 	 	 
 
-%% removeQ( ?KB, ?F, ?HH) is semidet.
+%% removeQ( ?KB, ?F, ?HH) is det.
 %
 % Remove Q.
 %
@@ -1556,7 +1592,7 @@ removeQ(KB, F,  HH):- removeQ(KB, F, _, RQ0),!,RQ0=HH.
 
 %= 	 	 
 
-%% removeQ_LC( ?KB, ?MID, ?FreeV, ?OUT) is semidet.
+%% removeQ_LC( ?KB, ?MID, ?FreeV, ?OUT) is det.
 %
 % Remove Q Lc.
 %
@@ -1565,7 +1601,7 @@ removeQ_LC(KB, MID,FreeV,OUT):-loop_check(removeQ(KB, MID,FreeV,OUT)).
 
 %= 	 	 
 
-%% removeQ( ?VALUE1, :TermVar, ?VALUE3, :TermVar) is semidet.
+%% removeQ( ?VALUE1, :TermVar, ?VALUE3, :TermVar) is det.
 %
 % Remove Q.
 %
@@ -1614,7 +1650,7 @@ removeQ(KB, F,Vars,OUT ):- nnf(KB,F,Vars,F0,_),(F0 =@=F -> F0=OUT; removeQ(KB, F
 
 %= 	 	 
 
-%% nowrap_one( ?Wrap, ?MORE, ?OUT) is semidet.
+%% nowrap_one( ?Wrap, ?MORE, ?OUT) is det.
 %
 % Nowrap One.
 %
@@ -1624,7 +1660,7 @@ nowrap_one(Wrap,MORE,OUT):- OUT=..[Wrap,MORE].
 
 %= 	 	 
 
-%% display_form( ?KB, ?Form) is semidet.
+%% display_form( ?KB, ?Form) is det.
 %
 % Display Form.
 %
@@ -1633,7 +1669,7 @@ display_form(KB,Form):- demodal_sents(KB,Form,OutM),local_pterm_to_sterm(OutM,Ou
 
 %= 	 	 
 
-%% demodal_sents( ?KB, ?I, ?O) is semidet.
+%% demodal_sents( ?KB, ?I, ?O) is det.
 %
 % Demodal Sentences.
 %
@@ -1642,7 +1678,7 @@ demodal_sents(KB,I,O):- must(demodal(KB,I,M)),must(modal2sent(M,O)).
 
 %= 	 	 
 
-%% demodal( ?KB, :TermIn, ?Prolog) is semidet.
+%% demodal( ?KB, :TermIn, ?Prolog) is det.
 %
 % Demodal.
 %
@@ -1666,7 +1702,7 @@ demodal(KB,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal(KB),ARGS,ARGSO),!,HH=..[
 
 %= 	 	 
 
-%% is_sent_op_modality( ?VALUE1) is semidet.
+%% is_sent_op_modality( ?VALUE1) is det.
 %
 % If Is A Sentence Oper. Modality.
 %
@@ -1678,7 +1714,7 @@ has_modals(P):- notrace((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,
 
 %= 	 	 
 
-%% atom_compat( ?F, ?HF, ?HHF) is semidet.
+%% atom_compat( ?F, ?HF, ?HHF) is det.
 %
 % Atom Compat.
 %
@@ -1692,6 +1728,12 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
 
 unused_clause(unused(C):-_):-nonvar(C),!.
 % unused_clause(naf(C):- ~ _):-nonvar(C),!.
+
+demodal_clauses3(KB,FlattenedOOO,FlattenedO):-
+        demodal_clauses(KB,FlattenedOOO,FlattenedO2),
+        demodal_clauses(KB,FlattenedO2,FlattenedO3),
+        demodal_clauses(KB,FlattenedO3,FlattenedO4),
+      remove_unused_clauses(FlattenedO4,FlattenedO).
 
 demodal_clauses(_KB,Var, Var):- var_or_atomic(Var),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
@@ -1708,24 +1750,23 @@ demodal_body(_KB,_Head,naf(~skolem(A,B)),skolem(A,B)):- nonvar(B),!.
 
 %demodal_body(_KB, ~ _Head,(G1,G2), (G1 , \+ GG2)):- G2 \= (_,_), G2 = ~(GG2).
 %demodal_body(_KB,_Head,(G1,G2), (G1, poss(GG2) )):- G2 \= (_,_), G2 = ~(GG2), nonvar(GG2).
-demodal_body(_KB,_Head,poss([infer_by(_)],G), \+ ~ G):- G \= ~ _.
-% demodal_body(_KB,_Head, poss(G), \+ ~ G).
-demodal_body(_KB,_Head,nesc([infer_by(_)],G),G):- G \= ~ _.
+demodal_body(_KB,_Head,poss([infer_by(_)],G), poss(G)).
+demodal_body(_KB,_Head,nesc([infer_by(_)],G), G).
 demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
-demodal_body(_KB,_Head, poss(isa(I,C)), isa(I,C)):- !.
+% demodal_body(_KB,_Head, poss(isa(I,C)), isa(I,C)):- !.
 
 demodal_body(_KB,_Head, naf(~ G), poss(G)):- nonvar(G),!.
 demodal_body(_KB,_Head, ~ (~ G), proven(G)):- nonvar(G),!.
+demodal_body(KB,Head, v(~A, B), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
+%demodal_body(KB,Head, v(~B, A), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
+demodal_body(KB,Head, v(~A, B), (AA *-> BB)):- nonvar(A),!,demodal_body(KB,Head,A,AA),demodal_body(KB,Head,B,BB).
 demodal_body(_KB,_Head, \+ (~ G), proven(G)):- nonvar(G),!.
 demodal_body(_KB,_Head, \+ (~ G), poss(G)):- nonvar(G),!.
-% demodal_body(_KB,~ _Head,skolem(_,B),true):- nonvar(B),!.
-% demodal_body(_KB,~ _Head,(~ ISA , \+ G),\+ ( G,ISA )):- nonvar(G),!.
-% demodal_body(_KB,~ _Head,(G , \+ ISA),\+ ( G,ISA )):- nonvar(G),!.
-% demodal_body(_KB,  _Head, \+ ~ (~G), ~G):- nonvar(G),!.
-demodal_body(_KB, Head, ( H, poss(G) ) , (H, G)):- pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
-demodal_body(_KB, Head, ( poss(G) , H) , (G, H)):-  pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
-demodal_body(_KB, Head, ( poss(G) ) , (G)):-  shared_vars(Head,G,SVG),SVG=[].
-demodal_body(_KB, Head, ( poss(G) ) , (G)):- Head \= ~ _,!.
+
+%demodal_body(_KB, Head, ( H, poss(G) ) , (H, G)):- pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
+%demodal_body(_KB, Head, ( poss(G) , H) , (G, H)):-  pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
+%demodal_body(_KB, Head, ( poss(G) ) , (G)):-  shared_vars(Head,G,SVG),SVG=[].
+%demodal_body(_KB, Head, ( poss(G) ) , (G)):- Head \= ~ _,!.
 
 demodal_body(KB,Head,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal_body(KB,Head),ARGS,ARGSO),!,HH=..[F|ARGSO].
 
@@ -1760,7 +1801,7 @@ demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 
 %= 	 	 
 
-%% modal2sent( :TermVar, :TermVar) is semidet.
+%% modal2sent( :TermVar, :TermVar) is det.
 %
 % Modal2sent.
 %
@@ -1780,7 +1821,7 @@ var_or_atomic(Var):- atomic(Var),!.
 
 %= 	 	 
 
-%% clausify( ?KB, ?P, ?C, ?C) is semidet.
+%% clausify( ?KB, ?P, ?C, ?C) is det.
 %
 % Clausify.
 %
@@ -1796,7 +1837,7 @@ clausify(_KB, _, C, C ).
 
 %= 	 	 
 
-%% inclause( ?KB, ?P, ?A1, ?A, ?B, ?B) is semidet.
+%% inclause( ?KB, ?P, ?A1, ?A, ?B, ?B) is det.
 %
 % Inclause.
 %
@@ -1817,7 +1858,7 @@ inclause(_KB, P,  A1, A, B,  B ):-
 
 %= 	 	 
 
-%% notin( ?X, ?Y) is semidet.
+%% notin( ?X, ?Y) is det.
 %
 % Notin.
 %
@@ -1828,7 +1869,7 @@ notin(_,[]).
 
 %= 	 	 
 
-%% putin( ?X, :TermARG2, :TermX) is semidet.
+%% putin( ?X, :TermARG2, :TermX) is det.
 %
 % Putin.
 %
@@ -1839,7 +1880,7 @@ putin(X,[Y|L],[Y|L1]):- putin(X,L,L1).
 
 %= 	 	 
 
-%% simplify_atom( ?H, ?SH) is semidet.
+%% simplify_atom( ?H, ?SH) is det.
 %
 % Simplify Atom.
 %
@@ -1849,12 +1890,12 @@ simplify_atom(H,H).
 
 %= 	 	 
 
-%% to_regular_cl( ?KB, ?H1, ?Has, ?H1) is semidet.
+%% to_regular_cl( ?KB, ?H1, ?Has, ?H1) is det.
 %
 % Converted To Regular Clause.
 %
-to_regular_cl(KB,[(H1 & H2)],[Has],[cl([H1],H1P),cl([H2],H2P)]):- cnf(KB,Has,HasC),  append([HasC],[poss,H2],H1P), append([HasC],[poss,H1],H2P),!.
-to_regular_cl(_KB,[(H1 & H2)],Has,[cl([H1],H1P),cl([H2],H2P)]):-  append(Has,[poss,H2],H1P), append(Has,[poss,H1],H2P),!.
+to_regular_cl(KB,[(H1 & H2)],[Has],[cl([H1],H1P),cl([H2],H2P)]):- cnf(KB,Has,HasC),  append([HasC],[poss(H2)],H1P), append([HasC],[poss(H1)],H2P),!.
+to_regular_cl(_KB,[(H1 & H2)],Has,[cl([H1],H1P),cl([H2],H2P)]):-  append(Has,[poss(H2)],H1P), append(Has,[poss(H1)],H2P),!.
 to_regular_cl(_KB,[H],[],[cl([SH],[])]):-is_lit_atom(H),simplify_atom(H,SH).
 to_regular_cl(_KB,HL,BL,[cl(HL,BL)]).
 
@@ -1862,7 +1903,7 @@ to_regular_cl(_KB,HL,BL,[cl(HL,BL)]).
 
 %= 	 	 
 
-%% expand_cl( ?KB, :TermARG2, ?VALUE3) is semidet.
+%% expand_cl( ?KB, :TermARG2, ?VALUE3) is det.
 %
 % Expand Clause.
 %
@@ -1875,7 +1916,7 @@ expand_cl(KB,[cl(H,B)|O],OOut):-
 
 %= 	 	 
 
-%% make_clause_set( ?Extras, :TermARG2, ?VALUE3) is semidet.
+%% make_clause_set( ?Extras, :TermARG2, ?VALUE3) is det.
 %
 % Make Clause Set.
 %
@@ -1889,7 +1930,7 @@ make_clause_set(Extras,[CJ|Conj],CLAUSES):-
 
 %= 	 	 
 
-%% make_clauses( ?Extras, ?CJ, ?OOut) is semidet.
+%% make_clauses( ?Extras, ?CJ, ?OOut) is det.
 %
 % Make Clauses.
 %
@@ -1898,7 +1939,7 @@ make_clauses(Extras,CJ,OOut):- disjuncts_to_list(CJ,Conj),make_clause_from_set(E
 
 %= 	 	 
 
-%% negate_one_maybe( ?Extras, ?One, ?Neg) is semidet.
+%% negate_one_maybe( ?Extras, ?One, ?Neg) is det.
 %
 % Negate One Maybe.
 %
@@ -1907,7 +1948,7 @@ negate_one_maybe(Extras,One,Neg):-negate_one(Extras,One,Neg).
 
 %= 	 	 
 
-%% make_clause_from_set( ?Extras, ?Conj, ?Out) is semidet.
+%% make_clause_from_set( ?Extras, ?Conj, ?Out) is det.
 %
 % Make Clause Converted From Set.
 %
@@ -1916,7 +1957,7 @@ make_clause_from_set(Extras,Conj,Out):- findall(E,make_each(Extras,Conj,E),Out).
 
 %= 	 	 
 
-%% make_each( ?Extras, ?Conj, ?E) is semidet.
+%% make_each( ?Extras, ?Conj, ?E) is det.
 %
 % Make Each.
 %
@@ -1925,7 +1966,7 @@ make_each(Extras,Conj,E):- member(One,Conj), make_1_cl(Extras,One,Conj,E).
 
 %= 	 	 
 
-%% make_1_cl( ?Extras, ?One, ?Conj, :TermOne) is semidet.
+%% make_1_cl( ?Extras, ?One, ?Conj, :TermOne) is det.
 %
 % make  Secondary Helper Clause.
 %
@@ -1940,7 +1981,7 @@ make_1_cl(Extras,One,Conj,cl([One],NewBodyListO)):-
 
 %= 	 	 
 
-%% flattenConjs( ?Extras, ?I, ?O) is semidet.
+%% flattenConjs( ?Extras, ?I, ?O) is det.
 %
 % Flatten Conjs.
 %
@@ -1953,7 +1994,7 @@ flattenConjs(_Extras,I,O):- conjuncts_to_list(I,M),must_maplist(conjuncts_to_lis
 
 %= 	 	 
 
-%% logical_neg( ?KB, ?Wff, ?WffO) is semidet.
+%% logical_neg( ?KB, ?Wff, ?WffO) is det.
 %
 % Logical Negated.
 %
@@ -1962,7 +2003,7 @@ logical_neg(KB,Wff,WffO):-
 
 %= 	 	 
 
-%% logical_pos( ?KB, ?Wff, ?WffO) is semidet.
+%% logical_pos( ?KB, ?Wff, ?WffO) is det.
 %
 % Logical Pos.
 %
@@ -1973,7 +2014,7 @@ logical_pos(KB,Wff,WffO):-
 
 %= 	 	 
 
-%% negate_one( ?KB, ?Wff, ?WffO) is semidet.
+%% negate_one( ?KB, ?Wff, ?WffO) is det.
 %
 % Negate One.
 %
@@ -1983,7 +2024,7 @@ negate_one(KB,Wff,WffO):- logical_neg(KB,Wff,WffO).
 
 %= 	 	 
 
-%% negate( ?KB, ?X, ?Z) is semidet.
+%% negate( ?KB, ?X, ?Z) is det.
 %
 % Negate.
 %
@@ -1991,7 +2032,7 @@ negate(KB,X,Z):- must(defunctionalize(X,Y)), must_det(negate0(KB,Y,Z)).
 
 %= 	 	 
 
-%% negate0( ?VALUE1, ?X, ?X) is semidet.
+%% negate0( ?VALUE1, ?X, ?X) is det.
 %
 % Negate Primary Helper.
 %
@@ -2003,7 +2044,7 @@ negate0(_,X, ~( X)).
 
 %= 	 	 
 
-%% mpred_quf( ?In, ?Out) is semidet.
+%% mpred_quf( ?In, ?Out) is det.
 %
 % Managed Predicate Quf.
 %
@@ -2012,7 +2053,7 @@ mpred_quf(In,Out):- transitive(mpred_quf_0,In,Out).
 
 %= 	 	 
 
-%% mpred_quf_0( ?InOut, ?InOut) is semidet.
+%% mpred_quf_0( ?InOut, ?InOut) is det.
 %
 % Managed Predicate quf  Primary Helper.
 %
@@ -2024,7 +2065,7 @@ mpred_quf_0(In,In).
 
 %= 	 	 
 
-%% nonegate( ?KB, ?IO, ?IO) is semidet.
+%% nonegate( ?KB, ?IO, ?IO) is det.
 %
 % Nonegate.
 %
@@ -2036,7 +2077,7 @@ nonegate(KB,Fml,OutZ):- must((unbuiltin_negate(KB,Fml,Out),!,defunctionalize(Out
 
 %= 	 	 
 
-%% unbuiltin_negate( ?Neg, ?VALUE2, ?Fml, ?Fml) is semidet.
+%% unbuiltin_negate( ?Neg, ?VALUE2, ?Fml, ?Fml) is det.
 %
 % Unbuiltin Negate.
 %
@@ -2045,7 +2086,7 @@ unbuiltin_negate(_Neg,_, Fml,Out):- get_functor(Fml,F,A),find_and_call(pttp_buil
 
 %= 	 	 
 
-%% unbuiltin_negate( ?KB, ?Fml, ?Out) is semidet.
+%% unbuiltin_negate( ?KB, ?Fml, ?Out) is det.
 %
 % Unbuiltin Negate.
 %
@@ -2060,7 +2101,7 @@ unbuiltin_negate(_KB,Fml,Out):- once(negate(KB,Fml,Neg)),negate(KB,Neg,Out),!.
 
 %= 	 	 
 
-%% nnf_label( ?KB, :TermX, ?FreeV, ?NNF, ?Paths) is semidet.
+%% nnf_label( ?KB, :TermX, ?FreeV, ?NNF, ?Paths) is det.
 %
 % Negated Normal Form Label.
 %
@@ -2079,7 +2120,7 @@ nnf_label(KB,exists(X,Fml),FreeV,NNF,Paths):-
 
 %= 	 	 
 
-%% nnf_shared( ?KB, :TermX, ?FreeV, ?NNF, ?Paths) is semidet.
+%% nnf_shared( ?KB, :TermX, ?FreeV, ?NNF, ?Paths) is det.
 %
 % Negated Normal Form Shared.
 %
@@ -2103,7 +2144,7 @@ nnf_shared(KB,exists(X,Fml),FreeV,NNF,Paths):-
 
 %= 	 	 
 
-%% skolem_bad( ?Fml, ?X, ?FreeV, ?FmlSk) is semidet.
+%% skolem_bad( ?Fml, ?X, ?FreeV, ?FmlSk) is det.
 %
 % Skolem Bad.
 %
@@ -2122,7 +2163,7 @@ skolem_bad(Fml,X,FreeV,FmlSk):-
 
 %= 	 	 
 
-%% mk_skolem( ?KB, ?F, ?X, ?FreeV, ?Out) is semidet.
+%% mk_skolem( ?KB, ?F, ?X, ?FreeV, ?Out) is det.
 %
 % Make Skolem.
 %
@@ -2140,7 +2181,7 @@ mk_skolem(KB, F, X, FreeV, FmlSk):-
 
   	 
 
-%% skolem_f( ?KB, ?F, ?X, ?FreeVIn, ?Sk) is semidet.
+%% skolem_f( ?KB, ?F, ?X, ?FreeVIn, ?Sk) is det.
 %
 % Skolem Function.
 %
@@ -2152,7 +2193,7 @@ skolem_f(KB, F, X, FreeVIn, SkF):-
 	contains_var_lits(F,X,LitsList),
         mk_skolem_name(KB,X,LitsList,'',SK),
         atom_concat(SK,'_',SKU),
-        gensym(SKU,SKN),
+        =(SKU,SKN), % gensym(SKU,SKN),        
         concat_atom(['sk',SKN,'Fn'],Fun),
 	SkF =..[Fun|FreeVSet])),
        % @TODO  maybye use sk again
@@ -2161,7 +2202,7 @@ skolem_f(KB, F, X, FreeVIn, SkF):-
 
 %= 	 	 
 
-%% skolem_fn( ?KB, ?F, ?X, ?FreeVIn, ?Fun, ?FreeVSet) is semidet.
+%% skolem_fn( ?KB, ?F, ?X, ?FreeVIn, ?Fun, ?FreeVSet) is det.
 %
 % Skolem Function.
 %
@@ -2177,7 +2218,7 @@ skolem_fn(KB, F, X, FreeVIn,Fun, FreeVSet):- % dtrace,
 
 %= 	 	 
 
-%% skolem_fn_shared( ?KB, ?F, ?X, ?FreeVIn, ?Fun, ?Slots) is semidet.
+%% skolem_fn_shared( ?KB, ?F, ?X, ?FreeVIn, ?Fun, ?Slots) is det.
 %
 % Skolem Function Shared.
 %
@@ -2220,15 +2261,12 @@ pred_subst2(Pred, X, Sk, [A|As], [Ap|AS] ):- pred_subst(Pred, A,X,Sk,Ap ), pred_
 
 
 
-%=%=%=%=%=%=%=%=%=%=%=
-%=% generate a mk_skolem 
 
 
-%= 	 	 
 
-%% mk_skolem_name( ?O, ?Var, :TermFml, ?SIn, ?SOut) is semidet.
+%% mk_skolem_name( +KB, +Var, +TermFml, +SuggestionIn, -NameSuggestion) is det.
 %
-% Make Skolem Name.
+%  generate a skolem name..
 %
 mk_skolem_name(_O,Var,Fml,SIn,SOut):- is_ftVar(Fml), same_var(Var,Fml),!,atom_concat('Is',SIn,SOut).
 mk_skolem_name(_O,_V,Fml,SIn,SIn):- is_ftVar(Fml),!.
@@ -2238,7 +2276,8 @@ mk_skolem_name(_O,_V,Fml,SIn,SOut):- atomic(Fml),!,i_name(Fml,N),toPropercase(N,
 mk_skolem_name(KB,Var,[H|T],SIn,SOut):- !,mk_skolem_name(KB,Var,H,SIn,M),mk_skolem_name(KB,Var,T,M,SOut).
 mk_skolem_name(KB,Var,isa(VX,Lit),SIn,SOut):- same_var(Var,VX),is_ftNonvar(Lit),!,mk_skolem_name(KB,Var,['Is',Lit,'In'],'',F),atom_concat(F,SIn,SOut).
 mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,VX],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Is',F,'In'],SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,Other,VX|_],same_var(Var,VX),!,type_of_var(KB,Other,OtherType),
+mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,Other,VX|_],same_var(Var,VX),!,(type_of_var(KB,Other,OtherType0),
+   (OtherType0=='Unk'->OtherType='';OtherType=OtherType0)),
    mk_skolem_name(KB,Var,[OtherType,'Arg2Of',F],SIn,SOut).
 mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,VX|_],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Arg1Of',F],SIn,SOut).
 mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,_,VX|_],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Arg2Of',F],SIn,SOut).
@@ -2252,7 +2291,7 @@ mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F|_],!,mk_skolem_name(KB,Var,['ArgN
 
 %= 	 	 
 
-%% removes_literal( :TermX, :TermX) is semidet.
+%% removes_literal( :TermX, :TermX) is det.
 %
 % Removes Literal.
 %
@@ -2271,7 +2310,7 @@ removes_literal(not_true_t(X,Y,Z,A),possible_t(X,Y,Z,A)).
 
 %= 	 	 
 
-%% delete_sublits( ?H0, ?B, ?HH) is semidet.
+%% delete_sublits( ?H0, ?B, ?HH) is det.
 %
 % Delete Sublits.
 %
@@ -2283,7 +2322,7 @@ delete_sublits(H0,B,HH):- delete_eq(H0,B,H1),delete_eq(H1,B,H2),delete_eq(H2,B,H
 
 %= 	 	 
 
-%% flatten_clauses( ?H, ?HHTT) is semidet.
+%% flatten_clauses( ?H, ?HHTT) is det.
 %
 % Flatten Clauses.
 %
@@ -2296,7 +2335,7 @@ flatten_clauses([H],[H]):-!.
 
 %= 	 	 
 
-%% correct_cls( ?KB, ?H, ?HH) is semidet.
+%% correct_cls( ?KB, ?H, ?HH) is det.
 %
 % Correct Clauses.
 %
@@ -2305,7 +2344,7 @@ correct_cls(KB,H,HH):-loop_check(correct_cls0(KB,H,HH),H=HH),!.
 
 %= 	 	 
 
-%% correct_cls0( ?KB, :TermCL0, ?CL1) is semidet.
+%% correct_cls0( ?KB, :TermCL0, ?CL1) is det.
 %
 % Correct Clauses Primary Helper.
 %
@@ -2355,7 +2394,7 @@ correct_cls0(KB,H,O):-correct_cls0(KB,(H:-true),O).
 
 %= 	 	 
 
-%% incorrect_cl( :TermH, ?H) is semidet.
+%% incorrect_cl( :TermH, ?H) is det.
 %
 % Incorrect Clause.
 %
@@ -2367,7 +2406,7 @@ incorrect_cl(cl(H,B),cl([z_unused(H:-B)],[])).
 
 %= 	 	 
 
-%% correct_boxlog( ?CLAUSES, ?KB, ?Why, ?FlattenedO) is semidet.
+%% correct_boxlog( ?CLAUSES, ?KB, ?Why, ?FlattenedO) is det.
 %
 % Correct Datalog.
 %
@@ -2378,7 +2417,7 @@ correct_boxlog(BOXLOG,KB,Why,FlattenedS):-correct_boxlog_0(BOXLOG,KB,Why,Flatten
 
 %= 	 	 
 
-%% correct_boxlog_0( ?BOXLOG, ?KB, ?Why, ?FlattenedS) is semidet.
+%% correct_boxlog_0( ?BOXLOG, ?KB, ?Why, ?FlattenedS) is det.
 %
 % correct Datalog  Primary Helper.
 %
@@ -2398,7 +2437,7 @@ correct_boxlog_0(BOXLOG,KB,Why,FlattenedS):-
 
 %= 	 	 
 
-%% variants_are_equal( ?Order, ?A, ?B) is semidet.
+%% variants_are_equal( ?Order, ?A, ?B) is det.
 %
 % Variants Are Equal.
 %
@@ -2408,7 +2447,7 @@ variants_are_equal( Order, A,B):- compare(Order,A,B).
 
 %= 	 	 
 
-%% cf_to_flattened_clauses( ?KB, ?Why, ?NCFsI, ?FlattenedO) is semidet.
+%% cf_to_flattened_clauses( ?KB, ?Why, ?NCFsI, ?FlattenedO) is det.
 %
 % Cf Converted To Flattened Clauses.
 %
@@ -2418,7 +2457,7 @@ cf_to_flattened_clauses(KB,Why,NCFsI,FlattenedO):-
 
 %= 	 	 
 
-%% cf_to_flattened_clauses_0( ?KB, ?Why, ?NCFsI, ?FlattenedO) is semidet.
+%% cf_to_flattened_clauses_0( ?KB, ?Why, ?NCFsI, ?FlattenedO) is det.
 %
 % cf Converted To flattened clauses  Primary Helper.
 %

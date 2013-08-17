@@ -1,8 +1,8 @@
 /* 
 -*- mode: md;-*- 
 vim: set filetype=md:
-*/
-/*  special module hooks into the logicmoo engine allow
+%
+%   special module hooks into the logicmoo engine allow
 %   clif syntax to be recocogized via our CycL/KIF handlers 
 % 
 % Logicmoo Project: A LarKC Server written in Prolog
@@ -12,6 +12,8 @@ vim: set filetype=md:
 % If you've come here looking for the clif examples please follow this link
 %
 %  https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md
+%
+%  <a href="https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md">https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md</a>
 */
 
 
@@ -21,7 +23,6 @@ vim: set filetype=md:
 :- dynamic((if/2,iif/2)).
 
 :- virtualize_source_file.
-
 
 % we ensure we are in "pfc" consultation mode (so the syntax rules will define correctly)
 :- file_begin(pfc).
@@ -49,70 +50,43 @@ workflow_holder_queue(Atom) ==>
   rtArgsVerbatum(Atom),
   {mpred_trace(Atom)},
   arity(Atom,1),
-  (t(Atom,Arg) ==> {wdmsg((Atom=Arg))}).
+  (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
-% recompile_clif:- cwc, \+ compile_clif,!,ain(==> compile_clif).
-recompile_clif:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif).
-compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+:- kb_shared(compile_clif/0).
+clif_uncompile:- cwc, ain(==>( \+ compile_clif)),clif_show.
+clif_recompile:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif),clif_show.
+clif_compile:- cwc, ain(==> compile_clif),clif_show.
+clif_show:- cwc, listing(clif/1),listing(boxlog/1).
+compile_clif ==> 
+(clif(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % {sanity(is_entailed_u(CLIF))}
 
+:- kb_shared(compile_boxlog/0).
+boxlog_uncompile:- cwc, ain(==>( \+ compile_boxlog)),boxlog_show.
+boxlog_recompile:- cwc, ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog),boxlog_show.
+boxlog_compile:- cwc, ain(==> compile_boxlog),boxlog_show.
+boxlog_show:- cwc, listing(boxlog/1),listing(pfclog/1).
+compile_boxlog ==> 
+(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> pfclog(PROLOG)).
+% {sanity(are_clauses_entailed(BOXLOG))}
 
-
-/* LATER ..
-(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)}) ==> (pfclog(PROLOG),
-                                   {nop(ignore((show_failure(are_clauses_entailed(BOXLOG)))))}).
-*/
-
-boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> pfclog(PROLOG).
-
+:- kb_shared(compile_pfclog/0).
+pfclog_uncompile:- cwc, ain(==>( \+ compile_pfclog)),pfclog_show.
+pfclog_recompile:- cwc, ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog),pfclog_show.
+pfclog_compile:- cwc, ain(==> compile_pfclog),pfclog_show.
+pfclog_show:- cwc, listing(pfclog/1).
+compile_pfclog ==> 
+(pfclog(PROLOG) ==> PROLOG).
+% {(sanity(is_pfc_entailed(PROLOG)))}
+% or maybe
 % pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
 % {all_different_head_vals(PROLOG)},
 
-/*
-LATER
-pfclog(PROLOG) ==> (PROLOG, {nop(ain(actn(is_pfc_entailed(PROLOG))))}).
-*/
 
-
-/*
-
-% these next 6 clauses is now accomplished by the previous 3 clauses
-
-(clif(CLIF),{member_ele(CLIF,E)}) ==> clif1(E).
-(clif1(CLIF),{kif_to_boxlog(CLIF,PROLOG)}) ==> boxlog(PROLOG).
-
-(boxlog(CLIF),{member_ele(CLIF,E)}) ==> boxlog1(E).
-(boxlog1(CLIF),{maybe_notrace(boxlog_to_pfc(CLIF,PROLOG))}) ==> pfclog(PROLOG).
-
-(pfclog(CLIF),{member_ele(CLIF,E)}) ==> pfclog1(E).
-(pfclog1(PROLOG)==>(PROLOG,{is_entailed_u(PROLOG)})).
-
-*/
 
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-({is_clif(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
 ({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
 
-% (CLIF/is_kif_clause(CLIF) ==> clif(CLIF)).
-
-
-/*
-(CLIF/is_kif_clause(CLIF) ==> 
-   ({ kif_to_pfc(CLIF,PROLOG)},
-      % this consequent asserts the new rules
-      PROLOG,{slow_sanity(is_entailed_u(CLIF))})).
-*/
-
-
-end_of_file.
-
-% If you've come here looking for the clif examples please follow this link
-% <a href="https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md">https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md</a>
-
-
-:- if(baseKB:startup_option(datalog,sanity);baseKB:startup_option(clif,sanity)).
-:- file_begin(pfc).
-:- include(try_logicmoo_examples).
-:- endif.
+% LATER (CLIF/is_kif_clause(CLIF) ==> clif(CLIF)).
 

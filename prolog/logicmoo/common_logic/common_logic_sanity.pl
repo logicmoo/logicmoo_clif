@@ -45,8 +45,11 @@ fst:-  set_prolog_flag(write_attributes,ignore),freeze(X,(\+ is_ftVar(X),X==[]->
 :- export(fst/0).
 
 
+zebra :- make,load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif')).
+
 zebra5 :- make,load_clif(pack(logicmoo_base/t/examples/fol/'zebra5.clif')).
-rzebra5 :- rtrace(load_clif(pack(logicmoo_base/t/examples/fol/'zebra5.clif'))).
+
+rzebra5 :- rtrace(load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif'))).
 
 z:- cls,zebra5,!.
 z:- rzebra5,!.

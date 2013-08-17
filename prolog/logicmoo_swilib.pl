@@ -162,6 +162,8 @@ load_logtalk:- ensure_LOGTALKUSER,
 % DEFAULT HISTORY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+add_history_ideas:- \+ app_argv('--history'),!.
+add_history_ideas:- !.
 add_history_ideas:- has_ran_once(add_history_ideas),!.
 add_history_ideas:- 
        asserta(lmcache:added_history_ideas_once),
@@ -491,7 +493,7 @@ end_of_file.
 :- user:use_module(library(operators)).
 :- user:use_module(library(option)).
 :- user:use_module(library(prolog_source)).
-%:- user:use_module(library(prolog_history)).
+:- user:use_module(library(prolog_history)).
 :- user:use_module(library(ansi_term)).
 :- user:use_module(library(prolog_xref)).
 :- user:use_module(library(readutil)).

@@ -1,11 +1,16 @@
 ;; Module zebra5 - Test Zerbra Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
-;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5))
+;; Load with  ?- load_clif(pack('logicmoo_base/t/examples/fol/zebra5.clif'))
 ;; causes deduction of argument types
 (:- (module zebra5 ()))
 (:- (ensure_loaded (library logicmoo_snark)))
 (set-kif-option :assume-wff)
 (kif-mode tell)
+
+
+(end_of_file)
+
+
 (domain livesIn 1 tHuman)
 (domain livesIn 2 tHouse)
 (domain natOrigin 1 tHuman)
@@ -54,7 +59,10 @@
 ; ============================================================
 ; There are five houses
 ; ============================================================
+(exactly 1 ?h1 (address ?h1 1))
+
 (exactly 5 ?h1 (instance ?h1 tRiddleHouse))
+
 
 (subclass tRiddleHouse tHouse)
 
@@ -69,6 +77,8 @@
 (address house3 3)
 (address house4 4)
 (address house5 5)
+
+
 
 ; ============================================================
 ; The Englishman lives in the red house

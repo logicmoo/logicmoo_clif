@@ -68,7 +68,7 @@ show_attrs(Var):- oo_get_attrs(Var,Atts),wdmsg(Var=Atts).
 % todo use: push_dom(X,Dom)
 mpred_set_arg_isa(Pred,N,Term,_Outer):- holds_attrs(Term),push_dom(Term,argIsaFn(Pred,N)),!.
 mpred_set_arg_isa(Pred,N,Term,Outer):- 
-  (is_value(Term);is_function_expr(Term)),!,
+  (is_value(Term);is_function_expr('=>',Term)),!,
   must(( setarg(N,Outer,NewVar),
    % destructive_replace(Outer,Term,NewVar),   
    push_cond(NewVar,mudEquals(NewVar,Term)))),

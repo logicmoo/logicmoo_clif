@@ -173,7 +173,7 @@ istAsserted(MT,P):- asserted_id(P,ID),assertion_mt(ID,MT).
 asserted_id(P,ID):- compound(P), P=..[F,F1|ARGS],append(ARGS,[ID],ARGSID),
    (F==t -> (AP=..[assertion_content,F1|ARGSID],nop(freeze_u(F1,\+ get_LogicalConnective(F1))));
             AP=..[assertion_content,F,F1|ARGSID]),!,
-   call(kb7166:AP),
+   if_defined(kb7166:AP),
    varnamify(ID),
    guardify(ID).
 asserted_id(PO,ID):- var(PO),
@@ -183,7 +183,7 @@ asserted_id(PO,ID):- var(PO),
    functor(AP,assertion_content,N),
    AP=..[assertion_content,F|PARGS],
    append(ARGS,[ID],PARGS),
-   call(kb7166:AP),
+   if_defined(kb7166:AP),
    ((
     varnamify(ID),
     ((atom(F) -> P=..[F|ARGS]; P=..[t,F|ARGS])),

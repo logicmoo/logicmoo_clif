@@ -90,6 +90,7 @@ kif_process(_,':-'(Call)):- !, kif_process(call,Call).
 kif_process(_,'?-'(Goal)):- !, kif_process(ask,Goal),break.
 kif_process(_,'ask'(Wff)):- !, kif_process(ask,Wff).
 kif_process(_,'tell'(Wff)):- !, kif_process(tell,Wff).
+kif_process(OP,'forall'(Vars,Wff)):- !, kif_process(OP,'all'(Vars,Wff)).
 kif_process(_,'set-kif-option'(Mode)):-!, dmsg('set-kif-option'(Mode)).
 
 kif_process(call,Was):- Was\=(_:_),!,prolog_load_context(module,Prev),kif_process(call,Prev:Was).

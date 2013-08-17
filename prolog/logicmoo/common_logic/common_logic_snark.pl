@@ -222,6 +222,7 @@ kif_hook(_ <==> _):- !,fail.
 kif_hook( ~(H)):- !,nonvar(H),kif_hook(H).
 kif_hook( \+ H):- !,nonvar(H),kif_hook(H).
 kif_hook( not(H)):- !,nonvar(H),kif_hook(H).
+kif_hook( naf(H)):- !,nonvar(H),kif_hook(H).
 kif_hook(In):- kif_hook_skel(In).
 kif_hook(C):- C=..[F,A|_],is_sentence_functor(F),!,kif_hook(A).
 
@@ -230,6 +231,7 @@ kif_hook(C):- C=..[F,A|_],is_sentence_functor(F),!,kif_hook(A).
 %
 % Knowledge Interchange Format Hook Skelecton.
 %
+
 kif_hook_skel(forAll(_,_)).
 kif_hook_skel(_=>_).
 kif_hook_skel(_<=_).
@@ -240,11 +242,22 @@ kif_hook_skel((_ \/ _)).
 kif_hook_skel((_ v _)).
 kif_hook_skel(nesc(_)).
 kif_hook_skel(poss(_)).
+kif_hook_skel(cir(_)).
 kif_hook_skel(all(_,_)).
+kif_hook_skel(exactly(_,_,_)).
+kif_hook_skel(atmost(_,_,_)).
+kif_hook_skel(atleast(_,_,_)).
 kif_hook_skel(exists(_,_)).
 kif_hook_skel(if(_,_)).
 kif_hook_skel(iff(_,_)).
+kif_hook_skel(equiv(_,_)).
+kif_hook_skel(implies(_,_)).
+kif_hook_skel(CLIF):- is_clif(CLIF).
+kif_hook_skel( ~(H)):- loop_check(kif_hook(H)).
 kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
+kif_hook_skel( Compound):- arg(_,v(poss,nesc,until,always,release,cir),F),between(2,3,A),functor( Compound,F,A).
+kif_hook_skel( Compound):- compound( Compound),!,functor(Compound,F,_),arg(_,v(and,or,xor),F).
+kif_hook_skel( Compound):- var(Compound),!,arg(_,v(and,or,xor),F),between(1,12,A),functor( Compound,F,A).
 
 
 
@@ -296,9 +309,12 @@ member_ele(E,E).
 %
 % Delistify Last Argument.
 %
-delistify_last_arg(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),delistify_last_arg(E,Pred,Last).
-delistify_last_arg(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
-delistify_last_arg(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
+
+delistify_last_arg(Arg,Pred,Last):- no_repeats(Last,must(delistify_last_arg0(Arg,Pred,Last))).
+
+delistify_last_arg0(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),must(delistify_last_arg0(E,Pred,Last)).
+delistify_last_arg0(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
+delistify_last_arg0(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
 
 % sanity that mpreds (manage prolog prodicate) are abily to transform
 
@@ -516,7 +532,8 @@ to_dlog_ops([
      % '-'='~',
      
     'not'='~',
-     '\\+'='naf',
+    '\\+'='~',
+     % '\\+'='naf',
      'and'='&',
      '^'='&',
      '/\\'='&',
@@ -633,7 +650,7 @@ baseKB:as_prolog_hook(Fml,FmlO):- as_symlog(Fml,FmlM),
 %
 % Adjust Knowledge Interchange Format.
 %
-adjust_kif(KB,Kif,KifO):- as_dlog(Kif,KifM),must(adjust_kif0(KB,KifM,KifO)),!.
+adjust_kif(KB,Kif,KifO):- as_dlog(Kif,KifM),maybe_notrace(adjust_kif0(KB,KifM,KifO)),!.
 
 % Converts to syntax that NNF/DNF/CNF/removeQ like
 
@@ -647,10 +664,13 @@ adjust_kif(KB,Kif,KifO):- as_dlog(Kif,KifM),must(adjust_kif0(KB,KifM,KifO)),!.
 %
 
 adjust_kif0(KB,I,O):-nonvar(O),!,adjust_kif0(KB,I,M),!,M=O.
+
 adjust_kif0(_,V,V):- is_ftVar(V),!.
 adjust_kif0(_,A,A):- \+ compound(A),!.
+adjust_kif0(_,A,A):- leave_as_is_logically(A),!.
+
 adjust_kif0(KB,not(Kif),(KifO)):- !,adjust_kif0(KB, ~(Kif),KifO).
-adjust_kif0(KB,\+(Kif),(KifO)):- !,adjust_kif0(KB, naf(Kif),KifO).
+% adjust_kif0(KB,\+(Kif),(KifO)):- !,adjust_kif0(KB, naf(Kif),KifO).
 adjust_kif0(KB,nesc(N,Kif),nesc(N,KifO)):- !,adjust_kif0(KB,Kif,KifO).
 adjust_kif0(KB,poss(N,Kif),poss(N,KifO)):- !,adjust_kif0(KB,Kif,KifO).
 adjust_kif0(KB, ~(Kif), ~(KifO)):- !,adjust_kif0(KB,Kif,KifO).
@@ -658,24 +678,30 @@ adjust_kif0(KB, ~(KB,Kif), ~(KifO)):- !,adjust_kif0(KB,Kif,KifO).
 adjust_kif0(KB,t(Kif),t(KifO)):- !,adjust_kif0(KB,Kif,KifO).
 adjust_kif0(KB,poss(Kif),poss(b_d(KB,nesc,poss),KifO)):- !,adjust_kif0(KB,Kif,KifO).
 adjust_kif0(KB,nesc(Kif),nesc(b_d(KB,nesc,poss),KifO)):- !,adjust_kif0(KB,Kif,KifO).
+
 adjust_kif0(KB,exists(L,Expr),               ExprO):-L==[],!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,exists(V,Expr),               ExprO):-atom(V),svar_fixvarname(V,L),subst(Expr,V,'$VAR'(L),ExprM),!,adjust_kif0(KB,exists('$VAR'(L),ExprM),ExprO).
-adjust_kif0(KB,exists([L|List],Expr),        ExprO):-is_list(List),!,adjust_kif0(KB,exists(L,exists(List,Expr)),ExprO).
-adjust_kif0(KB,exists(L,Expr),               ExprO):- \+ contains_var(L,Expr),!,adjust_kif0(KB,Expr,ExprO).
+% adjust_kif0(KB,exists([L|List],Expr),        ExprO):-is_list(List),!,adjust_kif0(KB,exists(L,exists(List,Expr)),ExprO).
+% adjust_kif0(KB,exists(L,Expr),               ExprO):- is_ftVar(L), \+ contains_var(L,Expr),!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,exists(L,Expr),exists(L,ExprO)):-!,adjust_kif0(KB,Expr,ExprO).
+
+adjust_kif0(KB,(H & B),(HH & ConjO)):- !, adjust_kif(KB,H,HH),adjust_kif(KB,B,ConjO).
+adjust_kif0(KB,(H v B),(HH v ConjO)):- !, adjust_kif(KB,H,HH),adjust_kif(KB,B,ConjO).
+adjust_kif0(KB,'&'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('&',[L|Ist],Conj),adjust_kif0(KB,Conj,ConjO).
+adjust_kif0(KB,'v'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('v',[L|Ist],Conj),adjust_kif0(KB,Conj,ConjO).
+
+
 adjust_kif0(KB,all(L,Expr),               ExprO):-L==[],!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,all(V,Expr),               ExprO):-atom(V),svar_fixvarname(V,L),subst(Expr,V,'$VAR'(L),ExprM),!,adjust_kif0(KB,all('$VAR'(L),ExprM),ExprO).
 adjust_kif0(KB,all([L|List],Expr),all(L,ExprO)):-is_list(List),!,adjust_kif0(KB,exists(List,Expr),ExprO).
-adjust_kif0(KB,all(L,Expr),               ExprO):- \+ contains_var(L,Expr),!,adjust_kif0(KB,Expr,ExprO).
+% adjust_kif0(KB,all(L,Expr),               ExprO):- \+ contains_var(L,Expr),!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,all(L,Expr),all(L,ExprO)):-!,adjust_kif0(KB,Expr,ExprO).
-adjust_kif0(KB,[L|Ist],ConjO):- is_list([L|Ist]),must_maplist(adjust_kif0(KB),[L|Ist],ConjO),!.
-adjust_kif0(KB,'&'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('&',[L|Ist],Conj),adjust_kif0(KB,Conj,ConjO).
-adjust_kif0(KB,'v'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('v',[L|Ist],Conj),adjust_kif0(KB,Conj,ConjO).
-adjust_kif0(KB,(H:-[L|Ist]),(HH:-ConjO)):- adjust_kif(KB,H,HH),is_list([L|Ist]),adjust_kif0(KB,'&'([L|Ist]),ConjO).
-adjust_kif0(KB,(H:-B),(HH:-ConjO)):- adjust_kif(KB,H,HH),adjust_kif(KB,B,ConjO),!.
-adjust_kif0(_,A,A):-leave_as_is_logically(A),!.
-adjust_kif0(KB,Kif,KifO):- Kif=..[F|ARGS],adjust_kif0(KB,F,ARGS,KifO),!.
-adjust_kif0(KB,PAB,PABO):- PAB=..[P|AB],must_maplist(adjust_kif0(KB),AB,ABO),PABO=..[P|ABO].
+
+adjust_kif0(KB,[L|Ist],ConjO):- is_list([L|Ist]),!,must_maplist(adjust_kif0(KB),[L|Ist],ConjO),!.
+adjust_kif0(KB,(H:-[L|Ist]),(HH:-ConjO)):- nonvar(Ist), adjust_kif(KB,H,HH),is_list([L|Ist]),adjust_kif0(KB,'&'([L|Ist]),ConjO).
+adjust_kif0(KB,(H:-B),(HH:-ConjO)):- !, adjust_kif(KB,H,HH),adjust_kif(KB,B,ConjO).
+
+adjust_kif0(KB,PAB,KifO):- PAB=..[F|AB],must_maplist(adjust_kif0(KB),AB,ABO),maybe_notrace(adjust_kif0(KB,F,ABO,KifO)).
 
 
 
@@ -685,25 +711,34 @@ adjust_kif0(KB,PAB,PABO):- PAB=..[P|AB],must_maplist(adjust_kif0(KB),AB,ABO),PAB
 % Adjust Knowledge Interchange Format Primary Helper.
 %
 adjust_kif0(KB,call_builtin,ARGS,O):-!,PARGS=..ARGS,adjust_kif0(KB,PARGS,O),!.
+
+adjust_kif0(KB,'v',[F|LIST],O3):- !, adjust_kif0(KB,'v'([F|LIST]),O3).
+adjust_kif0(KB,'&',[F|LIST],O3):- !, adjust_kif0(KB,'&'([F|LIST]),O3).
+
 adjust_kif0(KB,true_t,[F|LIST],O3):-atom(F),!,PARGS=..[F|LIST],adjust_kif0(KB,(PARGS),O3),!.
 adjust_kif0(KB,not_true_t,[F|LIST],O3):-atom(F),!,PARGS=..[F|LIST],adjust_kif0(KB, ~(PARGS),O3),!.
-adjust_kif0(KB,~,[A],~(O)):-!,adjust_kif0(KB,A,O),!.
-adjust_kif0(KB,not,[A],~(O)):-!,adjust_kif0(KB,A,O),!.
+adjust_kif0(KB,~,[F|LIST],O3):-atom(F),!,PARGS=..[F|LIST],adjust_kif0(KB, ~(PARGS),O3),!.
+
 adjust_kif0(KB,possible_t,[A],O):-!,adjust_kif0(KB,poss(A),O),!.
 adjust_kif0(KB,possible_t,ARGS,O):-!,PARGS=..ARGS,adjust_kif0(KB,poss(PARGS),O).
+
 adjust_kif0(KB,asserted_t,[A],O):-!,adjust_kif0(KB,t(A),O),!.
 adjust_kif0(KB,asserted_t,[A|RGS],O):- atom(A),PARGS=..[A|RGS],!,adjust_kif0(KB,t(PARGS),O).
+
 adjust_kif0(KB,true_t,[A|RGS],O):- atom(A),PARGS=..[A|RGS],adjust_kif0(KB,PARGS,O),!.
 adjust_kif0(KB,Not_P,ARGS,O):-atom_concat('not_',P,Not_P),!,PARGS=..[P|ARGS],adjust_kif0(KB, ~(PARGS),O).
 adjust_kif0(KB,Int_P,ARGS,O):-atom_concat('int_',P,Int_P),!,append(LARGS,[_, _, _, _, _, _, _ ],ARGS),
    PLARGS=..[P|LARGS],adjust_kif0(KB,PLARGS,O).
+
 adjust_kif0(KB,P,ARGS,O):-atom_concat(_,'_t',P),!,append(LARGS,[_, _, _, _, _, _],ARGS),
    PARGS=..[P|LARGS],adjust_kif0(KB,PARGS,O).
 
 adjust_kif0(KB,W,[P,A,R|GS],O):- call(call_u(is_wrapper_pred(W))),PARGS=..[P,A,R|GS],adjust_kif0(KB,t(PARGS),O).
+
 adjust_kif0(KB,F,ARGS,O):-KIF=..[F|ARGS],length(ARGS,L),L>2,adjust_kif0(KB,KIF,F,ARGS,Conj),KIF\=@=Conj,!,adjust_kif0(KB,Conj,O).
 % adjust_kif0(KB,W,[A],O):-is_wrapper_pred(W),adjust_kif(KB,A,O),!.
 
+adjust_kif0(_, F,ARGS,P):- P=..[F|ARGS],!.
 
 
 
@@ -883,11 +918,19 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 %
 % Wdmsgl.
 %
-wdmsgl(X):-notrace(wdmsgl0(X)).
-wdmsgl0(CNF):- is_list(CNF),!,maplist(wdmsgl0,CNF).
-wdmsgl0(CNF):- compound(CNF),CNF=..[NAME,NF],!,must(wdmsgl(NAME:-NF)).
-wdmsgl0(CNF):- pp_item('',CNF),!.
-wdmsgl0(NF):- must((get_functor(NF,NAME),!,must(wdmsgl_2(NAME,NF)))).
+wdmsgl(X):-notrace(wdmsgl0(=,X)),!.
+wdmsgl(Pred2,X):-notrace(wdmsgl0(Pred2,X)),!.
+
+wdmsgl0(PreOP,CNF):- is_list(CNF),!,maplist(wdmsgl0(PreOP),CNF).
+wdmsgl0(PreOP,CNF):- (is_ftVar(CNF) ; \+ compound(CNF))-> 
+  (call(PreOP,CNF,NEW)-> wdmsg(NEW);  wdmsg(CNF)),!.
+
+wdmsgl0(PreOP,(C:-NF)):- call(PreOP,(C:-NF),NEW),!,wdmsg(NEW).
+wdmsgl0(PreOP,CNF):- CNF=..[NAME,NF],call(PreOP,(NAME:-NF),NEW),!,wdmsg(NEW).
+wdmsgl0(PreOP,CNF):- call(PreOP,CNF,NEW)->wdmsg(NEW);wdmsg(CNF).
+
+wdmsg20(CNF):- pp_item('',CNF),!.
+wdmsg20(NF):- must((get_functor(NF,NAME),!,must(wdmsgl_2(NAME,NF)))).
 wdmsgl_2(NAME,NF):- functor(NF,_,_),wdmsgl_3(NAME,&,NF).
 wdmsgl_3(NAME,F,NF):-
    unnumbervars_with_names(vv(NAME,F,NF),vv(NAME2,F2,NF2)),
@@ -1303,10 +1346,12 @@ kif_ask_sent(Wff):-
 %
 % Knowledge Interchange Format Complete Inference.
 %
-kif_ask(P <=> Q):- kif_ask_sent(P <=> Q).
-kif_ask(P => Q):- kif_ask_sent(P => Q).
-kif_ask((P v Q)):- kif_ask_sent(((P v Q))).
-kif_ask((P & Q)):- kif_ask_sent((P & Q)).
+kif_ask(Goal0):-  call_unwrap(Goal0,Goal),!,kif_ask(Goal).
+%kif_ask(P <=> Q):- kif_ask_sent(P <=> Q).
+%kif_ask(P => Q):- kif_ask_sent(P => Q).
+%kif_ask((P v Q)):- kif_ask_sent(((P v Q))).
+%kif_ask((P & Q)):- kif_ask_sent((P & Q)).
+kif_ask((PQ)):- kif_hook_skel(PQ),kif_ask_sent((PQ)).
 kif_ask(Goal0):-  logical_pos(_KB,Goal0,Goal),
     no_repeats(baseKB:(
 	if_defined(add_args(Goal0,Goal,_,_,[],_,_,[],[],DepthIn,DepthOut,[PrfEnd|PrfEnd],_ProofOut1,Goal1,_)),!,
@@ -1333,7 +1378,9 @@ kif_ask(Goal0,ProofOut):- logical_pos(_KB,Goal0,Goal),
 %
 % Knowledge Interchange Format Add.
 %
-kif_add(InS):- string(InS),
+kif_add(InS):- 
+ sanity( \+ is_ftVar(InS)),
+ string(InS),!,
  must_det_l((
   input_to_forms(string(InS),Wff,Vs),
   nop(b_implode_varnames0(Vs)),
@@ -1341,9 +1388,18 @@ kif_add(InS):- string(InS),
   InS \== Wff0,
   kif_add(Wff0),!.
 
-% kif_add(WffIn):- must_det_l((unnumbervars_with_names(WffIn,Wff),why_to_id(tell,Wff,Why),kif_add(Why,Wff))),!.
-kif_add(WffIn):- must_det_l((unnumbervars_with_names(WffIn,Wff),ain(clif(Wff)))),!.
 
+kif_add(Goal0):-  call_unwrap(Goal0,Goal),!,kif_add(Goal).
+% unnumbervars_with_names(WffIn,Wff),
+kif_add(WffIn):- ain(clif(WffIn)),!.
+
+
+call_unwrap(WffIn,OUT):- call_unwrap0(WffIn,OUT),!,WffIn\==OUT.
+
+call_unwrap0(WffIn,WffIn):- is_ftVar(WffIn),!.
+call_unwrap0(==>WffIn,OUT):-!,call_unwrap0(WffIn,OUT).
+call_unwrap0(clif(WffIn),OUT):-!,call_unwrap0(WffIn,OUT).
+call_unwrap0(WffIn,WffIn).
 
 
 
