@@ -13,7 +13,7 @@
 :- set_prolog_flag(access_level,system).
 
 :- set_prolog_flag(toplevel_print_anon,true).
-:- set_prolog_flag(toplevel_print_factorized,true).
+% :- set_prolog_flag(toplevel_print_factorized,true).
 % :- set_prolog_flag(toplevel_mode,recursive).
 
 :- if(\+ current_module(baseKB)).

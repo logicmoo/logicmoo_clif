@@ -84,7 +84,7 @@ setup_for_debug :-
    set_prolog_flag(report_error,true),
    set_prolog_flag(debugger_show_context,true),
    set_prolog_flag(debug_on_error,true),
-   set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
+   % set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
    set_prolog_flag(generate_debug_info,true).
 
 :- during_boot(setup_for_debug).

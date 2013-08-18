@@ -80,7 +80,7 @@ is_better_backchained(CycL):-functor(CycL,F,_),isa_db(F,'rtSentenceOperator').
 is_better_backchained(V):-unnumbervars(V,FOO),(((each_subterm(FOO,SubTerm),nonvar(SubTerm),isa_db(SubTerm,rtAvoidForwardChain)))),!.
 
 
-as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists'),(thereExists),V2),subst(V2,('&'),(and),VE),!.
+as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists'),(exists),V2),subst(V2,('&'),(and),VE),!.
 
 kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(M,O)).
 
@@ -132,7 +132,7 @@ cycl_to_mpred0((V1 , V2),CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,
 cycl_to_mpred0([V1 | V2],CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
 cycl_to_mpred0(V,V).
 
-%  cycl_to_mpred( (grandparent('$VAR'('G'),'$VAR'('C')) => thereExists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
+%  cycl_to_mpred( (grandparent('$VAR'('G'),'$VAR'('C')) => exists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
 
 
 
@@ -190,19 +190,38 @@ asserted_id(PO,ID):- var(PO),
     litterally_guard(ID,P,PO))).
 
 
-litterally_guard(ID,I,O):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,ListE)),exclude(skip_guard,ListE,List),
-   add_guard_list(I,List,O),!.
+litterally_guard(ID,I,O):- get_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),must_det(add_guard_list_needed(I,List,O)),!.
 litterally_guard(_,IO,IO).
 
 add_guard_list(IO,[],IO):-!.
 add_guard_list(I,[List],List=>I):-!.
 add_guard_list(I,List,AList=>I):- AList=..[and|List].
 
-guardify(ID):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),
-  must_maplist(maybe_add_guard,List).
+add_guard_list_needed(IO,[],IO):-!.
+add_guard_list_needed(I,List,O):-remove_unneeded(I,List,AList),!,add_guard_list(I,AList,O).
+
+remove_unneeded(I,[List|ListIS],AList):- !,
+  (skip_guard(I,List) -> remove_unneeded(I,ListIS,AList);
+    (remove_unneeded(I,ListIS,MList),AList=[List|MList])).
+remove_unneeded(_,[],[]).
+
+
+
+guardify(ID):- get_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),must_maplist(maybe_add_guard,List),!.
 guardify(_).
 
-skip_guard('quotedIsa'(_,EXPR)):-EXPR='ftExpression'.
+get_guard(ID,Guard):- compound(ID),functor(ID,F,A),get_guard(ID,F,A,Guard).
+get_guard(ID,_,1,Guard):- !, assertion_variable_guard(ID,Guard).
+get_guard(ID,F,_,Guard):- functor(GID,F,1),assertion_variable_guard(GID,Guard),!,
+                          term_variables(GID+Guard,GVars), 
+                          (GVars=[GV] -> ID=..[F,GV|_] ; (ID=..[F|GVars])).
+
+get_guard(ID,_,_,Guard):- assertion_variable_guard(ID,Guard).
+
+  
+
+skip_guard(_,'quotedIsa'(_,EXPR)):-EXPR='ftExpression'.
+skip_guard(I,Var):- sub_var(Var,I).
 
 maybe_add_guard(G):- skip_guard(G),!.
 maybe_add_guard(G):- term_variables(G,Vars),maplist(maybe_add_guard_2(G),Vars).
@@ -223,29 +242,8 @@ badz:- asserted_id(t(P,A,zzzz),ID),dmsg(badz(asserted_id(t(P,A,zzzz),ID))),fail.
 badz:- asserted_id(t(P,zzzz,B),ID),dmsg(asserted_id(t(P,zzzz,B),ID)),fail.
 badz:- asserted_id(t(zzzz,A,B),ID),dmsg(asserted_id(t(zzzz,A,B),ID)),fail.
 
-asserted_boxlog:- asserted_boxlog(BoxLog),nl,nl,maplist(wdmsg,BoxLog),nl,nl,fail.
 
-/*
-
-
-X = 
-
-  defunctionalize(implies(isa(YEAR, tClazzCalendarYear), temporallyFinishedBy(YEAR, uU(iTimeOf_SecondFn, 59, uU(iTimeOf_MinuteFn, 59, uU(iTimeOf_HourFn, 23, uU(iTimeOf_DayFn, 31, uU(iTimeOf_MonthFn, vDecember, YEAR))))))),O)
-
-
-rtrace(kif_to_boxlog(
- sourceSchemaObjectID(SOURCE, SCHEMA, uU(uSourceSchemaObjectFn, SOURCE, SCHEMA, ID), ID),BL))
-
-rtrace(kif_to_boxlog(
- sourceSchemaObjectID(SOURCE, SCHEMA, THING, uU(uSourceSchemaObjectIDFn, SOURCE, SCHEMA, THING)),BL)).
-
-X = or(holdsIn(YEAR, isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iMexico))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE))),
-  rtrace(kif_to_boxlog(X,BL)).
-
-*/
-
-% asserted_boxlog(BoxLog):- asserted_id(P,ID),atomic(ID),dmsg(asserted_id(P,ID)),once(kif_to_boxlog(P,BoxLog)).
-asserted_boxlog(BoxLog):- asserted_id(P,ID),compound(ID),dmsg(asserted_id(P,ID)),once(kif_to_boxlog(P,BoxLog)).
+test_kb_boxlog:- asserted_id(P,ID),nl,nl,compound(ID),wdmsg(asserted_id(P,ID)),test_boxlog(P).
 
 :- ain(tAsserted(isa(F,rtLogicalConnective))==>rtLogicalConnective(F)).
 

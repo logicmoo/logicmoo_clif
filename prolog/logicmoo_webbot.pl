@@ -252,7 +252,9 @@ kill_3020:- !. %  whenever(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:
 
 
 ensure_webserver_p(Port):- format(atom(A),'httpd@~w',[Port]),thread_property(N,status(V)),V=running,atom(N),atom_concat(A,_,N),!.
-ensure_webserver_p(Port):- whenever(run_network,(kill_3020,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)))).
+ensure_webserver_p(Port):- whenever(run_network,
+ (kill_3020,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)))),!.
+
 ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
    WebPort is Was + 20, ensure_webserver_p(WebPort).
 
@@ -447,12 +449,12 @@ system:kill_unsafe_preds0:-
 % slows the system startup down consideraly
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- set_prolog_flag(toplevel_print_factorized,true). % default false
+% :- set_prolog_flag(toplevel_print_factorized,true). % default false
 :- set_prolog_flag(toplevel_print_anon,true).
 :- set_prolog_flag(toplevel_mode,backtracking). % OR recursive 
 :- after_boot(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
-% :- set_prolog_flag(write_attributes,portray).
+:- set_prolog_flag(write_attributes,portray).
 % :- debug.
 
 

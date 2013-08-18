@@ -2,7 +2,7 @@
 % :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(common_logic_snark,
           [ add_nesc/2,
-            add_poss/2,
+            weaken_to_poss/2,
             add_poss_to/3,
             add_preconds/2,
             add_preconds2/2,
@@ -125,9 +125,8 @@
 %
 */
 
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
-:- reexport(baseKB:library('logicmoo/pttp/dbase_i_mpred_pttp_statics.pl')).
-:- reexport(baseKB:library('logicmoo/pttp/dbase_i_mpred_pttp.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
+:- user:reexport(library('logicmoo_pttp')).
 
 
 :- include(library('pfc2.0/mpred_header.pi')).
@@ -201,7 +200,7 @@ kw_to_vars(KW,VARS):-subsT_each(KW,[':ARG1'=_ARG1,':ARG2'=_ARG2,':ARG3'=_ARG3,':
 
 
 
-%% is_gaf( ?Gaf) is semidet.
+%% is_gaf( ?Gaf) is det.
 %
 % If Is A Gaf.
 %
@@ -211,7 +210,7 @@ is_gaf(Gaf):-when(nonvar(Gaf), \+ (is_kif_clause(Gaf))).
 
 
 
-%% is_kif_clause( ?Var) is semidet.
+%% is_kif_clause( ?Var) is det.
 %
 % If Is A Knowledge Interchange Format Rule.
 %
@@ -222,7 +221,7 @@ is_kif_clause(R):- is_clif(R),!.
 
 %= 	 	 
 
-%% kif_hook(+TermC) is semidet.
+%% kif_hook(+TermC) is det.
 %
 % Knowledge Interchange Format Hook.
 %
@@ -240,7 +239,7 @@ kif_hook(In):- kif_hook_skel(In).
 kif_hook(C):- C=..[F,A|_],is_sentence_functor(F),!,kif_hook(A).
 
 
-%% kif_hook_skel(+TermC) is semidet.
+%% kif_hook_skel(+TermC) is det.
 %
 % Knowledge Interchange Format Hook Skelecton.
 %
@@ -264,7 +263,7 @@ kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
 
 %= 	 	 
 
-%% are_clauses_entailed( :TermE) is semidet.
+%% are_clauses_entailed( :TermE) is det.
 %
 % Are Clauses Entailed.
 %
@@ -274,7 +273,7 @@ are_clauses_entailed(B):- unnumbervars(B,A),call_u(map_each_clause(is_prolog_ent
 
 
 
-%% is_prolog_entailed( ?Prolog) is semidet.
+%% is_prolog_entailed( ?Prolog) is det.
 %
 % True if the "Prolog" clause is asserted
 %
@@ -289,7 +288,7 @@ is_prolog_entailed(UCL):- wdmsg(warn(not_is_prolog_entailed(UCL))),!.
 
 %= 	 	 
 
-%% member_ele( ?E, ?E) is semidet.
+%% member_ele( ?E, ?E) is det.
 %
 % Member Ele.
 %
@@ -303,7 +302,7 @@ member_ele(E,E).
 
 %= 	 	 
 
-%% delistify_last_arg( ?Arg, :TermPred, ?Last) is semidet.
+%% delistify_last_arg( ?Arg, :TermPred, ?Last) is det.
 %
 % Delistify Last Argument.
 %
@@ -325,7 +324,7 @@ map_each_clause(P,CLIF):-  is_list(CLIF),!,maplist(map_each_clause(P),CLIF).
 map_each_clause(P,(H,CLIF)):-  sanity(nonvar(H)),!,map_each_clause(P,H),map_each_clause(P,CLIF).
 map_each_clause(P,A):- call(P,A).
 
-%% any_to_pfc( :TermCLIF, ?Prolog) is semidet.
+%% any_to_pfc( :TermCLIF, ?Prolog) is det.
 %
 % Converted To Prolog.
 %
@@ -338,7 +337,7 @@ any_to_pfc0(B,A):-  !, trace_or_throw(should_never_be_here(any_to_pfc0(B,A))).
 any_to_pfc0((H:-B),PrologO):- must((show_failure(why,boxlog_to_pfc((H:-B),Prolog)),!,=(Prolog,PrologO))),!.
 
 
-%% kif_to_pfc( :TermCLIF, ?Prolog) is semidet.
+%% kif_to_pfc( :TermCLIF, ?Prolog) is det.
 %
 % Ieee Standard Common Logic Interchange Format Version Converted To Prolog.
 %
@@ -354,7 +353,7 @@ kif_to_pfc0(CLIF,Prolog):-
       
 
 
-%% pfc_for_print_left( ?Prolog, ?PrintPFC) is semidet.
+%% pfc_for_print_left( ?Prolog, ?PrintPFC) is det.
 %
 % Prolog Backward Chaining Print.
 %
@@ -364,7 +363,7 @@ pfc_for_print_left(Prolog,PrintPFC):-is_list(Prolog),!,maplist(pfc_for_print_lef
 pfc_for_print_left(==>(P,Q),(Q:-fwc, P)):-!.
 pfc_for_print_left(Prolog,PrintPFC):- =(Prolog,PrintPFC).
 
-%% pfc_for_print_right( ?Prolog, ?PrintPFC) is semidet.
+%% pfc_for_print_right( ?Prolog, ?PrintPFC) is det.
 %
 % Prolog Forward Chaining Print.
 %
@@ -374,7 +373,7 @@ pfc_for_print_right(Prolog,PrintPFC):- =(Prolog,PrintPFC).
 
 
 
-%% is_entailed_u( ?CLIF) is semidet.
+%% is_entailed_u( ?CLIF) is det.
 %
 % If Is A Entailed.
 %   A good sanity Test for expected side-effect entailments
@@ -386,7 +385,7 @@ is_entailed_u(CLIF):-
    any_to_pfc(CLIF,Prolog),!, \+ \+ are_clauses_entailed(Prolog))),!.
 
 
-%% is_not_entailed( ?CLIF) is semidet.
+%% is_not_entailed( ?CLIF) is det.
 %
 % If Is A Not Entailed.
 %  A good sanity Test for required absence of specific side-effect entailments
@@ -400,7 +399,7 @@ is_not_entailed(CLIF):-  mpred_nochaining((kif_to_pfc(CLIF,Prolog), \+ are_claus
 
 %= 	 	 
 
-%% is_clif( :TermCLIF) is semidet.
+%% is_clif( :TermCLIF) is det.
 %
 % True if an expression is in ISO Common Logic Interchange Format.
 %
@@ -417,7 +416,7 @@ is_clif(CLIF):-
 
 %= 	 	 
 
-%% correct_arities( ?VALUE1, ?FmlO, ?FmlO) is semidet.
+%% correct_arities( ?VALUE1, ?FmlO, ?FmlO) is det.
 %
 % Correct Arities.
 %
@@ -435,18 +434,18 @@ correct_arities(H,Fml,FmlM):- Fml=..[F|ARGS],must_maplist(correct_arities(H),ARG
 
 %= 	 	 
 
-%% subsT_each( ?In, :TermARG2, ?In) is semidet.
+%% subsT_each( ?In, :TermARG2, ?In) is det.
 %
 % Subs True Stucture Each.
 %
 subsT_each(In,[],In):- !.
 % subsT_each(In,[KV|TODO],Out):- !,get_kv(KV,X,Y),subst_except(In,X,Y,Mid),!,subsT_each(Mid,TODO,Out),!.
-subsT_each(In,[KV|TODO],Out):- subst_except_l(In,[KV|TODO],Out).
+subsT_each(In,[KV|TODO],Out):- notrace(subst_except_l(In,[KV|TODO],Out)),!.
 
 
 %= 	 	 
 
-%% subst_except_l( :TermVar, ?VALUE2, :TermVar) is semidet.
+%% subst_except_l( :TermVar, ?VALUE2, :TermVar) is det.
 %
 % Subst Except (list Version).
 %
@@ -466,7 +465,7 @@ subst_except_l(HT,_List,HT).
 
 %= 	 	 
 
-%% skolem_in_code( ?X, ?Y) is semidet.
+%% skolem_in_code( ?X, ?Y) is det.
 %
 % Skolem In Code.
 %
@@ -474,7 +473,7 @@ skolem_in_code(X,Y):- ignore(X=Y).
 
 %= 	 	 
 
-%% skolem_in_code( ?X, ?VALUE2, ?Fml) is semidet.
+%% skolem_in_code( ?X, ?VALUE2, ?Fml) is det.
 %
 % Skolem In Code.
 %
@@ -485,7 +484,7 @@ skolem_in_code(X,_,Fml):- when('?='(X,_),skolem_in_code(X,Fml)).
 
 %= 	 	 
 
-%% not_mudEquals( ?X, ?Y) is semidet.
+%% not_mudEquals( ?X, ?Y) is det.
 %
 % Not Application Equals.
 %
@@ -495,7 +494,7 @@ not_mudEquals(X,Y):- dif:dif(X,Y).
 
 %= 	 	 
 
-%% type_of_var( ?Fml, ?Var, ?Type) is semidet.
+%% type_of_var( ?Fml, ?Var, ?Type) is det.
 %
 % Type Of Variable.
 %
@@ -506,7 +505,7 @@ type_of_var(Fml,Var,Type):- contains_type_lits(Fml,Var,Lits),!,(member(Type,Lits
 
 %= 	 	 
 
-%% to_dlog_ops( ?VALUE1) is semidet.
+%% to_dlog_ops( ?VALUE1) is det.
 %
 % Converted To Datalog Oper.s.
 %
@@ -543,7 +542,7 @@ to_dlog_ops([
 
 %= 	 	 
 
-%% to_symlog_ops( ?VALUE1) is semidet.
+%% to_symlog_ops( ?VALUE1) is det.
 %
 % Converted To Symlog Oper.s.
 %
@@ -559,7 +558,7 @@ to_symlog_ops([
 
 %= 	 	 
 
-%% to_prolog_ops( ?VALUE1) is semidet.
+%% to_prolog_ops( ?VALUE1) is det.
 %
 % Converted To Prolog Oper.s.
 %
@@ -578,7 +577,7 @@ to_prolog_ops([
 
 %= 	 	 
 
-%% to_nonvars( :PRED2Type, ?IN, ?IN) is semidet.
+%% to_nonvars( :PRED2Type, ?IN, ?IN) is det.
 %
 % Converted To Nonvars.
 %
@@ -589,7 +588,7 @@ to_nonvars(Type,IN,OUT):- call(Type,IN,OUT),!.
 
 
 
-%% convertAndCall( ?Type, :Goal) is semidet.
+%% convertAndCall( ?Type, :Goal) is det.
 %
 % Convert And Call.
 %
@@ -599,7 +598,7 @@ convertAndCall(_Type,Call):-call_last_is_var(Call).
 
 %= 	 	 
 
-%% as_dlog( ?Fml, ?Fml) is semidet.
+%% as_dlog( ?Fml, ?Fml) is det.
 %
 % Converted To Datalog.
 %
@@ -612,17 +611,17 @@ as_dlog(Fml,FmlO):- to_dlog_ops(OPS),subsT_each(Fml,OPS,FmlM),!,correct_arities(
 
 %= 	 	 
 
-%% as_symlog( ?Fml, ?Fml) is semidet.
+%% as_symlog( ?Fml, ?Fml) is det.
 %
 % Converted To Symlog.
 %
 as_symlog(Fml,Fml):- leave_as_is_logically(Fml),!.
-as_symlog(Fml,FmlO):- as_dlog(Fml,FmlM),to_symlog_ops(OPS),subsT_each(FmlM,OPS,FmlM),correct_arities(['v','&'],FmlM,FmlO).
+as_symlog(Fml,FmlO):- notrace((as_dlog(Fml,FmlM),to_symlog_ops(OPS),subsT_each(FmlM,OPS,FmlM),correct_arities(['v','&'],FmlM,FmlO))).
 
 
 %= 	 	 
 
-%% baseKB:as_prolog_hook( ?Fml, ?Fml) is semidet.
+%% baseKB:as_prolog_hook( ?Fml, ?Fml) is det.
 %
 % Converted To Prolog.
 %
@@ -636,7 +635,7 @@ baseKB:as_prolog_hook(Fml,FmlO):- as_symlog(Fml,FmlM),
 
 %= 	 	 
 
-%% adjust_kif( ?KB, ?Kif, ?KifO) is semidet.
+%% adjust_kif( ?KB, ?Kif, ?KifO) is det.
 %
 % Adjust Knowledge Interchange Format.
 %
@@ -648,7 +647,7 @@ adjust_kif(KB,Kif,KifO):- as_dlog(Kif,KifM),must(adjust_kif0(KB,KifM,KifO)),!.
 
 %= 	 	 
 
-%% adjust_kif0( ?VALUE1, ?V, ?V) is semidet.
+%% adjust_kif0( ?VALUE1, ?V, ?V) is det.
 %
 % Adjust Knowledge Interchange Format Primary Helper.
 %
@@ -687,7 +686,7 @@ adjust_kif0(KB,PAB,PABO):- PAB=..[P|AB],must_maplist(adjust_kif0(KB),AB,ABO),PAB
 
 %= 	 	 
 
-%% adjust_kif0( ?KB, ?Not_P, :TermARGS, ?O) is semidet.
+%% adjust_kif0( ?KB, ?Not_P, :TermARGS, ?O) is det.
 %
 % Adjust Knowledge Interchange Format Primary Helper.
 %
@@ -714,7 +713,7 @@ adjust_kif0(KB,F,ARGS,O):-KIF=..[F|ARGS],length(ARGS,L),L>2,adjust_kif0(KB,KIF,F
 
 %= 	 	 
 
-%% adjust_kif0( ?KB, ?KIF, ?OP, ?ARGS, ?Conj) is semidet.
+%% adjust_kif0( ?KB, ?KIF, ?OP, ?ARGS, ?Conj) is det.
 %
 % Adjust Knowledge Interchange Format Primary Helper.
 %
@@ -723,7 +722,7 @@ adjust_kif0(KB,KIF,OP,ARGS,Conj):-must_maplist(adjust_kif(KB),ARGS,ABO),adjust_k
 
 %= 	 	 
 
-%% adjust_kif5( ?KB, ?KIF, ?VALUE3, ?ARGS, ?Conj) is semidet.
+%% adjust_kif5( ?KB, ?KIF, ?VALUE3, ?ARGS, ?Conj) is det.
 %
 % Adjust Kif5.
 %
@@ -736,7 +735,7 @@ adjust_kif5(      _,_,'&',ARGS,Conj):-list_to_conjuncts('&',ARGS,Conj).
 
 %= 	 	 
 
-%% local_pterm_to_sterm( ?P, ?S) is semidet.
+%% local_pterm_to_sterm( ?P, ?S) is det.
 %
 % Local Pterm Converted To Sterm.
 %
@@ -762,7 +761,7 @@ local_pterm_to_sterm(P,[P]).
 
 %= 	 	 
 
-%% local_pterm_to_sterm2( ?P, ?Q) is semidet.
+%% local_pterm_to_sterm2( ?P, ?Q) is det.
 %
 % Local Pterm Converted To Sterm Extended Helper.
 %
@@ -777,7 +776,7 @@ local_pterm_to_sterm2(P,Q):-local_pterm_to_sterm(P,PP),([Q]=PP;Q=PP),!.
 
 %= 	 	 
 
-%% flatten_or_list( ?A, ?B, ?C) is semidet.
+%% flatten_or_list( ?A, ?B, ?C) is det.
 %
 % Flatten Or List.
 %
@@ -793,7 +792,7 @@ flatten_or_list(_KB,X,[X]).
 
 %= 	 	 
 
-%% fmtl( ?X) is semidet.
+%% fmtl( ?X) is det.
 %
 % Fmtl.
 %
@@ -802,7 +801,7 @@ fmtl(X):- baseKB:as_prolog_hook(X,XX), fmt(XX).
 
 %= 	 	 
 
-%% write_list( ?F) is semidet.
+%% write_list( ?F) is det.
 %
 % Write List.
 %
@@ -812,7 +811,7 @@ write_list([]).
 
 %= 	 	 
 
-%% unnumbervars_with_names( ?Term, ?CTerm) is semidet.
+%% unnumbervars_with_names( ?Term, ?CTerm) is det.
 %
 % Numbervars Using Names.
 %
@@ -857,7 +856,7 @@ unnumbervars_with_names(Term,CTerm):-
 
 %= 	 	 
 
-%% get_var_names( :TermV, ?NamedVars, :TermS) is semidet.
+%% get_var_names( :TermV, ?NamedVars, :TermS) is det.
 %
 % Get Variable Names.
 %
@@ -869,7 +868,7 @@ get_var_names([V|Vars],NamedVars,[S|SNames]):-
 
 %= 	 	 
 
-%% get_1_var_name( ?Var, :TermNamedVars, ?Name) is semidet.
+%% get_1_var_name( ?Var, :TermNamedVars, ?Name) is det.
 %
 % get  Secondary Helper Variable name.
 %
@@ -885,31 +884,16 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
 %= 	 	 
 
-%% wdmsgl( ?CNF) is semidet.
+%% wdmsgl( ?CNF) is det.
 %
 % Wdmsgl.
 %
-wdmsgl(CNF):- compound(CNF),CNF=..[NAME,NF],!,must(wdmsgl(NAME:-NF)).
-wdmsgl(CNF):- pp_item('',CNF),!.
-wdmsgl(NF):- must((get_functor(NF,NAME),!,must(wdmsgl_2(NAME,NF)))).
-
-
-
-%= 	 	 
-
-%% wdmsgl_2( ?NAME, ?NF) is semidet.
-%
-% wdmsgl  Extended Helper.
-%
+wdmsgl(X):-notrace(wdmsgl0(X)).
+wdmsgl0(CNF):- is_list(CNF),!,maplist(wdmsgl0,CNF).
+wdmsgl0(CNF):- compound(CNF),CNF=..[NAME,NF],!,must(wdmsgl(NAME:-NF)).
+wdmsgl0(CNF):- pp_item('',CNF),!.
+wdmsgl0(NF):- must((get_functor(NF,NAME),!,must(wdmsgl_2(NAME,NF)))).
 wdmsgl_2(NAME,NF):- functor(NF,_,_),wdmsgl_3(NAME,&,NF).
-
-
-%= 	 	 
-
-%% wdmsgl_3( ?NAME, ?F, ?NF) is semidet.
-%
-% Wdmsgl Helper Number 3..
-%
 wdmsgl_3(NAME,F,NF):-
    unnumbervars_with_names(vv(NAME,F,NF),vv(NAME2,F2,NF2)),
    wdmsgl_4(NAME2,F2,NF2).
@@ -917,17 +901,10 @@ wdmsgl_3(NAME,F,NF):-
 %wdmsgl_4(NAME,F,NF):- is_list(NF),!,list_to_set(NF,NS),must_maplist(wdmsgl_4(NAME,F),NS).
 %wdmsgl_4(NAME,F,NF):- compound(NF),NF=..[FF,A,B],FF=F,is_ftNonvar(A),is_ftNonvar(B),!,must_maplist(wdmsgl_4(NAME,F),[A,B]).
 % wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(KB,NAME:-NF2)).
-
-%= 	 	 
-
-%% wdmsgl_4( ?NAME, ?VALUE2, ?NF) is semidet.
-%
-% Wdmsgl Helper Number 4..
-%
 wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(_KB,(NAME:-NF2))).
 
 
-%% kif_to_boxlog( ?Wff, ?Out) is semidet.
+%% kif_to_boxlog( ?Wff, ?Out) is det.
 %
 % Knowledge Interchange Format Converted To Datalog.
 %
@@ -944,7 +921,7 @@ kif_to_boxlog3(WffIn,NormalClauses,Why):- kif_to_boxlog(WffIn,'$VAR'('KB'),Why,N
 
 %= 	 	 
 
-%% alt_kif_to_boxlog( ?Wff, ?KB, ?Why, ?Out) is semidet.
+%% alt_kif_to_boxlog( ?Wff, ?KB, ?Why, ?Out) is det.
 %
 % Alt Knowledge Interchange Format Converted To Datalog.
 %
@@ -955,7 +932,7 @@ alt_kif_to_boxlog(Wff,KB,Why,Out):- loop_check(kif_to_boxlog(( ~(nesc( ~(Wff))))
 
 %= 	 	 
 
-%% kif_to_boxlog( ?WffIn, ?Why, ?Out) is semidet.
+%% kif_to_boxlog( ?WffIn, ?Why, ?Out) is det.
 %
 % Knowledge Interchange Format Converted To Datalog.
 %
@@ -967,7 +944,7 @@ kif_to_boxlog(WffIn,Why,Out):-  kif_to_boxlog(WffIn,'$VAR'('KB'),Why,Out),!.
 
 %= 	 	 
 
-%% kif_to_boxlog( ?I, ?KB, ?Why, ?Flattened) is semidet.
+%% kif_to_boxlog( ?I, ?KB, ?Why, ?Flattened) is det.
 %
 % Knowledge Interchange Format Converted To Datalog.
 %
@@ -1010,10 +987,11 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
    % kb_nlit(KB,Neg),
    % original(Why)=>Wff666
    add_nesc(Wff666,Wff6667),
-   add_preconds(Wff6667,Wff6668),
+   % add_preconds(Wff6667,Wff6668),
+   qualify_nesc(Wff6667,Wff6668),
    adjust_kif(KB,Wff6668,Wff6669),
    wdmsgl(pkif(Wff6669)),
-   nnf(KB,Wff6669,NNF),
+   must(nnf(KB,Wff6669,NNF)),
    %wdmsgl(nnf(NNF)),
    pnf(KB,NNF,PNF),!,
    %wdmsgl(pnf(PNF)),
@@ -1025,18 +1003,19 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
 
 %= 	 	 
 
-%% no_rewrites is semidet.
+%% no_rewrites is det.
 %
 % Hook To [baseKB:no_rewrites/0] For Module Common_logic_snark.
 % No Rewrites.
 %
-baseKB:no_rewrites.
+
+baseKB:no_rewrites :- fail.
 
 
 
 %= 	 	 
 
-%% check_is_kb( ?KB) is semidet.
+%% check_is_kb( ?KB) is det.
 %
 % Check If Is A Knowledge Base.
 %
@@ -1046,19 +1025,19 @@ check_is_kb(KB):-ignore('$VAR'('KB')=KB).
 
 %= 	 	 
 
-%% add_preconds( ?X, ?X) is semidet.
+%% add_preconds( ?X, ?X) is det.
 %
 % Add Preconds.
 %
 add_preconds(X,X):- baseKB:no_rewrites,!.
 add_preconds(X,Z):-
  locally(leave_as_is_db('CollectionS666666666666666ubsetFn'(_,_)),
-   locally(t_l:dont_use_mudEquals,defunctionalize('=>',X,Y))),add_preconds2(Y,Z).
+   locally(t_l:dont_use_mudEquals,must(defunctionalize('=>',X,Y)))),must(add_preconds2(Y,Z)).
 
 
 %= 	 	 
 
-%% add_preconds2( ?Wff6667, ?PreCondPOS) is semidet.
+%% add_preconds2( ?Wff6667, ?PreCondPOS) is det.
 %
 % Add Preconds Extended Helper.
 %
@@ -1069,7 +1048,7 @@ add_preconds2(Wff6667,PreCondPOS):-
 
 %= 	 	 
 
-%% add_poss_to( ?PreCond, ?Wff6667, ?Wff6667) is semidet.
+%% add_poss_to( ?PreCond, ?Wff6667, ?Wff6667) is det.
 %
 % Add Possibility Converted To.
 %
@@ -1085,7 +1064,24 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
 
 
-%= 	 	 
+%% qualify_nesc( ?P, ?Q) is semidet.
+%
+%  Q = (pos(P)=>P).
+%
+
+qualify_nesc(X,X):-!.
+% qualify_nesc(IN,poss(IN)=>nesc(IN)):-!.
+qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- var_or_atomic(Wff),!.
+qualify_nesc(IN,OUT):-is_list(IN),must_maplist(qualify_nesc,IN,OUT),!.  
+qualify_nesc((Q:-P), (Q:- (P, \+ ~Q))):- !.
+qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- leave_as_is_logically(Wff),!.
+qualify_nesc(P=>Q,(( P & QP) =>Q)):- !, weaken_to_poss(Q,QP).
+qualify_nesc(P=>Q,((PP & P & QP) =>Q)):- !, weaken_to_poss(P,PP),weaken_to_poss(Q,QP).
+qualify_nesc(P<=>Q,PQ & QP):-!,qualify_nesc((P=>Q),PQ),qualify_nesc((Q=>P),QP).
+qualify_nesc(Wff666, (POS => Wff666)):- !, weaken_to_poss(Wff666,POS).
+
+   	 
+
 
 %% add_nesc( ?X, ?X) is semidet.
 %
@@ -1094,17 +1090,17 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 add_nesc(X,X):-!.
 
 add_nesc(IN,OUT):-is_list(IN),must_maplist(add_nesc,IN,OUT),!.
-add_nesc(Wff666,Wff666):-leave_as_is_logically(Wff666),!.
+add_nesc(Wff666,Wff666):-leave_as_is(Wff666),!.
 add_nesc(P<=>Q,O):-!,add_nesc(((P=>Q) & (Q=>P)),O).
 add_nesc(PQ,PQO):- PQ=..[F,V|Q],is_quantifier(F),add_nesc(Q,QQ),PQO=..[F,V|QQ],!.
 add_nesc(IN,poss(IN)):-IN=..[F|_],should_be_poss(F),!.
 add_nesc(Wff666,Wff666):-is_modal(Wff666,_),!.
-add_nesc(P=>Q,((PP & P & QP) =>Q)):-  add_poss(P,PP),add_poss(Q,QP).
+add_nesc(P=>Q,((PP & P & QP) =>Q)):-  weaken_to_poss(P,PP),weaken_to_poss(Q,QP).
 add_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_nesc,INL,OUTL),OUT=..[F|OUTL].
 add_nesc(Wff666,Wff666):-!.
 
-add_nesc(Q,(PQ & Q)):-  add_poss(Q,PQ),!.
-add_nesc((P & Q),(PQ & (P & Q))):-  add_poss(P & Q,PQ),!.
+add_nesc(Q,(PQ & Q)):-  weaken_to_poss(Q,PQ),!.
+add_nesc((P & Q),(PQ & (P & Q))):-  weaken_to_poss(P & Q,PQ),!.
 add_nesc(Wff666,Wff666):-!.
 add_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_nesc,INL,OUTL),OUT=..[F|OUTL].
 add_nesc( ~(IN), ~(IN)).
@@ -1112,22 +1108,23 @@ add_nesc(IN,(IN)).
 add_nesc(IN,nesc(IN)).
 
 
-% add_poss(Wff666,Wff666):-!.
-% add_poss(X,X):-!.
+
+% weaken_to_poss(Wff666,Wff666):-!.
+% weaken_to_poss(X,X):-!.
 
 %= 	 	 
 
-%% add_poss( ?PQ, ?PQ) is semidet.
+%% weaken_to_poss( ?PQ, ?PQ) is det.
 %
-% Add Possibility.
+% Weaken statments from meaning Nesc to meaning Possibility.
 %
-add_poss(PQ,PQ):- var(PQ),!.
-add_poss(PQ,PQO):- PQ=..[F,V,Q],is_quantifier(F),add_poss(Q,QQ),PQO=..[F,V,QQ],!.
-add_poss(Wff666,true):- leave_as_is_logically(Wff666),!.
-add_poss( ~(IN), ~(IN)).
-add_poss(INL,OUTC):-is_list(INL),must_maplist(add_poss,INL,OUTL),F='&',OUT=..[F|OUTL],correct_arities(F,OUT,OUTC).
-add_poss(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_poss,INL,OUTL),OUT=..[F|OUTL].
-add_poss(IN,poss(IN)).
+weaken_to_poss(PQ,poss(PQ)):- var(PQ),!.
+weaken_to_poss(INL,OUTC):-is_list(INL),must_maplist(weaken_to_poss,INL,OUTL),F='&',OUT=..[F|OUTL],correct_arities(F,OUT,OUTC).
+%weaken_to_poss(PQ,PQO):- PQ=..[F,V,Q],is_quantifier(F),weaken_to_poss(Q,QQ),PQO=..[F,V,QQ],!.
+weaken_to_poss(Wff666,poss(Wff666)):- leave_as_is_logically(Wff666),!.
+weaken_to_poss( ~(IN), poss(~(IN))):-!.
+weaken_to_poss(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(weaken_to_poss,INL,OUTL),OUT=..[F|OUTL].
+weaken_to_poss(IN,poss(IN)).
 
 
 % shall X => can X
@@ -1136,7 +1133,7 @@ add_poss(IN,poss(IN)).
 
 %= 	 	 
 
-%% get_lits( ?PQ, ?QQ) is semidet.
+%% get_lits( ?PQ, ?QQ) is det.
 %
 % Get Literals.
 %
@@ -1152,7 +1149,7 @@ get_lits(IN,[IN]).
 
 %= 	 	 
 
-%% simple_negate_literal( ?F, ?FX, ?X) is semidet.
+%% simple_negate_literal( ?F, ?FX, ?X) is det.
 %
 % Simple Negate Literal.
 %
@@ -1161,7 +1158,7 @@ simple_negate_literal(F,X,FX):-append_term(F,X,FX).
 
 
 
-%% should_be_poss( ?VALUE1) is semidet.
+%% should_be_poss( ?VALUE1) is det.
 %
 % Should Be Possibility.
 %
@@ -1172,7 +1169,7 @@ should_be_poss(argInst).
 
 %= 	 	 
 
-%% clauses_to_boxlog( ?KB, ?Why, ?In, ?Prolog) is semidet.
+%% clauses_to_boxlog( ?KB, ?Why, ?In, ?Prolog) is det.
 %
 % Clauses Converted To Datalog.
 %
@@ -1182,7 +1179,7 @@ clauses_to_boxlog(KB,Why,In,Prolog):- clauses_to_boxlog_0(KB,Why,In,Prolog).
 
 %= 	 	 
 
-%% clauses_to_boxlog_0( ?KB, ?Why, ?In, ?Prolog) is semidet.
+%% clauses_to_boxlog_0( ?KB, ?Why, ?In, ?Prolog) is det.
 %
 % clauses Converted To Datalog  Primary Helper.
 %
@@ -1192,7 +1189,7 @@ clauses_to_boxlog_0(KB,Why,In,Prolog):-correct_cls(KB,In,Mid),!,clauses_to_boxlo
 
 %= 	 	 
 
-%% clauses_to_boxlog_1( ?KB, ?Why, ?In, ?Prolog) is semidet.
+%% clauses_to_boxlog_1( ?KB, ?Why, ?In, ?Prolog) is det.
 %
 % clauses Converted To Datalog  Secondary Helper.
 %
@@ -1201,7 +1198,7 @@ clauses_to_boxlog_1(KB, Why,In,Prolog):- clauses_to_boxlog_2(KB,Why,In,PrologM),
 
 %= 	 	 
 
-%% clauses_to_boxlog_2( ?KB, ?Why, :TermIn, ?Prolog) is semidet.
+%% clauses_to_boxlog_2( ?KB, ?Why, :TermIn, ?Prolog) is det.
 %
 % clauses Converted To Datalog  Extended Helper.
 %
@@ -1220,7 +1217,7 @@ clauses_to_boxlog_2(_KB,_Why,(H:-B),(H:-B)):- !.
 
 %= 	 	 
 
-%% clauses_to_boxlog_5( ?KB, ?Why, ?In, ?Prolog) is semidet.
+%% clauses_to_boxlog_5( ?KB, ?Why, ?In, ?Prolog) is det.
 %
 % Clauses Converted To Datalog Helper Number 5..
 %
@@ -1232,7 +1229,7 @@ clauses_to_boxlog_5(_KB,_Why,In,Prolog):-dtrace,In=Prolog.
 
 %= 	 	 
 
-%% mpred_t_tell_kif( ?OP2, ?RULE) is semidet.
+%% mpred_t_tell_kif( ?OP2, ?RULE) is det.
 %
 % Managed Predicate True Structure Canonicalize And Store Knowledge Interchange Format.
 %
@@ -1243,7 +1240,7 @@ mpred_t_tell_kif(OP2,RULE):-
 
 %= 	 	 
 
-%% tsn is semidet.
+%% tsn is det.
 %
 % Tsn.
 %
@@ -1254,7 +1251,7 @@ tsn:- with_all_dmsg(forall(clause(kif,C),must(C))).
 
 %= 	 	 
 
-%% tkif is semidet.
+%% tkif is det.
 %
 % Tkif.
 %
@@ -1263,7 +1260,7 @@ tkif:- kif_test_string(TODO),kif_io(string(TODO),current_output).
 
 %= 	 	 
 
-%% regression_test is semidet.
+%% regression_test is det.
 %
 % Hook To [baseKB:regression_test/0] For Module Common_logic_snark.
 % Regression Test.
@@ -1279,7 +1276,7 @@ baseKB:regression_test:- tsn.
 
 %= 	 	 
 
-%% kif_read( ?InS, ?Wff, ?Vs) is semidet.
+%% kif_read( ?InS, ?Wff, ?Vs) is det.
 %
 % Knowledge Interchange Format Read.
 %
@@ -1294,7 +1291,7 @@ kif_read(InS,Wff,Vs):- must(l_open_input(InS,In)),
 
 %= 	 	 
 
-%% kif is semidet.
+%% kif is det.
 %
 % Knowledge Interchange Format.
 %
@@ -1308,7 +1305,7 @@ kif:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 %= 	 	 
 
-%% kif_io( ?InS, ?Out) is semidet.
+%% kif_io( ?InS, ?Out) is det.
 %
 % Knowledge Interchange Format Input/output.
 %
@@ -1326,7 +1323,7 @@ kif_io(InS,Out):-
 
 %= 	 	 
 
-%% why_to_id( ?Term, ?Wff, ?IDWhy) is semidet.
+%% why_to_id( ?Term, ?Wff, ?IDWhy) is det.
 %
 % Generation Of Proof Converted To Id.
 %
@@ -1338,7 +1335,7 @@ why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhy
 
 %= 	 	 
 
-%% kif_process( :GoalAssert) is semidet.
+%% kif_process( :GoalAssert) is det.
 %
 % Knowledge Interchange Format Process.
 %
@@ -1350,7 +1347,7 @@ kif_process(Wff):- t_l:kif_action_mode(Mode),kif_process(Mode,Wff),!.
 
 %= 	 	 
 
-%% kif_process( ?Other, :GoalWff) is semidet.
+%% kif_process( ?Other, :GoalWff) is det.
 %
 % Knowledge Interchange Format Process.
 %
@@ -1367,7 +1364,7 @@ kif_process(Other,Wff):- !, wdmsg(error(missing_kif_process(Other,Wff))),!,fail.
 
 %= 	 	 
 
-%% kif_ask_sent( ?VALUE1) is semidet.
+%% kif_ask_sent( ?VALUE1) is det.
 %
 % Knowledge Interchange Format Complete Inference Sentence.
 %
@@ -1388,7 +1385,7 @@ kif_ask_sent(Wff):-
 
 %= 	 	 
 
-%% kif_ask( :TermP) is semidet.
+%% kif_ask( :TermP) is det.
 %
 % Knowledge Interchange Format Complete Inference.
 %
@@ -1405,7 +1402,7 @@ kif_ask(Goal0):-  logical_pos(_KB,Goal0,Goal),
 
 %= 	 	 
 
-%% kif_ask( ?VALUE1, ?VALUE2) is semidet.
+%% kif_ask( ?VALUE1, ?VALUE2) is det.
 %
 % Knowledge Interchange Format Complete Inference.
 %
@@ -1418,7 +1415,7 @@ kif_ask(Goal0,ProofOut):- logical_pos(_KB,Goal0,Goal),
 
 %= 	 	 
 
-%% kif_add( ?InS) is semidet.
+%% kif_add( ?InS) is det.
 %
 % Knowledge Interchange Format Add.
 %
@@ -1430,7 +1427,7 @@ kif_add(WffIn):- must_det_l((unnumbervars_with_names(WffIn,Wff),ain(clif(Wff))))
 
 %= 	 	 
 
-%% local_sterm_to_pterm( ?Wff, ?WffO) is semidet.
+%% local_sterm_to_pterm( ?Wff, ?WffO) is det.
 %
 % Local Sterm Converted To Pterm.
 %
@@ -1466,7 +1463,7 @@ assert_wfs_fallback0(Why, HB):- adjust_kif('$VAR'(KB),HB,HBK),demodal('$VAR'(KB)
 
 %= 	 	 
 
-%% kb_incr( ?WffNum1, ?WffNum2) is semidet.
+%% kb_incr( ?WffNum1, ?WffNum2) is det.
 %
 % Knowledge Base Incr.
 %
@@ -1492,7 +1489,7 @@ kif_add_boxes(How,Why,Wff0,Asserts0):-
 
 %= 	 	 
 
-%% kif_add_adding_constraints( ?Why, ?Isas, :TermGet1Get2) is semidet.
+%% kif_add_adding_constraints( ?Why, ?Isas, :TermGet1Get2) is det.
 %
 % Knowledge Interchange Format Add Adding Constraints.
 %
@@ -1507,7 +1504,7 @@ kif_add_adding_constraints(Why,Isas,((H))):- kif_add_boxes1(Why,(H:- Isas)).
 
 %= 	 	 
 
-%% kif_add_boxes1( ?Why, ?List) is semidet.
+%% kif_add_boxes1( ?Why, ?List) is det.
 %
 % Knowledge Interchange Format Add Boxes Secondary Helper.
 %
@@ -1522,7 +1519,7 @@ kif_add_boxes1(Why,AssertI):- must_det_l((simplify_bodies(AssertI,AssertO),kif_a
 
 %= 	 	 
 
-%% kif_add_boxes3( :PRED2How, ?Why, ?Assert) is semidet.
+%% kif_add_boxes3( :PRED2How, ?Why, ?Assert) is det.
 %
 % Knowledge Interchange Format Add Boxes3.
 %
@@ -1536,7 +1533,7 @@ kif_add_boxes3(How,Why,Assert):-
 
 %= 	 	 
 
-%% kif_unnumbervars( ?X, ?YY) is semidet.
+%% kif_unnumbervars( ?X, ?YY) is det.
 %
 % Knowledge Interchange Format Unnumbervars.
 %
@@ -1552,7 +1549,7 @@ kif_unnumbervars(X,YY):-
 
 %= 	 	 
 
-%% simplify_bodies( ?B, ?BC) is semidet.
+%% simplify_bodies( ?B, ?BC) is det.
 %
 % Simplify Bodies.
 %
@@ -1563,7 +1560,7 @@ simplify_bodies((B),(BC)):- must_det_l((conjuncts_to_list(B,RB),simplify_list(_K
 
 %= 	 	 
 
-%% simplify_list( ?KB, ?RB, ?BBS) is semidet.
+%% simplify_list( ?KB, ?RB, ?BBS) is det.
 %
 % Simplify List.
 %
@@ -1572,7 +1569,7 @@ simplify_list(KB,RB,BBS):- list_to_set(RB,BB),must_maplist(removeQ(KB),BB,BBO),l
 
 %= 	 	 
 
-%% save_wfs( ?Why, ?PrologI) is semidet.
+%% save_wfs( ?Why, ?PrologI) is det.
 %
 % Save Well-founded Semantics Version.
 %
@@ -1583,7 +1580,7 @@ save_wfs(Why,PrologI):- must_det_l((baseKB:as_prolog_hook(PrologI,Prolog),
 
 %= 	 	 
 
-%% nots_to( ?H, ?To, ?HH) is semidet.
+%% nots_to( ?H, ?To, ?HH) is det.
 %
 % Negations Converted To.
 %
@@ -1591,7 +1588,7 @@ nots_to(H,To,HH):-subst_except(H,not,To,HH),subst_except(H,-,To,HH),subst_except
 
 %= 	 	 
 
-%% neg_h_if_neg( ?H, ?HH) is semidet.
+%% neg_h_if_neg( ?H, ?HH) is det.
 %
 % Negated Head If Negated.
 %
@@ -1599,7 +1596,7 @@ neg_h_if_neg(H,HH):-nots_to(H,'~',HH).
 
 %= 	 	 
 
-%% neg_b_if_neg( ?HBINFO, ?B, ?BBB) is semidet.
+%% neg_b_if_neg( ?HBINFO, ?B, ?BBB) is det.
 %
 % Negated Backtackable If Negated.
 %
@@ -1609,7 +1606,7 @@ neg_b_if_neg(HBINFO,B,BBB):-nots_to(B,'~',BB),sort_body(HBINFO,BB,BBB),!.
 
 %= 	 	 
 
-%% sort_body( ?HBINFO, ?BB, ?BBB) is semidet.
+%% sort_body( ?HBINFO, ?BB, ?BBB) is det.
 %
 % Sort Body.
 %
@@ -1618,7 +1615,7 @@ sort_body(HBINFO,BB,BBB):-sort_body_0(HBINFO,BB,BBB),(BBB=@=BB->true; (expand_to
 
 %= 	 	 
 
-%% sort_body_0( ?VALUE1, ?SORTED, ?SORTED) is semidet.
+%% sort_body_0( ?VALUE1, ?SORTED, ?SORTED) is det.
 %
 % sort body  Primary Helper.
 %
@@ -1636,7 +1633,7 @@ sort_body_0(_,SORTED,SORTED).
 
 %= 	 	 
 
-%% litcost_compare( ?HBINFO, ?Comp, ?A, ?B) is semidet.
+%% litcost_compare( ?HBINFO, ?Comp, ?A, ?B) is det.
 %
 % Litcost Compare.
 %
@@ -1647,7 +1644,7 @@ litcost_compare(HBINFO,Comp,A,B):-lit_cost(HBINFO,A,AC),lit_cost(HBINFO,B,BC),co
 
 %= 	 	 
 
-%% lit_cost( ?HBINFO, ?A, :GoalAC) is semidet.
+%% lit_cost( ?HBINFO, ?A, :GoalAC) is det.
 %
 % Literal Cost.
 %
@@ -1665,7 +1662,7 @@ lit_cost(HBINFO,A,AC):- expand_to_hb(HBINFO,H,B),
 
 %= 	 	 
 
-%% simp_code( ?A, ?A) is semidet.
+%% simp_code( ?A, ?A) is det.
 %
 % Simp Code.
 %
@@ -1676,7 +1673,7 @@ simp_code(A,A).
 
 %= 	 	 
 
-%% var_count_num( ?Term, ?SharedTest, ?SharedCount, ?UnsharedCount) is semidet.
+%% var_count_num( ?Term, ?SharedTest, ?SharedCount, ?UnsharedCount) is det.
 %
 % Variable Count Num.
 %
@@ -1689,7 +1686,7 @@ var_count_num(Term,SharedTest,SharedCount,UnsharedCount):- term_slots(Term,Slots
 
 %= 	 	 
 
-%% ain_h( :PRED2How, ?Why, ?H) is semidet.
+%% ain_h( :PRED2How, ?Why, ?H) is det.
 %
 % Assert If New Head.
 %
@@ -1699,7 +1696,7 @@ ain_h(How,Why,(H)):- neg_h_if_neg(H,HH), call(How,Why,(HH)).
 
 %= 	 	 
 
-%% save_in_code_buffer( ?VALUE1, ?HB) is semidet.
+%% save_in_code_buffer( ?VALUE1, ?HB) is det.
 %
 % Save In Code Buffer.
 %
@@ -1709,7 +1706,7 @@ save_in_code_buffer(Why,HB):- simp_code(HB,SIMP),assert(t_l:in_code_Buffer(HB,Wh
 
 %= 	 	 
 
-%% use_was_isa_h( ?I, :TermT, ?ISA) is semidet.
+%% use_was_isa_h( ?I, :TermT, ?ISA) is det.
 %
 % use was  (isa/2) Head.
 %
@@ -1728,7 +1725,7 @@ to_isa_form0(I,C,OUT):- atom(C)->OUT=..[C,I].
 
 %= 	 	 
 
-%% generate_ante( :TermARG1, :TermARG2, ?InOut, ?InOut) is semidet.
+%% generate_ante( :TermARG1, :TermARG2, ?InOut, ?InOut) is det.
 %
 % Generate Ante.
 %
@@ -1738,7 +1735,7 @@ generate_ante([I|VarsA],[T|VarsB],In,Isas):- use_was_isa_h(I,T,ISA), conjoin(In,
 
 %= 	 	 
 
-%% get_constraints( ?ListA, ?Isas) is semidet.
+%% get_constraints( ?ListA, ?Isas) is det.
 %
 % Get Constraints.
 %

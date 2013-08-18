@@ -107,6 +107,19 @@ annote(Dom,X,Form2,SK_FINAL):- oo_get_attr(X,Dom,Form1),merge_forms(Form1,Form2,
 annote(_,X,IO,IO):- is_ftNonvar(X),!.
 annote(Dom,X,Form2,Form2):- oo_put_attr(X,Dom,Form2).
 
+is_skolem(Sk):-get_skolem(Sk,_Form).
+get_skolem(Sk,Form):-oo_get_attr(Sk, sk, Form),!.
+
+x_skolem(Sk,skolem(Sk,Form)):-get_skolem(Sk,Form),del_attr(Sk,sk).
+
+transform_skolem_forms(Sk,Form):- x_skolem(Sk,Form),!.
+transform_skolem_forms(Var,true):- var(Var),!.
+transform_skolem_forms(Head,HeadExtra):- term_attvars(Head,AttVars),include(AttVars,is_skolem,HeadAttVars),
+  transform_skolem_forms_l(HeadAttVars,HeadExtra).
+
+transform_skolem_forms_l([Sk],Form):- x_skolem(Sk,Form),!.
+transform_skolem_forms_l([Sk|Head],(Form,HeadExtra)):-  x_skolem(Sk,Form), transform_skolem_forms_l(Head,HeadExtra).
+
 
 %%	sk_form(+Sk, -Form) is semidet.
 %
@@ -151,6 +164,49 @@ sk:attr_unify_hook(Form, OtherValue):- var(OtherValue),!,push_skolem(OtherValue,
 portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk,Name), format('sk_avar(~w,~p)',[Name,Form]).
 
 :- system:import(portray_sk/1).
+
+
+
+%=
+
+%% attr_portray_hook( ?Value, ?Var) is semidet.
+%
+% Attr Portray Hook.
+%
+ % vn:attr_portray_hook(Name, _) :- write('???'), write(Name),!.
+vn:attr_portray_hook(_, _) :- !.
+sk:attr_portray_hook(_, _) :- !.
+
+:- multifile(user:portray/1).
+:- dynamic(user:portray/1).
+user:portray(Sk):- get_attr(Sk, vn, Name), get_attrs(Sk,att(vn,Name,[])),write(Name),!,write('{}').
+
+%% portray_attvar( ?Var) is semidet.
+%
+% Hook To [portray_attvar/1] For Module Logicmoo_varnames.
+% Portray Attribute Variable.
+%
+:- abolish('$attvar':portray_attvar/1). 
+:- public('$attvar':portray_attvar/1).
+
+'$attvar':portray_attvar(Sk) :- get_attr(Sk, vn, Name),atomic(Name), write('_'),write(Name),get_attrs(Sk,att(vn,Name,[])),!.
+
+'$attvar':portray_attvar(Sk) :-
+   get_attr(Sk, sk, _), write('_sk'),!. % get_attrs(Sk,att(vn,Name,att(sk,Name,[]))),!.
+
+'$attvar':portray_attvar(Var) :-
+   write('{'),
+   get_attrs(Var, Attr),
+   '$attvar':portray_attrs(Attr, Var),
+   write('}'),!.
+
+'$attvar':portray_attvar(Var) :-
+	write('{<'),
+        ((get_attr(Var,vn, VarName))->true;sformat(VarName,'~w',[Var])),
+	get_attrs(Var, Attr),
+	catch(writeq('??'(VarName,Attr)),_,'$attvar':portray_attrs(Attr, Var)),
+	write('>}').
+
 
 :- multifile(user:portray/1).
 :- dynamic(user:portray/1).

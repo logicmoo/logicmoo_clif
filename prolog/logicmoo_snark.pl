@@ -1,13 +1,13 @@
-/* <module> logicmoo_plarkc - special module hooks into the logicmoo engine allow
-%   clif syntax to be recocogized via our CycL/KIF handlers 
-% 
-% Logicmoo Project: A LarKC Server written in Prolog
-% Maintainer: Douglas Miles
-% Dec 13, 2035
-%
-*/
-
 :- module(logicmoo_snark,[]).
+/** <module> logicmoo_plarkc - special module hooks into the logicmoo engine allow
+   clif syntax to be recocogized via our CycL/KIF handlers 
+ 
+ Logicmoo Project: A LarKC Server written in Prolog
+ Maintainer: Douglas Miles
+ Dec 13, 2035
+
+ ?- ensure_loaded(library(logicmoo_snark)).
+*/
 
 :- user:use_module(library(logicmoo_util_common)).
 
@@ -19,25 +19,25 @@
 
 :- '$set_source_module'(baseKB).
 
-:- system:reexport(library(logicmoo_engine)).
+:- asserta_new(user:file_search_path(logicmoo,library('logicmoo/.'))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
 
 % :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_snark.pl')). 
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_skolem.pl')).
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
+:- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_skolem.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
+:- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 % :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
+:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- user:ensure_loaded(library(logicmoo_snark)).
 
 :- set_prolog_flag(do_renames,term_expansion).
 
@@ -61,7 +61,7 @@ skip_sumo:- app_argv(List), \+ member('--sumo',List), \+ member('--snark',List),
 
 clone_ontologyportal_sumo:- skip_sumo,!.
 clone_ontologyportal_sumo:- exists_directory('./ontologyportal_sumo'),!.
-clone_ontologyportal_sumo:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo'),shell('touch *.tmp'),('touch _*').
+clone_ontologyportal_sumo:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo'),shell('touch _*.tmp').
 
 :- during_boot(clone_ontologyportal_sumo).
 
@@ -82,6 +82,10 @@ loadSumo3:- skip_sumo,!.
 loadSumo3:- 
    % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
    !.
+
+
+rst:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SAVE SUMO KB EXTENSIONS
@@ -206,8 +210,11 @@ with_ukb_snark(KB,G):- with_umt(KB,G).
 %=    exists(X,A)
 %=    atleast(X,N,A)
 %=    atmost(X,N,A)
+
+
+
 end_of_file.
-:- module(logicmoo_engine, [ tsn/0 ] ). 
+
 
 :- system:reexport(library(logicmoo_user)).
 
@@ -816,10 +823,6 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 load_snark:- mpred_load_restore_file(never). 
 
 :- fixup_exports.
-
-
-
-
 
 
 

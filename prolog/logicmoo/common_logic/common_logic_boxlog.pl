@@ -70,7 +70,7 @@ Per-Litteral features
           boxlog_to_pfc_pass_4/2,
             boxlog_to_pfc_pass_3/4,
             can_use_hack/1,
-            conjoin_body/3,
+            % conjoin_body/3,
             conjoin_maybe/3,
             correct_mode/3,
             did_use_hack/1,

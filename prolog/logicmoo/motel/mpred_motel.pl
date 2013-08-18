@@ -18,7 +18,7 @@
 
 
 %:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
-%:- module(mpred_motel,[ getLibraries/0]).
+:- module(mpred_motel,[ getLibraries/0]).
 %:- endif.
 :- style_check(-singleton).
 /*
@@ -974,7 +974,7 @@ doConsistencyCheck(_GL1,[]) :-
 /***********************************************************************
  * 
  * cCS(+CallStack,Call)
- * succeeds if the top call on CallStack is not already contained
+ * succeeds if the 'top' call on CallStack is not already contained
  * elsewhere in CallStack and Call is not already contained in CallStack.
  * This predicate is used to prevent nontermination.
  *
@@ -1273,7 +1273,7 @@ printAxiom(true) :-
  * clashCS(+CL)
  * succeeds if CL is a clash, i.e. it obeys one of the following 
  * conditions:
- * - it contains in(bot,X) for some X.
+ * - it contains in('bot',X) for some X.
  * - it contains both in(A,X) and in(not(A),X) for some A and some X.
  *
  */
@@ -1335,7 +1335,7 @@ doClashTest(Goal) :-
 
 % clashCS(CL) :-
 % 	clashTest(possible),
-% 	member(in(rn(_,_,_,_),modal(_MS),bot,_X,hyp(_HYPS1)),CL),
+% 	member(in(rn(_,_,_,_),modal(_MS),'bot',_X,hyp(_HYPS1)),CL),
 % 	!.
 % clashCS(CL) :-
 % 	clashTest(possible),
@@ -1386,7 +1386,7 @@ doClashTest(Goal) :-
  */
 
 clashInHyp(CL) :-
-	member(in(_,modal(_MS),bot,_X,hyp(_HYPS1),ab(_)),CL),
+	member(in(_,modal(_MS),'bot',_X,hyp(_HYPS1),ab(_)),CL),
 	!.
 clashInHyp(CL) :-
 	member(in(_N2,modal(MS2),A,X,hyp(_HYPS2),ab(_D2)),CL),
@@ -1711,16 +1711,16 @@ classify(Type,Env,MS,NewConcept,OldTree,NewTree) :-
  *                    -NewTree,-Judgement)
  * builds a tree representation NewTree of the subsumption hierarchy 
  * Judgement has the following meaning:
- * below  : NewConcept is below  the top concept of OldTree
+ * below  : NewConcept is below  the 'top' concept of OldTree
  *          in this case NewTree is instantiated with the tree which
  *          has NewConcept inserted in OldTree
- * beside : NewConcept is beside the top concept of OldTree
+ * beside : NewConcept is beside the 'top' concept of OldTree
  *          in this case NewTree is instantiated with the tree which
- *          has NewConcept as top concept and all concepts of OldTree
+ *          has NewConcept as 'top' concept and all concepts of OldTree
  *          which are subsumed by NewConcept below it
- * above  : NewConcept is above  the top concept of OldTree
+ * above  : NewConcept is above  the 'top' concept of OldTree
  *          in this case NewTree is not instantiated
- * in     : NewConcept is equivalent to the top concept of OldTree
+ * in     : NewConcept is equivalent to the 'top' concept of OldTree
  *          in this case NewTree is instantiated with the tree which
  *          has NewConcept inserted in OldTree
  *
@@ -1855,10 +1855,10 @@ testForEquivalence(_Type,_,_MS,_NewConcept,node([_ClassifiedConcept|_CL],_AL),
 
 subsume2(Type,Env,MS,X,Y) :- var(X),!,fail.
 subsume2(Type,Env,MS,X,Y) :- var(Y),!,fail.
-subsume2(Type,Env,MS,X,top) :- !,fail.
-subsume2(Type,Env,MS,bot,X) :- !,fail.
-subsume2(Type,Env,MS,X,bot) :- !.
-subsume2(Type,Env,MS,top,X) :- !.
+subsume2(Type,Env,MS,X,'top') :- !,fail.
+subsume2(Type,Env,MS,'bot',X) :- !,fail.
+subsume2(Type,Env,MS,X,'bot') :- !.
+subsume2(Type,Env,MS,'top',X) :- !.
 subsume2(Type,Env,MS,X,Y) :- 
 	sub3(X,Y),
 	!.
@@ -1875,14 +1875,14 @@ subsume2(Type,Env,MS,X,Y) :-
 	cont5a(X,Y),
 	!,
 	fail.
-cont4(top,Y).
+cont4('top',Y).
 cont4(X,Y) :- 
 	assert1(sub3(X,Y)),
 	succ3(Z,X),
 	cont4(Z,Y),!.
 cont4(X,Y). 
-cont5a(bot,X) :- !.
-cont5a(X,bot) :- !,fail.
+cont5a('bot',X) :- !.
+cont5a(X,'bot') :- !,fail.
 cont5a(X,Y) :-
 	assert1(nsub3(X,Y)),
 	succ3(Y,Z),
@@ -1895,7 +1895,7 @@ retract2(G) :- retract(G),!.
 retract2(_G) :- !.
 
 succ2(X,Y) :- succ3(X,Y),!.
-succ2(_X,bot) :- !.
+succ2(_X,'bot') :- !.
 
 
 /***********************************************************************
@@ -2037,16 +2037,16 @@ init_new_daten(Env) :-
         init_succ(_),
 	init_sub(_),
 	init_nsub(_),
-	assert(conceptName1(Env,_,top)),
-	assert(roleName1(Env,_,top)),
-       	assertz(succ(concepts,Env,_,top,bot)),
-	assertz(sub(concepts,Env,_,top,_)),
+	assert(conceptName1(Env,_,'top')),
+	assert(roleName1(Env,_,'top')),
+       	assertz(succ(concepts,Env,_,'top','bot')),
+	assertz(sub(concepts,Env,_,'top',_)),
 	assertz(nsub(concepts,Env,_,X,X)),	
-	assertz(succ(roles,Env,_,top,bot)),
-	assertz(sub(roles,Env,_,top,_)),
+	assertz(succ(roles,Env,_,'top','bot')),
+	assertz(sub(roles,Env,_,'top',_)),
 	assertz(nsub(roles,Env,_,X,X)),
-	assertz(sub(roles,Env,_,_,bot)),
-	assertz(sub(concepts,Env,_,_,bot)).
+	assertz(sub(roles,Env,_,_,'bot')),
+	assertz(sub(concepts,Env,_,_,'bot')).
 
 init_new_daten1 :-
 	currentEnvironment(Env),
@@ -2331,8 +2331,8 @@ find_concept2(concepts,Env,MS,Concept,CT) :-
 	getConceptName(Env,MS,CT),
 	assert1(nsub(concepts,Env,MS,Concept,CT)),
 	assert1(nsub(concepts,Env,MS,CT,Concept)),
-	assert1(succ(concepts,Env,MS,top,Concept)),
-	assert1(succ(concepts,Env,MS,top,CT)),
+	assert1(succ(concepts,Env,MS,'top',Concept)),
+	assert1(succ(concepts,Env,MS,'top',CT)),
 	!.
 find_concept2(concepts,Env,MS,Concept,CT) :-
 	CT = and([X|[R]]),
@@ -2602,8 +2602,8 @@ find_role2(roles,Env,MS,Role,CT) :-
 	getRoleName(Env,MS,CT),
 	assert1(nsub(roles,Env,MS,Role,Ct)),
 	assert1(nsub(roles,Env,MS,Ct,Role)),
-	assert_succ(roles,Env,MS,top,Role),
-	assert_succ(roles,Env,MS,top,CT),
+	assert_succ(roles,Env,MS,'top',Role),
+	assert_succ(roles,Env,MS,'top',CT),
 	!.	
 find_role2(roles,Env,MS,Role,CT) :-	
 	CT = and([X|[R]]),
@@ -2851,9 +2851,9 @@ make_succ(roles,Env,MS) :-
 	make_succ2(roles,Env,MS,NewRole),
        	fail.
 make_succ2(Type,Env,MS,NewConcept) :- 
-              NewConcept \== top,!,
-              NewConcept \== bot,!,
-              direct_succ(Type,Env,MS,[],top,NewConcept,X,L),
+              NewConcept \== 'top',!,
+              NewConcept \== 'bot',!,
+              direct_succ(Type,Env,MS,[],'top',NewConcept,X,L),
               contb(Type,Env,MS,X,L,NewConcept),
               !.
 
@@ -2874,7 +2874,7 @@ contb(Type,Env,MS,X,L,NewConcept) :-
 contc(Type,Env,MS,X,Y,L) :-
         sub(Type,Env,MS,X,Y),member(Y,L).
 
-direct_succ(Type,Env,MS,_Done,bot,X,_,[]) :- fail.
+direct_succ(Type,Env,MS,_Done,'bot',X,_,[]) :- fail.
 direct_succ(Type,Env,MS,Done,X,NewConcept,Z,L1) :-
 	subsume1(Type,Env,MS,X,NewConcept),
 	setofOrNil(Y,(succ1(Type,Env,MS,X,Y), not(member(Y,[X|Done]))),L),
@@ -2902,7 +2902,7 @@ conta(Type,Env,MS,_Done,[],L2,X,NewConcept,Z1,L10,Z1,L10) :-
         !.
 conta(Type,Env,MS,Done,L,L2,X,NewConcept,Z1,L10,Z,L1) :-
         check(Type,Env,MS,Done,L,L2,X,NewConcept,Z2,L11),
- 	union1(Z1,Z2,Za),delete1(Za,top,Z),
+ 	union1(Z1,Z2,Za),delete1(Za,'top',Z),
 	union1(L10,L11,L1),
         !.
 check1(_,_,_,_,[],_,[]) :- !.
@@ -2916,7 +2916,7 @@ check1(Type,Env,MS,Done,[Y|L],NewConcept,L1) :-
 	check1(Type,Env,MS,[Y|Done],L2,NewConcept,L3),
 	check1(Type,Env,MS,[Y|Done],L,NewConcept,L4),
 	motel_union(L3,L4,L5),
-	deleteInList(L5,top,L1),
+	deleteInList(L5,'top',L1),
 	!.
 check1(Type,Env,MS,Done,[Y|L],NewConcept,L1) :-
 	check1(Type,Env,MS,[Y|Done],L,NewConcept,L1),
@@ -2944,11 +2944,11 @@ make_succ1(Type,Env,MS,X,[],NewConcept) :-
 
 subsume1(Type,Env,MS,X,Y) :- var(X),!,fail.
 subsume1(Type,Env,MS,X,Y) :- var(Y),!,fail.
-subsume1(Type,Env,MS,X,top) :- !,fail.
-subsume1(Type,Env,MS,bot,X) :- !,fail.
+subsume1(Type,Env,MS,X,'top') :- !,fail.
+subsume1(Type,Env,MS,'bot',X) :- !,fail.
 subsume1(Type,Env,MS,X,[]) :- !.
-subsume1(Type,Env,MS,X,bot) :- !.
-subsume1(Type,Env,MS,top,X) :- !.
+subsume1(Type,Env,MS,X,'bot') :- !.
+subsume1(Type,Env,MS,'top',X) :- !.
 subsume1(Type,Env,MS,X,Y) :- 
 	sub(Type,Env,MS,X,Y),
 	!.
@@ -2968,16 +2968,16 @@ subsume1(Type,Env,MS,X,Y) :-
 	!,
 	fail.
 
-cont(Type,Env,MS,_,top,Y).
+cont(Type,Env,MS,_,'top',Y).
 cont(Type,Env,MS,Done,X,Y) :- 
 	assert1(sub(Type,Env,MS,X,Y)),
 	succ1(Type,Env,MS,Z,X),
 	not(member(Z,Done)),
 	cont(Type,Env,MS,[Z|Done],Z,Y),!.
 cont(Type,Env,MS,_,X,Y). 
-cont1a(Type,Env,MS,_,bot,X) :- 
+cont1a(Type,Env,MS,_,'bot',X) :- 
 	!.
-cont1a(Type,Env,MS,_,X,bot) :- 
+cont1a(Type,Env,MS,_,X,'bot') :- 
 	!,fail.
 cont1a(Type,Env,MS,Done,X,Y) :-
        member(X,Done), 
@@ -2988,10 +2988,10 @@ cont1a(Type,Env,MS,Done,X,Y) :-
 	cont1a(Type,Env,MS,[X|Done],Z,Y),
 	!.
 
-delete1([X|R],top,Z) :-
-	deleteInList([X|R],top,Z),
+delete1([X|R],'top',Z) :-
+	deleteInList([X|R],'top',Z),
 	!.
-delete1(X,top,Z) :-
+delete1(X,'top',Z) :-
 	!.
 
 union1([],[],[]).
@@ -3049,7 +3049,7 @@ retract1(G) :-
 succ1(Type,Env,MS,X,Y) :- 
 	succ(Type,Env,MS,X,Y).
 %	!.
-succ1(Type,Env,MS,X,bot).
+succ1(Type,Env,MS,X,'bot').
 % 	:-  !.
 
 /*****************************************************************************/
@@ -3066,10 +3066,10 @@ show_dag(MS) :-
 show_dag(Env,MS) :-
 	!,
 	print('Concepts'),nl,
-        not(show_dag(concepts,Env,MS,top,[])),nl,nl,
+        not(show_dag(concepts,Env,MS,'top',[])),nl,nl,
 	print('Roles'),nl,
-	not(show_dag(roles,Env,MS,top,[])).
-show_dag(Type,Env,MS,bot,_) :- !,fail.
+	not(show_dag(roles,Env,MS,'top',[])).
+show_dag(Type,Env,MS,'bot',_) :- !,fail.
 show_dag(Type,Env,MS,Node,L) :-
 	writes(L),
 	print(Node),nl,
@@ -3109,14 +3109,14 @@ printStat :-
 	!.
 
 buildOrdering(Env,MS,CTree,RTree) :- 
-	buildOrdering(concepts,Env,MS,top,[],CTree),
-	buildOrdering(roles,Env,MS,top,[],RTree),
+	buildOrdering(concepts,Env,MS,'top',[],CTree),
+	buildOrdering(roles,Env,MS,'top',[],RTree),
 	!.
 
 
-buildOrdering(Type,Env,MS,bot,Done,node([bot|EquivClass],[])) :-
+buildOrdering(Type,Env,MS,'bot',Done,node(['bot'|EquivClass],[])) :-
 	!,
-	setofOrNil(Z2,(succ(Type,Env,MS,bot,Z2),succ(Type,Env,MS,Z2,bot)),EquivClass),
+	setofOrNil(Z2,(succ(Type,Env,MS,'bot',Z2),succ(Type,Env,MS,Z2,'bot')),EquivClass),
 	!.
 buildOrdering(Type,Env,MS,Concept1,Done,node([Concept1|EquivClass],SubtreeList)) :-
 	setofOrNil(Z1,succ(Type,Env,MS,Concept1,Z1),S1),
@@ -3138,7 +3138,7 @@ buildOrderingList(Type,Env,MS,[C1|CL],Done,[Subtree|SubtreeList]) :-
 
 successorSet(S1,EquivClass,S2) :-
 	successor_set(S1,EquivClass,S3),
-	((S3 \== [], S2 = S3) ; (S2 = [bot])),
+	((S3 \== [], S2 = S3) ; (S2 = ['bot'])),
 	!.
 
 successor_set([],_,[]) :-
@@ -3147,7 +3147,7 @@ successor_set([C1|CL],EquivClass,S2) :-
 	member(C1,EquivClass),
 	!,
 	successor_set(CL,EquivClass,S2).
-successor_set([bot|CL],EquivClass,S2) :-
+successor_set(['bot'|CL],EquivClass,S2) :-
 	!,
 	successor_set(CL,EquivClass,S2).
 successor_set([C1|CL],EquivClass,[C1|S2]) :-
@@ -3243,16 +3243,16 @@ compileEnvironment(FileName,EnvName) :-
 	write('.'), nl,
 	expand_term((in(Env,Name,modal(MS),CN,CON,hyp(HYP),
                         ab(D),call(CALL),PT) :-
-		          (CN \== top, CN \== bot, CN \== not(top), 
-                           CN \== not(bot),
+		          (CN \== 'top', CN \== 'bot', CN \== not('top'), 
+                           CN \== not('bot'),
 	                   kb_in(Env,pr(3),Name,modal(MS),CN,CON,hyp(HYP),
                                  ab(D),call(CALL),PT))),
 		    InClause4),
 	writeq(InClause4), write('.'), nl,
 	expand_term((in(Env,Name,modal(MS),CN,CON,hyp(HYP),
                         ab(D),call(CALL),PT) :-
-		          (CN \== top,CN \== bot, CN \== not(top), 
-                           CN \== not(bot),
+		          (CN \== 'top',CN \== 'bot', CN \== not('top'), 
+                           CN \== not('bot'),
 			   kb_in(Env,pr(1),Name,modal(MS),CN,CON,hyp(HYP),
 				 ab(D),call(CALL),PT))),
 		    InClause5),
@@ -3466,7 +3466,7 @@ normalizeNot(not(dc(O,P)),bc(O,P)) :-
 	!.
 normalizeNot(not(not(C1)),C3) :-
 	normalizeNot(C1,C3).
-normalizeNot(not(set([])),top) :- !.
+normalizeNot(not(set([])),'top') :- !.
 normalizeNot(C1,C1).
 
 /***********************************************************************
@@ -3702,7 +3702,7 @@ memberConceptSubtrees(Concept,List) :-
  * Arguments: Concept     concept name
  *            Dag         subsumption hierarchy
  * checks wether or not Concept occurs in the direct subconcepts of
- * the top concept of Dag.
+ * the 'top' concept of Dag.
  *
  */
 
@@ -4606,7 +4606,7 @@ memberElementSubtrees(Element,[_N1|NL]) :-
  * Parameter: Element     element name
  *            Dag         subsumption hierarchy
  * checks wether or not Element occurs in the direct subelements of
- * the top element of Dag.
+ * the 'top' element of Dag.
  *
  */
 
@@ -5134,7 +5134,7 @@ initEnvironment(EnvName) :-
 	(in([],C,X) <== equal(X,Y), in([],C,Y)),
 	(equal(X,Y) <== equal(Y,X)),
 	(equal(X,X) <== true),
-	(in(MS,top,X) <== true)])),
+	(in(MS,'top',X) <== true)])),
 	assertInRules(Env),
 	% Assert equality axioms
 	assertEqRule(Env,1),
@@ -5213,13 +5213,13 @@ assertInRules(Env) :-
 	assertz((in(Env,Name,modal(MS),CN,CON,hyp([or(H1),rl(H2),fl(H3)]),ab(noAb),call(CALL),PT) :-
 		 clashInHyp(H2), !, fail)),
 	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
-		 (CN \== top, CN \== bot, CN \== not(top), CN \== not(bot),
+		 (CN \== 'top', CN \== 'bot', CN \== not('top'), CN \== not('bot'),
 	kb_in(Env,pr(3),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT)))),
 % There are no kb_in clauses with priority 2 at the moment (07.10.92)
 %	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
 %	kb_in(Env,pr(2),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
 	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
-		 (CN \== top,CN \== bot, CN \== not(top), CN \== not(bot),
+		 (CN \== 'top',CN \== 'bot', CN \== not('top'), CN \== not('bot'),
 	kb_in(Env,pr(1),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT)))),
 % Experimental code (07.10.92 uh)
 % It might be useful to have global information about the failure of
@@ -5261,7 +5261,7 @@ assertEqRule(Env,2) :-
 assertEqRule(Env,3) :-
 	gensym(axiom,AN20),
 	gensym(rule,RN20),
-	constructEqHead(Env,rn(AN20,RN20,user,lInR),_W1,_Y,_F,top,_X,_HYPS,_D,_CALLS,tbox,EqHead20),
+	constructEqHead(Env,rn(AN20,RN20,user,lInR),_W1,_Y,_F,'top',_X,_HYPS,_D,_CALLS,tbox,EqHead20),
 	assertz(EqHead20),
 	!.
 assertEqRule(Env,4) :-
@@ -5275,7 +5275,7 @@ assertEqRule(Env,4) :-
 
 
 assertInRule(Env,1) :-
-	% For all X: X in top
+	% For all X: X in 'top'
 	% Priority 5 (high priority)
 	gensym(axiom,AN2),
 	gensym(rule,RN2),
@@ -5284,22 +5284,22 @@ assertInRule(Env,1) :-
 	assertz(InHead),
 	!.
 assertInRule(Env,2) :-
-	% For all X: X in not(bot) 
-	% What is actually needed is the equivalence of top and not(bot).
+	% For all X: X in not('bot') 
+	% What is actually needed is the equivalence of 'top' and not('bot').
 	% So we need
-	% For all X: X in top if X in not(bot)
+	% For all X: X in 'top' if X in not('bot')
 	% is subsumed by assertInRule(Env,1).
-	% For all X: X in not(top) if X in bot
+	% For all X: X in not('top') if X in 'bot'
 	% This rule will not be asserted.
-	% For all X: X in bot if X in not(top)
+	% For all X: X in 'bot' if X in not('top')
 	% is subsumed by assertInRule(Env,4).
-	% For all X: X in not(bot) if X in top.
+	% For all X: X in not('bot') if X in 'top'.
 	% is subsumed by assertInRule(Env,2), i.e. the rule we will
 	% assert now.
 	% Priority 5 (high priority)
 	gensym(axiom,AN4),
 	gensym(rule,RN4),
-	constructKBHead(Env,pr(5),rn(AN4,RN4,user,lInR),_W1,not(bot),X,
+	constructKBHead(Env,pr(5),rn(AN4,RN4,user,lInR),_W1,not('bot'),X,
 	                _HYPS,_D,_CALLS,tbox,InHead1),
 	assertz(InHead1),
 	!.
@@ -5317,7 +5317,7 @@ assertInRule(Env,3) :-
 	assertz((InHead2 :- (append(H1,H2,H), member(Mark1,H)) ; memberDML(Mark1,H3))),
 	!.
 assertInRule(Env,4) :-
-	% For all X: X in not(top) => X in C 
+	% For all X: X in not('top') => X in C 
 	% Priority 1 (low priority)
 	% necessary for inconsistent knowledge bases ?
 	gensym(axiom,AN7),
@@ -5356,7 +5356,7 @@ assertInRule(Env,2,AxiomName) :-
 	asserta((InHead1 :- (nonvar(R),(cCS(CALLS,Mark1), once(Body))))),
 	!.
 assertInRule(Env,3,AxiomName) :-
-	% Assert x in some(R,top) => x in atleast(1,R)
+	% Assert x in some(R,'top') => x in atleast(1,R)
 	% Priority 1 (low priority)
 	convertInAntecedent(Env,rn(AxiomName,system,lInR),
 			    bodyMC(W1),headMC(W1),
@@ -5369,7 +5369,7 @@ assertInRule(Env,3,AxiomName) :-
 	asserta((InHead1 :- (nonvar(R), cCS(CALLS,Mark1), once(Body)))),
 	!.
 assertInRule(Env,4,AxiomName) :-
-	% Assert x in atleast(1,R) => x in some(R,top)
+	% Assert x in atleast(1,R) => x in some(R,'top')
 	% Priority 1 (low priority)
 	gensym(rule,RuleName),
 	ruleName(AxiomName,RuleName,system,lInR,RN1),
@@ -9262,13 +9262,13 @@ change_classifier1(Env,MS,CR,CT,[]) :-
 	!.
 change_classifier1(Env,MS,CR,CT,[H|T]) :-
 	getConceptName(Env,MS,H),
-	(H \== top,H \== bot),
+	(H \== 'top',H \== 'bot'),
 	delete_hierarchy(concepts,Env,MS,H),
 	change_classifier1(Env,MS,CR,CT,T),
 	!.
 change_classifier1(Env,MS,CR,CT,[H|T]) :-
 	getRoleName(Env,MS,H),
-	(H \== top,H \== bot),
+	(H \== 'top',H \== 'bot'),
 	delete_hierarchy(roles,Env,MS,H),
 	change_classifier1(Env,MS,CR,CT,T),
 	!.
@@ -9533,9 +9533,9 @@ make_primconcept(EnvName,MS,CName1,restrict_inh(RTerm1, restricts(RTerm2 ,
 	environment(EnvName,Env,_),
 	defrole(EnvName,MS,RName1 , restr(RName2 , CName2)),
 	gensym(concept,CNameDom),
-	defconcept(EnvName,MS,CNameDom ,some(RName2 ,top)),
+	defconcept(EnvName,MS,CNameDom ,some(RName2 ,'top')),
         defprimconcept(EnvName,MS,CNameDom ,CName1),
-%	defprimconcept(EnvName,MS,and([some(inverse(RName1),top),
+%	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %				       naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	assertz((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
@@ -9558,7 +9558,7 @@ make_primconcept(EnvName,MS,CName1 , nr(RTerm1, MinNr,MaxNr,DefNr)):-
 	expand_role(EnvName,MS,RTerm1,RName1,CNameDomT,CName2T,CNameDefT),
 	gensym(concept,CNameDom),
 	defconcept(EnvName,MS,CNameDom, and([atleast(MinNr,RName1),atmost(MaxNr,RName1)])),
-	defconcept(EnvName,MS,CNameDom, some(RName1,top)), 
+	defconcept(EnvName,MS,CNameDom, some(RName1,'top')), 
 	defprimconcept(EnvName,MS,CNameDom , CName1),
 %	gensym(concept,CNameDef),
 %	defconcept(EnvName,MS,CNameDef, and([atleast(DefNr,RName1),atmost(DefNr,RName1)])),
@@ -9691,8 +9691,8 @@ make_defconcept(EnvName,MS,CName1,'restr-inh'(RName1, restricts(RName2 ,
 	environment(EnvName,Env,_),
 	defrole(EnvName,MS,RName1 , restr(RName2 , CName2)),
 	gensym(concept,CNameDom),
-	defconcept(EnvName,MS,CNameDom ,some(RName2 ,top)),
-%	defprimconcept(EnvName,MS,and([some(inverse(RName1),top),
+	defconcept(EnvName,MS,CNameDom ,some(RName2 ,'top')),
+%	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %				       naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	assertz((roleDomain(Env,MS,RName1,CNameDom) :- G1)),
@@ -9714,7 +9714,7 @@ make_defconcept(EnvName,MS,CName1 , nr(RTerm, MinNr,MaxNr,DefNr),CNameDom):-
 	expand_role(EnvName,MS,RTerm,RName1,CNameDomT,CNameT,CNameDefT),
 	gensym(concept,CNameDom),
 	defconcept(EnvName,MS,CNameDom, and([atleast(MinNr,RName1),atmost(MaxNr,RName1)])),
-%	defconcept(EnvName,MS,CNameDom, some(RName1,top)), 
+%	defconcept(EnvName,MS,CNameDom, some(RName1,'top')), 
 %	gensym(concept,CNameDef),
 %	defconcept(EnvName,MS,CNameDef, and([atleast(DefNr,RName1),atmost(DefNr,RName1)])),
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1)),naf(not(CNameDef))]),CNameDef),
@@ -9865,8 +9865,8 @@ sb_primelemrole(X,RName1, 'domain-range'(CName1,CName2,CNameDef)):-
 
 sb_primelemrole(EnvName,MS,RName1, 'domain-range'(CName1,CName2,CNameDef)):-
 	environment(EnvName,Env,_),
-	defprimconcept(EnvName,MS,CName1,some(RName1,top)),
-	defprimconcept(EnvName,MS,some(inverse(RName1),top),CName2),
+	defprimconcept(EnvName,MS,CName1,some(RName1,'top')),
+	defprimconcept(EnvName,MS,some(inverse(RName1),'top'),CName2),
 %	defprimconcept(ENvName,MS,and([CName2,naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	assertz((roleDomain(Env,W1,RName1,CName1) :- G1)),
@@ -9915,7 +9915,7 @@ sb_defelemrole(X,RName1, restricts(RName2, range(CName1,CNameDef))):-
 sb_defelemrole(EnvName,MS,RName1, restricts(RName2, range(CName1,CNameDef))):-
 	environment(EnvName,Env,_),
 	defrole(EnvName,MS,RName1,restr(RName2,CName1)),
-%	defprimconcept(EnvName,MS,and([some(inverse(RName1),top),
+%	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %                                      naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	assertz((roleRange(Env,MS,RName1,CName1) :- G1)),
@@ -9970,7 +9970,7 @@ make_irole(EnvName,MS,ICName1,irole(RName,iname(IRName),
 %       defprimrole(EnvName,MS,IRName,restr(RName,
 %	                                    and([atleast(MinNr,RName),
 %			  		    atmost(MaxNr,RName),
-%					    some(inverse(RName),top)]))),
+%					    some(inverse(RName),'top')]))),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	assertz((roleNr(Env,W1,IRName,MinNr,MaxNr) :- G1)),
 	assertz((roleDefNr(Env,W1,IRName,DefNr) :- G1)).
@@ -9992,10 +9992,10 @@ make_irole(EnvName,MS,ICName1,irole(RName,iname(IRName),vr(ICName2))) :-
 %	consistCheck(EnvName,MS,ICName2,CName2),
 	assert_ind(EnvName,MS,ICName1,ICName2,IRName).
 
-constructRestriction(RName,[],[top]) :-
+constructRestriction(RName,[],['top']) :-
 	!.
 constructRestriction(RName,[nr(MinNr,MaxNr,DefNr)|L1],
-                     [atleast(MinNr,top), atmost(MaxNr,top) | L2]) :-
+                     [atleast(MinNr,'top'), atmost(MaxNr,'top') | L2]) :-
 	constructRestriction(RName,L1,L2),
 	!.
 constructRestriction(RName,[vr(ICName2)|L1],[ICName2|L2]) :-
@@ -10472,7 +10472,7 @@ unmake_primconcept(EnvName,MS,CName1 , nr(R1, MinNr,MaxNr,DefNr)) :-
 			and([atleast(MinNr,R1),atmost(MaxNr,R1)]),AX),
         undefconcept(EnvName,MS,CNameDom,and([atleast(MinNr,R1),
 	 				      atmost(MaxNr,R1)])),
-        undefconcept(EnvName,MS,CNameDom,some(R1,top)),
+        undefconcept(EnvName,MS,CNameDom,some(R1,'top')),
         undefprimconcept(EnvName,MS,CNameDom,CName1),
         retract((roleNr(Env,MS,R1,MinNr,MaxNr) :- _)),
 	retract((roleDefNr(Env,MS,R1,DefNr) :- _)),
@@ -10553,8 +10553,8 @@ unmake_defconcept(EnvName,MS,CName1,'restr-inh'(RName1, restricts(RName2 ,
 	!,
 	getRoleDomain(Env,MS,RName1,CNameDom),
 	!,
-	conceptEqualSets(Env,_usr,MS,CNameDom,some(RName2,top)),
-	undefconcept(CNameDom,some(RName2,top)),
+	conceptEqualSets(Env,_usr,MS,CNameDom,some(RName2,'top')),
+	undefconcept(CNameDom,some(RName2,'top')),
         retract((roleDomain(Env,MS,RName1,CNameDom) :- _)),
 	retract((roleRange(Env,MS,RName1,CName2) :- _)),
 	retract((roleDefault(Env,MS,RName1,CNameDef) :- _)),
@@ -10572,8 +10572,8 @@ unmake_defconcept(EnvName,MS,CName1, nr(RTerm,MinNr,MaxNr,DefNr),CNameDom) :-
         undefconcept(EnvName,MS,CNameDom,and([atleast(MinNr,R1),
 						   atmost(MaxNr,R1)])),
 	!,
-	conceptEqualSets(Env,_usr,MS,CNameDom,some(R1,top)),
-        undefconcept(EnvName,MS,CNameDom,some(R1,top)),       
+	conceptEqualSets(Env,_usr,MS,CNameDom,some(R1,'top')),
+        undefconcept(EnvName,MS,CNameDom,some(R1,'top')),       
 	retract((roleNr(Env,MS,R1,MinNr,MaxNr) :- _)),
 	retract((roleDefNr(Env,MS,R1,DefNr) :- _)),
 	!.
@@ -10725,11 +10725,11 @@ sb_unprimelemrole(X,RName1, 'domain-range'(CName1,CName2,CNameDef)):-
 sb_unprimelemrole(EnvName,MS,RName1, 'domain-range'(CName1,CName2,CNameDef)):-
 	   environment(EnvName,Env,_),
 	   !,
-	   conceptSubsets(Env,_usr,MS,CName1,some(RName1,top)),
-	   undefprimconcept(EnvName,MS,CName1,some(RName1,top)),
+	   conceptSubsets(Env,_usr,MS,CName1,some(RName1,'top')),
+	   undefprimconcept(EnvName,MS,CName1,some(RName1,'top')),
 	   !,
-	   conceptSubsets(Env,_usr,MS,some(inverse(RName1),top)),
-	   undefprimconcept(EnvName,MS,some(inverse(RName1),top),CName2),
+	   conceptSubsets(Env,_usr,MS,some(inverse(RName1),'top')),
+	   undefprimconcept(EnvName,MS,some(inverse(RName1),'top'),CName2),
 	   retract((roleDomain(Env,MS,RName1,CName1) :- _)),
 	   retract((roleRange(Env,MS,RName1,CName2) :- _)),
 	   retract((roleDefault(Env,MS,RName1,CNameDef) :- _)),
@@ -10788,12 +10788,12 @@ unmake_irole(EnvName,MS,ICName1,irole(RName,iname(IRName),
 	!,
 	roleSubsets(Env,_user,MS,IRName,restr(RName,and([atleast(MinNr,RName),
 				            	    atmost(MaxNr,RName),
-						    some(inverse(RName),top)]))),
+						    some(inverse(RName),'top')]))),
 
 	undefprimrole(EnvName,MS,IRName,restr(RName,
 					      and([atleast(MinNr,RName),
 					      atmost(MaxNr,RName),
-					      some(inverse(RName),top)]))),
+					      some(inverse(RName),'top')]))),
         !,
 	getRoleNr(Env,MS,IRName,MinNr,MaxNr),
 	!,
@@ -12210,7 +12210,7 @@ atomicConcept(set([E1])) :-
 
 unfoldElementToSet(E1,set([E1])).
 
-unfoldSetToConcept(set([]),bot) :-
+unfoldSetToConcept(set([]),'bot') :-
 	!.
 unfoldSetToConcept(set([E1]),set([E1])) :-
 	!.
@@ -13319,4 +13319,6 @@ tryGoal(G) :-
 
  *
  */
- :-  ensure_loaded(library('logicmoo/motel/mpred_motel_examples_63')).
+ :-  ensure_loaded(library('logicmoo/motel/test_motel_examples_63')).
+
+ :- fixup_exports.

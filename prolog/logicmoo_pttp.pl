@@ -6,5 +6,8 @@
 % Dec 13, 2035
 %
 */
-:- module(logicmoo_run_old_pttp,[]).
+:- module(logicmoo_pttp,[]).
+
+:- system:reexport(library('logicmoo/pttp/dbase_i_mpred_pttp_statics.pl')).
+:- system:reexport(library('logicmoo/pttp/dbase_i_mpred_pttp.pl')).
 
