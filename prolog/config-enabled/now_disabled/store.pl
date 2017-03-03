@@ -1,0 +1,1 @@
+../../src_modules/ClioPatria/config-available/store.pl

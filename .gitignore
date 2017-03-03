@@ -1,5 +1,14 @@
-# Compiled
-*.elc
-
-# Packaging
-.cask
+prolog/cpack/
+*.tar
+*.tar.*
+*.jar
+*.exe
+*.msi
+*.zip
+*.tgz
+*.log
+*~
+~*
+*.qlf
+INDEX.pl
+*.o
