@@ -179,8 +179,10 @@ reallyLoadTiny:- mpred_notrace.
 
 isa_db(I,C):-clause(isa(I,C),true).
 
+:- baseKB:kb_shared((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+
 /*
-:- dynamic((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+:- kb_shared((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
 :- dynamic((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
 :- dynamic(assertedTinyKB_implies_first/4).
@@ -275,7 +277,8 @@ mtDressedMt('iTemporaryEnglishParaphraseMt').
 into_mpred_form_locally(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_locally(V,R):- into_mpred_form(V,R),!. 
 
-call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[exactlyAssertedEL|ARGS],!,baseKB:call(CALL,MT,STR).
+call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[exactlyAssertedEL|ARGS],!,
+ baseKB:call(CALL,MT,STR).
 make_el_stub(V,MT,STR,CALL):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[exactlyAssertedEL|CARGS],!.
 
 tinyAssertion(V,MT,STR):- 
@@ -295,9 +298,10 @@ addTinyCycL(CycLIn):- into_mpred_form_locally(CycLIn,CycL),
 
 
 tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_locally(CycLIn,CycL), CycL=..[F|Args], append(Args,[MT,_STR],WMT),CCALL=..[exactlyAssertedEL,F|WMT],!,
-  ((clause(CCALL,true), CCALL=CALL) ; clause(CCALL,(CALL,_))).
-tiny_support(CycLOut,MT,CALL):- between(4,7,Len),functor(CCALL,exactlyAssertedEL,Len),CCALL=..[exactlyAssertedEL,F|WMT],append(Args,[MT,_STR],WMT),
- CCALL,(atom(F)->CycL=..[F|Args];append_termlist(F,Args,CycL)),((clause(CCALL,true), CCALL=CALL) ; clause(CCALL,(CALL,_))), fully_expand(CycL,CycLOut).
+  ((baseKB:clause(CCALL,true), CCALL=CALL) ; baseKB:clause(CCALL,(CALL,_))).
+tiny_support(CycLOut,MT,CALL):- between(4,7,Len),functor(CCALL,exactlyAssertedEL,Len),
+  CCALL=..[exactlyAssertedEL,F|WMT],append(Args,[MT,_STR],WMT),
+ baseKB:CCALL,(atom(F)->CycL=..[F|Args];append_termlist(F,Args,CycL)),((baseKB:clause(CCALL,true), CCALL=CALL) ; baseKB:clause(CCALL,(CALL,_))), fully_expand(CycL,CycLOut).
 
 
 is_simple_gaf(V):-not(compound(V)),!.

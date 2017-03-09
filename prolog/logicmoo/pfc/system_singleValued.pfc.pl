@@ -32,7 +32,7 @@ prologSingleValued(Pred),arity(Pred,Arity), \+ singleValuedInArg(Pred,_) ==> sin
 % ((singleValuedInArg(Pred,N)/ ( \+ singleValuedInArgDefault(Pred,N,_))) ==> singleValuedInArgDefault(Pred,N,isMissing)).
 
 
-prologHybrid(singleValuedInArgDefault, 3).
+arity(singleValuedInArgDefault, 3).
 prologHybrid(singleValuedInArgDefault(prologSingleValued,ftInt,ftTerm)).
 
 % This would been fun! singleValuedInArgDefault(singleValuedInArgDefault,3,isMissing).
