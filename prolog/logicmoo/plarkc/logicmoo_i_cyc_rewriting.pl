@@ -66,12 +66,12 @@
 :- use_module(library(sexpr_reader)).
 :- set_module(class(library)).
 
-:- set_prolog_flag_until_eof(lm_expanders,false).
+:- set_prolog_flag_until_eof(subclause_expansion,false).
 
 
 :- module_transparent(show_missing_renames/0).
 :- export(show_missing_renames/0).
-show_missing_renames:-!.
+show_missing_renames:- !.
 show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).
@@ -1235,7 +1235,8 @@ delay_rule_eval(In,Wrap,WIn):- WIn=..[Wrap,In].
 
 fully_expand_always(C0,C1):- locally(t_l:no_db_expand_props,fully_expand('==>'(C0),C1)),!.
 
-tinykb_assertion_recipe(C,P):- cycLToMpred(C,C0),fully_expand_always(C0,C1),unnumbervars(C1,P),!.
+tinykb_assertion_recipe(C,P):- tinykb_assertion_recipe_w(C,C1),unnumbervars(C1,P),!.
+tinykb_assertion_recipe_w(C,P):- cycLToMpred(C,C0),fully_expand_always(C0,P).
 
 kif_assertion_recipe(D,CycLOut):-
          must_det_l((must_map_preds([
@@ -1621,7 +1622,7 @@ do_ren_pass2(t,[P|IC],[t,P|IC]):- \+ atom(P).
 do_ren_pass2(t,[isa,I,C],[isa,I,C]).
 do_ren_pass2(t,[ARG1ISA,P,C],[ARGISA,P,NN,C]):- compute_argIsa(ARG1ISA,NN,ARGISA).
 do_ren_pass2(t,[P|IC],[P|IC]):- intrinsicPred(P).
-do_ren_pass2(ARG1ISA,[P,C],[ARGISA,P,C,NN]):- atom(ARG1ISA), compute_argIsa(ARG1ISA,NN,ARGISA),!.
+do_ren_pass2(ARG1ISA,[P,C],[ARGISA,P,NN,C]):- atom(ARG1ISA), compute_argIsa(ARG1ISA,NN,ARGISA),!.
 do_ren_pass2(P,IC,[P|IC]):- intrinsicPred(P).
 %do_ren_pass2(t,[P|IC],[P|IC]).
 do_ren_pass2(P,ARGS,[P|ARGS]).
@@ -1900,6 +1901,7 @@ rename_sumo(format,formatSumo).
 % rename_sumo(documentation,comment).
 rename_sumo('instance', isa).
 rename_sumo('subclass', genls).
+rename_sumo('inverse', genlInverse).
 rename_sumo('domain', 'argIsa').
 rename_sumo('disjoint', 'disjointWith').
 
@@ -1927,12 +1929,14 @@ rename_sumo('Class','tSet').
 rename_sumo('SetOrClass', 'tCol').
 rename_sumo(I,O):- builtin_rn_or_rn_new(I,O),!.
 
+system:clause_expansion(I, O):- compound(I), 
+   current_prolog_flag(do_renames,term_expansion),
+   % b_getval('$term', Term),Term==I, 
+   do_renames(I,O)->I\==O -> 
+   % b_setval('$term', O),
+     nop(dmsg(do_renames(I)-->O)).
 
 :- fixup_exports.
 
-system:term_expansion(I, Pos, O , Pos):- nonvar(Pos),compound(I), 
-   current_prolog_flag(do_renames,term_expansion),
-   b_getval('$term', Term),Term==I, do_renames(I,O)->I\==O,!,
-   nop(dmsg(do_renames(I)-->O)).
 
 

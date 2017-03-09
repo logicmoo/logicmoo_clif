@@ -102,9 +102,9 @@
 
 %:- ensure_abox(baseKB).
 
-:- set_fileAssertMt(baseKB).
+%:- set_fileAssertMt(baseKB).
 
-:- ensure_loaded(('./system_common.pfc')).
+:- ensure_loaded(('system_common.pfc')).
 
 :- ensure_loaded('system_genls.pfc').
 
@@ -114,11 +114,11 @@
 
 :- ensure_loaded(('system_singleValued.pfc')).
 
-:- ensure_loaded(library('logicmoo/snark/common_logic_clif.pfc')).
-
 :- ensure_loaded(('user_relationAllExists.pfc')).
 
 :- ensure_loaded(('user_transitiveViaArg.pfc')).
+
+:- ensure_loaded(('user_type_barriers.pfc')).
 
 
 :- multifile(baseKB:locked_baseKB/0).

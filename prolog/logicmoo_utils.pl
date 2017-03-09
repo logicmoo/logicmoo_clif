@@ -24,14 +24,16 @@
    (( \+ user:file_search_path(library,Dir)) ->asserta(user:file_search_path(library,Dir));true))).
 :- endif.
 :- endif.
-:- if((set_prolog_flag(logicmoo_utils_file,(exists_source(library('clause_expansion')),
-       reexport(library('clause_expansion')))))).
+:- if((set_prolog_flag(logicmoo_utils_file,(exists_source(library(subclause_expansion)),
+       reexport(library(subclause_expansion)))))).
 :- endif.
 :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(logicmoo_utils_file,[logicmoo_utils_test_msg/0]).
 :- endif.
 
-:- set_prolog_flag(lm_expanders,default).
+ % :- set_prolog_flag(subclause_expansion,default).
+ % :- set_prolog_flag(subclause_expansion,false).
+ % :- set_prolog_flag(dialect_pfc,default).
 
 % ======================================================
 % Add Extra file_search_paths
@@ -78,7 +80,7 @@ resolve_dir_local(Dir,ABS):- absolute_file_name(library(Dir),ABS),exists_directo
 
 :- set_prolog_flag(system:generate_debug_info, true).
 :- set_prolog_flag(generate_debug_info, true).
-:- set_prolog_flag(lm_expanders,false).
+ % :- set_prolog_flag(subclause_expansion,false).
 
 :- reexport(library('logicmoo_util_terms')).
 :- reexport(library('logicmoo_util_strings')).
@@ -199,8 +201,8 @@ logicmoo_utils_test_msg:- locally((
 */
 % :- rtrace.
 :- logicmoo_utils_test_msg.
-:- set_prolog_flag(lm_expanders,true).
-:- set_prolog_flag(virtual_stubs,true).
+ % :- set_prolog_flag(subclause_expansion,true).
+%:- set_prolog_flag_until_eof(virtual_stubs,true).
 % .
 
 

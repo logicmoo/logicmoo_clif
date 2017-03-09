@@ -30,7 +30,7 @@
 %
 */
 % NEW
-:- include('../mpred/mpred_header.pi').
+:- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
 :- use_module(library(dictoo)).
 :- meta_predicate skolem_test(0).

@@ -4,32 +4,40 @@
 
 */
 
-:- set_prolog_flag(lm_expanders,default).
-:- set_prolog_flag(dialect_pfc,default).
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- if(\+ current_module(baseKB)).
-:- statistics.
 :- system:ensure_loaded(library(logicmoo_webbot)).
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
+
+
+:- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
 :- else.
 :- set_prolog_flag(logicmoo_qsave,false).
 :- endif.
 
-:- system:use_module(library(pfc)).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LOAD LOGTALK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- nop(user:(
+   % use_module(library(logtalk)),
+   ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
+   listing('$lgt_default_flag'/2))).
+
+
+%:- '$set_source_module'(baseKB).
+%:- '$set_typein_module'(baseKB).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INIT BASIC FORWARD CHAINING SUPPORT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- '$set_source_module'(baseKB).
-:- '$set_typein_module'(baseKB).
+:- system:use_module(library(pfc)).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,42 +48,10 @@
 :- system:ensure_loaded(library(xlisting_web)).
 
 
-add_history_ideas:- 
-       % use_module(library(editline)),
-        use_module(library(prolog_history)),
-
-        add_history(start_telnet),
-        add_history(help(match_regex/2)),
-        add_history(list_undefined),
-        add_history(listing(after_boot_goal/1)),
-	add_history(ensure_loaded(run_mud_game)),
-	add_history(statistics),        
-        add_history(qsave_lm(lm_repl)),        
-        add_history(make),        
-        add_history(mmake),
-        add_history(login_and_run),        
-        forall(system:after_boot_goal(G),add_history(G)),
-        add_history(loadSumo),
-        add_history(loadTinyKB),
-        add_history(threads),
-        add_history(after_boot_call(must_det)),
-        add_history(after_boot_call),
-        add_history(use_module(library(sexpr_reader))),
-        add_history(input_to_forms("( #\\a #\\u0009 . #\\bell )",'$VAR'('O'),'$VAR'('Vs'))),
-        add_history(tstl),
-        add_history(qconsult_kb7166),
-        add_history(ensure_loaded(library(logicmoo_webbot))),
-        add_history(ensure_loaded(library(logicmoo_repl))),
-        add_history(ensure_loaded(library(logicmoo_engine))),
-        add_history(ensure_loaded(library(logicmoo_user))),
-        add_history([init_mud_server]),
-        add_history([init_mud_server_run]),
-        !.
-
 :- during_boot(add_history_ideas).
 
-:- '$set_source_module'(baseKB).
-:- '$set_typein_module'(baseKB).
+%:- '$set_source_module'(baseKB).
+%:- '$set_typein_module'(baseKB).
 
 :- set_prolog_flag(do_renames,restore).
 :- use_module(library(gvar_syntax)).
@@ -197,6 +173,8 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,kif_assertion_recipe))).
 
 :- nb_setval('$oo_stack',[]).
 :- b_setval('$oo_stack',[]).
+
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % QSAVE LM_REPL

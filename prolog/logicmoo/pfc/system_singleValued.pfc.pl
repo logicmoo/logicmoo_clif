@@ -4,7 +4,7 @@
 
 :- file_begin(pfc).
 
-:- set_fileAssertMt(baseKB).
+%:- set_fileAssertMt(baseKB).
 
 
 

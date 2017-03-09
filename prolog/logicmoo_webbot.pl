@@ -1,123 +1,30 @@
 %#!/usr/bin/swipl 
 
-:- module(logicmoo_webbot,[logicmoo_goal/0,logicmoo_toplevel/0]).
+:- module(logicmoo_webbot,[prolog_tn_server/0]).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DEFAULT PROLOG FLAGS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- set_prolog_stack(global, limit(32*10**9)).
-:- set_prolog_stack(local, limit(32*10**9)).
-:- set_prolog_stack(trail, limit(32*10**9)).
-:- set_prolog_flag(double_quotes,string).
-
-
-:- if( (current_prolog_flag(os_argv,List),  (member('--nopce',List) ; member('--nogui',List)) )).
-:- set_prolog_flag(logicmoo_headless,true).
-:- set_prolog_flag(xpce,true).
-:- unsetenv('DISPLAY').
+:- if(\+ current_module(baseKB)).
+:- set_prolog_flag(logicmoo_qsave,true).
+:- else.
+:- set_prolog_flag(logicmoo_qsave,false).
 :- endif.
 
-/*
-:- set_prolog_flag(access_level,system).
-:- set_prolog_flag(compile_meta_arguments,false). % default is false
-*/
+:-set_prolog_flag(access_level,system).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD LOGTALK
+% LOAD CYC KB LOADER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- user:(
-   % use_module(library(logtalk)),
-   ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
-   listing('$lgt_default_flag'/2)).
+:- ensure_loaded(library('pldata/plkb7166/kb7166')).
+% :- qcompile_kb7166.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD PARTS OF SYSTEM EARLY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- system:use_module(library(base32)).
-
-:- system:use_module(library(http/http_dispatch)).
-:- use_module(library(http/thread_httpd)).
-:- use_module(thread_httpd:library(http/http_dispatch)).
-:- use_module(library(http/http_path)).
-:- use_module(library(http/http_server_files)).
-:- use_module(library(http/http_parameters)).
-:- use_module(library(http/html_head)).
-:- use_module(library(http/html_write)).
-:- use_module(library(threadutil)).
-:- system:use_module(library(shell)).
-:- use_module(library(console_input)).
-:- if(current_predicate(system:mode/1)).
-:- system:use_module(library(quintus),except([mode/1])). 
-:- else.
-:- system:use_module(library(quintus)). 
-:- endif.
-:- system:use_module(library(dialect/ifprolog),except([op(_,_,_)])).
-:- abolish(system:time/1).
-:- use_module(library(dialect/hprolog)).
-:- abolish(hprolog:time/1).
-:- system:use_module(library(statistics),[time/1]).
-:- system:use_module(library(statistics)).
-:- baseKB:use_module(library(statistics),[time/1]).
-:- autoload([verbose(false)]).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MISC UTILS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- system:use_module(library(logicmoo_util_common)).
-
-add_history_ideas:- 
-       % use_module(library(editline)),
-        use_module(library(prolog_history)),
-
-        add_history(start_telnet),
-        add_history(help(match_regex/2)),
-        add_history(list_undefined),
-        add_history(listing(after_boot_goal/1)),
-	add_history(ensure_loaded(run_mud_game)),
-	add_history(statistics),        
-        add_history(qsave_lm(lm_repl)),        
-        add_history(make),        
-        add_history(mmake),
-        add_history(login_and_run),        
-        forall(system:after_boot_goal(G),add_history(G)),
-        add_history(loadSumo),
-        add_history(loadTinyKB),
-        add_history(threads),
-        add_history(after_boot_call(must_det)),
-        add_history(after_boot_call),
-        add_history(use_module(library(sexpr_reader))),
-        add_history(input_to_forms("( #\\a #\\u0009 . #\\bell )",'$VAR'('O'),'$VAR'('Vs'))),
-        add_history(tstl),
-        add_history(qconsult_kb7166),
-        add_history(ensure_loaded(library(logicmoo_webbot))),
-        add_history(ensure_loaded(library(logicmoo_repl))),
-        add_history([init_mud_server]),
-        add_history([init_mud_server_run]),
-        !.
-:- during_boot(add_history_ideas).
-
-
-
-logicmoo_goal:- debug, 
- module(baseKB),
- dmsg("logicmoo_goal"),
- module(baseKB),
- nb_setval('$oo_stack',[]),
- threads, 
- make:make_no_trace,
- after_boot_call,
- add_history_ideas,
- dmsg("  [logicmoo_repl]."),
- dmsg("  [init_mud_server]."),
- dmsg("  [init_mud_server_run]."),!.
-
-logicmoo_toplevel:-  debug,
- module(baseKB),
- make:make_no_trace,
- listing(after_boot_goal/1),
- dmsg("logicmoo_toplevel"),
- prolog.
+ % :- set_prolog_flag(subclause_expansion,default).
+ % :- set_prolog_flag(subclause_expansion,false).
+ % :- set_prolog_flag(dialect_pfc,default).
+:- system:ensure_loaded(logicmoo_swilib).
 
 
 
@@ -130,9 +37,6 @@ logicmoo_toplevel:-  debug,
 :- volatile(swish_trace:installed/1).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 
-% 
-
-% :- user:ensure_loaded(run_cliopatria).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -208,46 +112,52 @@ add_relative_search_path(Alias, Rel) :-
 :- volatile(http_log:log_stream/2).
 :- volatile(http_session:urandom_handle/1).
 
-:- endif.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DEFAULT LOGICMOO FLAGS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- set_prolog_flag(double_quotes,string).
-:- set_prolog_flag(autoload_logicmoo,false).
-:- if( \+ current_module(prolog_stack)).
-:- use_module(library(prolog_stack)).
- prolog_stack:stack_guard(none).
-:- endif.
-
-
-setup_for_debug :- set_prolog_flag(report_error,true),set_prolog_flag(debug_on_error,true),
-   set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
-   set_prolog_flag(generate_debug_info,true).
-
-
-:- during_boot(setup_for_debug).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD CYC KB LOADER
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- ensure_loaded(library('pldata/plkb7166/kb7166')).
-:- qcompile_kb7166.
-
+:- autoload([verbose(false)]).
 
 :-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
    asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
+
+:- endif.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% START WEBSERVER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ensure_webserver_p(Port):- format(atom(A),'httpd@~w',[Port]),thread_property(N,status(V)),V=running,atom(N),atom_concat(A,_,N),!.
 ensure_webserver_p(Port) :-catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)).
 ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
    WebPort is Was + 20, ensure_webserver_p(WebPort).
 
 
-
 :- during_boot(ensure_webserver_3020).
 
 :- autoload([verbose(false)]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DUMPST ON WARNINGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+skip_warning(informational).
+skip_warning(information).
+skip_warning(debug).
+skip_warning(query).
+skip_warning(silent).
+skip_warning(debug_no_topic).
+skip_warning(break).
+skip_warning(io_warning).
+skip_warning(interrupt).
+skip_warning(statistics).
+skip_warning(check).
+
+skip_warning(T):-compound(T),functor(T,F,_),skip_warning(F).
+base_message(T1,T2,_):- skip_warning(T1);skip_warning(T2);(thread_self(M),M\==main).
+base_message(_,_,_):- \+ current_predicate(dumpST/0),!.
+base_message(T,Type,Warn):- dmsg(message_hook(T,Type,Warn)),dumpST,dmsg(message_hook(T,Type,Warn)),!,fail.
+
+:- multifile prolog:message//1, user:message_hook/3.
+user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
+   catch(once(base_message(T,Type,Warn)),_,fail),fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ensure hMUD
@@ -262,19 +172,6 @@ ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
 :- endif.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% (X)WINDOWS (DE)BUGGERY
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-start_x_ide:- \+ current_prolog_flag(logicmoo_headless,true),!.
-start_x_ide:- prolog_ide(thread_monitor),prolog_ide(debug_monitor),
-   % prolog_ide(open_debug_status),
-   guitracer,
-   use_module(library(pce_prolog_xref)),
-   noguitracer.
-
-:- after_boot(start_x_ide).
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP PATHS FOR PROLOGMUD/LOGICMOO 
@@ -285,6 +182,7 @@ start_x_ide:- prolog_ide(thread_monitor),prolog_ide(debug_monitor),
 :- use_module(library('file_scope')).
 % :- use_module(library('clause_expansion')).
 
+ % :- set_prolog_flag(subclause_expansion,true).
 
 % :- during_boot((sanity((lmce:current_smt(SM,M),writeln(current_smt(SM,M)))))).
 
@@ -292,10 +190,15 @@ start_x_ide:- prolog_ide(thread_monitor),prolog_ide(debug_monitor),
 % LOAD LOGICMOO UTILS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- user:ensure_loaded(system:library(logicmoo_utils)).
+
 :- multifile(prolog:make_hook/2).
 :- dynamic(prolog:make_hook/2).
-prolog:make_hook(BA, C):- wdmsg(prolog:make_hook(BA, C)),fail.
+prolog:make_hook(before, C):- wdmsg(prolog:make_hook(before, C)),fail.
+prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),maybe_save_lm,fail.
 
+maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
+maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
+maybe_save_lm:- qsave_lm(lm_repl4),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP LOGICMOO OPERATORS
@@ -344,24 +247,23 @@ prolog:make_hook(BA, C):- wdmsg(prolog:make_hook(BA, C)),fail.
 :- dmsg("Ensure RPC Telnet").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- dynamic(lmcache:prolog_tn_server/1).
+:- dynamic(lmcache:prolog_tn_server_port/1).
 
 getenv_safely(Name,ValueO,Default):-
    (getenv(Name,RV)->Value=RV;Value=Default),
-    (number(Default)->( \+ number(Value) -> atom_number(Value,ValueO); Value=ValueO);(Value=ValueO)).
+   ( \+ number(Value) -> atom_number(Value,ValueO); Value=ValueO).
 
-prolog_tn_server:- is_thread(prolog_server),thread_property(prolog_server,status(running)),!.
+prolog_tn_server:- thread_property(PS,status(running)),PS==prolog_server,!.
 prolog_tn_server:- 
-   ensure_loaded(library(prolog_server)),
+   must(ensure_loaded(library(prolog_server))),
    getenv_safely('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 1023,
-   catch((prolog_server(WebPort, [allow(_)])),_,fail),!,
-   asserta(lmcache:prolog_tn_server(WebPort)).
-prolog_tn_server:- is_thread(prolog_server),thread_property(prolog_server,status(running)),!.
-prolog_tn_server:- catch((prolog_server(4023, [allow(_)])),_,fail).
-prolog_tn_server:- catch((prolog_server(5023, [allow(_)])),_,fail),!.
+   catch(
+    (prolog_server(WebPort, [allow(_)]),asserta(lmcache:prolog_tn_server_port(WebPort))),
+     E,(writeq(E),fail)),!.
+   
 
-:- during_boot(prolog_tn_server).
+:- during_boot((prolog_tn_server)).
 
 
 
@@ -419,6 +321,7 @@ system:kill_unsafe_preds:-
 :- during_boot(set_prolog_flag(do_renames,restore)).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb_tinykb.pfc'))).
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SET TOPLEVEL OPTIONS").
 % ?- listing.  (uses varaibles)
@@ -464,33 +367,13 @@ rescan_pack_autoload_packages:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-skip_warning(informational).
-skip_warning(information).
-skip_warning(debug).
-skip_warning(query).
-skip_warning(silent).
-skip_warning(debug_no_topic).
-skip_warning(break).
-skip_warning(io_warning).
-skip_warning(interrupt).
-skip_warning(statistics).
-skip_warning(check).
-
-skip_warning(T):-compound(T),functor(T,F,_),skip_warning(F).
-base_message(T1,T2,_):- skip_warning(T1);skip_warning(T2);(thread_self(M),M\==main).
-base_message(T,Type,Warn):- dmsg(message_hook(T,Type,Warn)),dumpST,dmsg(message_hook(T,Type,Warn)),!,fail.
-
-:- multifile prolog:message//1, user:message_hook/3.
-user:message_hook(T,Type,Warn):- once(base_message(T,Type,Warn)),fail.
-
 :- ensure_loaded(system:logicmoo_utils).
 
+:- set_prolog_flag(logicmoo_qsave,false).
 
 :- if(current_prolog_flag(logicmoo_qsave,true)).
 :- statistics.
-:- make.
 :- listing(qsave_lm/1).
-:- add_history_ideas,qsave_lm(lm_webbot).
 :- endif.
 
 

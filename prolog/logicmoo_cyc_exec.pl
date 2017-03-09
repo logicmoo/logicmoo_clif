@@ -17,3 +17,5 @@ cyc_exec(X):-cyc_exec(X,_).
 
 cyc_exec(X,X).
 
+:- fixup_exports.
+

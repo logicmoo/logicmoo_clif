@@ -17,6 +17,7 @@
 */
 %:- module(tiny_kb,['TINYKB-ASSERTION'/5, 'TINYKB-ASSERTION'/6]).
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/logicmoo_i_cyc_kb.pl
+:- module(logicmoo_i_cyc_kb,[]).
 /*
 :- module(logicmoo_i_cyc_kb,
           [
@@ -107,7 +108,7 @@ cwtdl(Goal,DL,TL):- cwc,
      ->true;
     assert(cwtdl_failed(Goal))))))).
 
-:- baseKB:meta_predicate((cwtdl(0,+,+),transfer_predicate(?,0,0),transTiny(?,0))).
+:- meta_predicate((cwtdl(0,+,+),transfer_predicate(?,0,0),transTiny(?,0))).
 
 
 %:- in_cmt(doall((filematch(logicmoo('plarkc/mpred_cyc_kb_tinykb.pl'),F),source_file(X,F),predicate_property(X,static),X\='$pldoc'(_G8428,_G8429,_G8430,_G8431),listing(X)))).
@@ -149,13 +150,14 @@ reallyLoadTiny:- mpred_notrace.
 % tHominid(iExplorer2).
 
 
-
+/*
 :- multifile(t/3).
 :- multifile(t/4).
 :- multifile(t/5).
 :- multifile(t/6).
 :- multifile(t/7).
 :- multifile(t/8).
+*/
 
 % extra_tcol(Mt,A,ID):- isTT(Mt,t(genls,A,Other),ID),atom(Other),Other\=A,'Thing'\=Other.
 % extra_tcol(Mt,A,ID):- isTT(Mt,t(genls,Other,A),ID),atom(Other),Other\=A,'Thing'\=Other.
@@ -177,14 +179,16 @@ reallyLoadTiny:- mpred_notrace.
 
 isa_db(I,C):-clause(isa(I,C),true).
 
+/*
 :- dynamic((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
 :- dynamic((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
 :- dynamic(assertedTinyKB_implies_first/4).
 :- dynamic(assertedTinyKB_not_first/3).
 :- dynamic((exactlyAssertedEL_first/5,exactlyAssertedEL_with_vars/5,exactlyAssertedEL_with_vars/6,assertedTinyKB_implies_Already/4)).
+*/
 
-:- set_prolog_flag(lm_expanders,true).
+ % :- set_prolog_flag(subclause_expansion,true).
 
 :- dynamic(tinyKB0/1).
 
@@ -266,10 +270,12 @@ mtDressedMt('iBookkeepingMt').
 mtDressedMt('iEnglishParaphraseMt').
 mtDressedMt('iTemporaryEnglishParaphraseMt').
 
+:- must( \+ is_pfc_file ).
+
 into_mpred_form_locally(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_locally(V,R):- into_mpred_form(V,R),!. 
 
-call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[exactlyAssertedEL|ARGS],!,call(CALL,MT,STR).
+call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[exactlyAssertedEL|ARGS],!,baseKB:call(CALL,MT,STR).
 make_el_stub(V,MT,STR,CALL):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[exactlyAssertedEL|CARGS],!.
 
 tinyAssertion(V,MT,STR):- 
@@ -365,12 +371,99 @@ cycLToMpred0((TRUE => V),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
 cycLToMpred0((V <=> TRUE),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
 cycLToMpred0((V :- TRUE),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
 cycLToMpred0((V :- A),CP):- show_call(why,cycLToMpred0((A => V),CP)).
-cycLToMpred0((A => (V1 , V2)),CP):-not(is_ftVar(V1)),!,cycLToMpred0((A=> (V1/consistent(V2))),V1P),cycLToMpred0((A=> (V2/consistent(V1))),V2P) ,!,conjoin(V1P,V2P,CP).
+cycLToMpred0((A => (V1 , V2)),CP):-not(is_ftVar(V1)),!,cycLToMpred0((A=> (V1/consistent(V2))),V1P),
+   cycLToMpred0((A=> (V2/consistent(V1))),V2P) ,!,conjoin(V1P,V2P,CP).
 cycLToMpred0((V1 , V2),CP):-!,cycLToMpred0(V1,V1P),cycLToMpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
 cycLToMpred0([V1 | V2],CP):-!,cycLToMpred0(V1,V1P),cycLToMpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
 cycLToMpred0(V,V).
 
 %  cycLToMpred( (grandparent('$VAR'('G'),'$VAR'('C')) => thereExists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
+
+
+:- export(do_renames_cyc_to_clif/3).
+do_renames_cyc_to_clif(InTerm,_Info,_Ignored):- InTerm == '$translate_file_steam',!.
+do_renames_cyc_to_clif(end_of_file,_Info,end_of_file).
+do_renames_cyc_to_clif(InTerm,_Info,OutTerm):-
+   cyc_to_clif(InTerm,Mid),
+   nb_current('$variable_names',Vs),
+   reread_vars(Mid-Vs,re_symbolize,OutTerm),!.
+
+
+
+:- ((baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb_preds.pfc')))).
+logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
+                      gripe_time(60,baseKB:qcompile(library('logicmoo/plarkc/logicmoo_i_cyc_xform.pfc'))).
+% :- logicmoo_i_cyc_xform.
+
+:- current_prolog_flag(do_renames,WAS),writeq(current_prolog_flag(do_renames,WAS)),nl.
+:- after_boot(dmsg("Dont forget to ?- logicmoo_i_cyc_xform.")).
+
+:- fixup_exports.
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+%:- trace,(cyc_to_clif("a",_X)).
+:- must(predicate_property(tinyKB9(_),number_of_clauses(_))).
+
+:- retractall(tinyKB9(_)).
+
+:- if((predicate_property(tinyKB9(_),number_of_clauses(N)),N==0)).
+:- wdmsg("Making tinyKB").
+:- must(gripe_time(7.0,system:mwkb1)).
+:- wdmsg("Made tinyKB").
+:- break.
+:- endif.
+
+%:- set_prolog_flag(alt_term_expansion,do_nothing).
+%:- set_prolog_flag(alt_goal_expansion,do_nothing).
+%:- rtrace.
+%:- set_prolog_flag(alt_term_expansion,false).
+%:- set_prolog_flag(alt_goal_expansion,false).
+%:- notrace.
+%:- break.
+
+
+
 
 
 
@@ -478,47 +571,4 @@ wkbe:- statistics(cputime,S),
 wkb2:- setup_call_cleanup(tell(tinyKB9_proof_cache),
       ignore(( tinyKB(D,MT,Str),cyc_to_clif(D,KB),format('~N~q.~N',[proof(KB,D,MT,Str)]),fail)),
       told).
-
-
-:- export(do_renames_cyc_to_clif/3).
-do_renames_cyc_to_clif(InTerm,_Info,_Ignored):- InTerm == '$translate_file_steam',!.
-do_renames_cyc_to_clif(end_of_file,_Info,end_of_file).
-do_renames_cyc_to_clif(InTerm,_Info,OutTerm):-
-   cyc_to_clif(InTerm,Mid),
-   nb_current('$variable_names',Vs),
-   reread_vars(Mid-Vs,re_symbolize,OutTerm),!.
-
-
-
-:- ((baseKB:ensure_loaded(logicmoo(plarkc/'logicmoo_i_cyc_kb_preds.pfc')))).
-logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
-                      gripe_time(60,qcompile(logicmoo(plarkc/'logicmoo_i_cyc_xform.pfc'))).
-% :- logicmoo_i_cyc_xform.
-
-:- current_prolog_flag(do_renames,WAS),writeq(current_prolog_flag(do_renames,WAS)),nl.
-:- after_boot(dmsg("Dont forget to ?- logicmoo_i_cyc_xform.")).
-
-end_of_file.
-
-%:- trace,(cyc_to_clif("a",_X)).
-:- must(predicate_property(tinyKB9(_),number_of_clauses(_))).
-
-:- retractall(tinyKB9(_)).
-
-:- if((predicate_property(tinyKB9(_),number_of_clauses(N)),N==0)).
-:- wdmsg("Making tinyKB").
-:- must(gripe_time(7.0,system:mwkb1)).
-:- wdmsg("Made tinyKB").
-:- break.
-:- endif.
-
-%:- set_prolog_flag(alt_term_expansion,do_nothing).
-%:- set_prolog_flag(alt_goal_expansion,do_nothing).
-%:- rtrace.
-%:- set_prolog_flag(alt_term_expansion,false).
-%:- set_prolog_flag(alt_goal_expansion,false).
-%:- notrace.
-%:- break.
-
-:- fixup_exports.
 

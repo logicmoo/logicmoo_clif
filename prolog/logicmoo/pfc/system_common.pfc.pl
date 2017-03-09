@@ -32,13 +32,18 @@
 */
 
 % :- require('system_base.pfc').
+:- use_module(library(pfc)).
+:- autoload.
+:- mpred_unload_file.
+:- style_check(-discontiguous).
 
 :- use_module(library(rtrace)).
 :- mpred_unload_file.
 :- begin_pfc.
-:- '$set_source_module'(baseKB).
+% :- '$set_source_module'(baseKB).
 :- prolog_load_context(module,Mod),sanity(Mod==baseKB),writeq(prolog_load_context(module,Mod)),nl.
 
+:- kb_shared(arity/2).
 
 :- % better stack traces..
  set_prolog_flag(access_level,system).
@@ -172,8 +177,8 @@ tSet(rtNotForUnboundPredicates).
 
 tCol(vtVerb).
 
-:- sanity(fileAssertMt(baseKB)).
-:- sanity(defaultAssertMt(baseKB)).
+%:- sanity(fileAssertMt(baseKB)).
+%:- sanity(defaultAssertMt(baseKB)).
 
 ttRelationType(rtNotForUnboundPredicates).
 rtNotForUnboundPredicates(member/2).
@@ -214,7 +219,7 @@ O),dmsg(O).
 
 failed_typeCheckDecl(Each,Must)==>{trace_or_throw(failed_typeCheckDecl(Each,Must))}.
 
-never_assert_u(vtVerb(BAD),vtVerbError):-fail,BAD=='[|]'.
+never_assert_u(vtVerb(BAD),vtVerbError):- BAD=='[|]'.
 never_assert_u(prologSingleValued(BAD),var_prologSingleValued(BAD)):-is_ftVar(BAD).
 
 never_assert_u(baseKB:mtProlog(baseKB),must(mtCycL(baseKB))).
@@ -408,8 +413,11 @@ tSet(functorIsMacro).
 
 :- install_constant_renamer_until_eof.
 
+:- mpred_trace_exec.
+
 ==>ttModule(tSourceCode,mudToCyc('ComputerCode'),comment("Source code files containing callable features")).
 ==>ttModule(tSourceData,mudToCyc('PropositionalInformationThing'),comment("Source data files containing world state information")).
+:- mpred_notrace_exec.
 
 ==> prologHybrid(isLoadedType(ttModule),pfcControlled).
 ==> prologHybrid(isLoaded(tMicrotheory),pfcControlled).
@@ -435,7 +443,7 @@ ttRelationType(prologHybrid).
 
 prologHybrid(mudToCyc(ftTerm,ftTerm)).
 
-:- must(arity(mudToCyc,2)).
+:- sanity(arity(mudToCyc,2)).
 
 % col_as_isa(X)==>tFixedArityRelation(X),arity(X,1).
 col_as_unary(X)==>tFixedArityRelation(X),arity(X,1).
@@ -599,8 +607,8 @@ meta_argtypes(argIsa(tRelation,ftInt,tCol)).
 :- mpred_run.
 :- mpred_notrace_exec.
 
-:- must(argIsa(predicateConventionMt,1,tPred)).
-:- must(argIsa(predicateConventionMt,2,tMicrotheory)).
+:- sanity(argIsa(predicateConventionMt,1,tPred)).
+:- sanity(argIsa(predicateConventionMt,2,tMicrotheory)).
 
 functorIsMacro(tCol).
 
@@ -622,7 +630,7 @@ ttTypeType(ttTypeType).
 ttTypeType(C)==>tSet(C).
 ttTypeType(ttAgentType).
 
-:- must(tSet(ttAgentType)).
+:- sanity(tSet(ttAgentType)).
 
 tCol(tWorld).
 
@@ -1098,7 +1106,7 @@ isa(Spec,tCol)/col_arity(Spec,A) ==> arity(Spec,A).
 % :-include('mpred_header.pi').
 tSet(tPred).
 
-:- must(assert_argIsa(tPred,1,tPred)).
+:- sanity(assert_argIsa(tPred,1,tPred)).
 
 
 /*
@@ -1146,7 +1154,7 @@ arity(typeProps,2).
 
 
 :- ignore(show_failure(why,arity(typeProps,2))).
-:- must(call_u(arity(typeProps,2))).
+:- sanity(call_u(arity(typeProps,2))).
 
 % ==> (==>(argIsa(isEach(tPred,prologMultiValued,prologOrdered,prologNegByFailure,meta_argtypes,prologHybrid,prologPTTP,prologDynamic,functorIsMacro,prologListValued,prologSingleValued),2,ftListFn(ftVoprop)))).
 % :- ain_expanded(==>(isa(isEach(prologMultiValued,prologOrdered,prologNegByFailure,meta_argtypes,prologPTTP,prologHybrid,predCanHaveSingletons,prologDynamic,prologBuiltin,functorIsMacro,prologListValued,prologSingleValued),functorDeclares))).
@@ -1238,7 +1246,7 @@ isa(vtValue,ttValueType).
 
 typeGenls(ttValueType,vtValue).
 
-% :- must((vtColor(vRed))).
+% :- sanity((vtColor(vRed))).
 
 
 %argIsa(Prop,N,Type) :- cwc,number(N),loop_check(argIsa_known(Prop,N,Type)),must(ground(argIsa(Prop,N,Type))).
@@ -1334,7 +1342,34 @@ tSet(rtAvoidForwardChain).
 tSet('SententialOperator').
 %TODO rtAvoidForwardChain('$VAR'('FUNC')).
 
+cycBetween(A,B,N):-
+  (number(A) -> 
+     ((number(B);number(N)),system_between(A,B,N));
+     ((number(B),number(N))->system_between(A,B,N))).
+
+
+
+:- multifile(equals/2).
+:- dynamic(equals/2).
+:- export(equals/2).
+arity(equals,2).
+equals(X,Y):-equals_call(X,Y).
+:- must((arity_no_bc(equals,_))).
+
+arity(termOfUnit,2).
+arity('TINYKB-ASSERTION',5).
+arity('TINYKB-ASSERTION',6).
+arity(trueSentence,1).
+arity(evaluate,2).
+arity(different,2).
+arity('FunctionToArg',2). 
+arity(holds,2).
+:- forall(system_between(1,11,A),kb_shared(holds/A)).
+:- must((arity_no_bc(holds,_))).
+
+
 ==>rtAvoidForwardChain(isEach('FunctionToArg',holds,equals,different,evaluate,trueSentence,'TINYKB-ASSERTION',termOfUnit)).
+
 genls('rtSententialRelation','rtSententialOperator').
 genls('rtSententialOperator',rtAvoidForwardChain).
 genls('rtVariableArityRelation',rtAvoidForwardChain).
@@ -1382,9 +1417,9 @@ prologHybrid(argIsa(tRelation,ftInt,tCol)).
 prologHybrid(formatted_resultIsa(ttExpressionType,tCol)).
 
 :- sanity(argIsa(genlPreds,2,_)).
-:- must(tCol(vtVerb)).
-:- must(isa(vtVerb,tCol)).
-:- must(t(tCol,vtVerb)).
+:- sanity(tCol(vtVerb)).
+:- sanity(isa(vtVerb,tCol)).
+:- sanity(t(tCol,vtVerb)).
 
 
 
@@ -1435,7 +1470,7 @@ subFormat(ftCallable,ftProlog).
 resultIsa(ftDiceFn,ftInt).
 % subFormat(ftID,ftTerm).
 subFormat(ftInt,ftNumber).
-subFormat(ftInteger,ftNumber).
+subFormat(ftInteger,ftNumber). 
 subFormat(ftNumber,ftPercent).
 subFormat(ftPercent,ftNumber).
 subFormat(ftString,ftTerm).
@@ -1569,9 +1604,9 @@ specialFunctor('/').
 
 :- if(baseKB:startup_option(datalog,sanity);baseKB:startup_option(clif,sanity)).
 /*
-:- must((expand_props(_,==>props(iCrackers666,[mudColor(vTan),isa(tBread),mudShape(isEach(vCircular,vFlat)),mudSize(vSmall),mudTexture(isEach(vDry,vCoarse))]),O),ain(mdefault(O)))).
+:- sanity((expand_props(_,==>props(iCrackers666,[mudColor(vTan),isa(tBread),mudShape(isEach(vCircular,vFlat)),mudSize(vSmall),mudTexture(isEach(vDry,vCoarse))]),O),ain(mdefault(O)))).
 
-:- must((fully_expand(_,props(iCrackers666,[mudColor(vTan),isa(tBread),mudShape(isEach(vCircular,vFlat)),mudSize(vSmall),mudTexture(isEach(vDry,vCoarse))]),O),mpred_why(mdefault(O)))).
+:- sanity((fully_expand(_,props(iCrackers666,[mudColor(vTan),isa(tBread),mudShape(isEach(vCircular,vFlat)),mudSize(vSmall),mudTexture(isEach(vDry,vCoarse))]),O),mpred_why(mdefault(O)))).
 */
 :- endif.
 
@@ -1600,7 +1635,7 @@ completelyAssertedCollection(rtBinaryPredicate).
 
 */
 % ((genlPreds(equals,P),argIsa(P,1,Col)) ==>  (t(P,A,B):- (nonvar(A),A==B,isa(A,Col)))).
-% genlPreds(genls,equals).
+% genlPreds(equals,genls).
 :- mpred_notrace_exec.
 rtReflexiveBinaryPredicate(TB)==>genlPreds(equals,TB).
 
@@ -1629,9 +1664,9 @@ tSet(prologDynamic).
 prologHybrid(formatted_resultIsa/2).
 
 :- sanity(argIsa(genlPreds,2,_)).
-:- must(tCol(vtVerb)).
-:- must(t(tCol,vtVerb)).
-:- must(isa(vtVerb,tCol)).
+:- sanity(tCol(vtVerb)).
+:- sanity(t(tCol,vtVerb)).
+:- sanity(isa(vtVerb,tCol)).
 
 
 ttAgentType(mobPhilosopher).
@@ -1649,61 +1684,13 @@ isa(iPlato,mobPhilosopher).
 :- sanity(mpred_test(quotedIsa(iPlato,ftAtom))).
 :- mpred_notrace_all.
 
-ttBarrierStr(A)/(atomic_list_concat([A,"Type"],AType0),
-  atomic_list_concat([A,''],Type0),
-  do_renames(Type0,Type),
-  do_renames(AType0,TypeType)) ==> barrierSpindle(TypeType,Type).
-
-
-
-barrierSpindle(TypeType,Type)==> 
-   generatesAsFirstOrder(Type), isa(TypeType,ttBarrierType),isa(Type,ttBarrier),typeGenls(TypeType,Type).
-
-ttBarrier(C)==>tSet(C).
-(ttBarrierType(C)==>(tSet(C),ttTypeType(C))).
-
-/*
-
-@ TODO RE-ENABLE WHEN NEEDED
-ttBarrier(C)==>(isa(I,C)==>mainClass(I,C)).
-
-ttBarrier(A)/dif(A,B),ttBarrier(B)==> disjointWith(A,B).
-% ttBarrierType(A)/dif(A,B),ttBarrierType(B)==> disjointWith(A,B).
-
-*/
 
 tCol(ttAbstractType).
 disjointWith(C,D)==> tCol(C),tCol(D).
 
-cycBetween(A,B,N):-
-  (number(A) -> 
-     ((number(B);number(N)),system_between(A,B,N));
-     ((number(B),number(N))->system_between(A,B,N))).
 
 :- install_constant_renamer_until_eof.
 
-  
-ttBarrierStr("Action").
-ttBarrierStr("Agent").
-ttBarrierStr("Artifact").
-barrierSpindle('ttSpecifiedPartTypeCollection','tPartTypePhysicalPartOfObject').
-ttBarrierStr("Capability").
-ttBarrierStr("Event").
-ttBarrierStr("FormulaTemplate").
-ttBarrierStr("Goal").
-ttBarrierStr("Group").
-ttBarrierStr("LinguisticObject").
-ttBarrierStr("Microtheory").
-ttBarrierStr("PersonTypeByActivity").
-ttBarrierStr("Place").
-ttBarrierStr("Quantity").
-ttBarrierStr("Relation").
-ttBarrierStr("ScalarInterval").
-ttBarrierStr("Situation").
-ttBarrierStr("ExpressionType").
-ttBarrierStr("TimeParameter").
-ttBarrierStr("Topic").
-% ttBarrierStr("Collection").
 
 :- listing(disjointWith/2).
 

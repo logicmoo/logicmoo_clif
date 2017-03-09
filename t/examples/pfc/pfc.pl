@@ -117,7 +117,7 @@ mpred_term_expansion((RuleName :::: Rule),(:- ain((RuleName :::: Rule)))).
 mpred_term_expansion((==>P),(:- ain(P))).
 
 :- multifile(term_expansion/2).
-term_expansion(A,B):- :- current_prolog_flag(lm_expanders,true), once(true ; t_l:pfcExpansion), once(mpred_term_expansion(A,B)),A\=@=B.
+term_expansion(A,B):- :- current_prolog_flag(subclause_expansion,true), once(true ; t_l:pfcExpansion), once(mpred_term_expansion(A,B)),A\=@=B.
 
 :- asserta(t_l:pfcExpansion).
 

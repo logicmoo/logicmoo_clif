@@ -126,7 +126,7 @@
             removeQ/4,
             removeQ_LC/4,
             removes_literal/2,
-            same_var/2,
+            
             share_scopes/2,
             simplify_atom/2,
             simplify_cheap/2,
@@ -146,9 +146,12 @@
             variants_are_equal/3
           ]).
 
-:- include('../mpred/mpred_header.pi').
+:- include(library('pfc2.0/mpred_header.pi')).
 %:- user:ensure_loaded(library(pfc)).
 %:- endif.
+:- reexport(baseKB:library('logicmoo/snark/common_logic_skolem.pl')).
+
+:- use_module(library(dictoo)).
 
   
 
@@ -1766,12 +1769,6 @@ mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F|_],!,mk_skolem_name(KB,Var,['ArgN
 % same_var(Var,Fml):-  ~(  ~( Var=Fml)),!.
 
 %= 	 	 
-
-%% same_var( ?Var, ?Fml) is semidet.
-%
-% Same Variable.
-%
-same_var(Var,Fml):- Var=@=Fml,!.
 
 
 

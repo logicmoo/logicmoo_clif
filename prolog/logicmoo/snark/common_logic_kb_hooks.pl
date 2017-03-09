@@ -58,7 +58,7 @@ noGenlPreds/1,
   write_assertions/0
   ]).
 
-:- include('../mpred/mpred_header.pi').
+:- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
 
 %:- baseKB:ensure_loaded(library(pfc)).

@@ -44,6 +44,8 @@
             kif_ask/2,
             kif_ask_sent/1,
             kif_hook/1,
+            is_gaf/1,
+            is_kif_clause/1,
             kif_io/2,
             kif_process/1,
             kif_process/2,
@@ -67,13 +69,13 @@
             mpred_t_tell_kif/2,
             map_each_clause/3,
             map_each_clause/2,
-            mudEquals/2,
+            
             neg_b_if_neg/3,
             neg_h_if_neg/2,
             not_mudEquals/2,
             nots_to/3,
             unnumbervars_with_names/2,
-            is_quantifier/1,
+            
             pfc_for_print_left/2,
             pfc_for_print_right/2,
             save_in_code_buffer/2,
@@ -123,7 +125,10 @@
 %
 */
 
-:- include('../mpred/mpred_header.pi').
+:- reexport(baseKB:library('logicmoo/snark/common_logic_boxlog.pl')).
+
+
+:- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
 
 :-
@@ -182,7 +187,7 @@
         baseKB:as_prolog_hook/2,
         elInverse/2,
         kif_test_string/1,
-        mudEquals/2,
+        
         not_mudEquals/2.
         
 */
@@ -194,6 +199,26 @@ kw_to_vars(KW,VARS):-subsT_each(KW,[':ARG1'=_ARG1,':ARG2'=_ARG2,':ARG3'=_ARG3,':
 
 
 
+
+%% is_gaf( ?Gaf) is semidet.
+%
+% If Is A Gaf.
+%
+is_gaf(Gaf):-when(nonvar(Gaf), \+ (is_kif_clause(Gaf))).
+
+%= %= :- was_export(is_kif_clause/1).
+
+
+
+%% is_kif_clause( ?Var) is semidet.
+%
+% If Is A Knowledge Interchange Format Rule.
+%
+is_kif_clause(Var):- is_ftVar(Var),!,fail.
+is_kif_clause(R):- kif_hook(R),!.
+is_kif_clause(R):- is_clif(R),!.
+
+
 %= 	 	 
 
 %% kif_hook(+TermC) is semidet.
@@ -201,30 +226,39 @@ kw_to_vars(KW,VARS):-subsT_each(KW,[':ARG1'=_ARG1,':ARG2'=_ARG2,':ARG3'=_ARG3,':
 % Knowledge Interchange Format Hook.
 %
 kif_hook(C):- not_ftCompound(C),!,fail.
-kif_hook(_H :- _):- !,fail.
-kif_hook(_H <- _):- !,fail.
-kif_hook(_ ==> _):- !,fail.
+kif_hook(_H :- _):-  !,fail.
+kif_hook(_H <- _):-  !,fail.
+kif_hook(_H --> _):- !,fail.
+kif_hook(_ ==> _):-  !,fail.
 kif_hook(_ <==> _):- !,fail.
-kif_hook(_=>_).
-kif_hook(_<=_).
-kif_hook(_<=>_).
-kif_hook((_ & _)).
-kif_hook((_ /\ _)).
-kif_hook((_ \/ _)).
-kif_hook((_ v _)).
-kif_hook(nesc(_)).
-kif_hook(poss(_)).
-kif_hook(all(_,_)).
-kif_hook(forall(_,_)).
-kif_hook(exists(_,_)).
-kif_hook(if(_,_)).
-kif_hook(iff(_,_)).
 % uncommenting these next 3 lines may dbreak sanity_birdt test
-kif_hook( ~(H)):- !,nonvar(H),!,kif_hook(H).
-kif_hook( \+ H):- !,nonvar(H),!,kif_hook(H).
-kif_hook( not(H)):- !,nonvar(H),!,kif_hook(H).
+kif_hook( ~(H)):- !,nonvar(H),kif_hook(H).
+kif_hook( \+ H):- !,nonvar(H),kif_hook(H).
+kif_hook( not(H)):- !,nonvar(H),kif_hook(H).
+kif_hook(In):- kif_hook_skel(In).
 kif_hook(C):- C=..[F,A|_],is_sentence_functor(F),!,kif_hook(A).
-  
+
+
+%% kif_hook_skel(+TermC) is semidet.
+%
+% Knowledge Interchange Format Hook Skelecton.
+%
+kif_hook_skel(forAll(_,_)).
+kif_hook_skel(_=>_).
+kif_hook_skel(_<=_).
+kif_hook_skel(_<=>_).
+kif_hook_skel((_ & _)).
+kif_hook_skel((_ /\ _)).
+kif_hook_skel((_ \/ _)).
+kif_hook_skel((_ v _)).
+kif_hook_skel(nesc(_)).
+kif_hook_skel(poss(_)).
+kif_hook_skel(all(_,_)).
+kif_hook_skel(exists(_,_)).
+kif_hook_skel(if(_,_)).
+kif_hook_skel(iff(_,_)).
+kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
+
 
 
 %= 	 	 
@@ -426,19 +460,6 @@ subst_except_l(HT,List,HHTT):- compound(HT),
    subst_except_l([F|ARGS0],List,[FM|MARGS]),!,
    (atom(FM)->HHTT=..[FM|MARGS];append_termlist(FM,MARGS,HHTT)),!.
 subst_except_l(HT,_List,HT).
-
-
-
-:- dynamic(mudEquals/2).
-:- export(mudEquals/2).
-
-%= 	 	 
-
-%% mudEquals( ?X, ?Y) is semidet.
-%
-% Application Equals.
-%
-mudEquals(X,Y):- X=Y.
 
 
 
@@ -1136,16 +1157,6 @@ simple_negate_literal(F,FX,X):-FX=..FXL,F=..FL,append(FL,[X],FXL),!.
 simple_negate_literal(F,X,FX):-append_term(F,X,FX).
 
 
-%= 	 	 
-
-%% is_quantifier( ?F) is semidet.
-%
-% If Is A Quantifier.
-%
-is_quantifier(F):- pttp_nnf_pre_clean_functor(F,(all),[]);pttp_nnf_pre_clean_functor(F,(ex),[]).
-
-
-%= 	 	 
 
 %% should_be_poss( ?VALUE1) is semidet.
 %
@@ -1741,5 +1752,6 @@ get_constraints(ListA,Isas):-
 
 
 :- source_location(S,_),forall((source_file(H,S),once((clause(H,B),B\=true))),(functor(H,F,A),module_transparent(F/A))).
+
 :- fixup_exports.
 

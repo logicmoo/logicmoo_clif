@@ -16,9 +16,10 @@
 % ===================================================================
 % OPERATOR PRECEDANCE
 % ===================================================================
-:- if(current_prolog_flag(logicmoo_modules,default)).
-:- module(plarkc_cyc_kb_tinykb,[]).
-:- endif.
+%:- if(current_prolog_flag(logicmoo_modules,default)).
+:- module(logicmoo_i_cyc_kb_tinykb,[]).
+
+%:- endif.
 
 :- dynamic((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
@@ -26,11 +27,18 @@
 :- dynamic(assertedTinyKB_implies_first/4).
 :- dynamic(assertedTinyKB_not_first/3).
 :- dynamic((exactlyAssertedEL_first/5,exactlyAssertedEL_with_vars/5,exactlyAssertedEL_with_vars/6,assertedTinyKB_implies_Already/4)).
-:- dynamic user:term_expansion/2.
-:- multifile user:term_expansion/2.
-
 :- dynamic(assertedTinyKB_not/3).
 :- dynamic(assertedTinyKB_implies/4).
+
+:- export((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+:- export((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
+:- export((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
+:- export(assertedTinyKB_implies_first/4).
+:- export(assertedTinyKB_not_first/3).
+:- export((exactlyAssertedEL_first/5,exactlyAssertedEL_with_vars/5,exactlyAssertedEL_with_vars/6,assertedTinyKB_implies_Already/4)).
+:- export(assertedTinyKB_not/3).
+:- export(assertedTinyKB_implies/4).
+
 :- style_check(-singleton).
 :- style_check(-discontiguous).
 % :-style_check(-atom).

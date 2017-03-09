@@ -37,7 +37,7 @@
 
 :- file_begin(pfc).
 
-:- set_fileAssertMt(baseKB).
+%:- set_fileAssertMt(baseKB).
 
 :- dynamic(mdefault/1).
 

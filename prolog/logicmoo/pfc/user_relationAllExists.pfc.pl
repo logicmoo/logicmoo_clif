@@ -2,7 +2,7 @@
 
 :- mpred_unload_file.
 
-:- install_constant_renamer_until_eof.
+:- set_prolog_flag_until_eof(do_renames,term_expansion).
 
 :- file_begin(pfc).
 

@@ -62,7 +62,7 @@ Per-Litteral features
             body_for_mpred_1/5,
             body_for_mpred_2/5,
             body_for_pfc/5,
-          boxlog_to_pfc/2,
+           boxlog_to_pfc/2,
           boxlog_to_pfc_pass_1/2,
           boxlog_to_pfc_pass_2/3,
           boxlog_to_pfc_pass_4/2,
@@ -98,8 +98,9 @@ Per-Litteral features
             vg/1,
             vg/3]).
 
-:- include('../mpred/mpred_header.pi').
+:- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
+:- reexport(baseKB:library('logicmoo/snark/common_logic_compiler.pl')). 
 
 :- system:use_module(library(dialect/hprolog),[]).
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).
@@ -319,16 +320,6 @@ boxlog_to_pfc_pass_3(TYPE,H,BB,(H:-OUTPUT)):- conjoin_maybe(TYPE,BB,OUTPUT).
 boxlog_to_pfc_pass_3(TYPE,H,BB,(H:-OUTPUT)):- conjoin_maybe(TYPE,BB,OUTPUT).
 
 
-%= 	 	 
-
-%% conjoin_body( ?H, :TermBB, ?C) is semidet.
-%
-% Conjoin Body.
-%
-conjoin_body({H},{BB},{C}):-conjoin_body(H,BB,C).
-conjoin_body({H},({BB},D),O):-conjoin_body(H,BB,C),conjoin_body({C},D,O).
-conjoin_body(H,(BB,D),O):-conjoin_body(H,BB,C),conjoin_body(C,D,O).
-conjoin_body(H,BB,C):-conjoin(H,BB,C).
 
 %= 	 	 
 

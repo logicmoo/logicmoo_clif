@@ -3,7 +3,7 @@
 :- mpred_unload_file.
 
 :- set_prolog_flag(do_renames,restore).
-:- install_constant_renamer_until_eof.
+:- set_prolog_flag_until_eof(do_renames,term_expansion).
 
 flatTrans(G)==> ((({differentTerms(A,B)},t(G,A,B)/(ground(t(G,A,B)),differentTerms(A,C)),t(G,B,C)/(differentTerms(B,C),
   must(ground(t(G,A,C)))))) ==> t(G,A,C)).

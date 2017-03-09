@@ -7,12 +7,103 @@
 %
 */
 
+:- module(logicmoo_snark,[]).
+
+:- '$set_source_module'(baseKB).
+
+:- reexport(library(logicmoo_engine)).
+:- asserta_new(user:file_search_path(logicmoo,library)).
+
+:- add_library_search_path('./logicmoo/snark/',[ 'common_*.pl']).
+
+:- reexport(baseKB:library('logicmoo/snark/common_logic_snark.pl')). 
+:- reexport(baseKB:library('logicmoo/snark/common_logic_boxlog.pl')).
+:- reexport(baseKB:library('logicmoo/snark/common_logic_skolem.pl')).
+:- reexport(baseKB:library('logicmoo/snark/common_logic_compiler.pl')). 
+:- reexport(baseKB:library('logicmoo/snark/common_logic_kb_hooks.pl')).
+
+:- ensure_loaded(baseKB:library('logicmoo/snark/common_logic_clif.pfc')).
+:- baseKB:ensure_loaded('./logicmoo/snark/common_logic_sumo.pfc').
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SETUP SUMO KB EXTENSIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- ensure_loaded(library(logicmoo_snark)).
+
+:- set_prolog_flag(do_renames,term_expansion).
+
+:- during_boot(set_prolog_flag(do_renames,restore)).
+
+sumo_ain(I,O):-sexpr_sterm_to_pterm(I,M),sumo_ain1(M,O).
+sumo_ain1('$COMMENT'(A),'$COMMENT'(A)):- !.
+sumo_ain1(D,CycLOut):- must(kif_assertion_recipe(D,CycLOut)).    
+
+sumo_ain2(documentation(_, xtChineseLanguage,_)).
+sumo_ain2(CycLOut):-
+    delay_rule_eval(CycLOut,sumo_rule,NewAsserts),
+    dmsg(NewAsserts),
+    ain(NewAsserts).
+
+loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
+loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
+ 
+loadSumo1:- 
+   loadSumo('./games/ontologyportal_sumo/Merge.kif'),
+   loadSumo('./games/ontologyportal_sumo/Mid-level-ontology.kif'),
+   !.
+
+loadSumo2:- 
+   loadSumo('./games/ontologyportal_sumo/Translations/relations-en.txt'),
+   loadSumo('./games/ontologyportal_sumo/english_format.kif'),
+   loadSumo('./games/ontologyportal_sumo/domainEnglishFormat.kif'),
+   !.
+
+loadSumo3:- 
+   ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')),
+   !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SAVE SUMO KB EXTENSIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- after_boot(loadSumo1).
+
+:- after_boot(loadSumo2).
+
+:- after_boot(loadSumo3).
+
 end_of_file.
 end_of_file.
 end_of_file.
 end_of_file.
 end_of_file.
-:- module(logicmoo_snark,[
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+module(logicmoo_snark,[
   load_snark/0,mpred_load_restore_file/1,mpred_load_restore_file/1,mpred_save_restore_file/1,
   with_ukb_snark/2]).
 
@@ -23,22 +114,15 @@ end_of_file.
 /*
 
 
-:- ensure_loaded(system:library('logicmoo/snark/common_logic_snark.pl')). 
-:- ensure_loaded(system:library('logicmoo/snark/common_logic_boxlog.pl')).
-:- ensure_loaded(system:library('logicmoo/snark/common_logic_skolem.pl')).
-:- ensure_loaded(system:library('logicmoo/snark/common_logic_compiler.pl')). 
-:- ensure_loaded(system:library('logicmoo/snark/common_logic_kb_hooks.pl')).
 */
 
-:- add_library_search_path('./pfc2.0/',[ 'mpred_*.pl']).
 
 /*
+:- add_library_search_path('./pfc2.0/',[ 'mpred_*.pl']).
 :- add_library_search_path('./logicmoo/',[ '*.pl']).
 %:- add_library_search_path('./logicmoo/pttp/',[ 'dbase_i_mpred_*.pl']).
 %:- add_library_search_path('./logicmoo/../',[ 'logicmoo_*.pl']).
 %:- must(add_library_search_path('./logicmoo/mpred_online/',[ '*.pl'])).
-:- add_library_search_path('./logicmoo/snark/',[ '*.pl']).
-:- add_library_search_path('./logicmoo/plarkc/',[ '*.pl']).
 
 */
 
@@ -105,7 +189,7 @@ with_ukb_snark(KB,G):- with_umt(KB,G).
 end_of_file.
 :- module(logicmoo_engine, [ tsn/0 ] ). 
 
-:- ensure_loaded(library(logicmoo_user)).
+:- reexport(library(logicmoo_user)).
 
 :- include(logicmoo(mpred/'mpred_header.pi')).
 
@@ -698,11 +782,11 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 %:- default_logic_uses.
 
 :- if_startup_script(tkif).
-:- if_startup_script(ensure_loaded(mpred_kif_testing)).
+:- if_startup_script(reexport(mpred_kif_testing)).
 
-% = % :- ensure_loaded(plarkc/mpred_clif).
+% = % :- reexport(plarkc/mpred_clif).
 
-% = % :- ensure_loaded(logicmoo_plarkc).
+% = % :- reexport(logicmoo_plarkc).
 
 %:- autoload.
   

@@ -15,14 +15,10 @@ vim: set filetype=md:
 */
 
 
-:- set_fileAssertMt(baseKB).
+% :- set_fileAssertMt(baseKB).
 % :- set_defaultAssertMt(baseKB).
 
 :-dynamic((if/2,iif/2)).
-
-:- if(current_prolog_flag(logicmoo_modules,default)).
-:- module(common_logic_clif,[]).
-:- endif.
 
 % we ensure we are in "pfc" consultation mode (so the syntax rules will define correctly)
 :- file_begin(pfc).
@@ -38,7 +34,6 @@ vim: set filetype=md:
       PROLOG,{slow_sanity(is_entailed_u(CLIF))})).
 */
 
-
 :- dynamic(pfclog/1).
 :- dynamic(boxlog/1).
 :- dynamic(clif/1).
@@ -51,10 +46,9 @@ arity(pfclog,1).
  ==>(hybrid_support(pfclog,1)).
 
 
-
 %((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG),mpred_run_pause},boxlog(BOXLOG),{mpred_run_resume,deterministic(true),mpred_run,slow_sanity(is_entailed_u(CLIF))})).
 %((clif(CLIF),{delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)}) ==> (boxlog(BOXLOG),{mpred_run,mpred_retry(must(is_entailed_u(CLIF)))})). % slow_sanity
-((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG),{must(is_entailed_u(BOXLOG))})).
+compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG),{must(is_entailed_u(BOXLOG))})).
 
 (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)}) ==> pfclog(PROLOG).
 % pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
@@ -77,10 +71,9 @@ pfclog(PROLOG) ==> PROLOG.
 
 */
 
-
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-({is_clif(CLIF),kb_shared(CLIF)} ==>
-  (CLIF/is_clif(CLIF) ==> clif(CLIF))).
+({is_clif(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
+({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
 
 % (CLIF/is_kif_clause(CLIF) ==> clif(CLIF)).
 

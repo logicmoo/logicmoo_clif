@@ -1,9 +1,9 @@
-/* <module> Adds autoloading of LogicMOO Utilities predicates
+/* <module> SWI-Prolog compat for startup
 % ===================================================================
-    File:         'logicmoo_utils).'
+    File:         'logicmoo_swilib.'
     Purpose:       To load the logicmoo libraries as needed
     Contact:       $Author: dmiles $@users.sourceforge.net ;
-    Version:       'logicmoo_utils).' 1.0.0
+    Version:       'logicmoo_swilib.' 1.0.0
     Revision:      $Revision: 1.7 $
     Revised At:    $Date: 2002/07/11 21:57:28 $
     Author:        Douglas R. Miles
@@ -15,6 +15,261 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
+:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DEFAULT PROLOG FLAGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % :- set_prolog_flag(subclause_expansion,default).
+ % :- set_prolog_flag(subclause_expansion,false).
+ % :- set_prolog_flag(dialect_pfc,default).
+:- set_prolog_stack(global, limit(32*10**9)).
+:- set_prolog_stack(local, limit(32*10**9)).
+:- set_prolog_stack(trail, limit(32*10**9)).
+:- set_prolog_flag(double_quotes,string).
+:- set_prolog_flag(autoload_logicmoo,false).
+:- if( \+ current_module(prolog_stack)).
+:- use_module(library(prolog_stack)).
+ prolog_stack:stack_guard(none).
+:- endif.
+
+
+
+:- if( (set_prolog_flag(xpce,false); set_prolog_flag(logicmoo_headless,true); ( \+ getenv('DISPLAY',_)) ; ((current_prolog_flag(os_argv,List),  (member('--nopce',List) ; member('--nogui',List)) )))).
+:- set_prolog_flag(logicmoo_headless,true).
+:- set_prolog_flag(xpce,false).
+% :- unsetenv('DISPLAY').
+:- endif.
+
+/*
+:- set_prolog_flag(access_level,system).
+:- set_prolog_flag(compile_meta_arguments,false). % default is false
+*/
+
+:- system:use_module(library(base32)).
+
+:- system:use_module(library(http/http_dispatch)).
+:- use_module(library(http/thread_httpd)).
+:- use_module(thread_httpd:library(http/http_dispatch)).
+:- use_module(library(http/http_path)).
+:- use_module(library(http/http_server_files)).
+:- use_module(library(http/http_parameters)).
+:- use_module(library(http/html_head)).
+:- use_module(library(http/html_write)).
+:- use_module(library(threadutil)).
+:- system:use_module(library(shell)).
+:- use_module(library(console_input)).
+:- if(current_predicate(system:mode/1)).
+:- system:use_module(library(quintus),except([mode/1])). 
+:- else.
+:- system:use_module(library(quintus)). 
+:- endif.
+:- system:use_module(library(dialect/ifprolog),except([op(_,_,_)])).
+:- abolish(system:time/1).
+:- use_module(library(dialect/hprolog)).
+:- abolish(hprolog:time/1).
+:- system:use_module(library(statistics),[time/1]).
+:- system:use_module(library(statistics)).
+:- baseKB:use_module(library(statistics),[time/1]).
+:- autoload([verbose(false)]).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MISC UTILS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- system:use_module(library(logicmoo_util_common)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DEFAULT DEBUG PROLOG FLAGS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+setup_for_debug :- 
+   set_prolog_flag(report_error,true),
+   set_prolog_flag(debug_on_error,true),
+   set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
+   set_prolog_flag(generate_debug_info,true).
+
+
+:- during_boot(setup_for_debug).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DEFAULT HISTORY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+add_history_ideas:- 
+       % use_module(library(editline)),
+        use_module(library(prolog_history)),
+
+        add_history(start_telnet),
+        add_history(help(match_regex/2)),
+        add_history(list_undefined),
+        add_history(listing(lmconf:after_boot_goal/1)),
+	add_history(ensure_loaded(run_mud_game)),
+	add_history(statistics),        
+        add_history(qsave_lm(lm_repl)),        
+        add_history(make),        
+        add_history(mmake),
+        add_history(login_and_run),        
+        forall(lmconf:after_boot_goal(G),add_history(G)),
+        add_history(loadSumo),
+        add_history(loadTinyKB),
+        add_history(threads),
+        add_history(after_boot_call(must_det)),
+        add_history(after_boot_call),
+        add_history(use_module(library(sexpr_reader))),
+        add_history(input_to_forms("( #\\a #\\u0009 . #\\bell )",'$VAR'('O'),'$VAR'('Vs'))),
+        add_history(tstl),
+        add_history(qconsult_kb7166),
+        add_history(ensure_loaded(library(logicmoo_webbot))),
+        add_history(ensure_loaded(library(logicmoo_repl))),
+        add_history(ensure_loaded(library(logicmoo_engine))),
+        add_history(ensure_loaded(library(logicmoo_user))),
+        add_history([init_mud_server]),
+        add_history([init_mud_server_run]),
+        !.
+
+:- during_boot(add_history_ideas).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DEFAULT GOALS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+logicmoo_goal:-  dmsg("logicmoo_goal"),logicmoo_toplevel,logicmoo_run_goal.
+
+logicmoo_run_goal:- 
+ %module(baseKB),
+ dmsg("logicmoo_run_goal"),
+ nb_setval('$oo_stack',[]),
+ threads,
+ after_boot_call(maybe_rtrace).
+
+logicmoo_toplevel:- 
+ %module(baseKB),
+ add_history_ideas,
+ dmsg("  [logicmoo_repl]."),
+ dmsg("  [init_mud_server]."),
+ dmsg("  [init_mud_server_run]."),!,
+ dmsg("?- make:make_no_trace."), 
+ make:make_no_trace,
+ listing(lmconf:lmconf:after_boot_goal/1),
+ dmsg("logicmoo_toplevel"),
+ dmsg("Press Ctrl-D to Start"),
+ prolog.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (X)WINDOWS (DE)BUGGERY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+start_x_ide:- \+ current_prolog_flag(logicmoo_headless,true),!.
+start_x_ide:- prolog_ide(thread_monitor),prolog_ide(debug_monitor),
+   % prolog_ide(open_debug_status),
+   guitracer,
+   use_module(library(pce_prolog_xref)),
+   noguitracer.
+
+:- after_boot(start_x_ide).
+
+
+
+:- fixup_exports.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
 :- if( (false , \+ ((current_prolog_flag(logicmoo_include,Call),Call))) ). 
 :- module(logicmoo_swilib,[]).
 :- endif.
