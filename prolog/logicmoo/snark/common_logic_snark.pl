@@ -152,8 +152,6 @@
  op(300,fx,'~'),
  op(300,fx,'-').
 
-%:- baseKB:ensure_loaded(logicmoo('plarkc/logicmoo_i_cyc_rewriting')).
-
 
 :- module_transparent(( are_clauses_entailed/1,
             is_prolog_entailed/1,

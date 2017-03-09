@@ -17,54 +17,50 @@
 */
 %:- module(tiny_kb,['TINYKB-ASSERTION'/5, 'TINYKB-ASSERTION'/6]).
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/logicmoo_i_cyc_kb.pl
-:- module(logicmoo_i_cyc_kb,[]).
+:- module(logicmoo_i_cyc_kb,[
+          logicmoo_i_cyc_xform/0,
+          is_better_backchained/1,
+          addCycL/1,
+          cycl_to_mpred/2,
+          as_cycl/2,
+          is_better_backchained/1
+          
+          ]).
 /*
 :- module(logicmoo_i_cyc_kb,
           [
 
-           logicmoo_i_cyc_xform/0,
-            addCycL/1,
-            addCycL0/1,
-            addCycL1/1,
-            addTinyCycL/1,
-            addTiny_added/1,
-            as_cycl/2,
-          is_better_backchained/1,
-          is_simple_arg/1,
-          is_simple_gaf/1,
-          isa_db/2,
-          ist_tiny/2,
-        cycLToMpred/2,
-        cycLToMpred0/2,
-            loadTinyKB/0,
-            ltkb1/0,
-            ltkb1_complete/0,
-          call_el_stub/3,
-
-            system:mwkb1/0,
-            needs_canoncalization/1,
-            needs_indexing/1,
-            
-            print_assertion/3,
-            sent_to_conseq/2,
-            mtDressedMt/1,
-            rtEscapeFunction/1,
-            mtUndressedMt/1,
-            tinyAssertion/3,
-            tinyAssertion0/3,
-            tinyKB/1,
-            tinyKB/3,
-            tinyKB1/1,
-            tinyKB2/1,
-            tinyKB_All/3,
-            tinyKB_wstr/1,
-            tiny_support/3,
-            wkb0/0,
-            wkb01/0,
-            wkb02/0,
-            wkb2/0,
-            wkbe/0,
-   %finish_asserts/0,
+         addCycL/1,
+         addCycL0/1,
+         addCycL1/1,
+         addTinyCycL/1,
+         addTiny_added/1,
+         isa_db/2,
+         ist_tiny/2,
+         cycl_to_mpred/2,
+         cycl_to_mpred0/2,
+         loadTinyKB/0,
+         
+         call_el_stub/3,
+         
+         
+         needs_canoncalization/1,
+         needs_indexing/1,
+         
+         print_assertion/3,
+         sent_to_conseq/2,
+         mtDressedMt/1,
+         rtEscapeFunction/1,
+         mtUndressedMt/1,
+         tinyAssertion/3,
+         tinyAssertion0/3,
+         tinyKB/1,
+         tinyKB/3,
+         tinyKB1/1,
+         tinyKB2/1,
+         tinyKB_All/3,
+         tinyKB_wstr/1,
+         tiny_support/3,
    
    %make_el_stub/4,
    %cyc_to_mpred_idiom/2,
@@ -338,7 +334,7 @@ addCycL(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL(M),!.
 addCycL(V):-defunctionalize('implies',V,VE),V\=@=VE,!,addCycL(VE).
 addCycL(V):-cyc_to_clif(V,VE),V\=@=VE,!,addCycL(VE).
 addCycL(V):-is_simple_gaf(V),!,addCycL0(V),!.
-addCycL(V):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(why,addCycL0(VE)).
+addCycL(V):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,addCycL0(VE)).
 addCycL(V):-addCycL0(V),!.
 
 addCycL0(V):-addCycL1(V).
@@ -348,8 +344,8 @@ addCycL1(V):-cyc_to_clif(V,VE),V\=@=VE,!,addCycL0(VE).
 addCycL1((TRUE=>V)):-is_true(TRUE),addCycL0(V),!.
 addCycL1(<=(V , TRUE)):-is_true(TRUE),addCycL0(V),!.
 addCycL1((V :- TRUE)):-is_true(TRUE),addCycL0(V),!.
-addCycL1((V :- A)):- show_call(why,addCycL0((A => V))).
-addCycL1((A => (V1 , V2))):-not(is_ftVar(V1)),!,show_call(why,addCycL0((A => V1))) , show_call(why,addCycL0((A => V2))).
+addCycL1((V :- A)):- show_call(tiny_kb,addCycL0((A => V))).
+addCycL1((A => (V1 , V2))):-not(is_ftVar(V1)),!,show_call(tiny_kb,addCycL0((A => V1))) , show_call(tiny_kb,addCycL0((A => V2))).
 addCycL1((V1 , V2)):-!,addCycL0(V1),addCycL0(V2),!.
 addCycL1([V1 | V2]):-!,addCycL0(V1),addCycL0(V2),!.
 addCycL1(V):-addTiny_added(V),!.
@@ -358,49 +354,41 @@ addCycL1(V):-asserta(addTiny_added(V)),unnumbervars(V,VE),
   ain(VE).
 
 
-sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL), ignore((tiny_support(CycL,_MT,CALL),retract(CALL))),must(cycLToMpred(CycL,Consequent)),!.
+sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL), ignore((tiny_support(CycL,_MT,CALL),retract(CALL))),must(cycl_to_mpred(CycL,Consequent)),!.
 
 :- dynamic(addTiny_added/1).
 
-cycLToMpred(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycLToMpred(M,CP),!.
-cycLToMpred(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycLToMpred(VE,CP).
-cycLToMpred(V,CP):-is_simple_gaf(V),!,cycLToMpred0(V,CP),!.
-cycLToMpred(V,CP):-defunctionalize('implies',V,VE),V\=@=VE,!,cycLToMpred(VE,CP).
-cycLToMpred(V,CP):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(why,cycLToMpred0(VE,CP)).
-cycLToMpred(V,CP):-cycLToMpred0(V,CP),!.
+cycl_to_mpred(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred(M,CP),!.
+cycl_to_mpred(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
+cycl_to_mpred(V,CP):-is_simple_gaf(V),!,cycl_to_mpred0(V,CP),!.
+cycl_to_mpred(V,CP):-defunctionalize('implies',V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
+cycl_to_mpred(V,CP):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,cycl_to_mpred0(VE,CP)).
+cycl_to_mpred(V,CP):-cycl_to_mpred0(V,CP),!.
 
-cycLToMpred0(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycLToMpred0(M,CP),!.
-cycLToMpred0(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycLToMpred0(VE,CP).
-cycLToMpred0((TRUE => V),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
-cycLToMpred0((V <=> TRUE),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
-cycLToMpred0((V :- TRUE),CP):-is_true(TRUE),cycLToMpred0(V,CP),!.
-cycLToMpred0((V :- A),CP):- show_call(why,cycLToMpred0((A => V),CP)).
-cycLToMpred0((A => (V1 , V2)),CP):-not(is_ftVar(V1)),!,cycLToMpred0((A=> (V1/consistent(V2))),V1P),
-   cycLToMpred0((A=> (V2/consistent(V1))),V2P) ,!,conjoin(V1P,V2P,CP).
-cycLToMpred0((V1 , V2),CP):-!,cycLToMpred0(V1,V1P),cycLToMpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
-cycLToMpred0([V1 | V2],CP):-!,cycLToMpred0(V1,V1P),cycLToMpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
-cycLToMpred0(V,V).
+cycl_to_mpred0(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,CP),!.
+cycl_to_mpred0(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycl_to_mpred0(VE,CP).
+cycl_to_mpred0((TRUE => V),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
+cycl_to_mpred0((V <=> TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
+cycl_to_mpred0((V :- TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
+cycl_to_mpred0((V :- A),CP):- show_call(tiny_kb,cycl_to_mpred0((A => V),CP)).
+cycl_to_mpred0((A => (V1 , V2)),CP):-not(is_ftVar(V1)),!,cycl_to_mpred0((A=> (V1/consistent(V2))),V1P),
+   cycl_to_mpred0((A=> (V2/consistent(V1))),V2P) ,!,conjoin(V1P,V2P,CP).
+cycl_to_mpred0((V1 , V2),CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
+cycl_to_mpred0([V1 | V2],CP):-!,cycl_to_mpred0(V1,V1P),cycl_to_mpred0(V2,V2P),!,conjoin(V1P,V2P,CP).
+cycl_to_mpred0(V,V).
 
-%  cycLToMpred( (grandparent('$VAR'('G'),'$VAR'('C')) => thereExists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
-
-
-:- export(do_renames_cyc_to_clif/3).
-do_renames_cyc_to_clif(InTerm,_Info,_Ignored):- InTerm == '$translate_file_steam',!.
-do_renames_cyc_to_clif(end_of_file,_Info,end_of_file).
-do_renames_cyc_to_clif(InTerm,_Info,OutTerm):-
-   cyc_to_clif(InTerm,Mid),
-   nb_current('$variable_names',Vs),
-   reread_vars(Mid-Vs,re_symbolize,OutTerm),!.
+%  cycl_to_mpred( (grandparent('$VAR'('G'),'$VAR'('C')) => thereExists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
 
 
 
-:- ((baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb_preds.pfc')))).
 logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
-                      gripe_time(60,baseKB:qcompile(library('logicmoo/plarkc/logicmoo_i_cyc_xform.pfc'))).
+    gripe_time(60,baseKB:qcompile(library('logicmoo/plarkc/logicmoo_i_cyc_xform.pfc'))).
+:- current_prolog_flag(do_renames,WAS),writeq(current_prolog_flag(do_renames,WAS)),nl.
+
+
+:- after_boot(dmsg("Dont forget to ?- logicmoo_i_cyc_xform.")).
 % :- logicmoo_i_cyc_xform.
 
-:- current_prolog_flag(do_renames,WAS),writeq(current_prolog_flag(do_renames,WAS)),nl.
-:- after_boot(dmsg("Dont forget to ?- logicmoo_i_cyc_xform.")).
 
 :- fixup_exports.
 
@@ -534,45 +522,4 @@ checkCycAvailablity:- catchv((current_predicate(invokeSubL/2),ignore((invokeSubL
 */
 
 
-
-system:mwkb1:- setup_call_cleanup(tell(tinyKB9_cache),
-   forall(tinyKB_wstr(P),((cyc_to_clif(P,SAVE),
-     once(must(unnumbervars(SAVE,SAVE2))),
-     assert_if_new(tinyKB9(SAVE2)),
-   format('~q.~n',[tinyKB9(SAVE)])))),
-   told).
-
-ltkb1:- check_clause_counts,
- defaultAssertMt(MT),
- must(logicmoo_i_cyc_kb\==MT),
- with_current_why(mfl(MT, ltkb1, _ ),
- ( MT: must_det_l(( system:mwkb1,forall(find_and_call(tinyKB0(D)), MT:cycAssert(D)))),
-         check_clause_counts,
-         finish_asserts,
-  ltkb1_complete)).
-
-
-finish_asserts:- call_u(forall(find_and_call(tinyKB8(Fact)),mpred_post(baseKB:Fact,(tinyKB8(Fact),ax)))).
-
-ltkb1_complete:- 
-  finish_asserts,
-  doall((filematch(logicmoo('plarkc/logicmoo_i_cyc_kb_tinykb.pfc'),F),
-  source_file(X,F),
-  predicate_property(X,dynamic),retract(X:-_))).
-
-
-wkb0:- 
-  setup_call_cleanup(tell(tinyKB9_cache),
-      forall(tinyKB_All(V,MT,STR),format('~q.~n',[tinyKB_All(V,MT,STR)])),
-      told).
-
-wkbe:- statistics(cputime,S),
-  setup_call_cleanup(tell(foof),
-   ignore((el_assertions:el_holds_pred_impl(F),between(2,16,A),
-          current_predicate(F/A),functor(P,F,A),forall(P,format('~q.~n',[P])),fail)),told),
-   statistics(cputime,E),Total is E - S, writeln(Total).
-
-wkb2:- setup_call_cleanup(tell(tinyKB9_proof_cache),
-      ignore(( tinyKB(D,MT,Str),cyc_to_clif(D,KB),format('~N~q.~N',[proof(KB,D,MT,Str)]),fail)),
-      told).
 

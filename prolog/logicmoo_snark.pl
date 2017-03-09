@@ -9,6 +9,14 @@
 
 :- module(logicmoo_snark,[]).
 
+:- system:use_module(library(logicmoo_util_common)).
+
+:- dynamic   user:file_search_path/2.
+:- multifile user:file_search_path/2.
+:- prolog_load_context(directory,Dir),
+   DirFor = library,
+   during_boot((( \+ user:file_search_path(DirFor,Dir)) ->asserta(user:file_search_path(DirFor,Dir));true)),!.
+
 :- '$set_source_module'(baseKB).
 
 :- reexport(library(logicmoo_engine)).
@@ -23,7 +31,7 @@
 :- reexport(baseKB:library('logicmoo/snark/common_logic_kb_hooks.pl')).
 
 :- ensure_loaded(baseKB:library('logicmoo/snark/common_logic_clif.pfc')).
-:- baseKB:ensure_loaded('./logicmoo/snark/common_logic_sumo.pfc').
+% :- ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS
@@ -60,7 +68,7 @@ loadSumo2:-
    !.
 
 loadSumo3:- 
-   ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')),
+   % ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')),
    !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

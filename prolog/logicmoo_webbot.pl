@@ -1,6 +1,6 @@
 %#!/usr/bin/swipl 
 
-:- module(logicmoo_webbot,[prolog_tn_server/0]).
+:- module(logicmoo_webbot,[prolog_tn_server/0,maybe_save_lm/0]).
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
@@ -319,7 +319,7 @@ system:kill_unsafe_preds:-
 :- dmsg("SETUP CYC KB EXTENSIONS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- during_boot(set_prolog_flag(do_renames,restore)).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb_tinykb.pfc'))).
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb.pl'))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -370,6 +370,8 @@ rescan_pack_autoload_packages:-
 :- ensure_loaded(system:logicmoo_utils).
 
 :- set_prolog_flag(logicmoo_qsave,false).
+
+:- fixup_exports.
 
 :- if(current_prolog_flag(logicmoo_qsave,true)).
 :- statistics.

@@ -1236,7 +1236,7 @@ delay_rule_eval(In,Wrap,WIn):- WIn=..[Wrap,In].
 fully_expand_always(C0,C1):- locally(t_l:no_db_expand_props,fully_expand('==>'(C0),C1)),!.
 
 tinykb_assertion_recipe(C,P):- tinykb_assertion_recipe_w(C,C1),unnumbervars(C1,P),!.
-tinykb_assertion_recipe_w(C,P):- cycLToMpred(C,C0),fully_expand_always(C0,P).
+tinykb_assertion_recipe_w(C,P):- cycl_to_mpred(C,C0),fully_expand_always(C0,P).
 
 kif_assertion_recipe(D,CycLOut):-
          must_det_l((must_map_preds([
