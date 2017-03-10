@@ -31,6 +31,34 @@
 :- module(logicmoo_utils_file,[logicmoo_utils_test_msg/0]).
 :- endif.
 
+
+packs_ensure :- maplist([W]>>pack_ensure(W),
+[
+clause_attvars,
+dictoo,
+each_call_cleanup,
+eggdrop,
+file_scope,
+gvar_syntax,
+hook_hybrid,
+instant_prolog_docs,
+logicmoo_base,
+logicmoo_utils,
+loop_check,
+multimodal_dcg,
+must_trace,
+no_repeats,
+predicate_streams,
+prologmud,
+s_expression,
+slack_prolog,
+subclause_expansion,
+tabling_dra,
+with_open_options,
+with_thread_local,
+xlisting,
+xlisting_web]).
+
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
