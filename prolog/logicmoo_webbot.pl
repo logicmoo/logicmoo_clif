@@ -85,6 +85,7 @@ add_relative_search_path(Alias, Rel) :-
    asserta(saved_verbose(Verbose)),
    set_prolog_flag(verbose, silent).
 
+:- if(exists_source(cliopatria('applications/help/load'))).
 
 		 /*******************************
 		 *	      LOAD CODE		*
@@ -112,12 +113,14 @@ add_relative_search_path(Alias, Rel) :-
 :- volatile(http_log:log_stream/2).
 :- volatile(http_session:urandom_handle/1).
 
+:- endif. % clio exists?
+
 :- autoload([verbose(false)]).
 
 :-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
    asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
 
-:- endif.
+:- endif.  % --noclio
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -137,7 +140,7 @@ ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DUMPST ON WARNINGS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+:- if(false).
 skip_warning(informational).
 skip_warning(information).
 skip_warning(debug).
@@ -158,6 +161,7 @@ base_message(T,Type,Warn):- dmsg(message_hook(T,Type,Warn)),dumpST,dmsg(message_
 :- multifile prolog:message//1, user:message_hook/3.
 user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
    catch(once(base_message(T,Type,Warn)),_,fail),fail.
+:- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ensure hMUD

@@ -153,7 +153,7 @@ portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk
 
 :- multifile(user:portray/1).
 :- dynamic(user:portray/1).
-user:portray(Sk):- get_attr(Sk, sk, Form) , loop_check(common_logic_skolem:portray_sk(Sk)),!.
+user:portray(Sk):- get_attr(Sk, sk, _Form) , loop_check(common_logic_skolem:portray_sk(Sk)),!.
 
 %% sk_form:attribute_goals(@V)// is det.
 %	copy_term/3, which also determines  the   toplevel  printing  of

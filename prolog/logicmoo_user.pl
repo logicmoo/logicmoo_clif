@@ -54,6 +54,7 @@ system:logicmoo_user_stacks:- Six = 6, set_prolog_stack(global, limit(Six*10**9)
 % % :- set_prolog_flag(mpred_te,true).
  % :- set_prolog_flag(subclause_expansion,true).
 :- set_prolog_flag(pfc_booted,true).
+:- create_prolog_flag(retry_undefined,default,[type(term),keep(true)]).
 :- set_prolog_flag(retry_undefined,true).
 :- set_prolog_flag(read_attvars,false).
 

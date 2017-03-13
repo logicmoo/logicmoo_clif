@@ -31,6 +31,7 @@
 :- module(logicmoo_utils_file,[logicmoo_utils_test_msg/0]).
 :- endif.
 
+pack_ensure(_).
 
 packs_ensure :- maplist([W]>>pack_ensure(W),
 [

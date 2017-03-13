@@ -160,14 +160,16 @@ logicmoo_toplevel:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % (X)WINDOWS (DE)BUGGERY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-start_x_ide:- \+ current_prolog_flag(logicmoo_headless,true),!.
-start_x_ide:- prolog_ide(thread_monitor),prolog_ide(debug_monitor),
+start_x_ide:- !.
+start_x_ide:- current_prolog_flag(logicmoo_headless,true),!.
+start_x_ide:- 
+  notrace((prolog_ide(thread_monitor),prolog_ide(debug_monitor),
    % prolog_ide(open_debug_status),
    guitracer,
    use_module(library(pce_prolog_xref)),
-   noguitracer.
+   noguitracer)).
 
-:- after_boot(start_x_ide).
+:- after_boot(dmsg(start_x_ide)).
 
 
 

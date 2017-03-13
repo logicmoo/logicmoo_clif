@@ -76,6 +76,11 @@ genls(_,_,MT):-isa(_,_,MT),genls(_,_,MT).
 
 :- kb_shared(relationAllOnly/3).
 :- kb_shared(rtTransitiveBinaryPredicate/1).
+:- kb_shared(predInterArgIsa/1).
+
+end_of_file.
+
+rtQuotedPred(predInterArgIsa).
 
 predInterArgIsa(mudSubPart(tBodyPart,tBodyPart)).
 

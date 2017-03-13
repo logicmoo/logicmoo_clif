@@ -174,11 +174,12 @@ reallyLoadTiny:- mpred_notrace.
 :- volatile(lmcache:isCycAvailable_known/0).
 
 isa_db(I,C):-clause(isa(I,C),true).
-
-:- baseKB:kb_shared((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+:- set_module(elmt:class(development)).
+:- kb_shared(arity/2).
+:- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 
 /*
-:- kb_shared((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+:- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
 :- dynamic((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
 :- dynamic(assertedTinyKB_implies_first/4).
@@ -202,14 +203,14 @@ tinyKB_wstr(ist(MT,P)):-mtDressedMt(MT),tinyKB(P,MT,_).
 :- kb_shared(argGenl/3).
 :- dynamic(argQuotedIsa/3).
 :- kb_shared(argQuotedIsa/3).
-isa(I,C):-exactlyAssertedEL(isa,I,C,_,_).
-genls(I,C):-exactlyAssertedEL(genls,I,C,_,_).
-arity(I,C):-exactlyAssertedEL(arity,I,C,_,_).
-argIsa(P,N,C):-exactlyAssertedEL(argIsa,P,N,C,_,_).
-argGenl(P,N,C):-exactlyAssertedEL(argGenl,P,N,C,_,_).
-argQuotedIsa(P,N,C):-exactlyAssertedEL(argQuotedIsa,P,N,C,_,_).
+isa(I,C):-elmt:exactlyAssertedELMT(isa,I,C,_,_).
+genls(I,C):-elmt:exactlyAssertedELMT(genls,I,C,_,_).
+arity(I,C):-elmt:exactlyAssertedELMT(arity,I,C,_,_).
+argIsa(P,N,C):-elmt:exactlyAssertedELMT(argIsa,P,N,C,_,_).
+argGenl(P,N,C):-elmt:exactlyAssertedELMT(argGenl,P,N,C,_,_).
+argQuotedIsa(P,N,C):-elmt:exactlyAssertedELMT(argQuotedIsa,P,N,C,_,_).
 */
-% queuedTinyKB(CycL,MT):- (mtUndressedMt(MT);mtDressedMt(MT)),(STR=vStrMon;STR=vStrDef),  tinyKB_All(CycL,MT,STR),\+ clause(exactlyAssertedEL(CycL,_,_,_),true).
+% queuedTinyKB(CycL,MT):- (mtUndressedMt(MT);mtDressedMt(MT)),(STR=vStrMon;STR=vStrDef),  tinyKB_All(CycL,MT,STR),\+ clause(elmt:exactlyAssertedELMT(CycL,_,_,_),true).
 % queuedTinyKB(CycL):-mtUndressedMt(MT),queuedTinyKB(CycL,MT).
 % queuedTinyKB(ist(MT,CycL)):-mtDressedMt(MT),queuedTinyKB(CycL,MT).
 
@@ -253,7 +254,7 @@ tinyKB_All(PO,MT,STR):- current_predicate(_:'TINYKB-ASSERTION'/5),!,
 loadTinyKB:-forall((tinyKB(C,MT,STR),cyc_to_clif(C,P)),((print_assertion(P,MT,STR),wdmsg(ain(P))))).
 % ssveTinyKB:-tinyKB_All(tinyKB(P,MT,STR),tell((print_assertion(P,MT,STR),ain(P)))).
 
-print_assertion(P,MT,STR):- P=..PL,append([exactlyAssertedEL|PL],[MT,STR],PPL),PP=..PPL, portray_clause(current_output,PP,[numbervars(false)]).
+print_assertion(P,MT,STR):- P=..PL,append([elmt:exactlyAssertedELMT|PL],[MT,STR],PPL),PP=..PPL, portray_clause(current_output,PP,[numbervars(false)]).
 
 
 mtUndressedMt('iUniversalVocabularyImplementationMt').
@@ -273,18 +274,18 @@ mtDressedMt('iTemporaryEnglishParaphraseMt').
 into_mpred_form_locally(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_locally(V,R):- into_mpred_form(V,R),!. 
 
-call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[exactlyAssertedEL|ARGS],!,
+call_el_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),CALL=..[elmt:exactlyAssertedELMT|ARGS],!,
  baseKB:call(CALL,MT,STR).
-make_el_stub(V,MT,STR,CALL):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[exactlyAssertedEL|CARGS],!.
+make_el_stub(V,MT,STR,CALL):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[elmt:exactlyAssertedELMT|CARGS],!.
 
 tinyAssertion(V,MT,STR):- 
  nonvar(V) -> call_el_stub(V,MT,STR);
   (tinyAssertion0(W,MT,STR),once(into_mpred_form_locally(W,V))).
 
-tinyAssertion0(t(A,B,C,D,E),MT,STR):-exactlyAssertedEL(A,B,C,D,E,MT,STR).
-tinyAssertion0(t(A,B,C,D),MT,STR):-exactlyAssertedEL(A,B,C,D,MT,STR).
-tinyAssertion0(t(A,B,C),MT,STR):-exactlyAssertedEL(A,B,C,MT,STR).
-tinyAssertion0(t(A,B),MT,STR):-exactlyAssertedEL(A,B,MT,STR).
+tinyAssertion0(t(A,B,C,D,E),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,D,E,MT,STR).
+tinyAssertion0(t(A,B,C,D),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,D,MT,STR).
+tinyAssertion0(t(A,B,C),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,MT,STR).
+tinyAssertion0(t(A,B),MT,STR):-elmt:exactlyAssertedELMT(A,B,MT,STR).
 
 
 addTinyCycL(CycLIn):- into_mpred_form_locally(CycLIn,CycL),
@@ -293,10 +294,10 @@ addTinyCycL(CycLIn):- into_mpred_form_locally(CycLIn,CycL),
 
 
 
-tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_locally(CycLIn,CycL), CycL=..[F|Args], append(Args,[MT,_STR],WMT),CCALL=..[exactlyAssertedEL,F|WMT],!,
+tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_locally(CycLIn,CycL), CycL=..[F|Args], append(Args,[MT,_STR],WMT),CCALL=..[elmt:exactlyAssertedELMT,F|WMT],!,
   ((baseKB:clause(CCALL,true), CCALL=CALL) ; baseKB:clause(CCALL,(CALL,_))).
-tiny_support(CycLOut,MT,CALL):- between(4,7,Len),functor(CCALL,exactlyAssertedEL,Len),
-  CCALL=..[exactlyAssertedEL,F|WMT],append(Args,[MT,_STR],WMT),
+tiny_support(CycLOut,MT,CALL):- between(4,7,Len),functor(CCALL,elmt:exactlyAssertedELMT,Len),
+  CCALL=..[elmt:exactlyAssertedELMT,F|WMT],append(Args,[MT,_STR],WMT),
  baseKB:CCALL,(atom(F)->CycL=..[F|Args];append_termlist(F,Args,CycL)),((baseKB:clause(CCALL,true), CCALL=CALL) ; baseKB:clause(CCALL,(CALL,_))), fully_expand(CycL,CycLOut).
 
 

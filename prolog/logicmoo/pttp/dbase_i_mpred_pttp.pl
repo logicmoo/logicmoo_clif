@@ -13,7 +13,7 @@
 :- module(mpred_pttp,[]).
 :- endif.
 
-:- multifile(t_l:disable_px/0).
+
 :- thread_local(t_l:disable_px/0).
 :- ensure_loaded('../logicmoo_utils').
 
@@ -85,7 +85,8 @@ pttp_assert(X) :- must_pttp_id(ID),pttp_tell_wid(ID,X).
 pttp_tell_wid(ID,XY):- 
     with_no_mpred_expansions(
        locally(t_l:disable_px,
-          locally(t_l:infSkipFullExpand,must(pttp_assert_wid(ID,pttp,XY))))),!.
+          locally(t_l:infSkipFullExpand,
+            must(pttp_assert_wid(ID,pttp,XY))))),!.
 
 :- was_export(pttp_assert_wid/3).
 pttp_assert_wid(ID,Mode,(X,Y)):- !, pttp_assert_wid(ID,Mode,X),kb_incr(ID,ID2), pttp_assert_wid(ID2,Mode,Y).

@@ -36,7 +36,7 @@
 % INIT BASIC FORWARD CHAINING SUPPORT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- system:use_module(library(pfc)).
+:- use_module(library(pfc)).
 
 
 
@@ -45,8 +45,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % forward chaing state browser
-:- system:ensure_loaded(library(xlisting_web)).
-
+:- if(exists_source(library(xlisting_web))).
+% :- ensure_loaded(library(xlisting_web)).
+:- endif.
 
 :- during_boot(add_history_ideas).
 

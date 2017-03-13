@@ -20,10 +20,11 @@
 :- module(logicmoo_i_cyc_kb_tinykb,[]).
 
 %:- endif.
+:- set_module(elmt:class(development)).
+:- kb_shared(arity/2).
+:- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 
-:- baseKB:kb_shared((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
-
-%:- dynamic((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+%:- dynamic((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
 :- dynamic((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
 :- dynamic(assertedTinyKB_implies_first/4).
@@ -32,7 +33,7 @@
 :- dynamic(assertedTinyKB_not/3).
 :- dynamic(assertedTinyKB_implies/4).
 
-%:- export((exactlyAssertedEL/4,exactlyAssertedEL/5,exactlyAssertedEL/6,exactlyAssertedEL/7)).
+%:- export((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 :- export((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).
 :- export((exactlyAssertedEL_first/4,exactlyAssertedEL_first/5,exactlyAssertedEL_first/6,exactlyAssertedEL_first/7)).
 :- export(assertedTinyKB_implies_first/4).
@@ -46,25 +47,29 @@
 % :-style_check(-atom).
 % :-style_check(-string).
 :- set_prolog_flag(double_quotes,string).
-:- discontiguous exactlyAssertedEL/5. 
-:- discontiguous exactlyAssertedEL_first/5.
+:- set_prolog_flag(access_level,system).
+%:- discontiguous elmt:exactlyAssertedELMT/5. 
+:- forall(between(4,7,A),kb_shared(elmt:exactlyAssertedELMT/A)).
+:- forall(between(4,7,A),multifile(elmt:exactlyAssertedELMT/A)).
 
-exactlyAssertedEL(A,B,MT,STR):- exactlyAssertedEL_first(A,B,MT,STR),true.
-exactlyAssertedEL(A,B,C,MT,STR):- exactlyAssertedEL_first(A,B,C,MT,STR),true.
-exactlyAssertedEL(A,B,C,D,MT,STR):- exactlyAssertedEL_first(A,B,C,D,MT,STR),true.
-exactlyAssertedEL(Pred,A,C,MT,STR):- exactlyAssertedEL_with_vars(Pred,A,C,MT,STR),true.
-exactlyAssertedEL(Pred,A,C,D,MT,STR):- exactlyAssertedEL_with_vars(Pred,A,C,D,MT,STR),true.
-exactlyAssertedEL(implies,A,C,MT,STR):- assertedTinyKB_implies_first(A,C,MT,STR),true.
-exactlyAssertedEL(not,What,MT,STR):- assertedTinyKB_not_first(What,MT,STR),true.
-exactlyAssertedEL(A,B,MT,STR):- exactlyAssertedEL_next(A,B,MT,STR),true.
-exactlyAssertedEL(A,B,C,MT,STR):- exactlyAssertedEL_next(A,B,C,MT,STR),true.
-exactlyAssertedEL(A,B,C,D,MT,STR):- exactlyAssertedEL_next(A,B,C,D,MT,STR),true.
-exactlyAssertedEL(A,B,C,D,E,MT,STR):- exactlyAssertedEL_next(A,B,C,D,E,MT,STR),true.
-exactlyAssertedEL(implies,A,C,MT,STR):- assertedTinyKB_implies(A,C,MT,STR),not(if_defined(is_better_backchained(=>(A,C)))).
-exactlyAssertedEL(implies,A,C,MT,STR):- assertedTinyKB_implies(A,C,MT,STR),if_defined(is_better_backchained(=>(A,C))).
-exactlyAssertedEL(not,What,MT,STR):- assertedTinyKB_not(What,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,MT,STR):- exactlyAssertedEL_first(A,B,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,C,MT,STR):- exactlyAssertedEL_first(A,B,C,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,C,D,MT,STR):- exactlyAssertedEL_first(A,B,C,D,MT,STR),true.
+elmt:exactlyAssertedELMT(Pred,A,C,MT,STR):- exactlyAssertedEL_with_vars(Pred,A,C,MT,STR),true.
+elmt:exactlyAssertedELMT(Pred,A,C,D,MT,STR):- exactlyAssertedEL_with_vars(Pred,A,C,D,MT,STR),true.
+
+elmt:exactlyAssertedELMT(implies,A,C,MT,STR):- assertedTinyKB_implies_first(A,C,MT,STR),true.
+elmt:exactlyAssertedELMT(not,What,MT,STR):- assertedTinyKB_not_first(What,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,MT,STR):- exactlyAssertedEL_next(A,B,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,C,MT,STR):- exactlyAssertedEL_next(A,B,C,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,C,D,MT,STR):- exactlyAssertedEL_next(A,B,C,D,MT,STR),true.
+elmt:exactlyAssertedELMT(A,B,C,D,E,MT,STR):- exactlyAssertedEL_next(A,B,C,D,E,MT,STR),true.
+elmt:exactlyAssertedELMT(implies,A,C,MT,STR):- assertedTinyKB_implies(A,C,MT,STR),not(if_defined(is_better_backchained(=>(A,C)))).
+elmt:exactlyAssertedELMT(implies,A,C,MT,STR):- assertedTinyKB_implies(A,C,MT,STR),if_defined(is_better_backchained(=>(A,C))).
+elmt:exactlyAssertedELMT(not,What,MT,STR):- assertedTinyKB_not(What,MT,STR),true.
 
 :- install_constant_renamer_until_eof.
+:- discontiguous exactlyAssertedEL_first/5.
 
 exactlyAssertedEL_first(isa, xor, 'LogicalConnective', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', vStrDef).
