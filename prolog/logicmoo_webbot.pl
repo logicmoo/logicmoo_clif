@@ -338,9 +338,8 @@ system:kill_unsafe_preds:-
 :- ensure_loaded(system:library(logicmoo_utils)).
 :- after_boot(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
-:- set_prolog_flag(write_attributes,portray).
-
-:- debug.
+% :- set_prolog_flag(write_attributes,portray).
+% :- debug.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

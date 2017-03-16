@@ -171,6 +171,7 @@ reallyLoadTiny:- mpred_notrace.
         lmcache:isCycUnavailable_known/1,
         baseKB:mpred_to_cyc/2)).
 
+:- dynamic(lmcache:isCycAvailable_known/0).
 :- volatile(lmcache:isCycAvailable_known/0).
 
 isa_db(I,C):-clause(isa(I,C),true).
@@ -504,7 +505,6 @@ make_functorskel(F,N,fskel(F,DBASE,Call,I,NList,MtVars,Call2)):-typical_mtvars(M
 % ============================================
 
 :- dynamic(lmcache:isCycUnavailable_known/1).
-:- dynamic(lmcache:isCycAvailable_known/0).
 
 /*
 :- was_export(isCycAvailable/0).
