@@ -33,6 +33,7 @@
 % MAKE SURE CLIOPATRIA RUNS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- system:use_module(library(pce_emacs)).
 :- multifile(swish_trace:installed/1).
 :- volatile(swish_trace:installed/1).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).

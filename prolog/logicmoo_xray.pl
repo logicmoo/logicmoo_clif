@@ -6,5 +6,5 @@
 % Dec 13, 2035
 %
 */
-:- module(logicmoo_xray,[]).
+:- module(old_logicmoo_xray,[]).
 
