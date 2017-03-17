@@ -1,7 +1,7 @@
 
-%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(common_logic_kb_hooks,
  [kbp_t/1,with_el_holds_disabled/1,noGenlPreds/1,cyckb_t/3,link_to_holds2/2,
+  assert_kif/1, assert_kif_dolce/1,
    assert_next_queue/1,
   assert_to_db_list/2,
   big_kb_ASSERTION/2,
@@ -59,7 +59,6 @@ noGenlPreds/1,
   ]).
 
 :- include(library('pfc2.0/mpred_header.pi')).
-%:- endif.
 
 %:- baseKB:ensure_loaded(library(pfc)).
 
@@ -93,6 +92,18 @@ noGenlPreds/1,
 
 :- was_export(kbp_t/1). 
 
+
+%% assert_kif( ?String) is det.
+%
+% Assert Knowledge Interchange Format.
+%
+assert_kif(D):- ain(sumoSentenceString(D)).
+
+%% assert_kif_dolce( ?String) is det.
+%
+% Assert Knowledge Interchange Format Dolce.
+%
+assert_kif_dolce(String):-input_to_forms(String,Forms,_Vars),dmsg(warn(assert_kif_dolce(Forms))),!,assert_kif(Forms).
 
 cycAssert(O):-assert_kif(O).
 cycAssert(O,Mt):-assert_kif(Mt:O).
