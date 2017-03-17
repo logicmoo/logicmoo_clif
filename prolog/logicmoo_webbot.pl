@@ -1,6 +1,7 @@
 %#!/usr/bin/swipl 
 
-:- module(logicmoo_webbot,[prolog_tn_server/0,maybe_save_lm/0]).
+:- module(logicmoo_webbot,[prolog_tn_server/0,maybe_save_lm/0,
+  ensure_webserver_3020/0,ensure_webserver_p/1,rescan_pack_autoload_packages/0]).
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
@@ -25,6 +26,21 @@
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
 :- system:ensure_loaded(logicmoo_swilib).
+
+
+
+% Setup search path for cliopatria. We add  both a relative and absolute
+% path. The absolute path allow us to  start in any directory, while the
+% relative one ensures that the system remains working when installed on
+% a device that may be mounted on a different location.
+
+add_relative_search_path(Alias, Abs) :-
+	is_absolute_file_name(Abs), !,
+	prolog_load_context(file, Here),
+	relative_file_name(Abs, Here, Rel),
+	assertz(user:file_search_path(Alias, Rel)).
+add_relative_search_path(Alias, Rel) :-
+	assertz(user:file_search_path(Alias, Rel)).
 
 
 
@@ -59,25 +75,17 @@ To run the system, do one of the following:
       See daemon.pl
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-% Setup search path for cliopatria. We add  both a relative and absolute
-% path. The absolute path allow us to  start in any directory, while the
-% relative one ensures that the system remains working when installed on
-% a device that may be mounted on a different location.
-
-add_relative_search_path(Alias, Abs) :-
-	is_absolute_file_name(Abs), !,
-	prolog_load_context(file, Here),
-	relative_file_name(Abs, Here, Rel),
-	assertz(user:file_search_path(Alias, Rel)).
-add_relative_search_path(Alias, Rel) :-
-	assertz(user:file_search_path(Alias, Rel)).
-
-
 :- if(exists_directory('../../ClioPatria/')).
 :- add_relative_search_path(cliopatria, '../../ClioPatria').
 :- endif.
 :- if(exists_directory('../../../ClioPatria/')).
 :- add_relative_search_path(cliopatria, '../../../ClioPatria').
+:- endif.
+:- if(exists_directory('../../../../ClioPatria/')).
+:- add_relative_search_path(cliopatria, '../../../../ClioPatria').
+:- endif.
+:- if(exists_directory('../../../../../ClioPatria/')).
+:- add_relative_search_path(cliopatria, '../../../../../ClioPatria').
 :- endif.
 
 % Make loading files silent. Comment if you want verbose loading.
@@ -167,13 +175,14 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ensure hMUD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- if(exists_directory(hmud)).
-:- absolute_file_name('hmud/',O),
+:- if( \+ exists_directory('./hmud')).
+:- shell('git clone https://github.com/TeamSPoon/hMUD.git ./hmud').
+:- endif.
+
+:- if( exists_directory('./hmud')).
+:- absolute_file_name('./hmud/',O),
    during_boot(http_handler('/hmud/', http_reply_from_files(O, []), [prefix])).
 :- during_boot(ignore(catch(shell('killall perl ; ./hmud/policyd'),E,dmsg(E)))).
-:- else.
-:- during_boot(http_handler('/hmud/', http_reply_from_files(pack(hMUD), []), [prefix])).
-:- during_boot(ignore(catch(shell('killall perl ; ../hmud/policyd'),E,dmsg(E)))).
 :- endif.
 
 
@@ -336,7 +345,6 @@ system:kill_unsafe_preds:-
 :- set_prolog_flag(toplevel_print_factorized,true). % default false
 :- set_prolog_flag(toplevel_print_anon,true).
 :- set_prolog_flag(toplevel_mode,backtracking). % OR recursive 
-:- ensure_loaded(system:library(logicmoo_utils)).
 :- after_boot(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
 % :- set_prolog_flag(write_attributes,portray).
@@ -370,8 +378,6 @@ rescan_pack_autoload_packages:-
 % QSAVE THIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-:- ensure_loaded(system:logicmoo_utils).
 
 :- set_prolog_flag(logicmoo_qsave,false).
 

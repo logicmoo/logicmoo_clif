@@ -55,7 +55,7 @@ Per-Litteral features
 
 */
 
-% File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/snark/common_logic_boxlog.pl
+% File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_boxlog.pl
 %:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(common_logic_boxlog,
           [ avoidHeadLoop/2,
@@ -100,7 +100,7 @@ Per-Litteral features
 
 :- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
-:- reexport(baseKB:library('logicmoo/snark/common_logic_compiler.pl')). 
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
 
 :- system:use_module(library(dialect/hprolog),[]).
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).

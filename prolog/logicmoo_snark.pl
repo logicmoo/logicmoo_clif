@@ -22,16 +22,16 @@
 :- reexport(library(logicmoo_engine)).
 :- asserta_new(user:file_search_path(logicmoo,library)).
 
-:- add_library_search_path('./logicmoo/snark/',[ 'common_*.pl']).
+:- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
-:- reexport(baseKB:library('logicmoo/snark/common_logic_snark.pl')). 
-:- reexport(baseKB:library('logicmoo/snark/common_logic_boxlog.pl')).
-:- reexport(baseKB:library('logicmoo/snark/common_logic_skolem.pl')).
-:- reexport(baseKB:library('logicmoo/snark/common_logic_compiler.pl')). 
-:- reexport(baseKB:library('logicmoo/snark/common_logic_kb_hooks.pl')).
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_snark.pl')). 
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_skolem.pl')).
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 
-:- ensure_loaded(baseKB:library('logicmoo/snark/common_logic_clif.pfc')).
-% :- ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')).
+:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
+% :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS
@@ -55,20 +55,24 @@ sumo_ain2(CycLOut):-
 
 loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
 loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
- 
+
+:- if( \+ exists_directory('./ontologyportal_sumo')).
+:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo').
+:- endif.
+
 loadSumo1:- 
-   loadSumo('./games/ontologyportal_sumo/Merge.kif'),
-   loadSumo('./games/ontologyportal_sumo/Mid-level-ontology.kif'),
+   loadSumo('./ontologyportal_sumo/Merge.kif'),
+   loadSumo('./ontologyportal_sumo/Mid-level-ontology.kif'),
    !.
 
 loadSumo2:- 
-   loadSumo('./games/ontologyportal_sumo/Translations/relations-en.txt'),
-   loadSumo('./games/ontologyportal_sumo/english_format.kif'),
-   loadSumo('./games/ontologyportal_sumo/domainEnglishFormat.kif'),
+   loadSumo('./ontologyportal_sumo/Translations/relations-en.txt'),
+   loadSumo('./ontologyportal_sumo/english_format.kif'),
+   loadSumo('./ontologyportal_sumo/domainEnglishFormat.kif'),
    !.
 
 loadSumo3:- 
-   % ensure_loaded(baseKB:library('logicmoo/snark/common_logic_sumo.pfc')),
+   % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
    !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

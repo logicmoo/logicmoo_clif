@@ -8,11 +8,12 @@
 */
 :- module(logicmoo_plarkc,[]).
 
+:- reexport(library(logicmoo_snark)).
 :- '$set_source_module'(baseKB).
+
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
-:- reexport(library(logicmoo_snark)).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 :- add_library_search_path('./logicmoo/plarkc/',[ 'logicmoo_i_*.pl']).
 

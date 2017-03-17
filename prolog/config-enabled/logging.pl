@@ -1,2 +1,2 @@
 /* Linked config file */
-:- consult('../../ClioPatria/config-available/logging.pl').
+:- consult('../../../ClioPatria/config-available/logging.pl').

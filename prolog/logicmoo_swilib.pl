@@ -15,7 +15,7 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
-:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0]).
+:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT PROLOG FLAGS
@@ -172,8 +172,6 @@ start_x_ide:-
 :- after_boot(dmsg(start_x_ide)).
 
 
-
-:- fixup_exports.
 
 
 

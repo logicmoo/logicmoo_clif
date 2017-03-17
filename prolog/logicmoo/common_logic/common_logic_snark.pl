@@ -1,4 +1,4 @@
-% File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/snark/common_logic_snark.pl
+% File: /opt/PrologMUD/pack/logicmoo_base/prolog/common_logic/snark/common_logic_snark.pl
 % :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(common_logic_snark,
           [ add_nesc/2,
@@ -125,7 +125,7 @@
 %
 */
 
-:- reexport(baseKB:library('logicmoo/snark/common_logic_boxlog.pl')).
+:- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
 
 
 :- include(library('pfc2.0/mpred_header.pi')).
