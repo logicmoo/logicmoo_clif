@@ -1,10 +1,11 @@
+
 /**********************************************************************
  *
  * @(#) testMotel.pl 1.4@(#)
  *
  */
 
-testMotel :-
+testMotel0 :-
 	testAllMotelExamples(1),
 	!.
 
@@ -16,21 +17,21 @@ testAllMotelExamples(61) :-
 	print('Test complete'), nl, nl,
 	!.
 testAllMotelExamples(N) :-
-	initialize,
+	initializeMotel,
 	print('Example '), print(N), nl, example(N),
 	once(testMotelExample(N)),
 	M is N + 1,
 	testAllMotelExamples(M).
 
 testMotelExample(1) :-	
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(2) :-
 	printTime(setof(C,E^deduce(ex2,[],elementOf(mary,C),E),L1)), print(L1), nl,
 	printTime(setof(D,F^deduce(ex2,[],elementOf(tom,D),F),L2)), print(L2), nl.
 testMotelExample(3) :-
 	tryGoal(inconsistent(ex3)).
 testMotelExample(4) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(5) :-
 	tryGoal(not(subsumes([],c1,c2))),
 	tryGoal(subsumes([],c2,c1)).
@@ -38,7 +39,7 @@ testMotelExample(6) :-
 	tryGoal(not(subsumes([],c1,c2))),
 	tryGoal(subsumes([],c2,c1)).
 testMotelExample(7) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(8) :-
 	tryGoal(deduce(elementOf(tom,heterosexual))).
 testMotelExample(9) :-
@@ -53,7 +54,7 @@ testMotelExample(12) :-
 testMotelExample(13) :-
 	tryGoal(subsumes([],c1,c2)).
 testMotelExample(14) :-
-%	initialize, print('Example 14'), nl, example(14),
+%	initializeMotel, print('Example 14'), nl, example(14),
 %	tryGoal(subsumes([],c2,c1)),
 	!.
 testMotelExample(15) :-
@@ -69,15 +70,15 @@ testMotelExample(19) :-
 testMotelExample(20) :-
 	tryGoal(inconsistent(ex20)).
 testMotelExample(21) :-
-	print('No goal for this example'), nl,
+	no_goal,
 % 	deduce(elementOf(betty,female)),
 	!.
 testMotelExample(22) :-
 % 	deduce(elementOf(amy,female)),
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(23) :-
 % 	deduce(elementOf(amy,female))
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(24) :-
 	tryGoal(deduce(elementOf(audi,c3))).
 testMotelExample(25) :-
@@ -91,9 +92,9 @@ testMotelExample(27) :-
 testMotelExample(28) :-
 	tryGoal(deduce(ex29,[b(believe,john)],elementOf(audi,auto),_P)).
 testMotelExample(29) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(30) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(31) :-
 	tryGoal(deduce(elementOf(tom,onlyMaleChildren))).
 testMotelExample(32) :-
@@ -111,7 +112,7 @@ testMotelExample(36) :-
 	tryGoal(abduce(ex36,[],_H6,elementOf(nixon,dove),_E6)),
 	tryGoal(abduce(ex36,[],_H7,elementOf(nixon,hawk),_E7)).
 testMotelExample(37) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(38) :-
 	tryGoal(deduce(elementOf(ideaste,c2))).
 testMotelExample(39) :-
@@ -142,13 +143,13 @@ testMotelExample(43) :-
 testMotelExample(44) :-
 	tryGoal(subsumes(c2,c12)).
 testMotelExample(45) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(46) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(47) :-
 	tryGoal(deduce(elementOf(bmw,c3))).
 testMotelExample(48) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(49) :-
 	tryGoal(not(deduce(elementOf(p,c4)))).
 testMotelExample(50) :-
@@ -163,7 +164,7 @@ testMotelExample(51) :-
 	tryGoal(bagof((X1,W1),deduce(infl(X1,e,W1)),X1W1Pairs)),
 	verifySolution(X1W1Pairs,[(a,0.0),(b,-1.0),(g,1.0)]),
 	tryGoal(deduce(simultInfl([a,h],d,2.0))),
-	tryGoal(deduce(clause(d,1.0))),
+	tryGoal(deduce(change(d,1.0))),
 	tryGoal(bagof(X2,deduce(increase(X2)),X2s)),
 	verifySolution(X2s,[b,c,d,g,a]).
 
@@ -182,20 +183,20 @@ testMotelExample(52) :-
 	verifySolution(X1W1Pairs,[(hasCatConverter,-1.0),(hasWeight,-1.0)]),
 	tryGoal(bagof(X2,deduce(increase(X2)),X2s)),
 	verifySolution(X2s,[hasFuelConsumption,hasListPrice,hasOverallCost,hasPrice,hasWeight,hasCubicCapacity]),
-	tryGoal(bagof((X3,W3),(deduce(leastInfl(X3,hasMaxSpeed)),abduce(clause(X3,W3),change(hasMaxSpeed,1.0))),X3W3s)),
+	tryGoal(bagof((X3,W3),(deduce(leastInfl(X3,hasMaxSpeed)),abduce(change(X3,W3),change(hasMaxSpeed,1.0))),X3W3s)),
 	verifySolution(X3W3s,[(hasCatConverter,-1.0)]).
 testMotelExample(53) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(54) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(55) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(56) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(57) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(58) :-
-	print('No goal for this example'), nl.
+	no_goal.
 testMotelExample(59) :-
 	tryGoal(sb_ask(isa(harry,parent))),
 	tryGoal(sb_ask(isa(harry,person))),
@@ -234,4 +235,5 @@ verifySolution(TestSol,ExpectedSol) :-
 	print(TestSol),
 	print(', while expected solution is '),
 	print(ExpectedSol).
+
 

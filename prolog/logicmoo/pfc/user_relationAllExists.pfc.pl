@@ -80,7 +80,7 @@ genls(_,_,MT):-isa(_,_,MT),genls(_,_,MT).
 
 end_of_file.
 
-rtQuotedPred(predInterArgIsa).
+rtArgsVerbatum(predInterArgIsa).
 
 predInterArgIsa(mudSubPart(tBodyPart,tBodyPart)).
 

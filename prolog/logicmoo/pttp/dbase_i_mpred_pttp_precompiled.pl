@@ -118,7 +118,7 @@ is_extent_known(Pred):-wrapper_for(Pred,pred_t).
 
 wrapper_for(reflexive,pred_isa_t).
 wrapper_for(irreflexive,pred_isa_t).
-wrapper_for(tSymmetricRelation,pred_isa_t).
+wrapper_for(rtSymmetricBinaryPredicate,pred_isa_t).
 wrapper_for(antisymmetric,pred_isa_t).
 
 wrapper_for(genls,pred_t).

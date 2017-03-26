@@ -12,6 +12,9 @@
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
 
+:- set_prolog_flag(toplevel_print_anon,true).
+:- set_prolog_flag(toplevel_print_factorized,true).
+% :- set_prolog_flag(toplevel_mode,recursive).
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
@@ -19,14 +22,17 @@
 :- set_prolog_flag(logicmoo_qsave,false).
 :- endif.
 
+
+:- if( (current_prolog_flag(os_argv,List), \+ member('--nologtalk',List)) ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- nop(user:(
+:- (user:(
    % use_module(library(logtalk)),
    ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
    listing('$lgt_default_flag'/2))).
 
+:- endif.
 
 %:- '$set_source_module'(baseKB).
 %:- '$set_typein_module'(baseKB).
@@ -36,7 +42,7 @@
 % INIT BASIC FORWARD CHAINING SUPPORT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(pfc)).
+:- baseKB:use_module(library(pfc)).
 
 
 
@@ -176,6 +182,8 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,kif_assertion_recipe))).
 :- b_setval('$oo_stack',[]).
 
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
+
+:- after_boot_call.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % QSAVE LM_REPL

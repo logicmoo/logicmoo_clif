@@ -435,7 +435,7 @@ isk(Var,SK):- when('?='(Var,Val),isk_bind(Var,Val,SK)).
 %
 % Isk Bind.
 %
-isk_bind(Var,Val,SK):-show_call(dom(Var,[Val,SK])).
+isk_bind(Var,Val,SK):-show_call(add_dom(Var,[Val,SK])).
 
 % Like this one better but it breaks things
 % head_for_skolem(H,if_missing(H,pfclog((HH:-isk(NewOut,SK)))),skolem(In,SK)):-contains_var(In,H),subst(H,In,NewOut,HH),!.

@@ -245,8 +245,8 @@ tinyKB(PO,MT,STR):-
   tinyKB_All(PO,MT,STR).
 
 tinyKB_All(V,MT,STR):- tinyAssertion(V,MT,STR).
-tinyKB_All(PO,MT,STR):- current_predicate(_:'TINYKB-ASSERTION'/5),!,
-    tiny_kb_ASSERTION(PLISTIn,PROPS),
+tinyKB_All(PO,MT,STR):- % current_predicate(_:'TINYKB-ASSERTION'/5),!,
+    if_defined(tiny_kb_ASSERTION(PLISTIn,PROPS)),
         once((sexpr_sterm_to_pterm(PLISTIn,P),
                memberchk(amt(MT),PROPS),
                memberchk(str(STR),PROPS), 
@@ -329,6 +329,7 @@ is_better_backchained(V):-unnumbervars(V,FOO),(((each_subterm(FOO,SubTerm),nonva
 
 as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists'),(thereExists),V2),subst(V2,('&'),(and),VE),!.
 
+kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(M,O)).
 
 :- dynamic(addTiny_added/1).
 addCycL(V):-addTiny_added(V),!.
@@ -336,7 +337,7 @@ addCycL(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL(M),!.
 addCycL(V):-defunctionalize('implies',V,VE),V\=@=VE,!,addCycL(VE).
 addCycL(V):-cyc_to_clif(V,VE),V\=@=VE,!,addCycL(VE).
 addCycL(V):-is_simple_gaf(V),!,addCycL0(V),!.
-addCycL(V):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,addCycL0(VE)).
+addCycL(V):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,addCycL0(VE)).
 addCycL(V):-addCycL0(V),!.
 
 addCycL0(V):-addCycL1(V).
@@ -364,7 +365,7 @@ cycl_to_mpred(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred(M,CP),!
 cycl_to_mpred(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
 cycl_to_mpred(V,CP):-is_simple_gaf(V),!,cycl_to_mpred0(V,CP),!.
 cycl_to_mpred(V,CP):-defunctionalize('implies',V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
-cycl_to_mpred(V,CP):-kif_to_boxlog(V,VB),boxlog_to_pfc(VB,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,cycl_to_mpred0(VE,CP)).
+cycl_to_mpred(V,CP):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,cycl_to_mpred0(VE,CP)).
 cycl_to_mpred(V,CP):-cycl_to_mpred0(V,CP),!.
 
 cycl_to_mpred0(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,CP),!.

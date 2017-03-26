@@ -8,7 +8,7 @@
 % LOAD LOGICMOO (entry state)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- reexport(library(logicmoo_repl)).
+:- system:reexport(library(logicmoo_repl)).
 
 
 

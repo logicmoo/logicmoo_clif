@@ -8,7 +8,7 @@
 */
 :- module(logicmoo_plarkc,[]).
 
-:- reexport(library(logicmoo_snark)).
+:- system:reexport(library(logicmoo_snark)).
 :- '$set_source_module'(baseKB).
 
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).

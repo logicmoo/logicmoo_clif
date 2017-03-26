@@ -19,7 +19,7 @@
 
 :- '$set_source_module'(baseKB).
 
-:- reexport(library(logicmoo_engine)).
+:- system:reexport(library(logicmoo_engine)).
 :- asserta_new(user:file_search_path(logicmoo,library)).
 
 :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
@@ -37,7 +37,7 @@
 % SETUP SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- ensure_loaded(library(logicmoo_snark)).
+:- system:ensure_loaded(library(logicmoo_snark)).
 
 :- set_prolog_flag(do_renames,term_expansion).
 
@@ -201,7 +201,7 @@ with_ukb_snark(KB,G):- with_umt(KB,G).
 end_of_file.
 :- module(logicmoo_engine, [ tsn/0 ] ). 
 
-:- reexport(library(logicmoo_user)).
+:- system:reexport(library(logicmoo_user)).
 
 :- include(logicmoo(mpred/'mpred_header.pi')).
 

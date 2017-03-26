@@ -3,14 +3,16 @@
 
 :- mpred_unload_file.
 
+
 :- set_prolog_flag_until_eof(do_renames,term_expansion).
+:- install_constant_renamer_until_eof.
 
 :- file_begin(pfc).
 
-ttBarrierStr(A)/(atomic_list_concat([A,"Type"],AType0),
+ttBarrierStr(A),{atomic_list_concat([A,"Type"],AType0),
   atomic_list_concat([A,''],Type0),
   if_defined(do_renames(Type0,Type),true),
-  if_defined(do_renames(AType0,TypeType),true)) ==> barrierSpindle(TypeType,Type).
+  if_defined(do_renames(AType0,TypeType),true)} ==> barrierSpindle(TypeType,Type).
 
 
 

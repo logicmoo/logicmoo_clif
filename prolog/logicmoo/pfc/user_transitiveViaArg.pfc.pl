@@ -34,7 +34,7 @@ coExtensional(A,B)==>
 
 :- dynamic(anatomicallyCapableOf/3).
 
-ttPredType('rtCapabilityPredicate').
+ttRelationType('rtCapabilityPredicate').
 isa(CAP_PRED,'rtCapabilityPredicate') ==> transitiveViaArg(CAP_PRED,genls,2).
 
 
@@ -71,6 +71,6 @@ isa(A, C) :- cwc,
 ".
 
 */
-:- (compiling -> dmsg("IS COMPILING");dmsg("NOT COMPILING")).
+% :- (compiling -> dmsg("IS COMPILING");dmsg("NOT COMPILING")).
 :- set_prolog_flag(do_renames,restore).
 

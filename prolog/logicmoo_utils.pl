@@ -60,23 +60,6 @@ with_thread_local,
 xlisting,
 xlisting_web]).
 
- % :- set_prolog_flag(subclause_expansion,default).
- % :- set_prolog_flag(subclause_expansion,false).
- % :- set_prolog_flag(dialect_pfc,default).
-
-% ======================================================
-% Add Extra file_search_paths
-% ======================================================
-:- dynamic(user:file_search_path/2).
-:- multifile(user:file_search_path/2).
-
-
-add_file_search_path_local(Name,Path):-  resolve_dir_local(Path,Dir),
-   is_absolute_file_name(Dir), (( \+ user:file_search_path(Name,Dir)) ->asserta(user:file_search_path(Name,Dir));true).
-
-resolve_dir_local(Dir,Dir):- is_absolute_file_name(Dir),exists_directory(Dir),!.
-resolve_dir_local(Dir,ABS):- absolute_file_name(Dir,ABS),exists_directory(ABS),!.
-resolve_dir_local(Dir,ABS):- absolute_file_name(library(Dir),ABS),exists_directory(ABS),!.
 
 % ======================================================
 % Add Extra pack-ages directory
@@ -84,7 +67,7 @@ resolve_dir_local(Dir,ABS):- absolute_file_name(library(Dir),ABS),exists_directo
 :- if( \+ exists_source(library(logicmoo_utils))).
 % :- initialization(attach_packs,now).
 :- if( \+ exists_source(pack(logicmoo_base/prolog/logicmoo/logicmoo_utils))).
-:- add_file_search_path_local(pack,'../../').
+:- add_file_search_path_safe(pack,'../../').
 % :- initialization(attach_packs,now).
 :- endif.
 :- endif.
@@ -93,8 +76,8 @@ resolve_dir_local(Dir,ABS):- absolute_file_name(library(Dir),ABS),exists_directo
 % And adds the local directories to file search path of logicmoo(..)
 % ======================================================
 :- if( \+ exists_source(library(logicmoo_engine))).
-:- add_file_search_path_local(library,'./').
-:- exists_source(library(logicmoo_engine)).
+:- add_file_search_path_safe(library,'./').
+:- sanity(exists_source(library(logicmoo_engine))).
 :- endif.
 
 

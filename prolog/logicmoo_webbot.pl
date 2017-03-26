@@ -1,7 +1,11 @@
 %#!/usr/bin/swipl 
 
-:- module(logicmoo_webbot,[prolog_tn_server/0,maybe_save_lm/0,
-  ensure_webserver_3020/0,ensure_webserver_p/1,rescan_pack_autoload_packages/0]).
+:- module(logicmoo_webbot,[
+  prolog_tn_server/0,
+  maybe_save_lm/0,
+  ensure_webserver_3020/0,
+  ensure_webserver_p/1,
+  rescan_pack_autoload_packages/0]).
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
@@ -10,6 +14,52 @@
 :- endif.
 
 :-set_prolog_flag(access_level,system).
+
+:- multifile user:file_search_path/2.
+:- dynamic   user:file_search_path/2.
+
+:- include(library(pldoc/hooks)).
+
+:- if(exists_source(library(pldoc))).
+:- system:use_module(library(pldoc), []).
+	% Must be loaded before doc_process
+:- system:use_module(library(pldoc/doc_process)).
+:- endif.
+
+%:- system:use_module(library(pldoc/doc_library)).
+%:- doc_load_library.
+
+:- system:use_module(library(pldoc/doc_access)).
+:- system:use_module(library(pldoc/doc_pack)).
+
+:- system:use_module(library(doc_http)).
+:- reexport(library(pldoc/doc_html)).
+:- system:use_module(library(pldoc/doc_wiki)).
+:- system:use_module(library(pldoc/doc_search)).
+:- system:use_module(library(pldoc/doc_util)).
+:- system:use_module(library(pldoc/doc_library)).
+
+:- system:use_module(library(http/thread_httpd)).
+:- system:use_module(library(http/http_error)).
+:- system:use_module(library(http/http_client)).
+
+% http_reply_from_files is here
+:- system:use_module(library(http/http_files)).
+% http_404 is in here
+:- system:use_module(library(http/http_dispatch)).
+
+:- system:use_module(library(http/http_dispatch)).
+:- system:use_module(library(http/html_write),except([op(_,_,_)])).
+:- system:use_module(library(http/html_head)).
+:- system:use_module(library(http/http_session)).
+:- system:use_module(library(http/http_parameters)).
+:- system:use_module(library(http/http_server_files)).
+:- system:use_module(library(http/http_wrapper)).
+
+:- if(exists_source(library(yall))).
+:- system:use_module(library(yall), []).
+:- endif.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD CYC KB LOADER
@@ -26,7 +76,13 @@
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
 :- system:ensure_loaded(logicmoo_swilib).
+:- system:use_module(library(logicmoo_util_common)).
 
+
+:- system:use_module(library(pce_emacs)).
+:- multifile(swish_trace:installed/1).
+:- volatile(swish_trace:installed/1).
+:- use_module(pengine_sandbox:library(semweb/rdf_db)).
 
 
 % Setup search path for cliopatria. We add  both a relative and absolute
@@ -42,9 +98,27 @@ add_relative_search_path(Alias, Abs) :-
 add_relative_search_path(Alias, Rel) :-
 	assertz(user:file_search_path(Alias, Rel)).
 
-
+:- if( (current_prolog_flag(os_argv,List), member('--nonet',List)) ).
+:- set_prolog_flag(run_network,false).
+:- endif.
 
 :- if( (current_prolog_flag(os_argv,List), \+ member('--noclio',List)) ).
+
+:- dynamic(saved_os_argv/1).
+
+:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ).
+
+:- current_prolog_flag(os_argv,List),append(Before,['--clio'|After],List),
+   asserta(saved_os_argv(Before)),
+   set_prolog_flag(os_argv,[ swipl | After]).
+:- else.
+:- current_prolog_flag(os_argv,List),asserta(saved_os_argv(List)).
+:- set_prolog_flag(os_argv,[swipl,cpack,install,swish]).
+:- endif.
+
+
+:- current_prolog_flag(os_argv,List),dmsg(current_prolog_flag(os_argv,List)).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAKE SURE CLIOPATRIA RUNS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,6 +128,9 @@ add_relative_search_path(Alias, Rel) :-
 :- volatile(swish_trace:installed/1).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 
+
+:- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
+% :- add_file_search_path_safe(cliopatria,'/mnt/gggg/logicmoo_workspace/pack/ClioPatria').
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -74,7 +151,10 @@ To run the system, do one of the following:
     * Running as Unix daemon (service)
       See daemon.pl
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+% absolute_file_name(cliopatria,X,[type(directory),solutions(all),access(read),file_errors(fail),case_sensitive(false),relative_path('/mnt/gggg/logicmoo_workspace/pack')]).
+% absolute_file_name(pack(cliopatria),X,[type(directory),solutions(all),access(read),file_errors(fail),case_sensitive(false),relative_path('/mnt/gggg/logicmoo_workspace/pack')]).
 
+/*
 :- if(exists_directory('../../ClioPatria/')).
 :- add_relative_search_path(cliopatria, '../../ClioPatria').
 :- endif.
@@ -87,6 +167,8 @@ To run the system, do one of the following:
 :- if(exists_directory('../../../../../ClioPatria/')).
 :- add_relative_search_path(cliopatria, '../../../../../ClioPatria').
 :- endif.
+*/
+
 
 % Make loading files silent. Comment if you want verbose loading.
 
@@ -96,6 +178,17 @@ To run the system, do one of the following:
 
 :- if(exists_source(cliopatria('applications/help/load'))).
 
+:- multifile(user:send_message/2).
+:- dynamic(user:send_message/2).
+user:send_message(A, C) :-
+    cp_messages:
+    (    current_prolog_flag(html_messages, true),
+        level_css_class(A, B),
+        html(pre(class(B), \html_message_lines(C)), D, []),
+        with_mutex(html_messages, print_html(D))),
+        flush_output,
+        fail.
+
 		 /*******************************
 		 *	      LOAD CODE		*
 		 *******************************/
@@ -103,11 +196,11 @@ To run the system, do one of the following:
 % Use the ClioPatria help system.  May   be  commented to disable online
 % help on the source-code.
 
-:- use_module(cliopatria('applications/help/load')).
+:- system:use_module(cliopatria('applications/help/load')).
 
 % Load ClioPatria itself.  Better keep this line.
 
-:- use_module(cliopatria(cliopatria)).
+:- system:use_module(cliopatria(cliopatria)).
 
 % Get back normal verbosity of the toplevel.
 
@@ -116,9 +209,11 @@ To run the system, do one of the following:
    ;   true
    ).
 
+:- during_net_boot(cp_server:cp_server).
 
-:- cp_server.
 
+:- multifile(http_log:log_stream/2).
+:- dynamic(http_log:log_stream/2).
 :- volatile(http_log:log_stream/2).
 :- volatile(http_session:urandom_handle/1).
 
@@ -129,6 +224,7 @@ To run the system, do one of the following:
 :-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
    asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
 
+:- retract(saved_os_argv(List)),set_prolog_flag(os_argv,List).
 :- endif.  % --noclio
 
 
@@ -136,11 +232,12 @@ To run the system, do one of the following:
 % START WEBSERVER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
 ensure_webserver_p(Port):- format(atom(A),'httpd@~w',[Port]),thread_property(N,status(V)),V=running,atom(N),atom_concat(A,_,N),!.
-ensure_webserver_p(Port) :-catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)).
+ensure_webserver_p(Port):- whenever(run_network,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail))).
 ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
    WebPort is Was + 20, ensure_webserver_p(WebPort).
-
 
 :- during_boot(ensure_webserver_3020).
 
@@ -176,16 +273,27 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 % Ensure hMUD
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- if( \+ exists_directory('./hmud')).
-:- shell('git clone https://github.com/TeamSPoon/hMUD.git ./hmud').
+:- during_net_boot(shell('git clone https://github.com/TeamSPoon/hMUD.git ./hmud')).
 :- endif.
 
-:- if( exists_directory('./hmud')).
-:- absolute_file_name('./hmud/',O),
-   during_boot(http_handler('/hmud/', http_reply_from_files(O, []), [prefix])).
-:- during_boot(ignore(catch(shell('killall perl ; ./hmud/policyd'),E,dmsg(E)))).
+:- if( absolute_directory('./hmud',_)).
+:- absolute_directory('./hmud/',O),during_net_boot(http_handler('/hmud/', http_reply_from_files(O, []), [prefix])).
+:- whenever(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:4010 -sTCP:LISTEN) ; ./hmud/policyd'),E,dmsg(E)))).
 :- endif.
 
 
+:- if( (current_prolog_flag(os_argv,List), \+ member('--nologtalk',List)) ).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LOAD LOGTALK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- % use_module(library(logtalk)),
+   user:
+   (ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
+   listing('$lgt_default_flag'/2)).
+
+:- make.
+
+:- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP PATHS FOR PROLOGMUD/LOGICMOO 
@@ -193,7 +301,7 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 
 % :- during_boot((user:ensure_loaded(setup_paths))).
 
-:- use_module(library('file_scope')).
+:- system:use_module(library('file_scope')).
 % :- use_module(library('clause_expansion')).
 
  % :- set_prolog_flag(subclause_expansion,true).
@@ -203,7 +311,7 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD LOGICMOO UTILS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- user:ensure_loaded(system:library(logicmoo_utils)).
+:- system:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
 :- dynamic(prolog:make_hook/2).
@@ -263,27 +371,26 @@ maybe_save_lm:- qsave_lm(lm_repl4),!.
 
 :- dynamic(lmcache:prolog_tn_server_port/1).
 
-getenv_safely(Name,ValueO,Default):-
-   (getenv(Name,RV)->Value=RV;Value=Default),
-   ( \+ number(Value) -> atom_number(Value,ValueO); Value=ValueO).
-
 prolog_tn_server:- thread_property(PS,status(running)),PS==prolog_server,!.
 prolog_tn_server:- 
    must(ensure_loaded(library(prolog_server))),
-   getenv_safely('LOGICMOO_PORT',Was,3000),
+   getenv_or('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 1023,
    catch(
     (prolog_server(WebPort, [allow(_)]),asserta(lmcache:prolog_tn_server_port(WebPort))),
      E,(writeq(E),fail)),!.
    
+:- during_net_boot(prolog_tn_server).
 
-:- during_boot((prolog_tn_server)).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("Various RPC Dangers").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:-use_module(library(process)).
+
 unsafe_preds_init(W,shell,2):-predicate_property(shell(_,_),imported_from(W)).
 unsafe_preds_init(W,shell,1):-predicate_property(shell(_),imported_from(W)).
 unsafe_preds_init(W,shell,0):-predicate_property(shell,imported_from(W)).
@@ -293,7 +400,9 @@ unsafe_preds_init(M,F,A):-M=files_ex,current_predicate(M:F/A),member(X,[delete,c
 unsafe_preds_init(M,F,A):-M=process,current_predicate(M:F/A),member(X,[kill]),atom_contains(F,X).
 unsafe_preds_init(M,F,A):-M=system,member(F,[shell,halt]),current_predicate(M:F/A).
 
-system:kill_unsafe_preds:- 
+
+system:kill_unsafe_preds:- whenever(run_network,system:kill_unsafe_preds0).
+system:kill_unsafe_preds0:- 
 % (Thus restoring saved state)
    set_prolog_flag(access_level,system),
    
@@ -320,7 +429,7 @@ system:kill_unsafe_preds:-
 :- if(exists_source(library(eggdrop))).
 :- ensure_loaded(user:library(eggdrop)).
 % :- during_boot((egg_go_fg)).
-:- during_boot((egg_go)).
+:- during_net_boot(egg_go_maybe).
 :- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -377,7 +486,6 @@ rescan_pack_autoload_packages:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % QSAVE THIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 :- set_prolog_flag(logicmoo_qsave,false).
 
