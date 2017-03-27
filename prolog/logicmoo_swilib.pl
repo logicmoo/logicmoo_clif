@@ -15,7 +15,8 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
-:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0]).
+:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0,
+  ensure_LOGTALKUSER/0,load_logtalk/0]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT PROLOG FLAGS
@@ -35,7 +36,7 @@
 
 
 
-:- if( (set_prolog_flag(xpce,false); set_prolog_flag(logicmoo_headless,true); ( \+ getenv('DISPLAY',_)) ; ((current_prolog_flag(os_argv,List),  (member('--nopce',List) ; member('--nogui',List)) )))).
+:- if( (set_prolog_flag(xpce,false); set_prolog_flag(logicmoo_headless,true); ( \+ getenv('DISPLAY',_)) ; ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
 :- set_prolog_flag(logicmoo_headless,true).
 :- set_prolog_flag(xpce,false).
 % :- unsetenv('DISPLAY').
@@ -88,9 +89,69 @@ setup_for_debug :-
    set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
    set_prolog_flag(generate_debug_info,true).
 
-
 :- during_boot(setup_for_debug).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LOAD LOGTALK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+had_LOGTALKUSER :- getenv('LOGTALKUSER', _Location),getenv('LOGTALKHOME', _Location2).
+
+logtalk_home(LTH):- getenv('LOGTALKHOME',LTH),!.
+logtalk_home(LTH):- absolute_directory(pack(logtalk), Directory0),
+  atom_concat(Directory0,'/logtalk-*',Directory1),
+  expand_file_name(Directory1,[LTH]),!.
+
+ensure_LOGTALKUSER:- had_LOGTALKUSER,!.
+% ensure_LOGTALKUSER:- user:use_module(library(logtalk)).
+ensure_LOGTALKUSER:- logtalk_home(LTH),
+   setenv('LOGTALKHOME', LTH),
+   setenv('LOGTALKUSER', LTH),!.
+
+:- multifile(logtalk:'$lgt_current_engine_'/4).
+:- volatile(logtalk:'$lgt_current_engine_'/4).
+load_logtalk(system):- logtalk:(ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),!,listing(logtalk:'$lgt_default_flag'/2)).
+load_logtalk(LTH):- atom_concat(LTH,'/integration/logtalk_swi',Init),logtalk:ensure_loaded(Init),!,listing(logtalk:'$lgt_default_flag'/2).
+
+load_logtalk:- current_predicate(logtalk:'$lgt_default_flag'/2).
+load_logtalk:- app_argv(List), member('--nologtalk',List),!.
+load_logtalk:- had_LOGTALKUSER,!,
+   dmsg("Installing logtalk"),
+   load_logtalk(system).
+load_logtalk:- ensure_LOGTALKUSER,
+   logtalk_home(LTH),
+   dmsg("Logtalk installed"=LTH),
+   load_logtalk(LTH).
+
+:- dmsg("Loading logtalk").
+:- during_boot(ensure_LOGTALKUSER).
+:- during_boot(load_logtalk).
+
+% :- if( (( \+ prolog_load_context(reload,true) ))).
+
+:- module_transparent(logtalk:'::'/1).
+:- logtalk:export(logtalk:'::'/1).
+:- user:import(logtalk:'::'/1).
+
+:- module_transparent(logtalk:'::'/2).
+:- logtalk:export(logtalk:'::'/2).
+:- user:import(logtalk:'::'/2).
+:- baseKB:import(logtalk:'::'/2).
+
+%user:'::'(X,Y):- logtalk:'::'(X,Y).
+%user:'::'(X):- logtalk:'::'(X).
+
+:-op(200,fy,user:'--').
+:-op(600,fy,user:'::').
+:-op(600,xfy,user:'::').
+:-op(200,fy,user:'++').
+:-op(600,fy,user:'^^').
+
+
+:- fixup_exports.
+
+% :- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT HISTORY

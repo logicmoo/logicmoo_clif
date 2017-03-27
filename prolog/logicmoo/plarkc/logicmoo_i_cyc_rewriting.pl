@@ -1165,6 +1165,210 @@ builtin_rn('EvaluatingAMathematicalExpression', ftEvaluatingAMathematicalExpress
 builtin_rn('expectedTargetValueOfWellParameterAfterRestartOfHydrocarbonWellWithDate-RGQ-3', expectedTargetValueOfWellParameterAfterRestartOfHydrocarbonWellWithDateRGQ_3).
 builtin_rn('GaugeStatusType', ttGaugeStatusType).
 builtin_rn('BridgeAlarmEvidentialPredicate', rtBridgeAlarmEvidentialPredicate).
+builtin_rn('Device-SingleUser',tObjectDeviceSingleUser).
+builtin_rn('LightingDevice',tObjectLightingDevice).
+builtin_rn('Handgun',tObjectHandgun).
+builtin_rn('SpaceInAHOC',tPlaceLikeSpaceInAHOC).
+builtin_rn('Indoors-IsolatedFromOutside',tIndoorsIsolatedFromOutside).
+builtin_rn('SomethingToWear',tObjectSomethingToWear).
+builtin_rn('ProtectiveAttire',tObjectProtectiveAttire).
+builtin_rn('PortableObject',tPortableObject).
+builtin_rn('MaleAnimal',mobMaleAnimal).
+builtin_rn('FemaleAnimal',mobFemaleAnimal).
+builtin_rn('Topic',uitype_Topic).
+builtin_rn('TimeParameter',timeOfTimeParameter).
+builtin_rn('Situation',stateSituation).
+builtin_rn('Place',tPlace).
+builtin_rn('PersonTypeByActivity',mobPersonTypeByActivity).
+builtin_rn('LinguisticObject',xtLinguisticObject).
+builtin_rn('Group',tGroupedGroup).
+builtin_rn('Goal',goalGoal).
+builtin_rn('FormulaTemplate',uitype_FormulaTemplate).
+builtin_rn('Capability',capCapability).
+builtin_rn('Artifact',tObjectArtifact).
+builtin_rn('AbsoluteValueFn',vAbsoluteValueFn).
+builtin_rn('Average',vAverageFn).
+builtin_rn('BookkeepingMt',iBookkeepingMt).
+builtin_rn('Closed-InferenceProblemLinkStatus',tClosedInferenceProblemLinkStatus).
+builtin_rn('CurrentWorldDataCollectorMt-NonHomocentric',iCurrentWorldDataCollectorMtNonHomocentric).
+builtin_rn('CycArgumentDatastructure',tCycArgumentDatastructure).
+builtin_rn('CycDeductionDatastructure',tCycDeductionDatastructure).
+builtin_rn('CycHLSupportDatastructure',tCycHLSupportDatastructure).
+builtin_rn('CycInference',tCycInference).
+builtin_rn('CycInferenceAnswer',tCycInferenceAnswer).
+builtin_rn('CycInferenceAnswerJustification',tCycInferenceAnswerJustification).
+builtin_rn('CycInferenceBindingsDataStructure',tCycInferenceBindingsDataStructure).
+builtin_rn('CycInferenceDataStructure',ftInferenceDataStructure).
+builtin_rn('CycInferenceFn',iCycInferenceFn).
+builtin_rn('CycKBDatastructure',ftKBDatastructure).
+builtin_rn('CycLAssertedAssertion',ftAssertedAssertion).
+builtin_rn('CycLAssertion',ftAssertion).
+builtin_rn('CycLAtomicAssertion',ftAtomicAssertion).
+builtin_rn('CycLAtomicSentence',ftAtomicSentence).
+builtin_rn('CycLAtomicTerm',ftAtomicTerm).
+builtin_rn('CycLClosedAtomicSentence',ftClosedAtomicSentence).
+builtin_rn('CycLClosedDenotationalTerm',ftClosedDenotationalTerm).
+builtin_rn('CycLClosedFormula',ftClosedFormula).
+builtin_rn('CycLClosedNonAtomicTerm',ftClosedNonAtomicTerm).
+builtin_rn('CycLClosedSentence',ftClosedSentence).
+builtin_rn('CycLConstant',ftConstant).
+builtin_rn('CycLDeducedAssertion',ftDeducedAssertion).
+builtin_rn('CycLDenotationalTerm',ftDenotationalTerm).
+builtin_rn('CycLDenotationalTerm-Assertible',ftDenotationalTermAssertible).
+builtin_rn('CycLExpression-Askable',ftExpressionAskable).
+builtin_rn('CycLExpression-Assertible',ftExpressionAssertible).
+builtin_rn('CycLFormula',ftSentence).
+builtin_rn('CycLGAFAssertion',ftGAFAssertion).
+builtin_rn('CycLGenericRelationFormula',ftGenericRelationFormula).
+builtin_rn('CycLIndexedTerm',ftIndexedTerm).
+builtin_rn('CyclistDefinitionalMt',iAuthorDefinitionalMt).
+builtin_rn('CycLNonAtomicReifiedTerm',ftNonAtomicReifiedTerm).
+builtin_rn('CycLNonAtomicTerm',ftNonAtomicTerm).
+builtin_rn('CycLNonAtomicTerm-Askable',ftNonAtomicTermAskable).
+builtin_rn('CycLNonAtomicTerm-Assertible',ftNonAtomicTermAssertible).
+builtin_rn('CycLOpenDenotationalTerm',ftDenotationalTerm).
+builtin_rn('CycLOpenFormula',ftSentence).
+builtin_rn('CycLOpenNonAtomicTerm',ftNonAtomicTerm).
+builtin_rn('CycLOpenSentence',ftSentence).
+builtin_rn('CycLPropositionalSentence',ftPropositionalSentence).
+builtin_rn('CycLReifiableDenotationalTerm',ftReifiableDenotationalTerm).
+builtin_rn('CycLReifiableNonAtomicTerm',ftReifiableNonAtomicTerm).
+builtin_rn('CycLReifiedDenotationalTerm',ftReifiedDenotationalTerm).
+builtin_rn('CycLRepresentedAtomicTerm',ftRepresentedAtomicTerm).
+builtin_rn('CycLRepresentedTerm',ftRepresentedTerm).
+builtin_rn('CycLRuleAssertion',ftRuleAssertion).
+builtin_rn('CycLSentence',ftSentence).
+builtin_rn('CycLSentence-Askable',ftSentenceAskable).
+builtin_rn('CycLSentence-Assertible',ftSentenceAssertible).
+builtin_rn('CycLTruthValueSentence',ftTruthValueSentence).
+builtin_rn('CycProblem',tCycProblem).
+builtin_rn('CycProblemLink',tCycProblemLink).
+builtin_rn('CycProblemLink-AnswerLink',tCycProblemLinkAnswerLink).
+builtin_rn('CycProblemLink-Conjunctive',tCycProblemLinkConjunctive).
+builtin_rn('CycProblemLink-Content',tCycProblemLinkContent).
+builtin_rn('CycProblemLink-Disjunctive',tCycProblemLinkDisjunctive).
+builtin_rn('CycProblemLink-Join',tCycProblemLinkJoin).
+builtin_rn('CycProblemLink-JoinOrdered',tCycProblemLinkJoinOrdered).
+builtin_rn('CycProblemLink-Logical',tCycProblemLinkLogical).
+builtin_rn('CycProblemLink-Removal',tCycProblemLinkRemoval).
+builtin_rn('CycProblemLink-Restriction',tCycProblemLinkRestriction).
+builtin_rn('CycProblemLink-Split',tCycProblemLinkSplit).
+builtin_rn('CycProblemLink-Structural',tCycProblemLinkStructural).
+builtin_rn('CycProblemLink-Transformation',tCycProblemLinkTransformation).
+builtin_rn('CycProblemLink-Union',tCycProblemLinkUnion).
+builtin_rn('CycProof',tCycProof).
+builtin_rn('CycSupportDatastructure',tCycSupportDatastructure).
+builtin_rn('CycTactic',tCycTactic).
+builtin_rn('CycTransformationProof',tCycTransformationProof).
+builtin_rn('DateDecodeStringFn',iTimeOf_DateDecodeStringFn).
+builtin_rn('DateEncodeStringFn',xDateEncodeStringFn).
+builtin_rn('DifferenceFn',vDifferenceFn).
+builtin_rn('DirectedMultigraph',tDirectedMultigraph).
+builtin_rn('DocumentationConstant',ftDocumentationConstant).
+builtin_rn('ELRelation-Reversible',iELRelationReversible).
+builtin_rn('EnglishParaphraseMt',iEnglishParaphraseMt).
+builtin_rn('equalStrings-CaseInsensitive',equalStringsCaseinsensitive).
+builtin_rn('EscapeQuote',xEscapeQuoteFn).
+builtin_rn('EverythingPSC',iEverythingPSC).
+builtin_rn('ExpFn',vExpFn).
+builtin_rn('FixedAritySkolemFuncN',cycFixedAritySkolemFuncN).
+builtin_rn('FOL-FunctionFn',iFOLFunctionFn).
+builtin_rn('FOL-PredicateFn',iFOLPredicateFn).
+builtin_rn('FormulaArgListFn',vFormulaArgListFn).
+builtin_rn('FormulaArgSetFn',tSetOfFormulaArgSetFn).
+builtin_rn('FormulaArityFn',vFormulaArityFn).
+builtin_rn('CycLAssertionDirection',vtAssertionDirection).
+builtin_rn('FunctionToArg',iFunctionToArgFn).
+builtin_rn('genls-GenlDenotesSpecInstances',genlsGenldenotesspecinstances).
+builtin_rn('genls-SpecDenotesGenlInstances',genlsSpecdenotesgenlinstances).
+builtin_rn('HLAssertedArgumentKeywordDatastructure',tHLAssertedArgumentKeywordDatastructure).
+builtin_rn('HLExternalIDString',xtHLExternalIDString).
+builtin_rn('HLPrototypicalTerm',ftHLPrototypicalTerm).
+builtin_rn('IndeterminateTerm',ftIndeterminateTerm).
+builtin_rn('InferencePSC',iInferencePSC).
+builtin_rn('IntervalMaxFn',vIntervalMaxFn).
+builtin_rn('IntervalMinFn',vIntervalMinFn).
+builtin_rn('Kappa',iKappaFn).
+builtin_rn('LogFn',vLogFn).
+builtin_rn('Maximum',vMaximumFn).
+builtin_rn('MaxRangeFn',vMaxRangeFn).
+builtin_rn('MeaningInSystemFn',iMeaningInSystemFn).
+builtin_rn('Minimum',vMinimumFn).
+builtin_rn('MinRangeFn',vMinRangeFn).
+builtin_rn('ModuloFn',vModuloFn).
+builtin_rn('MtSpace',mtMtSpaceFn).
+builtin_rn('MtTimeDimFn',mtMtTimeDimFn).
+builtin_rn('MtTimeWithGranularityDimFn',mtMtTimeWithGranularityDimFn).
+builtin_rn('MtUnionFn',mtMtUnionFn).
+builtin_rn('Multigraph',tMultigraph).
+builtin_rn('CollectionRuleTemplateFn',iCollectionRuleTemplateFn).
+builtin_rn('Open-InferenceProblemLinkStatus',tOpenInferenceProblemLinkStatus).
+builtin_rn('Percent',vPercentFn).
+builtin_rn('PerFn',cycPerFn).
+builtin_rn('PlusAll',vPlusAllFn).
+builtin_rn('PlusFn',vPlusFn).
+builtin_rn('ProblemSolvingCntxt',mtProblemSolvingCntxt).
+builtin_rn('QuantityConversionFn',vQuantityConversionFn).
+builtin_rn('QuasiQuote',xQuasiQuoteFn).
+builtin_rn('QueryMt',iQueryMt).
+builtin_rn('Quote',xQuoteFn).
+builtin_rn('QuotientFn',vQuotientFn).
+builtin_rn('ReformulatorHighlyRelevantFORT',tReformulatorHighlyRelevantFORT).
+builtin_rn('RoundClosestFn',vRoundClosestFn).
+builtin_rn('RoundDownFn',vRoundDownFn).
+builtin_rn('RoundUpFn',vRoundUpFn).
+builtin_rn('ScalarIntegralValue',vtScalarIntegralValue).
+builtin_rn('ScalarInterval',vtScalarInterval).
+builtin_rn('ScalarPointValue',vtScalarPointValue).
+builtin_rn('SkolemFuncN',cycSkolemFuncN).
+builtin_rn('SkolemFuncNFn',fSkolemFuncNFn).
+builtin_rn('SkolemFunctionFn',iSkolemFunctionFn).
+builtin_rn('SubLAtom',ftAtom).
+builtin_rn('SubLAtomicTerm',ftAtomicTerm).
+builtin_rn('SubLCharacter',ftCharacter).
+builtin_rn('SubLInteger',ftInt).
+builtin_rn('SubLKeyword',ftKeyword).
+builtin_rn('SubLList',ftList).
+builtin_rn('SubLNonNegativeInteger',ftNonNegativeInteger).
+builtin_rn('SubLNonVariableNonKeywordSymbol',ftNonVariableNonKeywordSymbol).
+builtin_rn('SubLNonVariableSymbol',ftNonVariableSymbol).
+builtin_rn('SubLPositiveInteger',ftPositiveInteger).
+builtin_rn('SubLRealNumber',ftRealNumber).
+builtin_rn('SubLString',ftString).
+builtin_rn('SubLSymbol',ftSymbol).
+builtin_rn('substring-CaseInsensitive',substringCaseinsensitive).
+builtin_rn('CycLTerm',ftExpression).
+builtin_rn('TemporaryEnglishParaphraseMt',xTemporaryEnglishParaphraseMt).
+builtin_rn('TheCollectionOf',tColOfTheCollectionOfFn).
+builtin_rn('TheEmptyList',vTheEmptyList).
+builtin_rn('Set-Mathematical',tSetMathematical).
+builtin_rn('TheEmptySet',iTheEmptySet).
+builtin_rn('TheList',vTheListFn).
+builtin_rn('TheSet',tSetOfTheSetFn).
+builtin_rn('TheSetOf',tSetOfTheSetOfFn).
+builtin_rn('TheTerm',ftTheTerm).
+builtin_rn('Cyclist',mobCyclist).
+builtin_rn('TheUser',iTheUser).
+builtin_rn('TimesFn',vTimesFn).
+builtin_rn('TLAssertionFn',xTLAssertionFn).
+builtin_rn('TLReifiedNatFn',xTLReifiedNatFn).
+builtin_rn('TLVariableFn',xTLVariableFn).
+builtin_rn('PredicateTypeByArity',ttPredicateTypeByArity).
+builtin_rn('UncanonicalizerAssertionFn',xUncanonicalizerAssertionFn).
+builtin_rn('UnitProductFn',cycUnitProductFn).
+builtin_rn('Unity',vUnityFn).
+builtin_rn('UniversalVocabularyImplementationMt',iUniversalVocabularyImplementationMt).
+builtin_rn('BroadMicrotheory',mtBroadMicrotheory).
+builtin_rn('VariableAritySkolemFuncN',cycVariableAritySkolemFuncN).
+builtin_rn('WFFSupportedTerm',tWFFSupportedTerm).
+builtin_rn('CoreCycLMt',iCoreCycLMt).
+builtin_rn('CoreCycLImplementationMt',iCoreCycLImplementationMt).
+builtin_rn('BaseKB',iBaseKB).
+builtin_rn('LogicalTruthImplementationMt',iLogicalTruthImplementationMt).
+builtin_rn('ReformulatorIrrelevantFORT',tReformulatorIrrelevantFORT).
+builtin_rn('LogicalTruthMt',iLogicalTruthMt).
+builtin_rn('ELRelation-OneWay',iELRelationOneWay).
+builtin_rn('UniversalVocabularyMt',iUniversalVocabularyMt).
 
 
 
@@ -1710,12 +1914,12 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames')).
+:- if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))).
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW')).
+:- if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
 :- dmsg("I am here").
@@ -1932,11 +2136,15 @@ rename_sumo(I,O):- builtin_rn_or_rn_new(I,O),!.
 system:clause_expansion(I, O):- compound(I), 
    current_prolog_flag(do_renames,term_expansion),
    % b_getval('$term', Term),Term==I, 
-   do_renames(I,O)->I\==O -> 
+   must(do_renames(I,O))->I\==O -> 
    % b_setval('$term', O),
      nop(dmsg(do_renames(I)-->O)).
 
 :- fixup_exports.
 
+
+
+
+% inform_new(X,Y):- builtin_rn_or_rn_new(X,New),(New==Y-> true; ( writeq(builtin_rn(X,New)),writeln('.'))).
 
 

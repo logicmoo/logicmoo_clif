@@ -23,16 +23,6 @@
 :- endif.
 
 
-:- if( (current_prolog_flag(os_argv,List), \+ member('--nologtalk',List)) ).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD LOGTALK
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- (user:(
-   % use_module(library(logtalk)),
-   ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
-   listing('$lgt_default_flag'/2))).
-
-:- endif.
 
 %:- '$set_source_module'(baseKB).
 %:- '$set_typein_module'(baseKB).

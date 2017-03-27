@@ -21,8 +21,9 @@
 :- include(library(pldoc/hooks)).
 
 :- if(exists_source(library(pldoc))).
+% Must be loaded before doc_process
 :- system:use_module(library(pldoc), []).
-	% Must be loaded before doc_process
+	
 :- system:use_module(library(pldoc/doc_process)).
 :- endif.
 
@@ -51,10 +52,16 @@
 :- system:use_module(library(http/http_dispatch)).
 :- system:use_module(library(http/html_write),except([op(_,_,_)])).
 :- system:use_module(library(http/html_head)).
+:- multifile(http_session:urandom_handle/1).
+:- dynamic(http_session:urandom_handle/1).
+:- volatile(http_session:urandom_handle/1).
 :- system:use_module(library(http/http_session)).
 :- system:use_module(library(http/http_parameters)).
 :- system:use_module(library(http/http_server_files)).
 :- system:use_module(library(http/http_wrapper)).
+:- multifile(http_log:log_stream/2).
+:- dynamic(http_log:log_stream/2).
+:- volatile(http_log:log_stream/2).
 
 :- if(exists_source(library(yall))).
 :- system:use_module(library(yall), []).
@@ -64,9 +71,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD CYC KB LOADER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- if(exists_source(library('pldata/plkb7166/kb7166'))).
 :- ensure_loaded(library('pldata/plkb7166/kb7166')).
 % :- qcompile_kb7166.
-
+:- endif.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,11 +87,15 @@
 :- system:use_module(library(logicmoo_util_common)).
 
 
+:- if(exists_source(library(pce_emacs))).
 :- system:use_module(library(pce_emacs)).
+:- endif.
 :- multifile(swish_trace:installed/1).
 :- volatile(swish_trace:installed/1).
-:- use_module(pengine_sandbox:library(semweb/rdf_db)).
 
+:- if(exists_source(library(semweb/rdf_db))).
+:- use_module(pengine_sandbox:library(semweb/rdf_db)).
+:- endif.
 
 % Setup search path for cliopatria. We add  both a relative and absolute
 % path. The absolute path allow us to  start in any directory, while the
@@ -103,6 +115,9 @@ add_relative_search_path(Alias, Rel) :-
 :- endif.
 
 :- if( (current_prolog_flag(os_argv,List), \+ member('--noclio',List)) ).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USE CLIOPATRIA ?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic(saved_os_argv/1).
 
@@ -123,8 +138,9 @@ add_relative_search_path(Alias, Rel) :-
 % MAKE SURE CLIOPATRIA RUNS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- system:use_module(library(pce_emacs)).
+:- if_file_exists(system:use_module(library(pce_emacs))).
 :- multifile(swish_trace:installed/1).
+:- dynamic(swish_trace:installed/1).
 :- volatile(swish_trace:installed/1).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 
@@ -211,13 +227,8 @@ user:send_message(A, C) :-
 
 :- during_net_boot(cp_server:cp_server).
 
-
-:- multifile(http_log:log_stream/2).
-:- dynamic(http_log:log_stream/2).
-:- volatile(http_log:log_stream/2).
-:- volatile(http_session:urandom_handle/1).
-
 :- endif. % clio exists?
+
 
 :- autoload([verbose(false)]).
 
@@ -233,9 +244,11 @@ user:send_message(A, C) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+kill_3020:- !. %  whenever(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
+
 
 ensure_webserver_p(Port):- format(atom(A),'httpd@~w',[Port]),thread_property(N,status(V)),V=running,atom(N),atom_concat(A,_,N),!.
-ensure_webserver_p(Port):- whenever(run_network,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail))).
+ensure_webserver_p(Port):- whenever(run_network,(kill_3020,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)))).
 ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
    WebPort is Was + 20, ensure_webserver_p(WebPort).
 
@@ -269,31 +282,7 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
    catch(once(base_message(T,Type,Warn)),_,fail),fail.
 :- endif.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Ensure hMUD
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- if( \+ exists_directory('./hmud')).
-:- during_net_boot(shell('git clone https://github.com/TeamSPoon/hMUD.git ./hmud')).
-:- endif.
 
-:- if( absolute_directory('./hmud',_)).
-:- absolute_directory('./hmud/',O),during_net_boot(http_handler('/hmud/', http_reply_from_files(O, []), [prefix])).
-:- whenever(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:4010 -sTCP:LISTEN) ; ./hmud/policyd'),E,dmsg(E)))).
-:- endif.
-
-
-:- if( (current_prolog_flag(os_argv,List), \+ member('--nologtalk',List)) ).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD LOGTALK
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- % use_module(library(logtalk)),
-   user:
-   (ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),
-   listing('$lgt_default_flag'/2)).
-
-:- make.
-
-:- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP PATHS FOR PROLOGMUD/LOGICMOO 
@@ -402,7 +391,8 @@ unsafe_preds_init(M,F,A):-M=system,member(F,[shell,halt]),current_predicate(M:F/
 
 
 system:kill_unsafe_preds:- whenever(run_network,system:kill_unsafe_preds0).
-system:kill_unsafe_preds0:- 
+system:kill_unsafe_preds0:- \+ if_defined(getuid(0),true),!.
+system:kill_unsafe_preds0:- break,  
 % (Thus restoring saved state)
    set_prolog_flag(access_level,system),
    
