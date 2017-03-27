@@ -58,6 +58,7 @@ loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
 
 :- if( \+ exists_directory('./ontologyportal_sumo')).
 :- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo').
+:- shell('touch *.tmp').
 :- endif.
 
 loadSumo1:- 

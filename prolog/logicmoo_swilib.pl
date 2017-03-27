@@ -96,14 +96,19 @@ setup_for_debug :-
 % LOAD LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-had_LOGTALKUSER :- getenv('LOGTALKUSER', _Location),getenv('LOGTALKHOME', _Location2).
-
 logtalk_home(LTH):- getenv('LOGTALKHOME',LTH),!.
 logtalk_home(LTH):- absolute_directory(pack(logtalk), Directory0),
   atom_concat(Directory0,'/logtalk-*',Directory1),
   expand_file_name(Directory1,[LTH]),!.
 
+skip_logtalk:- app_argv(List), member('--nologtalk',List),!.
+skip_logtalk:- \+ logtalk_home(_), !.
+skip_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!.
+
+had_LOGTALKUSER :- getenv('LOGTALKUSER', _Location),getenv('LOGTALKHOME', _Location2).
+
 ensure_LOGTALKUSER:- had_LOGTALKUSER,!.
+ensure_LOGTALKUSER:- skip_logtalk, !, dmsg("Skipping logtalk").
 % ensure_LOGTALKUSER:- user:use_module(library(logtalk)).
 ensure_LOGTALKUSER:- logtalk_home(LTH),
    setenv('LOGTALKHOME', LTH),
@@ -115,7 +120,8 @@ load_logtalk(system):- logtalk:(ensure_loaded('/usr/share/logtalk/integration/lo
 load_logtalk(LTH):- atom_concat(LTH,'/integration/logtalk_swi',Init),logtalk:ensure_loaded(Init),!,listing(logtalk:'$lgt_default_flag'/2).
 
 load_logtalk:- current_predicate(logtalk:'$lgt_default_flag'/2).
-load_logtalk:- app_argv(List), member('--nologtalk',List),!.
+load_logtalk:- skip_logtalk, !, dmsg("Skipping logtalk").
+load_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!,dmsg("Skipping logtalk").
 load_logtalk:- had_LOGTALKUSER,!,
    dmsg("Installing logtalk"),
    load_logtalk(system).
@@ -187,6 +193,7 @@ add_history_ideas:-
         add_history(ensure_loaded(system:library(logicmoo_user))),
         add_history([user:init_mud_server]),
         add_history([user:run_mud_server]),
+        add_history(consult(library(prologmud_sample_games/run_mud_server))).
         !.
 
 :- during_boot(add_history_ideas).
