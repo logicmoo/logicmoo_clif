@@ -184,5 +184,6 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,kif_assertion_recipe))).
 :- baseKB:qsave_lm(lm_repl).
 :- endif.
 
+:- set_prolog_flag(access_level,system).
 
 
