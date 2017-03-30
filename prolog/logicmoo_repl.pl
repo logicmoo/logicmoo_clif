@@ -76,8 +76,8 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 % [Optionaly] Load the EXTRA Logicmoo WWW System
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % :- baseKB:ensure_loaded(library(xlisting_web)).
-% :- (if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_pldoc)))).
-% :- (if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_swish)))).
+% :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_pldoc))).
+% :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_swish))).
 
 :- after_boot((system:kill_unsafe_preds)).
 
