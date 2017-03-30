@@ -56,22 +56,29 @@ sumo_ain2(CycLOut):-
 loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
 loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
 
-:- if( \+ exists_directory('./ontologyportal_sumo')).
-:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo').
-:- shell('touch *.tmp').
-:- endif.
 
+skip_sumo:- app_argv(List), member('--nosumo',List),!.
+
+clone_ontologyportal_sumo:- skip_sumo,!.
+clone_ontologyportal_sumo:- exists_directory('./ontologyportal_sumo'),!.
+clone_ontologyportal_sumo:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo'),shell('touch *.tmp'),('touch _*').
+
+:- during_boot(clone_ontologyportal_sumo).
+
+loadSumo1:- skip_sumo,!.
 loadSumo1:- 
    loadSumo('./ontologyportal_sumo/Merge.kif'),
    loadSumo('./ontologyportal_sumo/Mid-level-ontology.kif'),
    !.
 
+loadSumo2:- skip_sumo,!.
 loadSumo2:- 
    loadSumo('./ontologyportal_sumo/Translations/relations-en.txt'),
    loadSumo('./ontologyportal_sumo/english_format.kif'),
    loadSumo('./ontologyportal_sumo/domainEnglishFormat.kif'),
    !.
 
+loadSumo3:- skip_sumo,!.
 loadSumo3:- 
    % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
    !.
