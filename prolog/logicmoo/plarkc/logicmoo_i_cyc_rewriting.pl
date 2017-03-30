@@ -1910,12 +1910,12 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))).
+:- catch(notrace(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)).
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))).
+:- catch(notrace(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
 :- dmsg("I am here").

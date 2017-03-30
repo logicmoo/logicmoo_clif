@@ -56,7 +56,7 @@
 
 :- baseKB:import(dif:dif/2).
 :- baseKB:export(dif:dif/2).
-:- baseKB:use_module(library(prolog_predicate)).
+:- catch(notrace(nodebugx(if_file_exists(baseKB:use_module(library(prolog_predicate))))),E,dmsg(E)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % These are probly loaded by other modules

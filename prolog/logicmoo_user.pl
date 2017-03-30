@@ -23,12 +23,7 @@
  op(300,fx,'-')*/  ]).
 
 % :- use_module(library(logicmoo_util_common)).
-/*
-system:logicmoo_user_stacks:- Six = 6, set_prolog_stack(global, limit(Six*10**9)),
-  set_prolog_stack(local, limit(Six*10**9)),set_prolog_stack(trail, limit(Six*10**9)).
 
-:- rtrace,during_boot(system:logicmoo_user_stacks).
-*/
 
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).

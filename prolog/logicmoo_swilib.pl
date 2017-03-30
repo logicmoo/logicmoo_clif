@@ -24,9 +24,6 @@
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
-:- set_prolog_stack(global, limit(32*10**9)).
-:- set_prolog_stack(local, limit(32*10**9)).
-:- set_prolog_stack(trail, limit(32*10**9)).
 :- set_prolog_flag(double_quotes,string).
 :- set_prolog_flag(autoload_logicmoo,false).
 :- if( \+ current_module(prolog_stack)).
@@ -116,8 +113,10 @@ ensure_LOGTALKUSER:- logtalk_home(LTH),
 
 :- multifile(logtalk:'$lgt_current_engine_'/4).
 :- volatile(logtalk:'$lgt_current_engine_'/4).
-load_logtalk(system):- logtalk:(ensure_loaded('/usr/share/logtalk/integration/logtalk_swi'),!,listing(logtalk:'$lgt_default_flag'/2)).
-load_logtalk(LTH):- atom_concat(LTH,'/integration/logtalk_swi',Init),logtalk:ensure_loaded(Init),!,listing(logtalk:'$lgt_default_flag'/2).
+load_logtalk(system):- load_logtalk('/usr/share/logtalk').
+load_logtalk(LTH):- atom_concat(LTH,'/integration/logtalk_swi',Init),
+  exists_source(Init),!,logtalk:ensure_loaded(Init),!,listing(logtalk:'$lgt_default_flag'/2).
+load_logtalk(LTH):-  dmsg("Skipping logtalk="+LTH).
 
 load_logtalk:- current_predicate(logtalk:'$lgt_default_flag'/2).
 load_logtalk:- skip_logtalk, !, dmsg("Skipping logtalk").
