@@ -35,6 +35,7 @@
 :- baseKB:use_module(library(pfc)).
 
 pack_upgrade:- call((user:use_module(library(prolog_pack)), forall(call(prolog_pack:current_pack(Pack)),pack_upgrade(Pack)))).
+:- export(pack_upgrade/0).
 
 init_mud_server:- ensure_loaded(library(prologmud_sample_games/run_mud_server)).
 
