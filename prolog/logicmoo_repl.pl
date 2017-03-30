@@ -34,7 +34,12 @@
 
 :- baseKB:use_module(library(pfc)).
 
-pack_upgrade:- forall(prolog_pack:current_pack(Pack),pack_upgrade(Pack)).
+pack_upgrade:- call((user:use_module(library(prolog_pack)), forall(call(prolog_pack:current_pack(Pack)),pack_upgrade(Pack)))).
+
+init_mud_server:- ensure_loaded(library(prologmud_sample_games/run_mud_server)).
+
+run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % [Optionaly] Load the EXTRA Logicmoo WWW System
@@ -88,7 +93,7 @@ pack_upgrade:- forall(prolog_pack:current_pack(Pack),pack_upgrade(Pack)).
 :- baseKB:ensure_loaded(library(pfc)).
 :- set_prolog_flag(do_renames,restore).
 
-:- ls.
+% :- ls.
 
 :- load_library_system(logicmoo_user).
 
