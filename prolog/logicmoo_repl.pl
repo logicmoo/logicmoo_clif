@@ -34,7 +34,7 @@
 
 :- baseKB:use_module(library(pfc)).
 
-
+pack_upgrade:- forall(prolog_pack:current_pack(Pack),pack_upgrade(Pack)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % [Optionaly] Load the EXTRA Logicmoo WWW System
