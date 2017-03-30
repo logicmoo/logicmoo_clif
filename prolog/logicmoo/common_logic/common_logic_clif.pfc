@@ -56,6 +56,7 @@ compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLO
 % {all_different_head_vals(PROLOG)},
 pfclog(PROLOG) ==> PROLOG.
 
+recompile_kif:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif).
 
 /*
 
