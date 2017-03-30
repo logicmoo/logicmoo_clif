@@ -478,6 +478,10 @@ rescan_pack_autoload_packages:-
 
 :- set_prolog_flag(logicmoo_qsave,false).
 
+:- if( \+ current_prolog_flag(address_bits, 32)).
+:- during_boot(set_prolog_stack_gb(16)).
+:- endif.
+
 :- fixup_exports.
 
 :- if(current_prolog_flag(logicmoo_qsave,true)).
