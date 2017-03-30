@@ -110,9 +110,6 @@ add_relative_search_path(Alias, Abs) :-
 add_relative_search_path(Alias, Rel) :-
 	assertz(user:file_search_path(Alias, Rel)).
 
-:- if( (current_prolog_flag(os_argv,List), member('--nonet',List)) ).
-:- set_prolog_flag(run_network,false).
-:- endif.
 
 :- if( (current_prolog_flag(os_argv,List), \+ member('--noclio',List)) ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
