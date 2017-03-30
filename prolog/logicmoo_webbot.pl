@@ -465,7 +465,9 @@ pack_autoload_packages(NeedExistingIndex):-
 */
 
 rescan_pack_autoload_packages:- 
- forall((pack_property(_Pack, directory(PackDir)),prolog_pack:pack_info_term(PackDir,autoload(true))),
+ forall((pack_property(_Pack, directory(PackDir)),
+  prolog_pack:pack_info_term(PackDir,autoload(true)),
+  access_file(PackDir,write)),
   prolog_pack:post_install_autoload(PackDir, [autoload(true)])).
 
 :- during_boot(rescan_pack_autoload_packages).
