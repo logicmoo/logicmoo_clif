@@ -23,6 +23,7 @@ vim: set filetype=md:
 % we ensure we are in "pfc" consultation mode (so the syntax rules will define correctly)
 :- file_begin(pfc).
 
+:- kb_shared(wid/3).
 
 
 % whenever we know about clif we''ll use the prolog forward chainging system

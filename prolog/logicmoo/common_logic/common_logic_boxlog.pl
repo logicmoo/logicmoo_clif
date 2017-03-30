@@ -511,7 +511,7 @@ reduce_literal(A,A).
 % Can Use Hack.
 %
 can_use_hack(two_implications):-!,fail.
-can_use_hack(_).
+can_use_hack(X):- did_use_hack(X).
 
 %= 	 	 
 

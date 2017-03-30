@@ -90,7 +90,7 @@
             get_quantifier_isa/3,
             inclause/6,
             incorrect_cl/2,
-            invert_modal/2,
+            invert_modal/3,
             is_lit_atom/1,
             is_sent_op_modality/1,
             logical_neg/3,
@@ -620,7 +620,7 @@ nnf(KB,Fml,FreeV,NNF,Paths):- !,
 */   
 
 nnf(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
-	(Fml = ( ~( A)) -> invert_modal(A,Fml1);
+	(Fml = ( ~( A)) -> double_neg(KB,A,Fml1);
          Fml = (nesc(BDT,F)) -> Fml1 = poss(BDT, ~( F));
 	 Fml = (poss(BDT,F)) -> Fml1 = nesc(BDT, ~( F));
 	 Fml = (cir(CT,F)) -> Fml1 = cir(CT, ~( F));
@@ -1137,15 +1137,21 @@ clean_repeats_d(PTTP,PTTP).
 
 %= 	 	 
 
-%% invert_modal( ?A, ?A) is semidet.
+%% invert_modal(+KB, +A, -B) is semidet.
 %
 % Invert Modal.
 %
-invert_modal(nesc(BD,A),poss(BD,A)):-set_is_lit(A),!.
-invert_modal(poss(BD,A),nesc(BD,A)):-set_is_lit(A),!.
-% invert_modal(A,poss(b_d(KB,nesc,poss),A)):-!.
-invert_modal(A,A):-!.
 
+invert_modal(_KB,nesc(BD,A),poss(BD,A)):-set_is_lit(A),!.
+invert_modal(_KB,poss(BD,A),nesc(BD,A)):-set_is_lit(A),!.
+invert_modal(KB,A,poss(b_d(KB,nesc,poss),A)):- can_use_hack(default_nesc),set_is_lit(A),!.
+% invert_modal(KB,A,A):-!.
+
+
+
+double_neg(_KB,In,_):- is_ftVar(In),!,fail.
+double_neg(KB,I,O):- invert_modal(KB,I,O),!,I\=O.
+% double_neg(KB,I, \+ ~(O)):-!.
 
 
 %= 	 	 
@@ -1178,7 +1184,7 @@ removeQ(_,Var,_ ,Var):- leave_as_is(Var),!.
 
 removeQ(KB, IN,FreeV,OUT):-  once(simplify_cheap(IN,MID)), IN\=@=MID, removeQ_LC(KB, MID,FreeV,OUT),!.
 
-removeQ(KB,  ~( NN),Vars, XF):- nonvar(NN),NN= ~( F), invert_modal(F,FI),!, removeQ(KB,  FI,Vars, XF) .
+removeQ(KB,  ~( NN),Vars, XF):- nonvar(NN),NN= ~( F), invert_modal(KB,F,FI),!, removeQ(KB,  FI,Vars, XF) .
 removeQ(KB, all(X,F),Vars, HH):- !,  removeQ(KB,F,[X|Vars], RQ0),RQ0=HH.
 
 /*
