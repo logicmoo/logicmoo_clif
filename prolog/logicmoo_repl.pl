@@ -43,9 +43,9 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 % [Optionaly] Load the EXTRA Logicmoo WWW System
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% forward chaing state browser
+% forward chaining state browser
 :- if(exists_source(library(xlisting_web))).
-% :- ensure_loaded(library(xlisting_web)).
+:- ensure_loaded(library(xlisting_web)).
 :- endif.
 
 :- during_boot(add_history_ideas).
