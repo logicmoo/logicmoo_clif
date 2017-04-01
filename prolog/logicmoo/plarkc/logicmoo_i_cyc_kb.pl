@@ -98,7 +98,7 @@
 
 :- dynamic(cwtdl_failed/1).
 
-cwtdl(Goal,DL,TL):- cwc,
+cwtdl(Goal,DL,TL):-
   quietly((ignore((nortrace,
    (show_failure(why,catch(call_with_time_limit(TL,(((call_with_depth_limit(Goal,DL,DLE),DLE\==depth_limit_exceeded)))),E,(dmsg(E:cwtdl(Goal,DL,TL)),fail)))
      ->true;
