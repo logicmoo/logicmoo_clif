@@ -176,7 +176,7 @@ merge_forms(A,B,A):- A==B,!.
 merge_forms(A,B,B):- member_eq(A,B),!.
 merge_forms(A,B,A):- member_eq(B,A),!.
 merge_forms(A,B,A):- A=B,!,wdmsg(seeeeeeeeeeeee_merge_forms(A,B)),!.
-merge_forms(A,B,C):- flatten([A,B],AB),list_to_set(AB,C).
+merge_forms(A,B,C):- flatten([A,B],AB),must(list_to_set(AB,C)),!.
 
 
 :- fixup_exports.

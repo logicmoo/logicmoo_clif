@@ -20,7 +20,7 @@
 
 :- dynamic(mudFacing/2).
 
-:- ain(prologSingleValued(mudFacing(tObj,vtDirection),[argSingleValueDefault(2,vNorth)],prologHybrid)).
+:- ain(prologSingleValued(mudFacing(tObj,vtDirection),[relationMostInstance(tObj,vNorth)],prologHybrid)).
 
 :- ain(typeProps(tAgent,[ mudFacing(vNorth)])).
 

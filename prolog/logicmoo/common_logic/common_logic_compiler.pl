@@ -693,11 +693,11 @@ nnf_args(_Sent,_F,_N,_KB,[],_FreeV,[],0):- !.
 nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-  
  push_cond(FA,admittedArgument(FA,N,F)),
  % push_dom(A,argIsaFn(F,N)),
- must((nnf(KB,A,FreeV,FA,N1),number(N1))),
+ must((nnf(KB,A,FreeV,FA,N1),sanity(number(N1)))),!,
  % push_dom(FA,argIsaFn(F,N)),
  % annote(lit,FA,Sent),
   NPlus1 is N + 1,
-  nnf_args(Sent,F,NPlus1,KB,RGS,FreeV,ARGS,N2),
+  nnf_args(Sent,F,NPlus1,KB,RGS,FreeV,ARGS,N2),!,
   must(N3 is (N1 + N2 -1)).
 
 
@@ -1144,13 +1144,14 @@ clean_repeats_d(PTTP,PTTP).
 
 invert_modal(_KB,nesc(BD,A),poss(BD,A)):-set_is_lit(A),!.
 invert_modal(_KB,poss(BD,A),nesc(BD,A)):-set_is_lit(A),!.
-invert_modal(KB,A,poss(b_d(KB,nesc,poss),A)):- can_use_hack(default_nesc),set_is_lit(A),!.
+% invert_modal(KB,A,poss(b_d(KB,nesc,poss),A)):- can_use_hack(default_nesc),set_is_lit(A),!.
 % invert_modal(KB,A,A):-!.
 
 
 
 double_neg(_KB,In,_):- is_ftVar(In),!,fail.
 double_neg(KB,I,O):- invert_modal(KB,I,O),!,I\=O.
+double_neg(_,IO,IO).
 % double_neg(KB,I, \+ ~(O)):-!.
 
 
