@@ -111,7 +111,8 @@ add_relative_search_path(Alias, Rel) :-
 	assertz(user:file_search_path(Alias, Rel)).
 
 
-:- if( (current_prolog_flag(os_argv,List), \+ member('--noclio',List)) ).
+:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ;
+   (current_prolog_flag(os_argv,List), member('--all',List)) ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % USE CLIOPATRIA ?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -389,7 +390,9 @@ unsafe_preds_init(M,F,A):-M=system,member(F,[shell,halt]),current_predicate(M:F/
 
 system:kill_unsafe_preds:- whenever(run_network,system:kill_unsafe_preds0).
 system:kill_unsafe_preds0:- \+ if_defined(getuid(0),true),!.
-system:kill_unsafe_preds0:- break,  
+system:kill_unsafe_preds0:- app_argv('--unsafe'),!.
+system:kill_unsafe_preds0:-   
+   dmsg("kill_unsafe_preds!"),
 % (Thus restoring saved state)
    set_prolog_flag(access_level,system),
    
@@ -484,7 +487,7 @@ rescan_pack_autoload_packages:-
 
 :- fixup_exports.
 
-:- if(current_prolog_flag(logicmoo_qsave,true)).
+:- if(false).
 :- statistics.
 :- listing(qsave_lm/1).
 :- endif.

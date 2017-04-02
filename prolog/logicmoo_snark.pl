@@ -56,8 +56,7 @@ sumo_ain2(CycLOut):-
 loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
 loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
 
-skip_sumo:- app_argv(List), member('--nosumo',List),!.
-skip_sumo:- app_argv(List), member('--skip-sumo',List),!.
+skip_sumo:- app_argv('--nosumo'),!.
 skip_sumo:- app_argv(List), \+ member('--sumo',List), \+ member('--snark',List), \+ member('--all',List),!.
 
 clone_ontologyportal_sumo:- skip_sumo,!.

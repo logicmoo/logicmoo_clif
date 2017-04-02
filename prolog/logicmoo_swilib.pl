@@ -207,7 +207,6 @@ logicmoo_run_goal:-
  %module(baseKB),
  dmsg("logicmoo_run_goal"),
  nb_setval('$oo_stack',[]),
- threads,
  after_boot_call(maybe_rtrace).
 
 logicmoo_toplevel:- 
@@ -220,6 +219,7 @@ logicmoo_toplevel:-
  make:make_no_trace,
  listing(lmconf:lmconf:after_boot_goal/1),
  dmsg("logicmoo_toplevel"),
+ logicmoo_run_goal,
  dmsg("Press Ctrl-D to Start"),
  prolog.
 

@@ -76,7 +76,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 % :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_pldoc))).
 % :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_swish))).
 
-:- after_boot((system:kill_unsafe_preds)).
+% :- after_boot(during_net_boot(kill_unsafe_preds)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,7 +100,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 % SETUP SANITY TEST EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 decl_kb_shared_tests:-
- sanity(listing((kb_shared)/1)),
+ % sanity(listing((kb_shared)/1)),
  kb_shared(baseKB:sanity_test/0),
  kb_shared(baseKB:regression_test/0),
  kb_shared(baseKB:feature_test/0),
@@ -183,10 +183,13 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,kif_assertion_recipe))).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % {flatTrans(G)}==>{listing(G/2)}.
 :- if(current_prolog_flag(logicmoo_qsave,true)).
-:- statistics.
 :- baseKB:qsave_lm(lm_repl).
 :- endif.
 
 :- set_prolog_flag(access_level,system).
+:- if(false).
+:- statistics.
+:- endif.
+
 
 
