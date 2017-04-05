@@ -152,6 +152,7 @@
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_skolem.pl')).
 
 :- use_module(library(dictoo)).
+:- virtualize_source_file.
 
   
 

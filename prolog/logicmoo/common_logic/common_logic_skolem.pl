@@ -46,6 +46,8 @@ with_no_kif_var_coroutines(Goal):- locally_each(t_l:no_kif_var_coroutines(true),
 /* module Form Prolog sks (debugging)
 */
 
+:- virtualize_source_file.
+
 %%	form_sk(+Var, +Skolem) is det.
 %
 %	Assign a Skolem to a Var. Succeeds   silently if Sk is not a

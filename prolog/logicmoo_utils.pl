@@ -94,6 +94,7 @@ xlisting_web]).
 :- set_prolog_flag(generate_debug_info, true).
  % :- set_prolog_flag(subclause_expansion,false).
 
+:- system:reexport(library(logicmoo_util_common)).
 :- reexport(library('logicmoo_util_terms')).
 :- reexport(library('logicmoo_util_strings')).
 
@@ -214,7 +215,7 @@ logicmoo_utils_test_msg:- locally((
 % :- rtrace.
 :- logicmoo_utils_test_msg.
  % :- set_prolog_flag(subclause_expansion,true).
-%:- set_prolog_flag_until_eof(virtual_stubs,true).
+%:- virtualize_source_file.
 % .
 
 

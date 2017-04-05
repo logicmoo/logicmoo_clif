@@ -464,16 +464,20 @@ pack_autoload_packages(NeedExistingIndex):-
 :- during_boot(pack_autoload_packages(true)).
 */
 
-rescan_pack_autoload_packages:- 
- forall((pack_property(_Pack, directory(PackDir)),
-  prolog_pack:pack_info_term(PackDir,autoload(true)),
-  access_file(PackDir,write)),
-  prolog_pack:post_install_autoload(PackDir, [autoload(true)])).
+
+rescan_pack_autoload_packages:- \+ access_file('.',write),dmsg("READONLY PACKAGES"),!.
+rescan_pack_autoload_packages:- \+ app_argv('--all'),!.
+rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
+ forall('$pack':pack(Pack, _),
+  forall(((pack_property(Pack, directory(PackDir)),prolog_pack:pack_info_term(PackDir,autoload(true)))),
+  (access_file(PackDir,write) -> prolog_pack:post_install_autoload(PackDir, [autoload(true)]) ; true))),
+ dmsg(".. AUTOLOADING COMPLETE"),!.
 
 :- during_boot(rescan_pack_autoload_packages).
 
 :- reload_library_index.
 :- autoload([verbose(true)]).
+:- reload_library_index.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % QSAVE THIS

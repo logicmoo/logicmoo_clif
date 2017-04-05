@@ -13,7 +13,7 @@ requires(clause_attvars).
 requires(file_scope).
 requires(each_call_cleanup).
 requires(multimodal_dcg).
-requires(prologmud).
+% requires(prologmud).
 requires(with_thread_local).
 requires(s_expression).
 requires(xlisting_web).

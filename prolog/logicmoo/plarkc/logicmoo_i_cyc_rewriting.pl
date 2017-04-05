@@ -1455,15 +1455,24 @@ kif_assertion_recipe(D,CycLOut):-
 sumo_last_pass(O,O):- \+ compound(O),!.
 % sumo_last_pass((tPred(A),IO),IO):-atom(A),!.
 sumo_last_pass(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_last_pass,SENT,SENTO).
-sumo_last_pass([P,A,B|List],OUT):-atom(P), op_type_head(P,TYPE), OUT=..[TYPE,P,A,B,List],!.
-sumo_last_pass([P,A|List],OUT):-atom(P), op_type_head(P,TYPE), OUT=..[TYPE,P,A,List],!.
-sumo_last_pass([P|List],OUT):-atom(P), op_type_head(P,TYPE), OUT=..[TYPE,P,List],!.
+sumo_last_pass([P|List],OUT):- atom(P), op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
 sumo_last_pass([P|List],[P|List]):-!.
 sumo_last_pass(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_last_pass,ARGS,ARGSO),SENTO=..[CONNECTIVE|ARGSO],!.
 sumo_last_pass(IO,IO).
 
 op_type_head(P,uN):-atom(P), atom_concat(_,'Fn',P).
 op_type_head(P,tN):-atom(P).
+
+
+make_var_arg(TYPE,P,List,OUT):- is_ftVar(List),!,OUT=..[TYPE,P,List].
+make_var_arg(TYPE,P,List,OUT):- is_list(List),!,must_maplist(sumo_last_pass,List,ListO),OUT=..[TYPE,P|ListO].
+make_var_arg(TYPE,P,[A0|List],OUT):- sumo_last_pass(A0,A),!,
+ (is_ftVar(List) -> OUT=..[TYPE,P,A,List];
+    (append(Left,Var,List),is_ftVar(Var),!,
+    must_maplist(sumo_last_pass,Left,NewLeft),
+    append(NewLeft,[Var],NewList),
+    OUT=..[TYPE,P,A|NewList])),!.
+
 
 is_sent_CONNECTIVE(CONNECTIVE):- intrinsicPred(CONNECTIVE).
 

@@ -22,13 +22,9 @@
  op(300,fx,'~'),
  op(300,fx,'-')*/  ]).
 
-% :- use_module(library(logicmoo_util_common)).
-
-
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
-:- system:ensure_loaded(library(logicmoo_utils)).
-%:- system:ensure_loaded(library(pfc)).
+:- system:ensure_loaded(library(pfc)).
 :- set_prolog_flag(pfc_booted,false).
 
 

@@ -136,6 +136,7 @@
             op(1150,fx,(was_multifile)),
             op(1150,fy,(was_module_transparent)).
             
+:- virtualize_source_file.
 
 :-
  op(1199,fx,('==>')), 

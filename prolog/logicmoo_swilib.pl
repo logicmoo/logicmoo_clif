@@ -98,7 +98,8 @@ logtalk_home(LTH):- absolute_directory(pack(logtalk), Directory0),
   atom_concat(Directory0,'/logtalk-*',Directory1),
   expand_file_name(Directory1,[LTH]),!.
 
-skip_logtalk:- app_argv(List), member('--nologtalk',List),!.
+skip_logtalk:- app_argv('--nologtalk'),!.
+skip_logtalk:- \+ app_argv('--logtalk'),!.
 skip_logtalk:- \+ logtalk_home(_), !.
 skip_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!.
 
@@ -190,6 +191,7 @@ add_history_ideas:-
         add_history(ensure_loaded(system:library(logicmoo_repl))),
         add_history(ensure_loaded(system:library(logicmoo_engine))),
         add_history(ensure_loaded(system:library(logicmoo_user))),
+        add_history(ensure_loaded(system:library(logicmoo_planner))),
         add_history([user:init_mud_server]),
         add_history([user:run_mud_server]),
         add_history(consult(library(prologmud_sample_games/run_mud_server))).
@@ -216,8 +218,8 @@ logicmoo_toplevel:-
  dmsg("  [user:init_mud_server]."),
  dmsg("  [user:run_mud_server]."),!,
  dmsg("?- make:make_no_trace."), 
- make:make_no_trace,
- listing(lmconf:lmconf:after_boot_goal/1),
+ % make:make_no_trace,
+ listing(lmconf:after_boot_goal/1),
  dmsg("logicmoo_toplevel"),
  logicmoo_run_goal,
  dmsg("Press Ctrl-D to Start"),

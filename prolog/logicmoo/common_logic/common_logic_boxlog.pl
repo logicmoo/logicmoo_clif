@@ -105,6 +105,8 @@ Per-Litteral features
 :- system:use_module(library(dialect/hprolog),[]).
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).
 
+:- virtualize_source_file.
+
 :-
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),

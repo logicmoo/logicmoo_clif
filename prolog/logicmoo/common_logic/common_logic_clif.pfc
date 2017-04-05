@@ -20,6 +20,9 @@ vim: set filetype=md:
 
 :-dynamic((if/2,iif/2)).
 
+:- virtualize_source_file.
+
+
 % we ensure we are in "pfc" consultation mode (so the syntax rules will define correctly)
 :- file_begin(pfc).
 
@@ -56,7 +59,7 @@ compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLO
 % {all_different_head_vals(PROLOG)},
 pfclog(PROLOG) ==> PROLOG.
 
-recompile_kif:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif).
+recompile_clif:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif).
 
 /*
 

@@ -92,6 +92,8 @@ noGenlPreds/1,
 
 :- was_export(kbp_t/1). 
 
+:- virtualize_source_file.
+
 
 %% assert_kif( ?String) is det.
 %
