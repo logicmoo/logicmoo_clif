@@ -5,6 +5,8 @@ modes of compile for (H:-B) are
  cwc,  = prolog's default (static or dynamic depending on built_in status)
  fwc,  = pfc(forward)chain  B==>-
  bwc,  = pfc(backwards)memoization 
+ awc,  = asserta
+ zwc,  = assertz
  pttp, = pttp iterative deepening
  dra,  = dynamic reording of alternatives (Solid tabling)
  other(_) Extendable

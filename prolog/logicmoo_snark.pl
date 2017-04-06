@@ -23,13 +23,13 @@
 :- asserta_new(user:file_search_path(logicmoo,library)).
 
 :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
-/*
+
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_skolem.pl')).
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
-*/
+
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 % :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
