@@ -8,7 +8,7 @@
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- user:ensure_loaded(library(logicmoo_webbot)).
+:- user:ensure_loaded(logicmoo_webbot).
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
 
