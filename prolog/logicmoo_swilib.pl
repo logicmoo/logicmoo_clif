@@ -44,9 +44,9 @@
 :- set_prolog_flag(compile_meta_arguments,false). % default is false
 */
 
-:- system:use_module(library(base32)).
+:- user:use_module(library(base32)).
 
-:- system:use_module(library(http/http_dispatch)).
+:- user:use_module(library(http/http_dispatch)).
 :- use_module(library(http/thread_httpd)).
 :- use_module(thread_httpd:library(http/http_dispatch)).
 :- use_module(library(http/http_path)).
@@ -55,19 +55,19 @@
 :- use_module(library(http/html_head)).
 :- use_module(library(http/html_write)).
 :- use_module(library(threadutil)).
-:- system:use_module(library(shell)).
+:- user:use_module(library(shell)).
 :- use_module(library(console_input)).
 :- if(current_predicate(system:mode/1)).
-:- system:use_module(library(quintus),except([mode/1])). 
+:- user:use_module(library(quintus),except([mode/1])). 
 :- else.
-:- system:use_module(library(quintus)). 
+:- user:use_module(library(quintus)). 
 :- endif.
-:- system:use_module(library(dialect/ifprolog),except([op(_,_,_)])).
+:- user:use_module(library(dialect/ifprolog),except([op(_,_,_)])).
 :- abolish(system:time/1).
 :- use_module(library(dialect/hprolog)).
 :- abolish(hprolog:time/1).
-:- system:use_module(library(statistics),[time/1]).
-:- system:use_module(library(statistics)).
+:- user:use_module(library(statistics),[time/1]).
+:- user:use_module(library(statistics)).
 :- baseKB:use_module(library(statistics),[time/1]).
 :- autoload([verbose(false)]).
 
@@ -75,7 +75,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MISC UTILS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- system:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_util_common)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT DEBUG PROLOG FLAGS
@@ -187,11 +187,11 @@ add_history_ideas:-
         add_history(input_to_forms("( #\\a #\\u0009 . #\\bell )",'$VAR'('O'),'$VAR'('Vs'))),
         add_history(tstl),
         add_history(qconsult_kb7166),
-        add_history(ensure_loaded(system:library(logicmoo_webbot))),
-        add_history(ensure_loaded(system:library(logicmoo_repl))),
-        add_history(ensure_loaded(system:library(logicmoo_engine))),
-        add_history(ensure_loaded(system:library(logicmoo_user))),
-        add_history(ensure_loaded(system:library(logicmoo_planner))),
+        add_history(ensure_loaded(library(logicmoo_webbot))),
+        add_history(ensure_loaded(library(logicmoo_repl))),
+        add_history(ensure_loaded(library(logicmoo_engine))),
+        add_history(ensure_loaded(library(logicmoo_user))),
+        add_history(ensure_loaded(library(logicmoo_planner))),
         add_history([user:init_mud_server]),
         add_history([user:run_mud_server]),
         add_history(consult(library(prologmud_sample_games/run_mud_server))).
@@ -356,49 +356,49 @@ end_of_file.
 
 % XPCE related autoloads
 /*
-:- system:use_module(library(pce),except([op(_,_,_)])).
-:- system:use_module(library(swi_compatibility)).
-:- system:use_module(library(pce_util)).
-:- system:use_module(library(pce_emacs)).
-:- system:use_module(library(swi_ide)).
-:- system:use_module(library(pce_edit)).
-:- system:use_module(library(edit_dialog)).
-:- system:use_module(library(swi_preferences)).
-:- system:use_module(library(pce_manual)).
-:- system:use_module(library(gui_tracer)).
-:- system:use_module(library(pce_meta)).
-:- system:use_module(library(portray_object)).
-:- system:use_module(library(keybinding)).   
-:- system:use_module(library(emacs_tags)).
-:- system:use_module(library(pce_require)).
-:- system:use_module(library(pce_debug)).
-:- system:use_module(library(help_message)).
-:- system:use_module(library(toolbar)).
-:- system:use_module(library(plot/plotter)).
+:- user:use_module(library(pce),except([op(_,_,_)])).
+:- user:use_module(library(swi_compatibility)).
+:- user:use_module(library(pce_util)).
+:- user:use_module(library(pce_emacs)).
+:- user:use_module(library(swi_ide)).
+:- user:use_module(library(pce_edit)).
+:- user:use_module(library(edit_dialog)).
+:- user:use_module(library(swi_preferences)).
+:- user:use_module(library(pce_manual)).
+:- user:use_module(library(gui_tracer)).
+:- user:use_module(library(pce_meta)).
+:- user:use_module(library(portray_object)).
+:- user:use_module(library(keybinding)).   
+:- user:use_module(library(emacs_tags)).
+:- user:use_module(library(pce_require)).
+:- user:use_module(library(pce_debug)).
+:- user:use_module(library(help_message)).
+:- user:use_module(library(toolbar)).
+:- user:use_module(library(plot/plotter)).
 
-:- system:use_module(library(jpl)).
+:- user:use_module(library(jpl)).
 
-:- system:use_module(library(imageops)).
-:- system:use_module(library(pce_float_item)).
+:- user:use_module(library(imageops)).
+:- user:use_module(library(pce_float_item)).
 
 :- user:use_module(library(pce_report)).
 :- user:use_module(library('swi/pce_debug_monitor')).
 :- user:use_module(library('swi/thread_monitor')).
 
-:- call((system:use_module(library(pce_report)))). % ,except([colour/2])))).
-:- call((system:use_module(library('swi/pce_debug_monitor')))). %,except([colour/2,resource/3])))).
-:- call((system:use_module(library('swi/thread_monitor')))).
+:- call((user:use_module(library(pce_report)))). % ,except([colour/2])))).
+:- call((user:use_module(library('swi/pce_debug_monitor')))). %,except([colour/2,resource/3])))).
+:- call((user:use_module(library('swi/thread_monitor')))).
 */
 
 :- use_module(prolog_statistics:library(statistics),[time/1]).
-:- system:use_module(library(statistics)).
-:- system:use_module(library(dialect/hprolog),[]).
+:- user:use_module(library(statistics)).
+:- user:use_module(library(dialect/hprolog),[]).
 
 
 % ======================================================
 % Rest of the standard library
 % ======================================================
-:- system:use_module(library(backcomp), [
+:- user:use_module(library(backcomp), [
             '$arch'/2,
 	    '$version'/1,
 	    '$home'/1,
@@ -454,7 +454,7 @@ end_of_file.
 	    hash/1,			% :PI
 	    set_base_module/1		% :Base
 	  ]).
-:- system:use_module(library(terms),[term_hash/2,		% @Term, -HashKey
+:- user:use_module(library(terms),[term_hash/2,		% @Term, -HashKey
 	    term_hash/4,		% @Term, +Depth, +Range, -HashKey
 	   % term_variables/2,		% @Term, -Variables
 	    term_variables/3,		% @Term, -Variables, +Tail
@@ -467,43 +467,43 @@ end_of_file.
 	    term_factorized/3]).
 
 :- if(current_predicate(system:mode/1)).
-:- system:use_module(library(quintus),except([mode/1])). 
+:- user:use_module(library(quintus),except([mode/1])). 
 :- else.
-:- system:use_module(library(quintus)). 
+:- user:use_module(library(quintus)). 
 :- endif.
 
 
 :- multifile http:location/3.
 :- dynamic http:location/3.
 
-:- system:use_module(library(prolog_autoload)).
-:- system:use_module(library(prolog_clause)).
-:- system:use_module(library(occurs)).
-:- system:use_module(library(listing)).
-:- system:use_module(library(clpfd),except([op(_,_,_)])).
-:- system:use_module(library(qsave)).
-:- system:use_module(library(apply)).
-:- system:use_module(library(debug)).
-:- system:use_module(library(error)).
-:- system:use_module(library(lists)).
-:- system:use_module(library(operators)).
-:- system:use_module(library(option)).
-:- system:use_module(library(prolog_source)).
-%:- system:use_module(library(prolog_history)).
-:- system:use_module(library(ansi_term)).
-:- system:use_module(library(prolog_xref)).
-:- system:use_module(library(readutil)).
-:- system:use_module(library(shlib)).
-:- system:use_module(library(url)).
+:- user:use_module(library(prolog_autoload)).
+:- user:use_module(library(prolog_clause)).
+:- user:use_module(library(occurs)).
+:- user:use_module(library(listing)).
+:- user:use_module(library(clpfd),except([op(_,_,_)])).
+:- user:use_module(library(qsave)).
+:- user:use_module(library(apply)).
+:- user:use_module(library(debug)).
+:- user:use_module(library(error)).
+:- user:use_module(library(lists)).
+:- user:use_module(library(operators)).
+:- user:use_module(library(option)).
+:- user:use_module(library(prolog_source)).
+%:- user:use_module(library(prolog_history)).
+:- user:use_module(library(ansi_term)).
+:- user:use_module(library(prolog_xref)).
+:- user:use_module(library(readutil)).
+:- user:use_module(library(shlib)).
+:- user:use_module(library(url)).
 
 :- if(exists_source(library(unix))).
-:- system:use_module(library(unix)).
+:- user:use_module(library(unix)).
 :- endif.
 
 
 % probably 
-:- system:use_module(library(rdf_ntriples),[rdf_ntriple_part/4]).
-:- system:use_module(library(tty),[menu/3]).
+:- user:use_module(library(rdf_ntriples),[rdf_ntriple_part/4]).
+:- user:use_module(library(tty),[menu/3]).
 
 :- if(false). 
 :- redefine_system_predicate(system:'$term_in_file'(_,_,_,_,_,_,_,_)).
@@ -569,48 +569,48 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
      swicffi,quintus,solution_sequences,metaterm,coind,drac,'INDEX',
      jpl,nb_set,yall,settings]), atomic_list_concat([_,_|_],C,M)),
    \+ (member(C,[persistency,chr,rewrite,bdb,check,xpath,record]),atomic_list_concat([_,_|_],C,M)),
-   catch(system:use_module(M,except([op(_,_,_)])),E,(ddmsg(E),trace))))).
+   catch(user:use_module(M,except([op(_,_,_)])),E,(ddmsg(E),trace))))).
 
 :- include(library(pldoc/hooks)).
 
 :- if(exists_source(library(pldoc))).
-:- system:use_module(library(pldoc), []).
+:- user:use_module(library(pldoc), []).
 	% Must be loaded before doc_process
-:- system:use_module(library(pldoc/doc_process)).
+:- user:use_module(library(pldoc/doc_process)).
 :- endif.
 
-%:- system:use_module(library(pldoc/doc_library)).
+%:- user:use_module(library(pldoc/doc_library)).
 %:- doc_load_library.
 
-:- system:use_module(library(pldoc/doc_access)).
-:- system:use_module(library(pldoc/doc_pack)).
+:- user:use_module(library(pldoc/doc_access)).
+:- user:use_module(library(pldoc/doc_pack)).
 
-:- system:use_module(library(doc_http)).
+:- user:use_module(library(doc_http)).
 :- reexport(library(pldoc/doc_html)).
-:- system:use_module(library(pldoc/doc_wiki)).
-:- system:use_module(library(pldoc/doc_search)).
-:- system:use_module(library(pldoc/doc_util)).
-:- system:use_module(library(pldoc/doc_library)).
+:- user:use_module(library(pldoc/doc_wiki)).
+:- user:use_module(library(pldoc/doc_search)).
+:- user:use_module(library(pldoc/doc_util)).
+:- user:use_module(library(pldoc/doc_library)).
 
-:- system:use_module(library(http/thread_httpd)).
-:- system:use_module(library(http/http_error)).
-:- system:use_module(library(http/http_client)).
+:- user:use_module(library(http/thread_httpd)).
+:- user:use_module(library(http/http_error)).
+:- user:use_module(library(http/http_client)).
 
 % http_reply_from_files is here
-:- system:use_module(library(http/http_files)).
+:- user:use_module(library(http/http_files)).
 % http_404 is in here
-:- system:use_module(library(http/http_dispatch)).
+:- user:use_module(library(http/http_dispatch)).
 
-:- system:use_module(library(http/http_dispatch)).
-:- system:use_module(library(http/html_write),except([op(_,_,_)])).
-:- system:use_module(library(http/html_head)).
-:- system:use_module(library(http/http_session)).
-:- system:use_module(library(http/http_parameters)).
-:- system:use_module(library(http/http_server_files)).
-:- system:use_module(library(http/http_wrapper)).
+:- user:use_module(library(http/http_dispatch)).
+:- user:use_module(library(http/html_write),except([op(_,_,_)])).
+:- user:use_module(library(http/html_head)).
+:- user:use_module(library(http/http_session)).
+:- user:use_module(library(http/http_parameters)).
+:- user:use_module(library(http/http_server_files)).
+:- user:use_module(library(http/http_wrapper)).
 
 :- if(exists_source(library(yall))).
-:- system:use_module(library(yall), []).
+:- user:use_module(library(yall), []).
 :- endif.
 
 /*

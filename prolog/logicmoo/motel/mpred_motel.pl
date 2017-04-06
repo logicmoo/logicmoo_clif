@@ -42,8 +42,8 @@
 :-  system:op(350,xfx,('xor')).
 :-  system:op(300,fx,('~')).
 :-  system:op(300,fx,('-')).
-:- system:use_module(library(logicmoo_util_common)).
-:- system:use_module(library(logicmoo_utils)).
+:- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_utils)).
 
 /*	
 

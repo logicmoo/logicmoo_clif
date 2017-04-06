@@ -143,7 +143,7 @@ end_of_file.
 
 
 :- if(false).
-:- system:use_module(library('file_scope')).
+:- user:use_module(library('file_scope')).
 :- baseKB:disable_mpred_expansion.
  % :- set_prolog_flag(subclause_expansion,false).
 :- if(exists_source(pldata('kb_7166.qlf'))).

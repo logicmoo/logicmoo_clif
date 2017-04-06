@@ -22,49 +22,49 @@
 
 :- if(exists_source(library(pldoc))).
 % Must be loaded before doc_process
-:- system:use_module(library(pldoc), []).
+:- user:use_module(library(pldoc), []).
 	
-:- system:use_module(library(pldoc/doc_process)).
+:- user:use_module(library(pldoc/doc_process)).
 :- endif.
 
-%:- system:use_module(library(pldoc/doc_library)).
+%:- user:use_module(library(pldoc/doc_library)).
 %:- doc_load_library.
 
-:- system:use_module(library(pldoc/doc_access)).
-:- system:use_module(library(pldoc/doc_pack)).
+:- user:use_module(library(pldoc/doc_access)).
+:- user:use_module(library(pldoc/doc_pack)).
 
-:- system:use_module(library(doc_http)).
+:- user:use_module(library(doc_http)).
 :- reexport(library(pldoc/doc_html)).
-:- system:use_module(library(pldoc/doc_wiki)).
-:- system:use_module(library(pldoc/doc_search)).
-:- system:use_module(library(pldoc/doc_util)).
-:- system:use_module(library(pldoc/doc_library)).
+:- user:use_module(library(pldoc/doc_wiki)).
+:- user:use_module(library(pldoc/doc_search)).
+:- user:use_module(library(pldoc/doc_util)).
+:- user:use_module(library(pldoc/doc_library)).
 
-:- system:use_module(library(http/thread_httpd)).
-:- system:use_module(library(http/http_error)).
-:- system:use_module(library(http/http_client)).
+:- user:use_module(library(http/thread_httpd)).
+:- user:use_module(library(http/http_error)).
+:- user:use_module(library(http/http_client)).
 
 % http_reply_from_files is here
-:- system:use_module(library(http/http_files)).
+:- user:use_module(library(http/http_files)).
 % http_404 is in here
-:- system:use_module(library(http/http_dispatch)).
+:- user:use_module(library(http/http_dispatch)).
 
-:- system:use_module(library(http/http_dispatch)).
-:- system:use_module(library(http/html_write),except([op(_,_,_)])).
-:- system:use_module(library(http/html_head)).
+:- user:use_module(library(http/http_dispatch)).
+:- user:use_module(library(http/html_write),except([op(_,_,_)])).
+:- user:use_module(library(http/html_head)).
 :- multifile(http_session:urandom_handle/1).
 :- dynamic(http_session:urandom_handle/1).
 :- volatile(http_session:urandom_handle/1).
-:- system:use_module(library(http/http_session)).
-:- system:use_module(library(http/http_parameters)).
-:- system:use_module(library(http/http_server_files)).
-:- system:use_module(library(http/http_wrapper)).
+:- user:use_module(library(http/http_session)).
+:- user:use_module(library(http/http_parameters)).
+:- user:use_module(library(http/http_server_files)).
+:- user:use_module(library(http/http_wrapper)).
 :- multifile(http_log:log_stream/2).
 :- dynamic(http_log:log_stream/2).
 :- volatile(http_log:log_stream/2).
 
 :- if(exists_source(library(yall))).
-:- system:use_module(library(yall), []).
+:- user:use_module(library(yall), []).
 :- endif.
 
 
@@ -83,12 +83,12 @@
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
-:- system:ensure_loaded(logicmoo_swilib).
-:- system:use_module(library(logicmoo_util_common)).
+:- user:ensure_loaded(logicmoo_swilib).
+:- user:use_module(library(logicmoo_util_common)).
 
 
 :- if(exists_source(library(pce_emacs))).
-:- system:use_module(library(pce_emacs)).
+:- user:use_module(library(pce_emacs)).
 :- endif.
 :- multifile(swish_trace:installed/1).
 :- volatile(swish_trace:installed/1).
@@ -136,7 +136,7 @@ add_relative_search_path(Alias, Rel) :-
 % MAKE SURE CLIOPATRIA RUNS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- if_file_exists(system:use_module(library(pce_emacs))).
+:- if_file_exists(user:use_module(library(pce_emacs))).
 :- multifile(swish_trace:installed/1).
 :- dynamic(swish_trace:installed/1).
 :- volatile(swish_trace:installed/1).
@@ -210,11 +210,11 @@ user:send_message(A, C) :-
 % Use the ClioPatria help system.  May   be  commented to disable online
 % help on the source-code.
 
-:- system:use_module(cliopatria('applications/help/load')).
+:- user:use_module(cliopatria('applications/help/load')).
 
 % Load ClioPatria itself.  Better keep this line.
 
-:- system:use_module(cliopatria(cliopatria)).
+:- user:use_module(cliopatria(cliopatria)).
 
 % Get back normal verbosity of the toplevel.
 
@@ -288,7 +288,7 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 
 % :- during_boot((user:ensure_loaded(setup_paths))).
 
-:- system:use_module(library('file_scope')).
+:- user:use_module(library('file_scope')).
 % :- use_module(library('clause_expansion')).
 
  % :- set_prolog_flag(subclause_expansion,true).
@@ -298,7 +298,7 @@ user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD LOGICMOO UTILS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- system:ensure_loaded(library(logicmoo_utils)).
+:- user:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
 :- dynamic(prolog:make_hook/2).
@@ -417,7 +417,7 @@ system:kill_unsafe_preds0:-
 :- dmsg("IRC EGGDROP").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- if(exists_source(library(eggdrop))).
-:- ensure_loaded(user:library(eggdrop)).
+:- ensure_loaded(library(eggdrop)).
 % :- during_boot((egg_go_fg)).
 :- during_net_boot(egg_go_maybe).
 :- endif.

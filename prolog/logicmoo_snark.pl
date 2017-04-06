@@ -9,7 +9,7 @@
 
 :- module(logicmoo_snark,[]).
 
-:- system:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_util_common)).
 
 :- dynamic   user:file_search_path/2.
 :- multifile user:file_search_path/2.
@@ -37,7 +37,7 @@
 % SETUP SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- system:ensure_loaded(library(logicmoo_snark)).
+:- user:ensure_loaded(library(logicmoo_snark)).
 
 :- set_prolog_flag(do_renames,term_expansion).
 

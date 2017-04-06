@@ -8,7 +8,7 @@
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- system:ensure_loaded(library(logicmoo_webbot)).
+:- user:ensure_loaded(library(logicmoo_webbot)).
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
 
@@ -55,7 +55,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 
 :- set_prolog_flag(do_renames,restore).
 :- use_module(library(gvar_syntax)).
-:- system:use_module(library(dif)).
+:- user:use_module(library(dif)).
 
 :- baseKB:import(dif:dif/2).
 :- baseKB:export(dif:dif/2).

@@ -104,7 +104,7 @@ Per-Litteral features
 %:- endif.
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
 
-:- system:use_module(library(dialect/hprolog),[]).
+:- user:use_module(library(dialect/hprolog),[]).
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).
 
 :- virtualize_source_file.
