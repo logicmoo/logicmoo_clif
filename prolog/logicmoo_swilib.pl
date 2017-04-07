@@ -82,6 +82,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 setup_for_debug :- 
    set_prolog_flag(report_error,true),
+   set_prolog_flag(debugger_show_context,true),
    set_prolog_flag(debug_on_error,true),
    set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
    set_prolog_flag(generate_debug_info,true).
@@ -155,15 +156,15 @@ load_logtalk:- ensure_LOGTALKUSER,
 :-op(600,fy,user:'^^').
 
 
-:- fixup_exports.
-
 % :- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT HISTORY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+add_history_ideas:- has_ran_once(add_history_ideas),!.
 add_history_ideas:- 
+       asserta(lmcache:added_history_ideas_once),
        % use_module(library(editline)),
         use_module(library(prolog_history)),
 
@@ -199,19 +200,20 @@ add_history_ideas:-
 
 :- during_boot(add_history_ideas).
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT GOALS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-logicmoo_goal:-  dmsg("logicmoo_goal"),logicmoo_toplevel,logicmoo_run_goal.
+logicmoo_goal:-  dmsg("logicmoo_goal"),logicmoo_toplevel.
 
+logicmoo_run_goal:- has_ran_once(logicmoo_run_goal),!.
 logicmoo_run_goal:- 
  %module(baseKB),
  dmsg("logicmoo_run_goal"),
  nb_setval('$oo_stack',[]),
  after_boot_call(maybe_rtrace).
 
-logicmoo_toplevel:- 
+logicmoo_toplevel:- has_ran_once(logicmoo_toplevel),!.
+logicmoo_toplevel:- dmsg("logicmoo_toplevel"),
  %module(baseKB),
  add_history_ideas,
  dmsg("  [logicmoo_repl]."),
@@ -220,10 +222,10 @@ logicmoo_toplevel:-
  dmsg("?- make:make_no_trace."), 
  % make:make_no_trace,
  listing(lmconf:after_boot_goal/1),
- dmsg("logicmoo_toplevel"),
  logicmoo_run_goal,
  dmsg("Press Ctrl-D to Start"),
  prolog.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -240,7 +242,7 @@ start_x_ide:-
 
 :- after_boot(dmsg(start_x_ide)).
 
-
+:- fixup_exports.
 
 
 
@@ -621,7 +623,7 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
    functor(PI,F,A),import(F/A),fail)).
 */
 
-.
+
 
 % :- autoload.
 

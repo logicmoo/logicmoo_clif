@@ -24,6 +24,7 @@
 
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
+:- user:ensure_loaded(logicmoo_webbot).
 :- user:ensure_loaded(library(pfc)).
 :- set_prolog_flag(pfc_booted,false).
 

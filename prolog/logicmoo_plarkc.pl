@@ -14,9 +14,10 @@
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
-:- add_library_search_path('./logicmoo/plarkc/',[ 'logicmoo_i_*.pl']).
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb'))).
+% :- add_library_search_path('./logicmoo/plarkc/',[ 'logicmoo_i_*.pl']).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,10 +68,6 @@ loadNewTiny:- consult(tiny_kb_cache).
 
 end_of_file.
 end_of_file.
-
-
-
-:- initialization(logicmoo_run_goal).
 
 
 

@@ -191,7 +191,7 @@ baseKB:logicmoo_scan_autoloads:-false.
 :- thread_local logicmoo_utils_test_tl/0.
 logicmoo_utils_test_tl:- throw(writeln("BADDDDDDD! locally/2 did not redefine this")).
 logicmoo_utils_test_msg:- locally((
- logicmoo_utils_test_tl:- writeln("Adding logicmoo/utils to autoload path")),logicmoo_utils_test_tl).
+ logicmoo_utils_test_tl:- writeln("% locally worked! ")),logicmoo_utils_test_tl).
 :- export(logicmoo_utils_test_msg/0).
 /*
 % the next are loaded idomaticaly later (if needed)
@@ -213,7 +213,7 @@ logicmoo_utils_test_msg:- locally((
 :- listing(locally/2).
 */
 % :- rtrace.
-:- logicmoo_utils_test_msg.
+% :- logicmoo_utils_test_msg.
  % :- set_prolog_flag(subclause_expansion,true).
 %:- virtualize_source_file.
 % .

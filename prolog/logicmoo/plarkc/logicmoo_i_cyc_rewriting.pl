@@ -1915,7 +1915,8 @@ makeCycRenames1:-
    (ret (quote (cyc-merge a b))))))
  '
            ), 
-    forall(builtin_rn_or_rn_new(C,P),format('(safely-rename-or-merge "~w" "~w")~n',[C,P])).
+    forall(builtin_rn_or_rn_new(C,P),format('(safely-rename-or-merge "~w" "~w")~n',[C,P])),
+    told.
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).

@@ -77,8 +77,7 @@
 :- prolog_load_context(directory,Dir),
    absolute_file_name('../../',Y,[relative_to(Dir),file_type(directory)]),
    (( \+ user:file_search_path(pack,Y)) ->asserta(user:file_search_path(pack,Y));true).
-:- attach_packs.
-:- initialization(attach_packs).
+:- initialization(attach_packs,now).
 :- pack_list_installed.
 :- endif.
 

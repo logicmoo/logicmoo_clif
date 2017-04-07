@@ -20,9 +20,9 @@
 :- '$set_source_module'(baseKB).
 
 :- system:reexport(library(logicmoo_engine)).
-:- asserta_new(user:file_search_path(logicmoo,library)).
+:- asserta_new(user:file_search_path(logicmoo,library('.'))).
 
-:- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
+% :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
