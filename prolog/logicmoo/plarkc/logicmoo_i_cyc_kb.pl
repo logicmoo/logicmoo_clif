@@ -109,6 +109,9 @@ cwtdl(Goal,DL,TL):-
 
 %:- in_cmt(doall((filematch(logicmoo('plarkc/mpred_cyc_kb_tinykb.pl'),F),source_file(X,F),predicate_property(X,static),X\='$pldoc'(_G8428,_G8429,_G8430,_G8431),listing(X)))).
 
+% https://www.dropbox.com/sh/9jexwgm9amw80mj/AADieFX-yQ_p6AfoF-Yy4muAa?dl=0
+
+% https://www.dropbox.com/sh/n506umkk6tqqhkm/AACFbLDyCAkf392zE2Z05u2ta?dl=0
 
 transfer_predicate(C,If,Q):-doall((clause(C,true,Ref),If,Q,on_x_log_throw(erase(Ref)))).
 transTiny(Template,If):-transfer_predicate(tinyK8(Template),If,once(ain(Template))).
@@ -515,6 +518,10 @@ make_functorskel(F,N,fskel(F,DBASE,Call,I,NList,MtVars,Call2)):-typical_mtvars(M
 :- dynamic(lmcache:isCycUnavailable_known/1).
 
 /*
+https://www.dropbox.com/sh/9jexwgm9amw80mj/AADieFX-yQ_p6AfoF-Yy4muAa?dl=0
+
+https://www.dropbox.com/sh/n506umkk6tqqhkm/AACFbLDyCAkf392zE2Z05u2ta?dl=0
+
 :- was_export(isCycAvailable/0).
 isCycAvailable:-lmcache:isCycUnavailable_known(_),!,fail.
 isCycAvailable:-lmcache:isCycAvailable_known,!.

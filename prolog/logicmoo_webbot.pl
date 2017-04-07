@@ -83,14 +83,6 @@
 :- endif.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD CYC KB LOADER
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- if(exists_source(library('pldata/plkb7166/kb7166'))).
-:- ensure_loaded(library('pldata/plkb7166/kb7166')).
-% :- qcompile_kb7166.
-:- endif.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD PARTS OF SYSTEM EARLY

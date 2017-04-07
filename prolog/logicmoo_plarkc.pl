@@ -44,13 +44,33 @@ loadNewTiny:- consult(tiny_kb_cache).
 :- after_boot(baseKB:qsave_lm(lm_repl3)).
 
 
+
+:- if(false).
+:- user:use_module(library('file_scope')).
+:- baseKB:disable_mpred_expansion.
+ % :- set_prolog_flag(subclause_expansion,false).
+:- if(exists_source(pldata('kb_7166.qlf'))).
+:- wdmsg("loading kb_7166").
+:- set_prolog_flag_until_eof(do_renames,term_expansion).
+:- ensure_loaded(pldata('kb_7166.qlf')).
+:- else.
+:- wdmsg("qcompile kb_7166").
+%:- set_prolog_flag_until_eof(do_renames,term_expansion).
+:- load_files(pldata(kb_7166),[if(not_loaded),qcompile(auto)]).
+:- endif.
+:- wdmsg("done loading kb_7166").
+:- set_module(kb_7166:class(library)).
+:- set_module(class(library)).
+:- enable_mpred_expansion.
+ % :- set_prolog_flag(subclause_expansion,true).
+:- endif.
+
+end_of_file.
+end_of_file.
+
+
+
 :- initialization(logicmoo_run_goal).
-
-end_of_file.
-end_of_file.
-
-
-
 
 
 
@@ -142,25 +162,7 @@ end_of_file.
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 
 
-:- if(false).
-:- user:use_module(library('file_scope')).
-:- baseKB:disable_mpred_expansion.
- % :- set_prolog_flag(subclause_expansion,false).
-:- if(exists_source(pldata('kb_7166.qlf'))).
-:- wdmsg("loading kb_7166").
-:- set_prolog_flag_until_eof(do_renames,term_expansion).
-:- ensure_loaded(pldata('kb_7166.qlf')).
-:- else.
-:- wdmsg("qcompile kb_7166").
-%:- set_prolog_flag_until_eof(do_renames,term_expansion).
-:- load_files(pldata(kb_7166),[if(not_loaded),qcompile(auto)]).
-:- endif.
-:- wdmsg("done loading kb_7166").
-:- set_module(kb_7166:class(library)).
-:- set_module(class(library)).
-:- enable_mpred_expansion.
- % :- set_prolog_flag(subclause_expansion,true).
-:- endif.
+
 
 :- if(current_predicate(on_fin/1)).
 :- forall(call(retract,on_fin(CALL)),call(CALL)).
