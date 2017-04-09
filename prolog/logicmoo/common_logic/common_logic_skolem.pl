@@ -68,7 +68,7 @@ show_attrs(Var):- oo_get_attrs(Var,Atts),wdmsg(Var=Atts).
 % todo use: push_dom(X,Dom)
 mpred_set_arg_isa(Pred,N,Term,_Outer):- holds_attrs(Term),push_dom(Term,argIsaFn(Pred,N)),!.
 mpred_set_arg_isa(Pred,N,Term,Outer):- 
-  (is_value(Term);is_function(Term)),!,
+  (is_value(Term);is_function_expr(Term)),!,
   must(( setarg(N,Outer,NewVar),
    % destructive_replace(Outer,Term,NewVar),   
    push_cond(NewVar,mudEquals(NewVar,Term)))),
@@ -118,10 +118,8 @@ sk_form(sk(Value),Value):-!.
 
 push_cond(X,Form):- annote(cond,X,Form,_Merged).
 
-cond:attr_unify_hook(Cond,Value):- var(Value),!,trace,push_cond(Value,Cond),!.
-
+cond:attr_unify_hook(Cond,Value):- var(Value),!,push_cond(Value,Cond),!. 
 % ?- A=a(1),mpred_constrain_w_proxy(A),trace,A=a(Z),Z=1.0.
-
 cond:attr_unify_hook([X|Cond],_Value):- !, maplist(call_u,[X|Cond]).
 cond:attr_unify_hook(Cond,_Value):- call_u(Cond).
 
@@ -144,9 +142,10 @@ sk:attr_unify_hook(Form, OtherValue):- var(OtherValue),!,push_skolem(OtherValue,
 %sk:attr_unify_hook(Form, OtherValue):- contains_var(Form,OtherValue),!.
 % sk:attr_unify_hook(Form, OtherValue):- skolem_unify(OtherValue,Form).
 
-sk:attr_portray_hook(Form, SkVar) :- writeq(sk(SkVar,Form)).
 
-sk:project_attributes(QueryVars, ResidualVars):- nop(wdmsg(sk:proj_attrs(skolem,QueryVars, ResidualVars))).
+%sk:attr_portray_hook(Form, SkVar) :- writeq(sk(SkVar,Form)).
+
+%sk:project_attributes(QueryVars, ResidualVars):- fail,nop(wdmsg(sk:proj_attrs(skolem,QueryVars, ResidualVars))).
 
 :- module_transparent(portray_sk/1).
 portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk,Name), format('sk_avar(~w,~p)',[Name,Form]).
@@ -155,12 +154,12 @@ portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk
 
 :- multifile(user:portray/1).
 :- dynamic(user:portray/1).
-user:portray(Sk):- get_attr(Sk, sk, _Form) , loop_check(common_logic_skolem:portray_sk(Sk)),!.
+% user:portray(Sk):- get_attr(Sk, sk, _Form) , loop_check(common_logic_skolem:portray_sk(Sk)),!.
 
 %% sk_form:attribute_goals(@V)// is det.
 %	copy_term/3, which also determines  the   toplevel  printing  of
 %	residual constraints.
-sk:attribute_goals(Sk,[form_sk(Sk,Form)|B],B) :- sk_form(Sk, Form).
+sk:attribute_goals(Sk) --> {sk_form(Sk, Form)},!,[form_sk(Sk,Form)].
 
 skolem_test(_):- !.
 skolem_test(Form):- show_call(call_u(Form)).

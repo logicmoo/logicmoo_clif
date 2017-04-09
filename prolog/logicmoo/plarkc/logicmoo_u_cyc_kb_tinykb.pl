@@ -254,7 +254,10 @@ mtUndressedMt('iBaseKB').
 
 mtDressedMt('iBookkeepingMt').
 mtDressedMt('iEnglishParaphraseMt').
+mtDressedMt('iGeneralEnglishMt').
 mtDressedMt('iTemporaryEnglishParaphraseMt').
+mtDressedMt('iAct_GeneralCycKE').
+mtDressedMt('iTechnicalEnglishLexicalMt').
 
 
 call_tiny_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),

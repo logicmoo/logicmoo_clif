@@ -9,18 +9,19 @@
 % Dec 13, 2035
 %
 */
-:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
+%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_pttp,[]).
-:- endif.
+%:- endif.
 
+:- '$set_source_module'(baseKB).
 
 :- thread_local(t_l:disable_px/0).
-:- ensure_loaded('../logicmoo_utils').
 
 :- ensure_loaded(library(pfc)).
-:- ensure_loaded(logicmoo(mpred/'mpred_header.pi')).
+:- include(logicmoo('pfc2.0'/'mpred_header.pi')).
+% :- ensure_loaded(library(logicmoo_utils)).
 
-ainz_pttp(A):-if_defined(ainz(A),assertz_new(A)).
+ainz_pttp(A):-if_defined(mpred_ainz(A),assertz_new(A)).
 %:- was_export(internal_functor/1).
 %:- was_export(was_pttp_functor/1).
 %:- was_dynamic(was_pttp_functor/1).
@@ -135,8 +136,9 @@ save_wid(IDWhy,Atom,Wff):-must(Atom\=','),to_numbered_ground(wid(IDWhy,Atom,Wff)
 to_numbered_ground(I,O):-ground(I)->I=O;(copy_term(I,M),numbervars(M,766,_,[functor_name('$VAR')]),O=M->true;trace_or_throw(to_numbered_ground(I,O))).
 
 % -- CODEBLOCK
-clauses_wid(ID,ID:R,F,Y,Ref):-atomic(ID),!,nonvar(ID),clause(wid(ID:R,F,Y),true,Ref).
-clauses_wid(ID,ID,F,Y,Ref):-clause(wid(ID,F,Y),true,Ref).
+clauses_wid(ID,ID:R,F,Y,Ref):-atomic(ID),!,nonvar(ID),clause_asserted(wid(ID:R,F,Y),true,Ref).
+clauses_wid(ID,ID,F,Y,Ref):- clause_asserted(wid(ID,F,Y),true,Ref).
+
 
 % -- CODEBLOCK
 :- was_export(retract_if_no_wids/1).
@@ -218,14 +220,16 @@ clear_pttp:-
 %eraseall(M:F,A):-!,functor(C,F,A),forall(clause(M:C,_,X),erase(X)).
 %eraseall(F,A):-current_predicate(F/A),functor(C,F,A),forall(clause(C,_,X),erase(X)).                                                            
 
+:- kb_shared(pttp_test/2).
+:- kb_shared(pttp_logic/2).
+
 
 % -- CODEBLOCK
-:- was_dynamic(pttp_test_took/3).
+:- dynamic(pttp_test_took/3).
 
-:- was_export(do_pttp_test_maybe/1).
-:- discontiguous(pttp_test_fails_is_ok/1).
-:- was_dynamic(pttp_test_fails_is_ok/1).
-:- was_export(do_pttp_test_maybe/2).
+:- export(do_pttp_test_maybe/1).
+:- kb_shared(pttp_test_fails_is_ok/1).
+:- export(do_pttp_test_maybe/2).
 
 do_pttp_test_maybe(TestName):- forall(pttp_test(TestName,Data),do_pttp_test_maybe(TestName,Data)),listing(pttp_test_took).
 do_pttp_test_maybe(TestName,_) :- pttp_test_fails_is_ok(TestName),!.
@@ -288,8 +292,8 @@ isNegOf(N1,N):-dtrace(not(isNegOf(N1,N))),isNegOf(N,N1).
 
 
 
-:- kb_shared was_pttp_functor/3.
-:- was_dynamic was_pttp_functor/3.
+:- kb_shared(was_pttp_functor/3).
+
 
 
 % -- CODEBLOCK
@@ -387,6 +391,10 @@ pttp_assert_int_wid04(ID,Y,F,A):-
 :- ensure_loaded(dbase_i_mpred_pttp_statics).
 :- ensure_loaded(dbase_i_mpred_pttp_precompiled).
 :- ensure_loaded(dbase_i_mpred_pttp_testing).
+
+:- ensure_loaded(dbase_i_mpred_pttp_compile_stickel_orig).
+
+:- fixup_exports.
 
 :- if_startup_script(do_pttp_tests).
 

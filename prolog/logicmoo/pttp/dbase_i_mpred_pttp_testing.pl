@@ -1,6 +1,7 @@
-:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
+%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_pttp_testing,[]).
-:- endif.
+%:- endif.
+:- '$set_source_module'(baseKB).
 
 %%% ****h* PTTP/PTTP TESTING INTERFACE
 %%% 
@@ -13,7 +14,7 @@
 %%% 
 
 :- ensure_loaded(library(pfc)).
-:- ensure_loaded(logicmoo(mpred/'mpred_header.pi')).
+:- include(logicmoo('pfc2.0'/'mpred_header.pi')).
 :- ensure_loaded(dbase_i_mpred_pttp).
 
 :- kb_shared(pttp_test/2).
@@ -183,6 +184,9 @@ pttp_test(chang_lee_example7,
 %%%   chang_lee_example1, chang_lee_example7
 %%% SOURCE
 
+:- kb_shared(pttp_test_fails_is_ok/1).
+:- discontiguous(pttp_test_fails_is_ok/1).
+
 % pttp_test_fails_is_ok(chang_lee_example8).
 pttp_test(chang_lee_example8,
 	((
@@ -349,7 +353,75 @@ pttp_logic(Name,Data):- pttp_test(Name,Data).
 
 :- if_startup_script(do_pttp_tests).
 
+
+:- fixup_exports.
+
+
+
+
+
+
 end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
 
 %%% Examples
 

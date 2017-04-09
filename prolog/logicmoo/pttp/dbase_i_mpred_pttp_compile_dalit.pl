@@ -272,3 +272,4 @@ dalit_add_args(INFO,Body,PosGoal,GoalAtom,HeadArgs,
 		New = yes.
 %%% ***
 
+:- fixup_exports.

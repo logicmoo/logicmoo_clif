@@ -1,6 +1,9 @@
 :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_pttp_compile,[]).
 :- endif.
+
+:- '$set_source_module'(baseKB).
+
 :- abolish(pttp_prove,6).
 :- abolish(search_cost,3).
 :- abolish(search,6).
@@ -433,3 +436,4 @@ query(PosAncestors,NegAncestors,DepthIn,DepthOut,ProofIn,ProofOut) :-
   get_int_query(Int_query),
 	call(Int_query,PosAncestors,NegAncestors,DepthIn,DepthOut,ProofIn,ProofOut,query).
 
+:- fixup_exports.

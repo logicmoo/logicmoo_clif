@@ -286,7 +286,7 @@ provide_kif_op(OP,(HeadBody)):-
 :- multifile(baseKB:mpred_provide_storage_clauses/3).
 % CLAUSES HOOK 
 baseKB:mpred_provide_storage_clauses(H,B,wid3(IDWhy)):- wid(IDWhy,_,(H:- B)).
-baseKB:mpred_provide_storage_clauses(H,true,wid3(IDWhy)):- wid(IDWhy,_,(H)),compound(H),not(functor(H,':-',2)).
+baseKB:mpred_provide_storage_clauses(H,true,wid3(IDWhy)):- wid(IDWhy,_,(H)),!,compound(H),not(functor(H,':-',2)).
 
 
 % REGISTER HOOK

@@ -1,7 +1,10 @@
-:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
+%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_pttp_precompiled,[]).
-:- endif.
+%:- endif.
 
+:- '$set_source_module'(baseKB).
+
+:- kb_shared(wrapper_for/2).
 
 %% subst_each(+In,+List,-Out).
 subst_each(In,[],In).
@@ -22,8 +25,8 @@ univ_tl(Call,EList,CallE):-must((compound(Call),is_list(EList))), Call=..LeftSid
 
 
 
-:- kb_shared was_pttp_functor/3.
-:- was_dynamic was_pttp_functor/3.
+:- kb_shared(was_pttp_functor/3).
+:- was_dynamic(was_pttp_functor/3).
 
 
 % -- CODEBLOCK
@@ -49,10 +52,10 @@ was_pttp_functor(base, pred_t,3-3).
 
 baseKB:use_mpred_t.
 
-:- was_dynamic t/3.
-:- kb_shared t/3.
-:- was_dynamic t/4.
-:- kb_shared t/4.
+:- was_dynamic(t/3).
+:- kb_shared(t/3).
+:- was_dynamic(t/4).
+:- kb_shared(t/4).
 
 % -- CODEBLOCK  int_asserted_t
 
@@ -78,8 +81,8 @@ map_int_functors(EXT,CALLF,A,PREREQ):-
 
 % -- CODEBLOCK
 
-:- was_dynamic int_pred_t/10.
-:- kb_shared int_pred_t/10.
+:- was_dynamic(int_pred_t/10).
+:- kb_shared(int_pred_t/10).
 
 :- map_int_functors(pred_t,t,3,((use_mpred_t, G=call_t,arg(1,G,B),arg(2,G,C),dif(B,C),G))).
 /*
@@ -90,8 +93,8 @@ int_pred_t(A, B, C, H, I, D, E, F, J, G) :-
 
 % :-listing(int_pred_t).
 
-:- was_dynamic int_not_pred_t/10.
-:- kb_shared int_not_pred_t/10.
+:- was_dynamic(int_not_pred_t/10).
+:- kb_shared(int_not_pred_t/10).
 
 :- map_int_functors(pred_t,t,3,((use_mpred_t, G=call_t,arg(1,G,B),arg(2,G,C),dif(B,C),G))).
 int_not_pred_t(A, B, C, H, I, D, E, F, J, G) :- 
@@ -101,8 +104,8 @@ int_not_pred_t(A, B, C, H, I, D, E, F, J, G) :-
 
 % -- CODEBLOCK
 
-:- was_dynamic int_not_true_t/10.
-:- kb_shared int_not_true_t/10.
+:- was_dynamic(int_not_true_t/10).
+:- kb_shared(int_not_true_t/10).
 
 int_not_true_t(A, B, C, H, I, D, E, F, J, G) :- 
    pretest_call((is_extent_known(A),use_mpred_t,not(baseKB:t(A, B, C)), dif(B,C),D=E)),
@@ -133,6 +136,21 @@ wrapper_for(negationPreds,pred_t).
 wrapper_for(negationInverse,pred_t).
 
 
+
+:-
+ op(1199,fx,('==>')), 
+ op(1190,xfx,('::::')),
+ op(1180,xfx,('==>')),
+ op(1170,xfx,'<==>'),  
+ op(1160,xfx,('<-')),
+ op(1150,xfx,'=>'),
+ op(1140,xfx,'<='),
+ op(1130,xfx,'<=>'), 
+ op(600,yfx,'&'), 
+ op(600,yfx,'v'),
+ op(350,xfx,'xor'),
+ op(300,fx,'~'),
+ op(300,fx,'-').
 
 
 pttp_logic(logicmoo_kb_logic,
@@ -316,3 +334,4 @@ make_base(BF,A):-
 %:-listing([true_t,int_true_t,not_true_t,int_not_true_t]).
 
 
+:- fixup_exports.

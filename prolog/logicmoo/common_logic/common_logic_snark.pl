@@ -126,6 +126,8 @@
 */
 
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_boxlog.pl')).
+:- reexport(baseKB:library('logicmoo/pttp/dbase_i_mpred_pttp_statics.pl')).
+:- reexport(baseKB:library('logicmoo/pttp/dbase_i_mpred_pttp.pl')).
 
 
 :- include(library('pfc2.0/mpred_header.pi')).
@@ -419,7 +421,7 @@ is_clif(CLIF):-
 %
 % Correct Arities.
 %
-correct_arities(_,FmlO,FmlO):-leave_as_is(FmlO),!.
+correct_arities(_,FmlO,FmlO):-leave_as_is_logically(FmlO),!.
 correct_arities([],Fml,Fml):-!.
 correct_arities([H|B],Fml,FmlO):-!,correct_arities(H,Fml,FmlM),correct_arities(B,FmlM,FmlO).
 correct_arities(_,Fml,Fml):- \+ compound(Fml),!.
@@ -450,7 +452,7 @@ subsT_each(In,[KV|TODO],Out):- subst_except_l(In,[KV|TODO],Out).
 %
 subst_except_l(  Var, List, NVar ) :- nonvar(NVar),!,subst_except_l(  Var, List, MVar ),!,must(MVar=NVar).
 subst_except_l(  Var, _,Var ) :- is_ftVar(Var),!.
-% subst_except_l(  Var, _,Var ) :- leave_as_is(Var),!.
+% subst_except_l(  Var, _,Var ) :- leave_as_is_logically(Var),!.
 subst_except_l(  N, List,V ) :- member(N=V,List),!.
 subst_except_l(   [], _,[] ) :-!.
 subst_except_l([H|T],List,[HH|TT]):- !, subst_except_l(H,List,HH), subst_except_l(T,List,TT).
@@ -581,7 +583,7 @@ to_prolog_ops([
 % Converted To Nonvars.
 %
 to_nonvars(_Type,IN,IN):- is_ftVar(IN),!.
-to_nonvars(_,Fml,Fml):- leave_as_is(Fml),!.
+to_nonvars(_,Fml,Fml):- leave_as_is_logically(Fml),!.
 to_nonvars(Type,IN,OUT):- is_list(IN),!,must_maplist(to_nonvars(Type),IN,OUT),!.
 to_nonvars(Type,IN,OUT):- call(Type,IN,OUT),!.
 
@@ -601,7 +603,7 @@ convertAndCall(_Type,Call):-call_last_is_var(Call).
 %
 % Converted To Datalog.
 %
-as_dlog(Fml,Fml):- leave_as_is(Fml),!.
+as_dlog(Fml,Fml):- leave_as_is_logically(Fml),!.
 as_dlog(Fml,FmlO):- to_dlog_ops(OPS),subsT_each(Fml,OPS,FmlM),!,correct_arities(['v','&'],FmlM,FmlO).
 
 
@@ -614,7 +616,7 @@ as_dlog(Fml,FmlO):- to_dlog_ops(OPS),subsT_each(Fml,OPS,FmlM),!,correct_arities(
 %
 % Converted To Symlog.
 %
-as_symlog(Fml,Fml):- leave_as_is(Fml),!.
+as_symlog(Fml,Fml):- leave_as_is_logically(Fml),!.
 as_symlog(Fml,FmlO):- as_dlog(Fml,FmlM),to_symlog_ops(OPS),subsT_each(FmlM,OPS,FmlM),correct_arities(['v','&'],FmlM,FmlO).
 
 
@@ -678,7 +680,7 @@ adjust_kif0(KB,'&'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('&',[L|I
 adjust_kif0(KB,'v'([L|Ist]),ConjO):- is_list([L|Ist]),list_to_conjuncts('v',[L|Ist],Conj),adjust_kif0(KB,Conj,ConjO).
 adjust_kif0(KB,(H:-[L|Ist]),(HH:-ConjO)):- adjust_kif(KB,H,HH),is_list([L|Ist]),adjust_kif0(KB,'&'([L|Ist]),ConjO).
 adjust_kif0(KB,(H:-B),(HH:-ConjO)):- adjust_kif(KB,H,HH),adjust_kif(KB,B,ConjO),!.
-adjust_kif0(_,A,A):-leave_as_is(A),!.
+adjust_kif0(_,A,A):-leave_as_is_logically(A),!.
 adjust_kif0(KB,Kif,KifO):- Kif=..[F|ARGS],adjust_kif0(KB,F,ARGS,KifO),!.
 adjust_kif0(KB,PAB,PABO):- PAB=..[P|AB],must_maplist(adjust_kif0(KB),AB,ABO),PABO=..[P|ABO].
 
@@ -697,8 +699,8 @@ adjust_kif0(KB,not,[A],~(O)):-!,adjust_kif0(KB,A,O),!.
 adjust_kif0(KB,possible_t,[A],O):-!,adjust_kif0(KB,poss(A),O),!.
 adjust_kif0(KB,possible_t,ARGS,O):-!,PARGS=..ARGS,adjust_kif0(KB,poss(PARGS),O).
 adjust_kif0(KB,asserted_t,[A],O):-!,adjust_kif0(KB,t(A),O),!.
-adjust_kif0(KB,asserted_t,ARGS,O):-!,PARGS=..ARGS,adjust_kif0(KB,t(PARGS),O).
-adjust_kif0(KB,true_t,ARGS,O):-PARGS=..ARGS,adjust_kif0(KB,PARGS,O),!.
+adjust_kif0(KB,asserted_t,[A|RGS],O):- atom(A),PARGS=..[A|RGS],!,adjust_kif0(KB,t(PARGS),O).
+adjust_kif0(KB,true_t,[A|RGS],O):- atom(A),PARGS=..[A|RGS],adjust_kif0(KB,PARGS,O),!.
 adjust_kif0(KB,Not_P,ARGS,O):-atom_concat('not_',P,Not_P),!,PARGS=..[P|ARGS],adjust_kif0(KB, ~(PARGS),O).
 adjust_kif0(KB,Int_P,ARGS,O):-atom_concat('int_',P,Int_P),!,append(LARGS,[_, _, _, _, _, _, _ ],ARGS),
    PLARGS=..[P|LARGS],adjust_kif0(KB,PLARGS,O).
@@ -740,7 +742,7 @@ adjust_kif5(      _,_,'&',ARGS,Conj):-list_to_conjuncts('&',ARGS,Conj).
 %
 local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:svar(P,S)),!.
 local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:lvar(P,S)),!.
-local_pterm_to_sterm(P,[P]):- leave_as_is(P),!.
+local_pterm_to_sterm(P,[P]):- leave_as_is_logically(P),!.
 local_pterm_to_sterm((H:-P),(H:-S)):-!,local_pterm_to_sterm(P,S),!.
 local_pterm_to_sterm((P=>Q),[implies,PP,=>,QQ]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ).
 local_pterm_to_sterm((P<=>Q),[equiv,PP,QQ]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ).
@@ -933,9 +935,11 @@ wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(_KB,(NAME:-N
 :- public(kif_to_boxlog/2).
 % kif_to_boxlog(Wff,Out):- loop_check(kif_to_boxlog(Wff,Out),Out=looped_kb(Wff)).
 % kif_to_boxlog('=>'(WffIn,enables(Rule)),'$VAR'('MT2'),complete,Out1), % kif_to_boxlog('=>'(enabled(Rule),WffIn),'$VAR'('KB'),complete,Out).
-kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why), kif_to_boxlog(Wff,Why,Out),!.
-kif_to_boxlog(WffIn,Out):-  why_to_id(rule,WffIn,Why), kif_to_boxlog(all('$VAR'('KB'),'=>'(asserted_t('$VAR'('KB'),WffIn),WffIn)),'$VAR'('KB'),Why,Out),!.
-kif_to_boxlog(WffIn,NormalClauses):- why_to_id(rule,WffIn,Why), kif_to_boxlog(WffIn,'$VAR'('KB'),Why,NormalClauses).
+kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog3(Wff,Out,Why)).
+
+kif_to_boxlog3(Wff,Out,Why):- kif_to_boxlog(Wff,Why,Out),!.
+kif_to_boxlog3(WffIn,Out,Why):-  kif_to_boxlog(all('$VAR'('KB'),'=>'(asserted_t('$VAR'('KB'),WffIn),WffIn)),'$VAR'('KB'),Why,Out),!.
+kif_to_boxlog3(WffIn,NormalClauses,Why):- kif_to_boxlog(WffIn,'$VAR'('KB'),Why,NormalClauses),!.
 
 
 %= 	 	 
@@ -980,7 +984,7 @@ kif_to_boxlog(I,KB,Why,Flattened):- % trace,
 
 kif_to_boxlog(HB,KB,Why,FlattenedO):- 
  unnumbervars((HB,KB,Why),(HB0,KB0,Why0)),
-  must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO)),!.
+  with_no_kif_var_coroutines(must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO))),!.
 
 kif_to_boxlog_attvars(kif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
 kif_to_boxlog_attvars(clif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
@@ -992,7 +996,7 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    correct_boxlog([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
 kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
-  must_det_l((nl,nl,nl,draw_line,draw_line,draw_line,draw_line)),!,
+  must_det_l((draw_line,draw_line)),!,
   must_det_l((
    must(unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why)),
    ensure_quantifiers(WffIn,Wff),
@@ -1075,7 +1079,7 @@ add_poss_to([PreCond|S],Wff6667, PreCondPOS):-!,
  add_poss_to(S,PreCondM, PreCondPOS).
 
 add_poss_to(PreCond,Wff6667, PreCond=>Wff6667):-prequent(PreCond).
-add_poss_to(PreCond,Wff6667, Wff6667):-leave_as_is(PreCond).
+add_poss_to(PreCond,Wff6667, Wff6667):-leave_as_is_logically(PreCond).
 add_poss_to( ~(_PreCond),Wff6667, Wff6667).
 add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
@@ -1090,7 +1094,7 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 add_nesc(X,X):-!.
 
 add_nesc(IN,OUT):-is_list(IN),must_maplist(add_nesc,IN,OUT),!.
-add_nesc(Wff666,Wff666):-leave_as_is(Wff666),!.
+add_nesc(Wff666,Wff666):-leave_as_is_logically(Wff666),!.
 add_nesc(P<=>Q,O):-!,add_nesc(((P=>Q) & (Q=>P)),O).
 add_nesc(PQ,PQO):- PQ=..[F,V|Q],is_quantifier(F),add_nesc(Q,QQ),PQO=..[F,V|QQ],!.
 add_nesc(IN,poss(IN)):-IN=..[F|_],should_be_poss(F),!.
@@ -1119,7 +1123,7 @@ add_nesc(IN,nesc(IN)).
 %
 add_poss(PQ,PQ):- var(PQ),!.
 add_poss(PQ,PQO):- PQ=..[F,V,Q],is_quantifier(F),add_poss(Q,QQ),PQO=..[F,V,QQ],!.
-add_poss(Wff666,true):-leave_as_is(Wff666),!.
+add_poss(Wff666,true):- leave_as_is_logically(Wff666),!.
 add_poss( ~(IN), ~(IN)).
 add_poss(INL,OUTC):-is_list(INL),must_maplist(add_poss,INL,OUTL),F='&',OUT=..[F|OUTL],correct_arities(F,OUT,OUTC).
 add_poss(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_poss,INL,OUTL),OUT=..[F|OUTL].
@@ -1138,7 +1142,7 @@ add_poss(IN,poss(IN)).
 %
 get_lits(PQ,[]):- var(PQ),!.
 get_lits(PQ,QQ):- PQ=..[F,_Vs,Q],is_quantifier(F),get_lits(Q,QQ).
-get_lits(Wff666,[Wff666]):-leave_as_is(Wff666),!.
+get_lits(Wff666,[Wff666]):-leave_as_is_logically(Wff666),!.
 get_lits( ~(IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(not),OUT,NOUT).
 get_lits(knows(WHO,IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(knows(WHO)),OUT,NOUT).
 get_lits(beliefs(WHO,IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(beliefs(WHO)),OUT,NOUT).
@@ -1326,9 +1330,9 @@ kif_io(InS,Out):-
 %
 % Generation Of Proof Converted To Id.
 %
-why_to_id(Term,Wff,IDWhy):-  \+ atom(Term),term_to_atom(Term,Atom),!,why_to_id(Atom,Wff,IDWhy).
-why_to_id(Atom,Wff,IDWhy):- call_u(wid(IDWhy,Atom,Wff)),!.
-why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhyI,IDWhy),assertz_if_new(wid(IDWhy,Atom,Wff)).
+why_to_id(Term,Wff,IDWhy):-  \+ atom(Term),term_to_atom(Term,Atom),!,why_to_id(Atom,Wff,IDWhy),!.
+why_to_id(Atom,Wff,IDWhy):- clause_asserted(wid(IDWhy,Atom,Wff)),!.
+why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhyI,IDWhy),assertz_if_new(wid(IDWhy,Atom,Wff)),!.
 
 :- public(kif_process/1).
 
@@ -1618,7 +1622,7 @@ sort_body(HBINFO,BB,BBB):-sort_body_0(HBINFO,BB,BBB),(BBB=@=BB->true; (expand_to
 %
 % sort body  Primary Helper.
 %
-sort_body_0(_,SORTED,SORTED):-leave_as_is(SORTED).
+sort_body_0(_,SORTED,SORTED):-leave_as_is_logically(SORTED).
 sort_body_0(HBINFO,(A,B),SORTED):-!,conjuncts_to_list((A,B),List),
    must_maplist(sort_body_0(HBINFO),List,ListIn),
    predsort(litcost_compare(HBINFO),ListIn,SortedL),

@@ -1,9 +1,10 @@
-:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
+%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_pttp_static,[]).
-:- endif.
+%:- endif.
 
 :- ensure_loaded(library(pfc)).
-:- ensure_loaded(logicmoo(mpred/'mpred_header.pi')).
+:- ensure_loaded(library('pfc2.0'/'mpred_header.pi')).
+:- '$set_source_module'(baseKB).
 
 :- 
  %swi_module(mpred_pttp_statics,[ 
@@ -19,6 +20,7 @@
   %    op( 500,xfy, :),
        % nnf/4,
        !.
+
 /*
        pttp_tell_wid/2,
        pttp_test/2,
@@ -656,7 +658,7 @@ correct_pttp_body(Wrapper,B,A):- locally(t_l:second_order_wrapper(Wrapper), corr
 
 correct_pttp(B,A):-must(correct_pttp([],B,A)),!.
 
-correct_pttp(LC,B,A):-identical_member(B,LC),A=B.
+correct_pttp(LC,B,A):-member_eq(B,LC),A=B.
 correct_pttp(LC,-B,NA):-!,must((correct_pttp([B|LC],B,A),negated_literal(A,AN),correct_pttp(LC,AN,NA))),!.
 correct_pttp(LC,n(_,B),NA):-!,must((correct_pttp([B|LC],B,A),negated_literal(A,AN),correct_pttp(LC,AN,NA))),!.
 correct_pttp(LC,B,A):-once(correct_pttp_0([B|LC],B,A)),B==A,!.
@@ -673,6 +675,8 @@ correct_pttp_1(LC, BodyIn,F,_,_,Body):- sanity(atom(F)), atom_concat('not_',_,F)
 correct_pttp_1(LC, BodyIn,F,_,_,Body):- is_holds_false_pttp(F),negated_literal(BodyIn,Neg),!,correct_pttp(LC,Neg,NegBody),negated_literal(NegBody,Body),!.
 correct_pttp_1(LC, BodyIn,F,A,L,Body):- is_holds_false_pttp(F),trace_or_throw(correct_pttp_1(LC,BodyIn,F,A,L,Body)).
 correct_pttp_1(LC,_BodyIn,F,_,[L|IST],Body):- length([L|IST],A), correct_pttp_2(LC,F,A,[L|IST],Body).
+
+:- kb_shared(wrapper_for/2).
 
 correct_pttp_2(_,F,_,[L|IST],Body):- wrapper_for(F,Wrapper),!, wrap_univ(Body ,[Wrapper,F,L|IST]).
 correct_pttp_2(_,F,A,[L|IST],Body):- correct_pttp_4(F,A,[L|IST],Body),!.
@@ -752,7 +756,7 @@ pttp1c_wid(_ID,X0,X8,IntProcs,Procs) :-
 
 
 
-:- ensure_loaded(dbase_i_mpred_pttp_compile_stickel_orig).
+% :- ensure_loaded(dbase_i_mpred_pttp_compile_stickel_orig).
 
 
 %%% ***
@@ -1214,7 +1218,7 @@ pttp_builtin(V,A):-is_ftVar(V),!,trace_or_throw(pttp_builtin(V,A)).
 pttp_builtin(!,0).
 
 
-pttp_builtin(P,_):- current_predicate(resultIsa/2),mpred_isa(P,predStub(prologHybrid)),!,fail.
+pttp_builtin(F,A):- mpred_prop(F,A,prologHybrid),!,fail.
 pttp_builtin(isa,2):-!,fail.
 pttp_builtin(isa,_):-!,fail.
 pttp_builtin(S2,_):-is_p_to_not(S2),!,fail.
@@ -1267,12 +1271,12 @@ pttp_builtin(unify,_).
 pttp_builtin(identical_member_special,_).
 pttp_builtin(identical_member_special_loop_check,_).
 pttp_builtin(M:P,A):-atom(M),!,pttp_builtin(P,A).
-pttp_builtin(F,_):- (mpred_isa(F,prologBuiltin)),!. %,fail.
-% TODO pttp_builtin(F,_):- (mpred_isa(F,prologDynamic)),!. %,fail.
+pttp_builtin(F,A):- (mpred_prop(F,A,prologBuiltin)),!. %,fail.
+% TODO pttp_builtin(F,_):- (mpred_prop(F,A,prologDynamic)),!. %,fail.
 pttp_builtin(unifiable_member,_).
 % TODO pttp_builtin(t,_).
-%pttp_builtin(F,_):-mpred_isa(F,prologPTTP),!,fail.
-%pttp_builtin(F,_):-mpred_isa(F,prologKIF),!,fail.
+%pttp_builtin(F,A):-mpred_prop(F,A,prologPTTP),!,fail.
+%pttp_builtin(F,A):-mpred_prop(F,A,prologKIF),!,fail.
 pttp_builtin(F,A):-current_predicate(F/A),functor(P,F,A),builtin_why(P,F,A,Why),!,dmsg(todo(warn(builtin_why(F,A,Why)))).
 %%% ***
 
@@ -1432,4 +1436,7 @@ pttp_nnf_clean((A v B),FreeV,NNF,Paths) :- !,
 pttp_nnf_clean(Lit,_,Lit,1).
 
 
-:- ensure_loaded(dbase_i_mpred_pttp_precompiled).
+% :- ensure_loaded(dbase_i_mpred_pttp_precompiled).
+
+
+:- fixup_exports.

@@ -380,10 +380,18 @@ logically_matches(_,A,A).
 %
 axiom_lhs_to_rhs(_,poss(beliefs(A,~F1)),~nesc(knows(A,F1))).
 
+is_leave_alone(P):- \+ compound(P),!.
+is_leave_alone(P):- leave_as_is_logically(P),!.
+is_leave_alone(P):- functor(P,F,A),is_leave_alone_pfa(P,F,A).
+
+is_leave_alone_pfa(_,F,_):- arg(_,v((v),(&),(=>),(<=>),(all),(exists),(~)),F),!,fail.
+is_leave_alone_pfa(_,assertTemplateReln,_).
+is_leave_alone_pfa(_,mudEquals,2).
+
 :- discontiguous(nnf/5).
 :- discontiguous(axiom_lhs_to_rhs/3).
 %====== drive negation inward ===
-%  nnf(KB,+Fml,+FreeV,-NNF,-Paths)
+%%  nnf(KB,+Fml,+FreeV,-NNF,-Paths) is det.
 %
 % Fml,NNF:    See above.
 % FreeV:      List of free variables in Fml.
@@ -391,20 +399,19 @@ axiom_lhs_to_rhs(_,poss(beliefs(A,~F1)),~nesc(knows(A,F1))).
 
 % nnf(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf(KB,Fin,FreeV,NNF,Paths)),fail.
 
-
-%= 	 	 
-
-%% nnf( ?KB, ?Lit, ?FreeV, ?Pos, :PRED1Paths) is semidet.
-%
-% Negated Normal Form.
-%
 nnf(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
-nnf(_KB,Lit,FreeV,Lit,1):- var(Lit),!,ignore(FreeV=[Lit]).
+
+nnf(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
+nnf(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
+nnf(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
+
+nnf(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
+
 %nnf(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,trace_or_throw(bad_numbervars(Lit)),ignore(FreeV=[Lit]).
-nnf(KB,Lit,FreeV,Pos,Paths):- is_ftVar(Lit),!,nnf(KB,true_t(Lit),FreeV,Pos,Paths).
-nnf(_KB,true_t(Lit),_FreeV,true_t(Lit),1):- is_ftVar(Lit),!.
-nnf(_KB,Fml,_,Fml,1):- \+ compound(Fml), !.
-nnf(_KB,Fml,_,Fml,1):- leave_as_is(Fml), !. 
+% % nnf(KB,Lit,FreeV,Pos,Paths):- is_ftVar(Lit),!,nnf(KB,true_t(Lit),FreeV,Pos,Paths).
+% % nnf(_KB,true_t(Lit),_FreeV,true_t(Lit),1):- is_ftVar(Lit),!.
+
+% nnf(_KB,Fml,_,Fml,1):- leave_as_is_logically(Fml), !. 
 
 nnf(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
 
@@ -549,7 +556,6 @@ nnf(KB,atmost(N,X,Fml),FreeV,NNF,Paths):-
 	NewN is N - 1,
 	nnf(KB,&(exists(Y,FmlY),atmost(NewN,X,Fml)),FreeV,NNF,Paths).
 
-
 nnf(KB, ~( xor(X , Y)),FreeV,NNF,Paths):-
    !,
    nnf(KB,v(&(X , Y) , &( ~( X) ,  ~( Y))),FreeV,NNF,Paths).
@@ -651,21 +657,18 @@ nnf(KB,Fml,FreeV,NNF,Paths):-
 nnf(_, ~( Fml),_FreeV, ~( Fml),1):- is_ftVar(Fml),!,push_dom(Fml,ftSentence).
 % nnf(KB,Fml,_,Fml,1):- Fml=..[F,KB,_],third_order(F),!.
 
-
-nnf(KB,[F|ARGS],FreeV,[F2|ARGS2],N):- !,
-   nnf(KB,F,FreeV,F2,N1),
-   nnf(KB,ARGS,FreeV,ARGS2,N2),
-   N is N1 + N2 - 1.
-
-nnf(KB,Fml,FreeV,Out,Paths):- Fml=..[F|FmlA], 
-   arg(_,v((v),(&),(=>),(<=>)),F),!,
-   nnf(KB,FmlA,FreeV,NNF,Paths),Out =..[F| NNF],!.
-
+nnf(_KB,mudEquals(A,B),FreeV,mudEquals(A,B),1):- is_ftVar(A), !,no_freev(FreeV).
+nnf(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
 nnf(KB,Fml,FreeV,FmlO,N):- 
-   arg(_,Fml,Arg),is_function(Arg),
-   function_to_predicate(Arg,NewVar,PredifiedFunction),
-   subst_except(Fml,Arg,NewVar,FmlMid),!,
-   nnf(KB,all(NewVar,(PredifiedFunction & FmlMid)),FreeV,FmlO,N).
+  compound(Fml),
+  \+ is_precond_like(Fml),
+  arg(_,Fml,Function),
+  compound(Function),
+  notrace(is_function_expr(Function)),
+  % notrace(\+ has_function(Function)),
+  function_to_predicate(Function,NewVar,PredifiedFunction),!,
+  subst(Fml,Function,NewVar,FmlMid),!,
+  nnf(KB,all(NewVar,(PredifiedFunction => FmlMid)),FreeV,FmlO,N).
 
 /*
 nnf(KB,Fml,FreeV,Out,Path):- Fml=..[F,A],third_order(F),  
@@ -673,15 +676,47 @@ nnf(KB,Fml,FreeV,Out,Path):- Fml=..[F,A],third_order(F),
   Fml2=..[F,KB,NNF1],nnf(KB,Fml2,FreeV,Out,Path2),Path is Path1+Path2.
 */
 
+/*
+
+nnf(KB,[F|ARGS],FreeV,[F2|ARGS2],N):- !,
+   nnf(KB,F,FreeV,F2,N1),
+   nnf(KB,ARGS,FreeV,ARGS2,N2),
+   N is N1 + N2 - 1.
+
+nnf(KB,[F|Fml],FreeV,Out,Paths):- 
+  arg(_,v((v),(&),(=>),(<=>)),F),
+  nnf(KB,Fml,FreeV,NNF,Paths),
+  Out =..[F| NNF],!.
+
+*/
+
+nnf(KB,Fml,FreeV,Out,Paths):- 
+   Fml=..[F|FmlA], 
+   arg(_,v((v),(&),(=>),(<=>)),F),!,
+   nnf_l(KB,FmlA,FreeV,NNF,Paths),
+   Out =..[F|NNF],!.
+
 % nnf(KB, IN,FreeV,OUT,Paths):- simplify_cheap(IN,MID),IN\=@=MID,nnf(KB, MID,FreeV,OUT,Paths).
-nnf(KB,[F|Fml],FreeV,Out,Paths):- arg(_,v((v),(&),(=>),(<=>)),F),nnf(KB,Fml,FreeV,NNF,Paths),Out =..[F| NNF],!.
 % nnf(_KB , IN,[],OUT,1):- mnf(IN,OUT),IN\=OUT,!.
 nnf(KB,Fml,FreeV,FmlO,N):- must((nonegate(KB,Fml,FmlM),nnf_lit(KB,FmlM,FreeV,FmlO,N))).
 nnf(_KB,Fml,_,Fml,1):-!.
 
+
+nnf_l(KB,[FmlA],FreeVA,[NNFA],PathsA):-!,
+ nnf(KB,FmlA,FreeVA,NNFA,PathsA),!.
+nnf_l(KB,[FmlA|FmlS],FreeV,[NNFA|NNFS],Paths):-
+ nnf(KB,FmlA,FreeVA,NNFA,PathsA),
+ nnf_l(KB,FmlS,FreeVS,NNFS,PathsS),
+ append(FreeVS,FreeVA,FreeV),
+ Paths is PathsA + PathsS.
+nnf_l(_KB,[],[],[],0).
+
+no_freev(FreeV):- ignore(FreeV=[]).
+
 nnf_lit(KB,all(X,Fml),FreeV,all(X,FmlO),N):- nonvar(Fml),!,nnf_lit(KB,Fml,FreeV,FmlO,N).
 nnf_lit(KB, ~( Fml),FreeV, ~( FmlO),N):- nonvar(Fml),!,nnf_lit(KB,Fml,FreeV,FmlO,N).
 
+nnf_lit(_KB,Fml,FreeV,Fml,1):- functor(Fml,_,N),N>2,!,no_freev(FreeV).
 nnf_lit(KB,Fml,FreeV,FmlO,N3):- 
    Fml=..[F|ARGS],
    nnf_args(Fml,F,1,KB,ARGS,FreeV,FARGS,N1),
@@ -692,9 +727,9 @@ nnf_lit(KB,Fml,FreeV,FmlO,N3):-
 nnf_args(_Sent,_F,_N,_KB,[],_FreeV,[],0):- !.
 
 nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-  
- push_cond(FA,admittedArgument(FA,N,F)),
+ nop(closure_push(FA,admittedArgument(FA,N,F))),
  % push_dom(A,argIsaFn(F,N)),
- must((nnf(KB,A,FreeV,FA,N1),sanity(number(N1)))),!,
+ must((nnf_arg(KB,A,_FreeV,FA,N1),sanity(number(N1)))),!,
  % push_dom(FA,argIsaFn(F,N)),
  % annote(lit,FA,Sent),
   NPlus1 is N + 1,
@@ -702,16 +737,32 @@ nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-
   must(N3 is (N1 + N2 -1)).
 
 
+nnf_arg(_KB,A,FreeV,A,1):- notrace(is_arg_leave_alone(A)),!,no_freev(FreeV).
+nnf_arg(KB,A,FreeV,FA,N1):-  nnf(KB,A,FreeV,FA,N1).
+
+is_arg_leave_alone(A):- ground(A).
+is_arg_leave_alone(A):- is_lit_atom(A).
 
 %% is_lit_atom( ?IN) is semidet.
 %
 % If Is A Literal Atom.
 %
-is_lit_atom(IN):- leave_as_is(IN),!.
-is_lit_atom(IN):- subst_except(IN,'&','*',M),subst_except(M,'v','*',O),!,O==IN.
+is_lit_atom(IN):- leave_as_is_logically(IN),!.
+is_lit_atom(IN):- \+ is_sent_with_f(IN).
+
+is_sent_with_f(In):- sent_funct(F),subst(In,F,*,O),O \== In.
+
+sent_funct((&)).
+sent_funct((v)).
+sent_funct((all)).
+sent_funct((exists)).
+sent_funct((=>)).
+sent_funct((<=>)).
+sent_funct((~)).
+
 
 /*
-mnf(Var,Var):-leave_as_is(Var),!.
+mnf(Var,Var):-leave_as_is_logically(Var),!.
 mnf(Fml,Out):-boxRule(_,Fml,M),Fml\=M,mnf(M,Out).
 mnf(Fml,Out):-diaRule(_,Fml,M),Fml\=M,mnf(M,Out).
 mnf(poss(DBT,A=>B),Out):- diaRule(_,poss(DBT,v( ~(-,B),A)),M),mnf(M,Out).
@@ -746,11 +797,19 @@ third_order(asserted_t).
 %
 % Datalog Rule.
 %
-boxRule(_KB,BOX, BOX):-leave_as_is(BOX),!.
+boxRule(_KB,BOX, BOX):-leave_as_is_logically(BOX),!.
 boxRule(KB,nesc(BDT,&(A,B)), &(BA,BB)):- nonvar(A),!, boxRule(KB,nesc(BDT,A),BA), boxRule(KB,nesc(BDT,B),BB).
 boxRule(KB,nesc(BDT, IN), BOX):- \+ is_lit_atom(IN), share_scopes(KB,BDT), nnf(KB, ~( nesc(BDT,  ~( IN))),BOX).
 boxRule(_KB,BOX, BOX).
  
+
+leave_as_is_logically(Box):- \+ compound(Box),!.
+leave_as_is_logically('$VAR'(_)):-!.
+leave_as_is_logically(NART):-functor(NART,nartR,_),!,ground(NART).
+% leave_as_is_logically(~LIST):-!,leave_as_is_logically(LIST).
+leave_as_is_logically(LIST):- is_list(LIST),!, maplist(leave_as_is_logically,LIST).
+
+% leave_as_is_logically(~Box):- leave_as_is_logically(Box).
 
 %= 	 	 
 
@@ -759,7 +818,7 @@ boxRule(_KB,BOX, BOX).
 % Dia Rule.
 %
 diaRule(KB,A,B):- convertAndCall(as_dlog,diaRule(KB,A,B)).
-diaRule(_KB,BOX, BOX):-leave_as_is(BOX),!.
+diaRule(_KB,BOX, BOX):-leave_as_is_logically(BOX),!.
 diaRule(KB,poss(BDT,v(A,B)), v(DA,DB)):- !, diaRule(KB,poss(BDT,A),DA), diaRule(KB,poss(BDT,B),DB).
 diaRule(_KB,DIA, DIA).
 
@@ -771,7 +830,7 @@ diaRule(_KB,DIA, DIA).
 % Cir Rule.
 %
 cirRule(KB,A,B):- convertAndCall(as_dlog,cirRule(KB,A,B)).
-cirRule(_KB,BOX, BOX):-leave_as_is(BOX),!.
+cirRule(_KB,BOX, BOX):-leave_as_is_logically(BOX),!.
 cirRule(KB,cir(CT,v(A,B)), v(DA,DB)):- !, cirRule(KB,cir(CT,A),DA), cirRule(KB,cir(CT,B),DB).
 cirRule(KB,cir(CT,&(A,B)), &(DA,DB)):- !, cirRule(KB,cir(CT,A),DA), cirRule(KB,cir(CT,B),DB).
 cirRule(_KB,CIR, CIR).
@@ -784,7 +843,7 @@ cirRule(_KB,CIR, CIR).
 %
 % Corrected Modal Recurse.
 %
-corrected_modal_recurse(_,Var,OUT):-leave_as_is(Var),!,OUT=Var.
+corrected_modal_recurse(_,Var,OUT):-leave_as_is_logically(Var),!,OUT=Var.
 corrected_modal_recurse(KB, IN, OUT):- corrected_modal(KB,IN,OUTM),!,OUT=OUTM.
 corrected_modal_recurse(KB, IN, OUTM):- corrected_modal_recurse0(KB, IN, M),!,
   (IN=@=M->OUT=M;corrected_modal_recurse(KB, M, OUT)),!,OUT=OUTM.
@@ -796,7 +855,7 @@ corrected_modal_recurse(KB, IN, OUTM):- corrected_modal_recurse0(KB, IN, M),!,
 %
 % Corrected Modal Recurse Primary Helper.
 %
-corrected_modal_recurse0(_,Var,OUT):-leave_as_is(Var),!,OUT=Var.
+corrected_modal_recurse0(_,Var,OUT):-leave_as_is_logically(Var),!,OUT=Var.
 corrected_modal_recurse0(KB, IN,FOO):-  is_list(IN),!, must_maplist(corrected_modal_recurse(KB), IN,FOO ),!.
 corrected_modal_recurse0(KB, H,FOO):-  compound(H),!,H=..[F|ARGS], must_maplist(corrected_modal_recurse(KB), ARGS,FOOL ),!,FOO=..[F|FOOL].
 corrected_modal_recurse0(_, INOUT,  INOUT):- !.
@@ -821,7 +880,7 @@ corrected_modal(KB,IN,OUTM):-
 %
 % Corrected Modal Primary Helper.
 %
-corrected_modal0(_,Var,_):-leave_as_is(Var),!,fail.
+corrected_modal0(_,Var,_):-leave_as_is_logically(Var),!,fail.
 corrected_modal0(_,nesc(BDT,F),nesc(BDT,F)):-!.
 corrected_modal0(_,poss(BDT,F),poss(BDT,F)):-!.
 corrected_modal0(_,until(CT,A,B),until(CT,A,B)):-!.
@@ -918,7 +977,7 @@ b_d_p(always,sometimes).
 % Confunctive Normal Form.
 %
 cnf(KB,A,B):- convertAndCall(as_dlog,cnf(KB,A,B)).
-cnf(_KB,AS_IS,       AS_IS):-leave_as_is(AS_IS),!.
+cnf(_KB,AS_IS,       AS_IS):-leave_as_is_logically(AS_IS),!.
 cnf(KB,&(P,Q), &(P1,Q1)):- !, cnf(KB,P, P1), cnf(KB,Q, Q1).
 cnf(KB,v(P,Q),     CNF):- !, cnf(KB,P, P1), cnf(KB,Q, Q1), cnf1(KB, v(P1,Q1), CNF ).
 cnf(_KB,CNF,       CNF).
@@ -930,7 +989,7 @@ cnf(_KB,CNF,       CNF).
 %
 % Confunctive Normal Form Secondary Helper.
 %
-cnf1(_KB,AS_IS,       AS_IS):-leave_as_is(AS_IS),!.
+cnf1(_KB,AS_IS,       AS_IS):-leave_as_is_logically(AS_IS),!.
 cnf1(KB, v(LEFT, R), &(P1,Q1) ):- nonvar_unify(LEFT , &(P,Q)), !, cnf1(KB, v(P,R), P1), cnf1(KB, v(Q,R), Q1).
 cnf1(KB, v(P, RIGHT), &(P1,Q1) ):- nonvar_unify(RIGHT , &(Q,R)), !, cnf1(KB, v(P,Q), P1), cnf1(KB, v(P,R), Q1).
 cnf1(_KB, CNF,                 CNF).
@@ -942,7 +1001,7 @@ cnf1(_KB, CNF,                 CNF).
 %
 % Nonvar Unify.
 %
-nonvar_unify(NONVAR,UNIFY):- \+ leave_as_is(NONVAR),  NONVAR=UNIFY.
+nonvar_unify(NONVAR,UNIFY):- \+ leave_as_is_logically(NONVAR),  NONVAR=UNIFY.
 
 %=%
 %=% Disjunctive Normal Form (DNF) : assumes Fml in NNF
@@ -956,7 +1015,7 @@ nonvar_unify(NONVAR,UNIFY):- \+ leave_as_is(NONVAR),  NONVAR=UNIFY.
 % Disjunctive Normal Form.
 %
 dnf(KB,A,B):- convertAndCall(as_dlog,dnf(KB,A,B)).
-dnf(_KB,AS_IS,       AS_IS):-leave_as_is(AS_IS),!.
+dnf(_KB,AS_IS,       AS_IS):-leave_as_is_logically(AS_IS),!.
 dnf(KB, v(P,Q),  v(P1,Q1) ):- !, dnf(KB,P, P1), dnf(KB,Q, Q1).
 dnf(KB, &(P,Q), DNF):- !, dnf(KB,P, P1), dnf(KB,Q, Q1), dnf1(KB,&(P1,Q1), DNF).
 dnf(_KB,DNF,       DNF).
@@ -981,7 +1040,7 @@ dnf1(_KB,DNF,                  DNF ).
 % Simplify Cheap.
 %
 simplify_cheap(IN,OUT):-nonvar(OUT),!,simplify_cheap(IN,M),!,OUT=M.
-simplify_cheap(IN,IN):- leave_as_is(IN),!.
+simplify_cheap(IN,IN):- leave_as_is_logically(IN),!.
 simplify_cheap(nesc(BDT,OUT),OUT):- !,nonvar(OUT),is_modal(OUT,BDT),!.
 simplify_cheap(poss(BDT,nesc(BDT,IN)),OUT):- simplify_cheap_must(poss(BDT,IN),OUT).
 simplify_cheap(poss(BDT,poss(BDT,IN)),OUT):- simplify_cheap_must(poss(BDT,IN),OUT).
@@ -1000,7 +1059,7 @@ simplify_cheap( ~( poss(_,  ~(  F))), F):-nonvar(F),!.
 %
 % Simplify Cheap Must Be Successfull.
 %
-simplify_cheap_must(IN,IN):- leave_as_is(IN),!.
+simplify_cheap_must(IN,IN):- leave_as_is_logically(IN),!.
 simplify_cheap_must(IN,OUT):- simplify_cheap(IN,OUT).
 simplify_cheap_must(IN,IN).
 
@@ -1032,7 +1091,7 @@ pnf(KB, F,PNF):- pnf(KB,F,[],PNF),!.
 %
 pnf(A,B,C,D):- convertAndCall(as_dlog,pnf(A,B,C,D)),!.
 
-pnf(_,Var,_ ,Var):- leave_as_is(Var),!.
+pnf(_,Var,_ ,Var):- leave_as_is_logically(Var),!.
 
 pnf(_, [],  _,           []):- !.
 
@@ -1182,7 +1241,7 @@ removeQ_LC(KB, MID,FreeV,OUT):-loop_check(removeQ(KB, MID,FreeV,OUT)).
 %
 % Remove Q.
 %
-removeQ(_,Var,_ ,Var):- leave_as_is(Var),!.
+removeQ(_,Var,_ ,Var):- leave_as_is_logically(Var),!.
 
 removeQ(KB, IN,FreeV,OUT):-  once(simplify_cheap(IN,MID)), IN\=@=MID, removeQ_LC(KB, MID,FreeV,OUT),!.
 
@@ -1260,7 +1319,7 @@ demodal_sents(KB,I,O):- must_det_l((demodal(KB,I,M),modal2sent(M,O))).
 % Demodal.
 %
 demodal(KB,In,Prolog):- call_last_is_var(demodal(KB,In,Prolog)),!.
-demodal(_KB,Var, Var):- quietly(leave_as_is(Var)),!.
+demodal(_KB,Var, Var):- quietly(leave_as_is_logically(Var)),!.
 demodal(KB,[H|T],[HH|TT]):- !, demodal(KB,H,HH),demodal(KB,T,TT).
 demodal(KB,  ~( H),  ~( HH)):-!, demodal(KB,H, HH),!.
 
@@ -1302,8 +1361,8 @@ atom_compat(F,HF,HHF):- fail,F\=HF, is_sent_op_modality(F),is_sent_op_modality(H
 %
 % Modal2sent.
 %
-modal2sent(Var, Var):- quietly(leave_as_is(Var)),!.
-modal2sent(G,O):- G=..[F,H], \+ leave_as_is(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], modal2sent(GG,O).
+modal2sent(Var, Var):- quietly(leave_as_is_logically(Var)),!.
+modal2sent(G,O):- G=..[F,H], \+ leave_as_is_logically(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], modal2sent(GG,O).
 modal2sent([H|T],[HH|TT]):- !, must(( modal2sent(H,HH),modal2sent(T,TT))),!.
 modal2sent(H,HH ):- H=..[F|ARGS],!,must_maplist(modal2sent,ARGS,ARGSO),!,HH=..[F|ARGSO].
 

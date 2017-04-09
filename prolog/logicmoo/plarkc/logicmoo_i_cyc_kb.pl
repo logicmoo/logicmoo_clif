@@ -135,14 +135,7 @@ cycl_to_mpred0(V,V).
 %  cycl_to_mpred( (grandparent('$VAR'('G'),'$VAR'('C')) => thereExists('$VAR'('P'), and(parent('$VAR'('G'),'$VAR'('P')),parent('$VAR'('P'),'$VAR'('C'))))),O).
 
 
-/*
-:- multifile(t/3).
-:- multifile(t/4).
-:- multifile(t/5).
-:- multifile(t/6).
-:- multifile(t/7).
-:- multifile(t/8).
-*/
+
 into_mpred_form_locally(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_locally(V,R):- into_mpred_form(V,R),!. 
 
@@ -150,31 +143,108 @@ freeze_u(V,G):- freeze(V,call_u(G)).
 
 :- kb_shared(rtLogicalConnective/1).
 
+get_LogicalConnective(F):- call_u(rtLogicalConnective(F)).
+
 as_compound(G):- compound(G),!.
-as_compound(G):- rtLogicalConnective(F),connective_arity(F,A),functor(G,F,A).
+as_compound(G):- get_LogicalConnective(F),connective_arity(F,A),functor(G,F,A).
 as_compound(G):- between(2,11,A),functor(G,t,A).
 
-connective_arity(equiv,2):-!.
-connective_arity(implies,2):-!.
-connective_arity(not,1):-!.
-connective_arity(_,A):-between(2,11,A).
+connective_arity(F,A):- connective_arity0(F,A).
+connective_arity(_,A):- between(2,11,A).
+connective_arity0(equiv,2):-!.
+connective_arity0(implies,2):-!.
+connective_arity0(not,1):-!.
+
+inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
+
+tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
+tAsserted(P):- 
+   asserted_id(P,_).
+
+ist(MT,P):- istAsserted(MT,P).
+
+istAsserted(MT,P):- kb7166:assertion_content(ist,MT,P,_).
+%istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
+istAsserted(MT,P):- asserted_id(P,ID),assertion_mt(ID,MT).
+
+% Y=verbSemTrans(xIndicateTheWord,X,xTransitiveThatClauseFrame,and(isa('ACTION',eventInformationTransferEvent),informationOrigin('ACTION','SUBJECT'),infoTransferred('ACTION','CLAUSE'))),rtrace(kif_to_boxlog(Y,BL)).
 
 
-tAsserted(ist(MT,P)):- !, istAsserted(P,MT).
-tAsserted(P):- as_compound(P),asserted_id(P,_).
-
-istAsserted(P,MT):- kb7166:assertion_content(ist,MT,P,_).
-istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
-
-istAsserted0(P,MT):- istAsserted0(P,ID),assertion_mt(ID,MT).
-
-
-asserted_id(P,ID):- P=..[F,F1|ARGS],append(ARGS,[ID],ARGSID),
-   (F==t -> (AP=..[assertion_content,F1|ARGSID],freeze_u(F1,\+ rtLogicalConnective(F1)));
+asserted_id(P,ID):- compound(P), P=..[F,F1|ARGS],append(ARGS,[ID],ARGSID),
+   (F==t -> (AP=..[assertion_content,F1|ARGSID],nop(freeze_u(F1,\+ get_LogicalConnective(F1))));
             AP=..[assertion_content,F,F1|ARGSID]),!,
-   call(kb7166:AP).
+   call(kb7166:AP),
+   varnamify(ID),
+   guardify(ID).
+asserted_id(PO,ID):- var(PO),
+   % current_predicate(assertion_content/N),
+   between(3,13,N2),N is 16-N2,
+   current_predicate(assertion_content/N),
+   functor(AP,assertion_content,N),
+   AP=..[assertion_content,F|PARGS],
+   append(ARGS,[ID],PARGS),
+   call(kb7166:AP),
+   ((
+    varnamify(ID),
+    ((atom(F) -> P=..[F|ARGS]; P=..[t,F|ARGS])),
+    litterally_guard(ID,P,PO))).
 
 
+litterally_guard(ID,I,O):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),
+   add_guard_list(I,List,O),!.
+litterally_guard(_,IO,IO).
+
+add_guard_list(IO,[],IO):-!.
+add_guard_list(I,[List],List=>I):-!.
+add_guard_list(I,List,AList=>I):- AList=..[and|List].
+
+guardify(ID):- assertion_variable_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),
+  must_maplist(maybe_add_guard,List).
+guardify(_).
+
+maybe_add_guard('quotedIsa'(_,'ftExpression')).
+maybe_add_guard(G):-term_variables(G,Vars),maplist(maybe_add_guard_2(G),Vars).
+
+maybe_add_guard_2(G,Var):-add_dom(Var,G).
+
+and_conj_to_list(C,[C]):- var(C),!.
+and_conj_to_list([],[]):- !.
+and_conj_to_list(C,C):- \+ compound(C),!.
+and_conj_to_list(AND,List):- AND=..[and|List],!.
+and_conj_to_list(C,[C]).
+
+varnamify(ID):- assertion_varnames(ID,NAMES),!,ID=..[_|VARS],maplist(varnamify,VARS,NAMES).
+varnamify(_).
+varnamify(Var,String):- string_to_atom(String,Atom),nb_current('$variable_names',Was),!,b_setval('$variable_names',[Atom=Var|Was]),
+ name_variable(Var,Atom).
+
+badz:- asserted_id(t(P,A,zzzz),ID),dmsg(badz(asserted_id(t(P,A,zzzz),ID))),fail.
+badz:- asserted_id(t(P,zzzz,B),ID),dmsg(asserted_id(t(P,zzzz,B),ID)),fail.
+badz:- asserted_id(t(zzzz,A,B),ID),dmsg(asserted_id(t(zzzz,A,B),ID)),fail.
+
+asserted_boxlog:- asserted_boxlog(BoxLog),nl,nl,maplist(wdmsg,BoxLog),nl,nl,fail.
+
+/*
+
+
+X = 
+
+  defunctionalize(implies(isa(YEAR, tClazzCalendarYear), temporallyFinishedBy(YEAR, uU(iTimeOf_SecondFn, 59, uU(iTimeOf_MinuteFn, 59, uU(iTimeOf_HourFn, 23, uU(iTimeOf_DayFn, 31, uU(iTimeOf_MonthFn, vDecember, YEAR))))))),O)
+
+
+rtrace(kif_to_boxlog(
+ sourceSchemaObjectID(SOURCE, SCHEMA, uU(uSourceSchemaObjectFn, SOURCE, SCHEMA, ID), ID),BL))
+
+rtrace(kif_to_boxlog(
+ sourceSchemaObjectID(SOURCE, SCHEMA, THING, uU(uSourceSchemaObjectIDFn, SOURCE, SCHEMA, THING)),BL)).
+
+X = or(holdsIn(YEAR, isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iMexico))), holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE))),
+  rtrace(kif_to_boxlog(X,BL)).
+
+*/
+
+% asserted_boxlog(BoxLog):- asserted_id(P,ID),atomic(ID),dmsg(asserted_id(P,ID)),once(kif_to_boxlog(P,BoxLog)).
+asserted_boxlog(BoxLog):- asserted_id(P,ID),compound(ID),dmsg(asserted_id(P,ID)),once(kif_to_boxlog(P,BoxLog)).
 
 :- ain(tAsserted(isa(F,rtLogicalConnective))==>rtLogicalConnective(F)).
 
@@ -184,31 +254,49 @@ asserted_id(P,ID):- P=..[F,F1|ARGS],append(ARGS,[ID],ARGSID),
 
 :- ain((mtUndressedMt(iEnglishParaphraseMt))).
 
-cyc_ain(P):-ainz(P,(kb7166,ax)).
+cyc_ain(P):- mpred_ainz(P,(kb7166,ax)),writeq(P),nl.
 
 fix_head(HEAD,FHEAD):- fully_expand(HEAD,FHEAD).
-  
+
+pred_in_mt(F,A,MT,Type):- no_repeats(pred_in_mt0(F,A,MT,Type)).
+
+pred_in_mt0(F,A,MT0,Type0):-
+  pred_in_mt1(_QQ,F,A,MT0,Type0).
+
+pred_in_mt1(QQ,F,A,MT0,Type0):- 
+  asserted_id(QQ,ID),
+  assertion_mt(ID,MT),
+  append_dir(ID,fact,Type),  
+  preds_fa_s(Type,Type0,MT,QQ,F,A,MT0).
+
+append_dir(ID,I,O):- assertion_forward(ID),!,append_dir0(f,I,O).
+append_dir(ID,I,O):- assertion_backward(ID),!,append_dir0(b,I,O).
+append_dir(ID,I,O):- assertion_code(ID),!,append_dir0(c,I,O).
+append_dir(_, I,O):- append_dir0(u,I,O).
+
+append_dir0(C,fact,C):-!.
+append_dir0(C,I,O):- O=..[C,I].
+
+
+preds_fa_s(_Type,_Type0,_MT,QQ,_,_,_MT0):- \+ compound(QQ),!,fail.
+preds_fa_s(Type,Type0,_,ist(MT,QQ),F0,A0,MT0):- !,preds_fa_s(Type,Type0,MT,QQ,F0,A0,MT0).
+preds_fa_s(Type,Type0,MT,not(Q),F0,A0,MT0):- !,preds_fa_s(not(Type),Type0,MT,Q,F0,A0,MT0).
+preds_fa_s(Type,Type0,MT,knows(A,Q),F0,A0,MT0):- !, preds_fa_s(knows(Type),Type0,modal(A,MT),Q,F0,A0,MT0).
+preds_fa_s(Type,Type0,MT,implies(P,Q),F0,A0,MT0):- !, (preds_fa_s(antec(Type),Type0,MT,P,F0,A0,MT0); preds_fa_s(consq(Type),Type0,MT,Q,F0,A0,MT0)).
+preds_fa_s(Type,Type0,MT,QQ,F0,A0,MT0):- 
+   functor(QQ,F,A),
+   ((get_LogicalConnective(F),append_dir0(F,Type,FType))
+      -> (arg(_,QQ,Arg),preds_fa_s(FType,Type0,MT,Arg,F0,A0,MT0)) ;
+       (F0=F,A0=A,MT=MT0,Type=Type0)).
+
+scyc:- forall(pred_in_mt(F,A,MT,Type), cyc_ain(cycPredMtType(F,A,MT,Type))).
+
 % ?- assertion_content(isa,X,Y,O),assertion_mt(O,MT).
 /*
 
- forall(
- ((current_predicate(assertion_content/N),NN is N-2,
-   functor(P,assertion_content,N),
-   arg(1,P,F),arg(N,P,ID))),
-   forall(no_repeats(F,(P,assertion_mt(ID,MT), mtUndressedMt(MT))),
-    ((cyc_ain(cycPredUndressed(F,NN)))))).
-
- 
- 
- forall(
- ((current_predicate(assertion_content/N),NN is N-2,
-   functor(P,assertion_content,N),
-   arg(1,P,F),arg(N,P,ID))),
-   forall(no_repeats(F-MT,(P, \+ cycPredUndressed(F,NN), assertion_mt(ID,MT), \+ mtUndressedMt(MT))),
-    ((cyc_ain(cycPredDressed(F,NN)))))).
-
 :- forall(
- ((current_predicate(assertion_content/N),
+ ((% current_predicate(assertion_content/N),
+   between(3,13,N),
    functor(P,assertion_content,N),P=..[assertion_content,F|PARGS],
    functor(PP,assertion_content,N),PP=..[assertion_content,F|FARGS],
    append(ARGS,[ID],PARGS),
