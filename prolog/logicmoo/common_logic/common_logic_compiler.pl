@@ -429,16 +429,16 @@ is_leave_alone_pfa(_,mudEquals,2).
 % FreeV:      List of free variables in Fml.
 % Paths:      Number of disjunctive paths in Fml.
 
-% nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
+nnf(KB,Lit,FreeV,LitO,N):- nnf1(KB,Lit,FreeV,LitO,N),!.
 
-nnf(KB,Lit,FreeV,LitO,N):- nnf1(KB,Lit,FreeV,LitO,N).
+% nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
 nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
 
-nnf1(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
 nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
 nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
 
+nnf1(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
 nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
 
 %nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,trace_or_throw(bad_numbervars(Lit)),ignore(FreeV=[Lit]).
@@ -447,7 +447,7 @@ nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
 
 % nnf1(_KB,Fml,_,Fml,1):- leave_as_is_logically(Fml), !. 
 
-nnf1(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf1(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
+% % nnf1(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf1(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
 
 nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F), Fin \=@= F,!,nnf(KB,F,FreeV,NNF,Paths).
 
@@ -496,6 +496,7 @@ nnf1(KB,until(CT,A,B),FreeV,NNF,Paths):-  set_is_lit(A),set_is_lit(B),  share_sc
 nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
   nnf(KB,occuring(TIMESPAN) => TRUTH,FreeV,NNF,Paths).
 
+
 nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  nnf(KB,temporallySubsumes(TIMESPAN,TRUTH),FreeV,NNF,Paths).
 nnf1(KB,temporallySubsumes(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
  nnf(KB,(until(CT,TRUTH,~TIMESPAN)&until(CT,~TRUTH,TIMESPAN)),FreeV,NNF,Paths).
@@ -514,95 +515,6 @@ nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
     nnf(KB,exists(X,exists(MORE,NNF)),FreeV,FmlO,Paths).
 nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- get_quantifier_isa(TypedX,X,Col),
     nnf(KB,exists(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths).
-
-nnf1(KB,Fml,FreeV,FmlO,Paths):-
-  breakup_nnf(KB,Fml,FmlM),
-  Fml\=@=FmlM,
-  nnf(KB,FmlM,FreeV,FmlO,Paths).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% breakup_nnf(KB,+F1,?F2)
-% uses LTL equivalencies to split up LTL formulae
-% for example, always(and(f,g)) is converted
-% into and(always(f),always(g))
-% These transformations are useful to prevent
-% blowup in the size of the automata
-%breakup_nnf(KB,eventually(F),X) :- !, breakup_nnf(KB,until(CT,true,F),X).
-%breakup_nnf(KB,~(eventually(F)),X) :- !, breakup_nnf(KB,~(until(CT,true,F)),X).
-
-breakup_nnf(KB,(X & Y),(Xp & Yp)) :-
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,(X v Y),(Xp v Yp)) :-
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-	
-
-breakup_nnf(KB,~(X),~(Xp)) :-
-	breakup_nnf(KB,X,Xp).
-
-breakup_nnf(KB,(X => Y),(Xp => Yp)) :-
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,(X <=> Y),(Xp <=> Yp)) :-
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-
-/*
-breakup_nnf(KB,knows(Agt,(X v Y)), ~beliefs(Agt,(~X & ~Y)) :- !,
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,knows(AG,(~X v ~Y)), ~ beliefs(AG,(U & V))) :- !, 
-   breakup_nnf(KB,X,U), breakup_nnf(KB,Y,V).
-
-*/
-
-breakup_nnf(KB,knows(Agt,(X & Y)),(knows(Agt,Xp) & knows(Agt,Yp))) :- ! ,
-   breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,beliefs(Agt,(X & Y)),(beliefs(Agt,Xp) & beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
-breakup_nnf(KB,beliefs(Agt,(X v Y)),(beliefs(Agt,Xp) v beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp),breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,knows(E,P),knows(E,Q)) :- nnf(KB,P,[],Q,_), !.
-
-
-breakup_nnf(KB,cir(CT,(X & Y)),(cir(CT,Xp) & cir(CT,Yp))) :- ! ,
-	breakup_nnf(KB,X,Xp),
-	breakup_nnf(KB,Y,Yp).
-
-breakup_nnf(KB,cir(CT,X),cir(CT,Xp)) :- !,  breakup_nnf(KB,X,Xp).
-
-
-breakup_nnf(KB,until(CT,(X & Y),Z),(U & V)) :- !,
-	breakup_nnf(KB,until(CT,X,Z),U),
-	breakup_nnf(KB,until(CT,Y,Z),V).
-
-breakup_nnf(KB,until(CT,X,(Y v Z)),(U v V)) :- !,
-	breakup_nnf(KB,until(CT,X,Y),U),
-	breakup_nnf(KB,until(CT,X,Z),V).
-
-breakup_nnf(KB,until(CT,X,Y),until(CT,Xp,Yp)) :- !, breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
-
-
-breakup_nnf(KB,release(CT,(X v Y),Z),(U v V)) :- !,
-	breakup_nnf(KB,release(CT,X,Z),U),
-	breakup_nnf(KB,release(CT,Y,Z),V).
-
-breakup_nnf(KB,release(CT,X,(Y & Z)),(U & V)) :- !,
-	breakup_nnf(KB,release(CT,X,Y),U),
-	breakup_nnf(KB,release(CT,X,Z),V).
-
-
-
-breakup_nnf(KB,release(CT,X,Y),release(CT,Xp,Yp)) :- !, breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
-
-
-
-breakup_nnf(_KB,X,X).
 
 % ==== quantifiers ========
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
@@ -756,9 +668,18 @@ nnf1(KB,Fml,FreeV,NNF,Paths):-
 */   
 
 nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
-	(Fml = ( ~( A)) -> must(double_neg(KB,A,Fml1));
+      (Fml = (beliefs(BDT,~F)) -> Fml1 = knows(BDT, ( F));
+       Fml = (knows(BDT,~F)) -> Fml1 = beliefs(BDT, ( F));
+       Fml = ('<=>'(A,B)) -> Fml1 = v(&(A,  ~( B)) , &( ~( A), B) )
+	),!,
+       must(nnf1(KB,Fml1,FreeV,NNF,Paths)).
+
+nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
+
+        (Fml = ( ~( A)) -> must(double_neg(KB,A,Fml1));
          Fml = (nesc(BDT,F)) -> Fml1 = poss(BDT, ~( F));
 	 Fml = (poss(BDT,F)) -> Fml1 = nesc(BDT, ~( F));
+
 	 Fml = (cir(CT,F)) -> Fml1 = cir(CT, ~( F));
 	 Fml = (until(CT,A,B)) -> 
             (nnf(KB, ~( A),FreeV,NNA,_), nnf(KB, ~( B),FreeV,NNB,_),Fml1 = v(always(CT,NNB), until(CT,NNB,&(NNA,NNB))));
@@ -784,10 +705,13 @@ nnf1(KB,Fml,FreeV,NNF,Paths):-
 	),!, nnf(KB,Fml1,FreeV,NNF,Paths).
 
 nnf1(_, ~( Fml),_FreeV, ~( Fml),1):- is_ftVar(Fml),!,push_dom(Fml,ftSentence).
-% nnf(KB,Fml,_,Fml,1):- Fml=..[F,KB,_],third_order(F),!.
 
 nnf1(_KB,mudEquals(A,B),FreeV,mudEquals(A,B),1):- is_ftVar(A), !,no_freev(FreeV).
+
 nnf1(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
+
+% nnf(KB,Fml,_,Fml,1):- Fml=..[F,KB,_],third_order(F),!.
+
 nnf1(KB,Fml,FreeV,FmlO,N):- 
   compound(Fml),
   \+ is_precond_like(Fml),
@@ -812,12 +736,12 @@ nnf1(KB,[F|ARGS],FreeV,[F2|ARGS2],N):- !,
    nnf(KB,ARGS,FreeV,ARGS2,N2),
    N is N1 + N2 - 1.
 
-nnf1(KB,[F|Fml],FreeV,Out,Paths):- 
-  arg(_,v((v),(&),(=>),(<=>)),F),
-  nnf(KB,Fml,FreeV,NNF,Paths),
-  Out =..[F| NNF],!.
-
 */
+
+nnf1(KB,Fml,FreeV,FmlO,Paths):-
+  breakup_nnf(KB,Fml,FmlM),
+  Fml\=@=FmlM,
+  nnf(KB,FmlM,FreeV,FmlO,Paths).
 
 nnf1(KB,Fml,FreeV,Out,Paths):- 
    Fml=..[F|FmlA], 
@@ -881,15 +805,127 @@ is_arg_leave_alone(A):- is_lit_atom(A).
 is_lit_atom(IN):- leave_as_is_logically(IN),!.
 is_lit_atom(IN):- \+ is_sent_with_f(IN).
 
-is_sent_with_f(In):- sent_funct(F),subst(In,F,*,O),O \== In.
+is_sent_with_f(In):- is_a_sent_funct(F),subst(In,F,*,O),O \== In.
 
-sent_funct((&)).
-sent_funct((v)).
-sent_funct((all)).
-sent_funct((exists)).
-sent_funct((=>)).
-sent_funct((<=>)).
-sent_funct((~)).
+is_a_sent_funct((&)).
+is_a_sent_funct((v)).
+is_a_sent_funct((all)).
+is_a_sent_funct((exists)).
+is_a_sent_funct((=>)).
+is_a_sent_funct((<=>)).
+is_a_sent_funct((~)).
+
+is_sent_like(XY):- \+ compound(XY),!,fail.
+is_sent_like(_ & _).
+is_sent_like(_ v _).
+is_sent_like(_ => _).
+is_sent_like(_ <=> _).
+is_sent_like(all(_ , _)).
+is_sent_like(exists(_ , _)).
+% is_sent_like(~ _ ).
+is_sent_like(~ XY ):- is_sent_like(XY).
+
+must_distribute_maybe(KB,PAB,Was,OUT):-
+  subst(PAB,Was,NewArg,NewPab),
+  functor(PAB,F,_),
+  must((arg(N,PAB,Arg),Arg==Was)),
+  copy_term(NewPab:NewArg,CNewPab:CWas),
+  CWas='$$val$$',
+  must(distribute_on(F-N,KB,
+      subst(CNewPab,CWas),Was,OUT)).
+
+:- meta_predicate distribute_on(*,*,2,?,?).
+
+distribute_on(_What,_KB,RE,XY,SAME):- \+ is_sent_like(XY),!, reconstuct(RE,XY,SAME).
+distribute_on(_What,KB,RE,XY,SAME):- compound(KB),functor(XY,F,_), cant_distrubute_on(F,KB),!,reconstuct(RE,XY,SAME).
+distribute_on(What,_KB,RE,XY,SAME):- functor(XY,F,_), cant_distrubute_on(F,What),!, reconstuct(RE,XY,SAME).
+distribute_on(What,KB,RE,((X v Y)),(RECON1 v RECON2)) :- !, distribute_on(What,KB,RE,X,RECON1), distribute_on(What,KB,RE,Y,RECON2).
+distribute_on(What,KB,RE,((X & Y)),(RECON1 & RECON2)) :- !, distribute_on(What,KB,RE,X,RECON1), distribute_on(What,KB,RE,Y,RECON2).
+distribute_on(What,KB,RE,((X => Y)),(RECON1 => RECON2)) :- ! , distribute_on(What,KB,RE,X,RECON1), distribute_on(What,KB,RE,Y,RECON2).
+distribute_on(What,KB,RE,((X <=> Y)),(RECON1 <=> RECON2)) :- ! , distribute_on(What,KB,RE,X,RECON1), distribute_on(What,KB,RE,Y,RECON2).
+distribute_on(What,KB,RE,(all(V, X)),all(V , RECON1)) :- ! , distribute_on(What,KB,RE,X,RECON1).
+distribute_on(What,KB,RE,(exists(V, X)),exists(V , RECON1)) :- ! , distribute_on(What,KB,RE,X,RECON1).
+distribute_on(What,KB,RE, ~ X , RECON1) :- breakup_nnf(KB,~X,Xp), ( ~X ) \== Xp, ! , distribute_on(What,KB,RE,Xp,RECON1).
+distribute_on(What,KB,RE, X , RECON1) :- breakup_nnf(KB, X,Xp), ( X ) \== Xp, ! , distribute_on(What,KB,RE,Xp,RECON1).
+distribute_on(_What,_KB,RE,XY,SAME):- reconstuct(RE,XY,SAME),!.
+
+:- meta_predicate reconstuct(2,?,?).
+
+reconstuct(RE,Arg,OUT):- must(call(RE,Arg,OUT)).
+
+can_distrubute_on(Sent,F-N):- !, can_distrubute_on(Sent,F,N).
+can_distrubute_on(Sent,FN):-  can_distrubute_on(Sent,FN,0).
+
+cant_distrubute_on(Sent,F-N):- !, cant_distrubute_on(Sent,F,N).
+cant_distrubute_on(Sent,FN):- cant_distrubute_on(Sent,FN,0).
+
+
+can_distrubute_on(Sent,F,N):- \+ cant_distrubute_on(Sent,F,N),!,fail.
+can_distrubute_on(_Sent,_F,_A).
+
+% % cant_distrubute_on(exists,F,A):- cant_distrubute_on(&,F,A).
+% % cant_distrubute_on(all,F,A):- cant_distrubute_on(v,F,A).
+
+cant_distrubute_on(v,release,3).
+cant_distrubute_on(&,release,2).
+
+cant_distrubute_on(v,until,2).
+cant_distrubute_on(&,until,3).
+
+% <Thanatological> Yeah ... it doesn''t appear that knowledge is distributive over disjuction.
+cant_distrubute_on(v,knows,2).
+cant_distrubute_on(&,beliefs,2).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% breakup_nnf(KB,+F1,?F2)
+% uses LTL equivalencies to split up LTL formulae
+% for example, always((f & g)) is converted
+% into (always(f) & always(g))
+% These transformations are useful to prevent
+% blowup in the size of the automata
+%
+% ?- breakup_nnf(KB,sometimes((f & g)),X).
+% X = (sometimes(f) & sometimes(g)).
+
+
+
+%breakup_nnf(KB,eventually(F),X) :- !, breakup_nnf(KB,until(CT,true,F),X).
+%breakup_nnf(KB,~(eventually(F)),X) :- !, breakup_nnf(KB,~(until(CT,true,F)),X).
+
+breakup_nnf(KB,cir(CT,(X & Y)),(cir(CT,Xp) & cir(CT,Yp))) :- ! , breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+breakup_nnf(KB,cir(CT,X),cir(CT,Xp)) :- !,  breakup_nnf(KB,X,Xp).
+
+breakup_nnf(KB,until(CT,(X & Y),Z),(U & V)) :- !, breakup_nnf(KB,until(CT,X,Z),U), breakup_nnf(KB,until(CT,Y,Z),V).
+breakup_nnf(KB,until(CT,X,(Y v Z)),(U v V)) :- !, breakup_nnf(KB,until(CT,X,Y),U), breakup_nnf(KB,until(CT,X,Z),V).
+breakup_nnf(KB,until(CT,X,Y),until(CT,Xp,Yp)) :- !, breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).                                        
+
+breakup_nnf(KB,release(CT,(X v Y),Z),(U v V)) :- !, breakup_nnf(KB,release(CT,X,Z),U), breakup_nnf(KB,release(CT,Y,Z),V).
+breakup_nnf(KB,release(CT,X,(Y & Z)),(U & V)) :- !, breakup_nnf(KB,release(CT,X,Y),U), breakup_nnf(KB,release(CT,X,Z),V).
+breakup_nnf(KB,release(CT,X,Y),release(CT,Xp,Yp)) :- !, breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+
+
+/*
+breakup_nnf(KB,knows(Agt,(X v Y)), ~beliefs(Agt,(~X & ~Y))) :- !,
+	breakup_nnf(KB,X,Xp),
+	breakup_nnf(KB,Y,Yp).
+
+breakup_nnf(KB,knows(AG,(~X v ~Y)), ~ beliefs(AG,(U & V))) :- !, 
+   breakup_nnf(KB,X,U), breakup_nnf(KB,Y,V).
+
+*/
+breakup_nnf(KB,beliefs(Agt,(X & Y)),(beliefs(Agt,Xp) & beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+% wrong .. breakup_nnf(KB,knows(Agt,(X v Y)),(beliefs(Agt,Xp) v beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp),breakup_nnf(KB,Y,Yp).
+
+breakup_nnf(KB,(X & Y),(Xp & Yp)) :- breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+breakup_nnf(KB,(X v Y),(Xp v Yp)) :- breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+breakup_nnf(KB,~(X),~(Xp)) :- breakup_nnf(KB,X,Xp).
+breakup_nnf(KB,(X => Y),(Xp => Yp)) :- breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+breakup_nnf(KB,(X <=> Y),(Xp <=> Yp)) :- breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
+
+breakup_nnf(KB,PAB,OUT):- \+ is_sent_like(PAB), arg(_,PAB,XY),is_sent_like(XY),!,must(must_distribute_maybe(KB,PAB,XY,OUT)).
+breakup_nnf(KB,knows(E,P),knows(E,Q)) :- nnf(KB,P,[],Q,_), !.
+
+breakup_nnf(_KB,X,X).
 
 
 /*
@@ -1290,8 +1326,8 @@ cf(Why,KB,_Original,PNF, FlattenedO):-
   check_kif_varnames(PNF),
   removeQ(KB,PNF,[], UnQ),
   cnf(KB,UnQ,CNF0),!,
-  nnf(KB,CNF0,[],CNF,_),
-  wdmsg(cnf:-CNF),
+  nnf(KB,CNF0,[],CNF,_), 
+  % wdmsg(cnf:-CNF),
  call(( conjuncts_to_list(CNF,Conj), make_clause_set([infer_by(Why)],Conj,EachClause),
   must_maplist(correct_cls(KB),EachClause,SOO),
   expand_cl(KB,SOO,SOOO))),
@@ -1303,11 +1339,10 @@ cf(Why,KB,_Original,PNF, FlattenedO):-
   demodal_clauses(KB,FlattenedO2,FlattenedO3),
   demodal_clauses(KB,FlattenedO3,FlattenedO4),
   remove_unused_clauses(FlattenedO4,FlattenedO),
-  pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
+  nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
   boxlog_to_pfc(FlattenedO,PFCPreview),
   pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
-  extract_conditions(PFCPreview,Conds),
-  dmsg(conds= (Conds=>PFCPreview)).
+  extract_conditions(PFCPreview,Conds), dmsg(conds= (Conds=>PFCPreview)))))).
 
 check_kif_varnames(KIF):-check_varnames(KIF),fail.
 check_kif_varnames(KIF):-ground(KIF),!.
@@ -2172,7 +2207,7 @@ correct_boxlog_0(BOXLOG,KB,Why,FlattenedS):-
    must_maplist(removeQ(KB),Flattened,FlattenedM),
    must_maplist(demodal(KB),FlattenedM,FlattenedO),
    predsort(variants_are_equal,FlattenedO,FlattenedS),
-   wdmsgl(horn(FlattenedS)))),!.
+   nop(wdmsgl(horn(FlattenedS))))),!.
 
 
 %= 	 	 

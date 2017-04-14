@@ -816,6 +816,7 @@ write_list([]).
 % Numbervars Using Names.
 %
 
+
 unnumbervars_with_names(Term,CTerm):- !, must(quietly(unnumbervars(Term,CTerm))),!.
 unnumbervars_with_names(Term,CTerm):- ground(Term),!,duplicate_term(Term,CTerm).
 
@@ -832,7 +833,7 @@ unnumbervars_with_names(Term,CTerm):-
    copy_term(Term:NamedVars,CTerm:CNamedVars),
    term_variables(CTerm,Vars),
    call((dtrace,get_var_names(Vars,CNamedVars,Names))),
-   b_implode_varnames0(Names),
+   b_implode_varnames(Names),
   % numbervars(CTerm,91,_,[attvar(skip),singletons(false)]),
    append(CNamedVars,NamedVars,NewCNamedVars),
    list_to_set(NewCNamedVars,NewCNamedVarsS),
@@ -973,11 +974,10 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    correct_boxlog([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
 kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
-  must_det_l((draw_line,draw_line)),!,
   must_det_l((
    must(unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why)),
    ensure_quantifiers(WffIn,Wff),
-   wdmsgl(kif(Wff)),!,
+   % wdmsgl(kif(Wff)),!,
    % KB = WffQ,
     check_is_kb(KB),
     must(dif(KB,Why)),
@@ -990,7 +990,8 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
    % add_preconds(Wff6667,Wff6668),
    qualify_nesc(Wff6667,Wff6668),
    adjust_kif(KB,Wff6668,Wff6669),
-   wdmsgl(pkif(Wff6669)),
+   nop(Wff\==Wff6669-> wdmsgl(kif(Wff));true),!,
+   nop(wdmsgl(pkif(Wff6669))),
    must(nnf(KB,Wff6669,NNF)),
    %wdmsgl(nnf(NNF)),
    pnf(KB,NNF,PNF),!,
