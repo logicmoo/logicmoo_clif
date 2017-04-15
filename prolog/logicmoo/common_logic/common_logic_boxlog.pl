@@ -293,7 +293,6 @@ boxlog_to_pfc_pass_2((:-),~(H),~(H)):-  !.
 boxlog_to_pfc_pass_2((:-),H,H):-  !.
 
 
-
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_),!.
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),OUT):- term_slots(H,HV),term_slots(B,BV), HV\==BV,!,boxlog_to_pfc_pass_2(bwc,(~(H):-B),OUT).
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),(BBB==>HH)):- body_for_pfc(fwc,~(H),HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB).

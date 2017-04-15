@@ -433,7 +433,10 @@ nnf(KB,Lit,FreeV,LitO,N):- nnf1(KB,Lit,FreeV,LitO,N),!.
 
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
-nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
+
+nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
+
+nnf1(_KB,Lit,[],Lit,1):- is_list(Lit),!.
 
 nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
 nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
@@ -472,7 +475,7 @@ nnf1(KB,Fin,FreeV,BOX,Paths):- corrected_modal(KB,Fin,nesc(BDT,F)),
 axiom_lhs_to_rhs(all(Vs,poss(BDT,A & B)) ,  ~exists(Vs,nesc(BDT,A & B))).
 
 %   poss(beliefs(A,~F1)) ->  poss(~knows(A,F1)) ->  ~nesc(knows(A,F1))
-nnf1(KB,Fin,FreeV,DIA,Paths):-   copy_term(Fin,Fml),axiom_lhs_to_rhs(KB,F1,F2) , 
+nnf1(KB,Fin,FreeV,DIA,Paths):-  fail,  copy_term(Fin,Fml),axiom_lhs_to_rhs(KB,F1,F2) , 
  \+ \+ (numbervars(Fin,0,_,[attvar(bind)]),logically_matches(KB,Fin,F1)),
   show_success(nnf,(nop(Fml),logically_matches(KB,Fin,F1))),show_call(why,nnf1(KB,F2,FreeV,DIA,Paths)).
 
@@ -570,6 +573,15 @@ nnf1(KB,exists(X,Fml),FreeV,exists(X,NNF),Paths):- (is_skolem_setting(removeQ);i
    add_to_vars(X,FreeV,NewVars),
    nnf(KB,Fml,NewVars,NNF,Paths),!.
 
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
+      nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
+
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- 
+	!,
+	NewN is N - 1,
+        subst_except(Fml,X,Y,FmlY),
+      nnf(KB, exists(Y, (FmlY & (~equals(Y,X)
+       =>  exactly(NewN,X,Fml)))),FreeV,NNF,Paths).
 
 nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
       nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
@@ -578,12 +590,13 @@ nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):-
 	!,
 	NewN is N - 1,
         subst_except(Fml,X,Y,FmlY),
-      nnf(KB,exists(Y,FmlY) & ~equals(Y,X) & atleast(NewN,X,Fml),FreeV,NNF,Paths).
+      nnf(KB, exists(Y, (FmlY & (~equals(Y,X)
+       =>  atleast(NewN,X,Fml)))),FreeV,NNF,Paths).
 
 nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !, 
         subst_except(Fml,X,Y,FmlY),
         Z=X,FmlZ=Fml, % subst_except(Fml,X,Z,FmlZ),
-      nnf(KB, ~((exists(Y,FmlY) & ~equals(Y,Z) & exists(Z,FmlZ))),FreeV,NNF,Paths).
+      nnf(KB,  ~equals(Y,Z) => ~((exists(Y,FmlY) & exists(Z,FmlZ))),FreeV,NNF,Paths).
 
 nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- 
 	!,
@@ -736,18 +749,18 @@ nnf1(KB,[F|ARGS],FreeV,[F2|ARGS2],N):- !,
    nnf(KB,ARGS,FreeV,ARGS2,N2),
    N is N1 + N2 - 1.
 
-*/
-
-nnf1(KB,Fml,FreeV,FmlO,Paths):-
-  breakup_nnf(KB,Fml,FmlM),
-  Fml\=@=FmlM,
-  nnf(KB,FmlM,FreeV,FmlO,Paths).
-
 nnf1(KB,Fml,FreeV,Out,Paths):- 
    Fml=..[F|FmlA], 
    arg(_,v((v),(&),(=>),(<=>)),F),!,
    nnf_l(KB,FmlA,FreeV,NNF,Paths),
    Out =..[F|NNF],!.
+
+*/
+
+nnf1(KB,Fml,FreeV,FmlO,Paths):- no_poss(Fml),
+  breakup_nnf(KB,Fml,FmlM),
+  Fml\=@=FmlM,
+  nnf(KB,FmlM,FreeV,FmlO,Paths).
 
 % nnf(KB, IN,FreeV,OUT,Paths):- simplify_cheap(IN,MID),IN\=@=MID,nnf(KB, MID,FreeV,OUT,Paths).
 % nnf(_KB , IN,[],OUT,1):- mnf(IN,OUT),IN\=OUT,!.
@@ -763,6 +776,10 @@ nnf_l(KB,[FmlA|FmlS],FreeV,[NNFA|NNFS],Paths):-
  append(FreeVS,FreeVA,FreeV),
  Paths is PathsA + PathsS.
 nnf_l(_KB,[],[],[],0).
+
+
+no_poss(Fml):- sub_term(Term,Fml),compound(Term),functor(Term,poss,_),!,fail.
+no_poss(_Fml).
 
 no_freev(FreeV):- ignore(FreeV=[]).
 add_to_vars(X,FreeV,NewVars):- is_list(FreeV),!,list_to_set([X|FreeV],NewVars).
@@ -805,7 +822,7 @@ is_arg_leave_alone(A):- is_lit_atom(A).
 is_lit_atom(IN):- leave_as_is_logically(IN),!.
 is_lit_atom(IN):- \+ is_sent_with_f(IN).
 
-is_sent_with_f(In):- is_a_sent_funct(F),subst(In,F,*,O),O \== In.
+is_sent_with_f(In):- is_a_sent_funct(F),subst(In,F,*,O),O \== In,!.
 
 is_a_sent_funct((&)).
 is_a_sent_funct((v)).
@@ -972,6 +989,7 @@ boxRule(_KB,BOX, BOX).
 
 leave_as_is_logically(Box):- \+ compound(Box),!.
 leave_as_is_logically('$VAR'(_)):-!.
+leave_as_is_logically([]):-!.
 leave_as_is_logically(NART):-functor(NART,nartR,_),!,ground(NART).
 % leave_as_is_logically(~LIST):-!,leave_as_is_logically(LIST).
 leave_as_is_logically(LIST):- is_list(LIST),!, maplist(leave_as_is_logically,LIST).
@@ -1329,6 +1347,7 @@ cf(Why,KB,_Original,PNF, FlattenedO):-
   nnf(KB,CNF0,[],CNF,_), 
   % wdmsg(cnf:-CNF),
  call(( conjuncts_to_list(CNF,Conj), make_clause_set([infer_by(Why)],Conj,EachClause),
+  sanity(is_list(EachClause)),
   must_maplist(correct_cls(KB),EachClause,SOO),
   expand_cl(KB,SOO,SOOO))),
   sort(SOOO,SET),
@@ -1532,32 +1551,49 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
      (remove_unused_clauses(FlattenedO4,FlattenedM),FlattenedO=[Unused|FlattenedM]).
 
 unused_clause(unused(C):-_):-nonvar(C),!.
-unused_clause(naf(C):- ~ _):-nonvar(C),!.
+% unused_clause(naf(C):- ~ _):-nonvar(C),!.
 
 demodal_clauses(_KB,Var, Var):- var_or_atomic(Var),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
 demodal_clauses(KB,List,ListO):- is_list(List),!,must_maplist(demodal_clauses(KB),List,ListO),!.
 demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO),!.
 
-demodal_body(_KB,~ _Head,(skolem(_,B), \+ G), \+ G ):- nonvar(B),nonvar(G),!.
+% demodal_body(_KB,~ _Head,(skolem(_,B), \+ G), \+ G ):- nonvar(B),nonvar(G),!.
 demodal_body(_KB,_Head,Var, Var):- var_or_atomic(Var),!.
 demodal_body(KB,Head,List,ListO):- is_list(List),!,must_maplist(demodal_body(KB,Head),List,ListO),!.
-% demodal_clauses(KB,G,O):- G=..[F,H], \+ leave_as_is(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], demodal_clauses(KB,GG,O).
-demodal_body(_KB,_Head,naf(~skolem(A,B)),skolem(A,B)):- nonvar(B),!.
 demodal_body(KB,Head,[H|T],[HH|TT]):- !, must(( demodal_body(KB,Head,H,HH),demodal_body(KB,Head,T,TT))),!.
-demodal_body(_KB, ~ _Head,(G1,G2), (G1 , \+ GG2)):- G2 \= (_,_), G2 = ~(GG2).
-demodal_body(_KB,_Head,(G1,G2), (G1, poss(GG2) )):- G2 \= (_,_), G2 = ~(GG2), nonvar(GG2).
+% demodal_clauses(KB,G,O):- G=..[F,H], \+ leave_as_is(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], demodal_clauses(KB,GG,O).
+
+demodal_body(_KB,_Head,naf(~skolem(A,B)),skolem(A,B)):- nonvar(B),!.
+
+%demodal_body(_KB, ~ _Head,(G1,G2), (G1 , \+ GG2)):- G2 \= (_,_), G2 = ~(GG2).
+%demodal_body(_KB,_Head,(G1,G2), (G1, poss(GG2) )):- G2 \= (_,_), G2 = ~(GG2), nonvar(GG2).
 demodal_body(_KB,_Head,poss([infer_by(_)],G), \+ ~ G):- G \= ~ _.
-demodal_body(_KB,_Head, poss(G), \+ ~ G).
+% demodal_body(_KB,_Head, poss(G), \+ ~ G).
 demodal_body(_KB,_Head,nesc([infer_by(_)],G),G):- G \= ~ _.
-demodal_body(_KB,_Head,naf(~ G), G):- nonvar(G),!.
+demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, poss(isa(I,C)), isa(I,C)):- !.
+
+demodal_body(_KB,_Head, naf(~ G), poss(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, ~ (~ G), proven(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, \+ (~ G), proven(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, \+ (~ G), poss(G)):- nonvar(G),!.
 % demodal_body(_KB,~ _Head,skolem(_,B),true):- nonvar(B),!.
-demodal_body(_KB,~ _Head,(~ ISA , \+ G),\+ ( G,ISA )):- nonvar(G),!.
-demodal_body(_KB,~ _Head,(G , \+ ISA),\+ ( G,ISA )):- nonvar(G),!.
-demodal_body(_KB,  _Head, \+ ~ (~G), ~G):- nonvar(G),!.
- 
+% demodal_body(_KB,~ _Head,(~ ISA , \+ G),\+ ( G,ISA )):- nonvar(G),!.
+% demodal_body(_KB,~ _Head,(G , \+ ISA),\+ ( G,ISA )):- nonvar(G),!.
+% demodal_body(_KB,  _Head, \+ ~ (~G), ~G):- nonvar(G),!.
+demodal_body(_KB, Head, ( H, poss(G) ) , (H, G)):- pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
+demodal_body(_KB, Head, ( poss(G) , H) , (G, H)):-  pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
+demodal_body(_KB, Head, ( poss(G) ) , (G)):-  shared_vars(Head,G,SVG),SVG=[].
+demodal_body(_KB, Head, ( poss(G) ) , (G)):- Head \= ~ _,!.
+
 demodal_body(KB,Head,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal_body(KB,Head),ARGS,ARGSO),!,HH=..[F|ARGSO].
 
+pos_or_isa(isa(_,_)).
+pos_or_isa(poss(_)).
+
+pred_of(~ Head, Head).
+pred_of(Head, Head).
 
 demodal_head_body(KB,Head,Body,(Head:-BodyO)):- term_attvars(Head,AttVars),include(AttVars,is_skolem,HeadAttVars),
   term_attvars(Body,BodyAttVars),subtract_eq(HeadAttVars,BodyAttVars,SKList),
@@ -1570,7 +1606,11 @@ demodal_head_body(KB,Head,Body,(HeadO:-BodyO)):-
    conjoin(HeadExtra,Body,NewBod),
    demodal_body(KB,Head,NewBod,BodyO),!.
 
-demodal_head(_KB,~skolem(A,B),unused(~skolem(A,B)),true):- nonvar(B),!.
+% demodal_head(_KB,~skolem(A,B),unused(~skolem(A,B)),true):- nonvar(B),!.
+demodal_head(_KB,~skolem(A,B),unused_skolem(A,B),true):- nonvar(B),!.
+demodal_head(_KB,~equals(A,B),not_equals(A,B),true):-!.
+demodal_head(_KB,~isa(A,B),not_isa(A,B),true):- nonvar(B),!.
+demodal_head(_KB,naf(~Head),poss(Head),true):- !.
 demodal_head(_KB,Head,Head,true):- !.
 demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 
@@ -2124,6 +2164,7 @@ correct_cls(KB,H,HH):-loop_check(correct_cls0(KB,H,HH),H=HH),!.
 %
 % Correct Clauses Primary Helper.
 %
+correct_cls0(_KB,CL0,CL0):- is_ftVar(CL0),!.
 correct_cls0(KB,CL0,CL1):- is_list(CL0),!,must_maplist(correct_cls(KB),CL0,CL1).
 correct_cls0(KB,(H,T),HHTT):-!,correct_cls(KB,H,HH),correct_cls(KB,T,TT),append(HH,TT,HHTT).
 correct_cls0(KB,(H:-B),O):-!,conjuncts_to_list(H,HH),conjuncts_to_list(B,BB),correct_cls0(KB,cl(HH,BB),O).

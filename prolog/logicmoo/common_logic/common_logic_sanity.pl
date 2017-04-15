@@ -17,7 +17,7 @@
 */
 
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/common_logic_sanity.pl
-:- module(common_logic_sanity,[test_boxlog/1,test_boxlog/2,test_defunctionalize/1]).       
+:- module(common_logic_sanity,[]).       
 
 :-
  op(1199,fx,('==>')), 
@@ -36,21 +36,18 @@
 
 :- ensure_loaded(library(logicmoo_snark)).
 
- % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
-
-test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
-
-test_defunctionalize(I):-defunctionalize(I,O),wdmsg(O).
-
-test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(P,O),nl,nl,
-  b_implode_varnames(O),(is_list(O)->maplist(portray_one_line,O);dmsg(O)),flush_output.
-
-test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,nl,test_boxlog(P,O),nl,nl,
-  (is_list(O)->maplist(portray_one_line,O);wdmsgl(O)),flush_output.
-
 :- use_module(library(script_files)).
 
 :- process_this_script.
+
+ 
+:- asserta((fst:-  set_prolog_flag(write_attributes,ignore),freeze(X,(\+ is_ftVar(X),X==[]->(dumpST,break);true)),rtrace((trace,test_boxlog(~ &(human(X), male(X))))))).
+
+:- export(fst/0).
+
+
+
+
 
 
 % ============================================================
@@ -127,96 +124,107 @@ test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,n
  %       \+ ~eats(joe,X),
  %       \+ ~food(X).
 
+% ============================================================================================
+% At least one man exists
+% ============================================================================================
+
+ :- test_boxlog(atleast(1,X,man(X))).
+
+ % ============================================================================================
+ % At least three men exist
+ % ============================================================================================
+
+ :- test_boxlog(atleast(3,X,man(X))).
 
 % ============================================================================================
 % Organized Groups of prolog programmers have prolog programmers as members
 % ============================================================================================
 
-:- test_boxlog(implies(and(isa(M,tGroupedPrologOrganization),hasMembers(M,A)), isa(A,tClazzPrologPerson))).
+:- test_boxlog(implies(and(instance(M,tGroupedPrologOrganization),hasMembers(M,A)), instance(A,tClazzPrologPerson))).
 
 
 /*
- ~hasMembers(_11164,_11142):- \+ (isa(_11164,tGroupedPrologOrganization),isa(_11142,tClazzPrologPerson)).
- ~isa(_11540,tGroupedPrologOrganization):- \+ (hasMembers(_11540,_11518),isa(_11518,tClazzPrologPerson)).
- isa(_11874,tClazzPrologPerson):-isa(_11896,tGroupedPrologOrganization),hasMembers(_11896,_11874).
+ ~hasMembers(_11164,_11142):- \+ (instance(_11164,tGroupedPrologOrganization),instance(_11142,tClazzPrologPerson)).
+ ~instance(_11540,tGroupedPrologOrganization):- \+ (hasMembers(_11540,_11518),instance(_11518,tClazzPrologPerson)).
+ instance(_11874,tClazzPrologPerson):-instance(_11896,tGroupedPrologOrganization),hasMembers(_11896,_11874).
 */ 
  
 % ============================================================================================
 %  Those competeing in watersports may not wear shoes
 % ============================================================================================
-:- test_boxlog( =>(isa(ATH,tAgent),implies(and(isa(COMP,actAquaticSportsEvent),
-  competingAgents(COMP,ATH)),holdsIn(COMP,all(CLOTHING,not(and(isa(CLOTHING,tObjectShoe),wearsClothing(ATH,CLOTHING)))))))).
+:- test_boxlog( =>(instance(ATH,tAgent),implies(and(instance(COMP,actAquaticSportsEvent),
+  competingAgents(COMP,ATH)),holdsIn(COMP,all(CLOTHING,not(and(instance(CLOTHING,tObjectShoe),wearsClothing(ATH,CLOTHING)))))))).
 /*
- ~competingAgents(_20514,_20492):- ~holdsIn(_20514,v(~isa(_20470,tObjectShoe),~wearsClothing(_20492,_20470))),isa(_20514,actAquaticSportsEvent),isa(_20492,tAgent)
- ~isa(_20902,tAgent):- ~holdsIn(_20858,v(~isa(_20880,tObjectShoe),~wearsClothing(_20902,_20880))),isa(_20858,actAquaticSportsEvent),competingAgents(_20858,_20902)
- ~isa(_21272,actAquaticSportsEvent):- ~holdsIn(_21272,v(~isa(_21250,tObjectShoe),~wearsClothing(_21228,_21250))),competingAgents(_21272,_21228),isa(_21228,tAgent)
- holdsIn(_21612,v(~isa(_21634,tObjectShoe),~wearsClothing(_21590,_21634))):-isa(_21612,actAquaticSportsEvent),competingAgents(_21612,_21590),isa(_21590,tAgent)
+ ~competingAgents(_20514,_20492):- ~holdsIn(_20514,v(~instance(_20470,tObjectShoe),~wearsClothing(_20492,_20470))),instance(_20514,actAquaticSportsEvent),instance(_20492,tAgent)
+ ~instance(_20902,tAgent):- ~holdsIn(_20858,v(~instance(_20880,tObjectShoe),~wearsClothing(_20902,_20880))),instance(_20858,actAquaticSportsEvent),competingAgents(_20858,_20902)
+ ~instance(_21272,actAquaticSportsEvent):- ~holdsIn(_21272,v(~instance(_21250,tObjectShoe),~wearsClothing(_21228,_21250))),competingAgents(_21272,_21228),instance(_21228,tAgent)
+ holdsIn(_21612,v(~instance(_21634,tObjectShoe),~wearsClothing(_21590,_21634))):-instance(_21612,actAquaticSportsEvent),competingAgents(_21612,_21590),instance(_21590,tAgent)
 */
  % ~occuring(COMP) :-
- %       isa(ATH, tAgent),
- %       isa(COMP, actAquaticSportsEvent),
+ %       instance(ATH, tAgent),
+ %       instance(COMP, actAquaticSportsEvent),
  %       competingAgents(COMP, ATH),
- %       isa(CLOTHING, tObjectShoe),
+ %       instance(CLOTHING, tObjectShoe),
  %       wearsClothing(ATH, CLOTHING).
  % ~competingAgents(COMP, ATH) :-
- %       isa(ATH, tAgent),
- %       isa(COMP, actAquaticSportsEvent),
+ %       instance(ATH, tAgent),
+ %       instance(COMP, actAquaticSportsEvent),
  %       occuring(COMP),
- %       isa(CLOTHING, tObjectShoe),
+ %       instance(CLOTHING, tObjectShoe),
  %       wearsClothing(ATH, CLOTHING).
- % ~isa(CLOTHING, tObjectShoe) :-
- %       isa(ATH, tAgent),
- %       isa(COMP, actAquaticSportsEvent),
+ % ~instance(CLOTHING, tObjectShoe) :-
+ %       instance(ATH, tAgent),
+ %       instance(COMP, actAquaticSportsEvent),
  %       competingAgents(COMP, ATH),
  %       occuring(COMP),
  %       wearsClothing(ATH, CLOTHING).
- % ~isa(COMP, actAquaticSportsEvent) :-
- %       isa(ATH, tAgent),
+ % ~instance(COMP, actAquaticSportsEvent) :-
+ %       instance(ATH, tAgent),
  %       competingAgents(COMP, ATH),
  %       occuring(COMP),
- %       isa(CLOTHING, tObjectShoe),
+ %       instance(CLOTHING, tObjectShoe),
  %       wearsClothing(ATH, CLOTHING).
- % ~isa(ATH, tAgent) :-
- %       isa(COMP, actAquaticSportsEvent),
+ % ~instance(ATH, tAgent) :-
+ %       instance(COMP, actAquaticSportsEvent),
  %       competingAgents(COMP, ATH),
  %       occuring(COMP),
- %       isa(CLOTHING, tObjectShoe),
+ %       instance(CLOTHING, tObjectShoe),
  %       wearsClothing(ATH, CLOTHING).
  % ~wearsClothing(ATH, CLOTHING) :-
- %       isa(ATH, tAgent),
- %       isa(COMP, actAquaticSportsEvent),
+ %       instance(ATH, tAgent),
+ %       instance(COMP, actAquaticSportsEvent),
  %       competingAgents(COMP, ATH),
  %       occuring(COMP),
- %       isa(CLOTHING, tObjectShoe).
+ %       instance(CLOTHING, tObjectShoe).
 
 % ================================================================================================================
 %  When sightgseeing is occuring .. there is a tourist present
 % ================================================================================================================
-:- test_boxlog(implies(and(isa(Act,actSightseeing),performedBy(Person,Act)),holdsIn(Act,isa(Person,mobTourist)))).
+:- test_boxlog(implies(and(instance(Act,actSightseeing),performedBy(Person,Act)),holdsIn(Act,instance(Person,mobTourist)))).
 
 /* OLD
- ~isa(_11704,actSightseeing):- \+ (performedBy(_11704,_11682),holdsIn(_11704,isa(_11682,mobTourist)))
- ~performedBy(_12092,_12070):- \+ (isa(_12092,actSightseeing),holdsIn(_12092,isa(_12070,mobTourist)))
- holdsIn(_12442,isa(_12420,mobTourist)):-isa(_12442,actSightseeing),performedBy(_12442,_12420)
+ ~instance(_11704,actSightseeing):- \+ (performedBy(_11704,_11682),holdsIn(_11704,instance(_11682,mobTourist)))
+ ~performedBy(_12092,_12070):- \+ (instance(_12092,actSightseeing),holdsIn(_12092,instance(_12070,mobTourist)))
+ holdsIn(_12442,instance(_12420,mobTourist)):-instance(_12442,actSightseeing),performedBy(_12442,_12420)
 
 */
  % ~occuring(Act) :-
- %       \+ ( isa(Act, actSightseeing),
+ %       \+ ( instance(Act, actSightseeing),
  %            naf(~performedBy(Person, Act)),
- %            isa(Y, mobTourist)
+ %            instance(Y, mobTourist)
  %          ).
- % ~isa(Act, actSightseeing) :-
+ % ~instance(Act, actSightseeing) :-
  %       \+ ( performedBy(Person, Act),
  %            naf(~occuring(Act)),
- %            isa(Y, mobTourist)
+ %            instance(Y, mobTourist)
  %          ).
  % ~performedBy(Person, Act) :-
- %       \+ ( isa(Act, actSightseeing),
+ %       \+ ( instance(Act, actSightseeing),
  %            naf(~occuring(Act)),
- %            isa(Y, mobTourist)
+ %            instance(Y, mobTourist)
  %          ).
- % isa(Y, mobTourist) :-
- %       isa(Act, actSightseeing),
+ % instance(Y, mobTourist) :-
+ %       instance(Act, actSightseeing),
  %       performedBy(Person, Act),
  %       occuring(Act).
 
@@ -247,63 +255,63 @@ test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,n
 %  No one whom pays taxes in North america can be a dependant of another in the same year
 % ================================================================================================================
 :- test_boxlog(or(
-  holdsIn(YEAR, isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))),
-  holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), 
-  holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iMexico))), 
-  holdsIn(YEAR, isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), 
+  holdsIn(YEAR, instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))),
+  holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), 
+  holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iMexico))), 
+  holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), 
   forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, _SUPPORTEE)))).
 
 
  % ~occuring(YEAR) :-
- %       ~isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
+ %       ~instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
  %       \+ ( ( forbiddenToDoWrt(iCW_USIncomeTax,
  %                               SUPPORTER,
  %                               claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)),
- %              isa(PERSON,
+ %              instance(PERSON,
  %                  nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))
  %            ),
- %            isa(PERSON, nartR(mobTaxResidentsFn, iMexico))
+ %            instance(PERSON, nartR(mobTaxResidentsFn, iMexico))
  %          ).
- % isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)) :-
+ % instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)) :-
  %       occuring(YEAR),
- %       ~isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iMexico)),
+ %       ~instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iMexico)),
  %       \+ ~forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)).
- % isa(PERSON, nartR(mobTaxResidentsFn, iMexico)) :-
+ % instance(PERSON, nartR(mobTaxResidentsFn, iMexico)) :-
  %       occuring(YEAR),
- %       ~isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
  %       \+ ~forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)).
- % isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)) :-
+ % instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)) :-
  %       occuring(YEAR),
- %       ~isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iMexico)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iMexico)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
  %       \+ ~forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)).
- % isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)) :-
+ % instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)) :-
  %       occuring(YEAR),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iMexico)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iMexico)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)),
  %       \+ ~forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)).
  % forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, SUPPORTEE)) :-
  %       occuring(YEAR),
- %       ~isa(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
- %       ~isa(PERSON, nartR(mobTaxResidentsFn, iMexico)),
- %       \+ ~isa(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)).
+ %       ~instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada)),
+ %       ~instance(PERSON, nartR(mobTaxResidentsFn, iMexico)),
+ %       \+ ~instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica)).
 
 
 % ================================================================================================================
-%  Something is human or male
+%  Something is human or god
 % ================================================================================================================
-:- test_boxlog(human(X) v male(X)).
+:- test_boxlog(human(X) v god(X)).
  % human(_19658) :-
- %       ~male(_19658).
- % male(_23530) :-
+ %       ~god(_19658).
+ % god(_23530) :-
  %       ~human(_23530).
 
 % ================================================================================================================
@@ -333,15 +341,45 @@ test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,n
 
 
 
+ :- P= &(human(X), male(X)),
+   test_boxlog(=>(poss(P), P)).
+
+ % human(A) :-
+ %      \+ ~human(A),
+ %      \+ ~male(A).
+ % male(A) :-
+ %      \+ ~human(A),
+ %      \+ ~male(A).
+
+ % These to?
+ % ~human(A) :-
+ %      \+ ( \+ ~male(A),
+ %           human(A)
+ %         ).
+ % ~human(A) :-
+ %      \+ ( \+ ~male(A),
+ %           male(A)
+ %         ).
+ % ~male(A) :-
+ %      \+ ( \+ ~human(A),
+ %           human(A)
+ %         ).
+ % ~male(A) :-
+ %      \+ ( \+ ~human(A),
+ %           male(A)
+ %         ).
+
+
+
 
 % ================================================================================================================
-%  Nothing is both human and male
+%  Nothing is both human and god
 % ================================================================================================================
-:- test_boxlog(~ (human(X) & male(X))).
+:- test_boxlog(~ (human(X) & god(X))).
 
  % ~human(_830) :-
- %       male(_830).
- % ~male(_904) :-
+ %       god(_830).
+ % ~god(_904) :-
  %       human(_904).
 
 % ================================================================================================================
@@ -452,64 +490,64 @@ test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,n
 % ================================================================================================================
 
 :- test_boxlog(implies(
-  and(isa(HOLD, actHoldingAnObject), objectActedOn(HOLD, BIRD), isa(BIRD, tClazzBird), 
-                performedBy(HOLD, PER), isa(PER, mobPerson)), 
+  and(instance(HOLD, actHoldingAnObject), objectActedOn(HOLD, BIRD), instance(BIRD, tClazzBird), 
+                performedBy(HOLD, PER), instance(PER, mobPerson)), 
   holdsIn(HOLD, onPhysical(BIRD, PER))), O),maplist(wdmsg,O).
 
  % ~occuring(_2056) :-
- %       isa(_2056, actHoldingAnObject),
+ %       instance(_2056, actHoldingAnObject),
  %       objectActedOn(_2056, _2078),
- %       isa(_2078, tClazzBird),
+ %       instance(_2078, tClazzBird),
  %       \+ ( performedBy(_2056, _2100),
- %            naf(~isa(_2100, mobPerson)),
+ %            naf(~instance(_2100, mobPerson)),
  %            onPhysical(_2078, _2100)
  %          ).
- % ~isa(_2260, mobPerson) :-
- %       isa(_2282, actHoldingAnObject),
+ % ~instance(_2260, mobPerson) :-
+ %       instance(_2282, actHoldingAnObject),
  %       objectActedOn(_2282, _2304),
- %       isa(_2304, tClazzBird),
+ %       instance(_2304, tClazzBird),
  %       \+ ( performedBy(_2282, _2260),
  %            naf(~occuring(_2282)),
  %            onPhysical(_2304, _2260)
  %          ).
- % ~isa(_2520, tClazzBird) :-
- %       isa(_2542, actHoldingAnObject),
+ % ~instance(_2520, tClazzBird) :-
+ %       instance(_2542, actHoldingAnObject),
  %       objectActedOn(_2542, _2520),
  %       performedBy(_2542, _2564),
- %       \+ ( isa(_2564, mobPerson),
+ %       \+ ( instance(_2564, mobPerson),
  %            naf(~occuring(_2542)),
  %            onPhysical(_2520, _2564)
  %          ).
- % ~isa(_2752, actHoldingAnObject) :-
+ % ~instance(_2752, actHoldingAnObject) :-
  %       objectActedOn(_2752, _2774),
- %       isa(_2774, tClazzBird),
+ %       instance(_2774, tClazzBird),
  %       performedBy(_2752, _2796),
- %       \+ ( isa(_2796, mobPerson),
+ %       \+ ( instance(_2796, mobPerson),
  %            naf(~occuring(_2752)),
  %            onPhysical(_2774, _2796)
  %          ).
  % ~objectActedOn(_2984, _3006) :-
- %       isa(_2984, actHoldingAnObject),
- %       isa(_3006, tClazzBird),
+ %       instance(_2984, actHoldingAnObject),
+ %       instance(_3006, tClazzBird),
  %       performedBy(_2984, _3028),
- %       \+ ( isa(_3028, mobPerson),
+ %       \+ ( instance(_3028, mobPerson),
  %            naf(~occuring(_2984)),
  %            onPhysical(_3006, _3028)
  %          ).
  % ~performedBy(_3190, _3212) :-
- %       isa(_3190, actHoldingAnObject),
+ %       instance(_3190, actHoldingAnObject),
  %       objectActedOn(_3190, _3234),
- %       isa(_3234, tClazzBird),
- %       \+ ( isa(_3212, mobPerson),
+ %       instance(_3234, tClazzBird),
+ %       \+ ( instance(_3212, mobPerson),
  %            naf(~occuring(_3190)),
  %            onPhysical(_3234, _3212)
  %          ).
  % onPhysical(_3396, _3418) :-
- %       isa(_3440, actHoldingAnObject),
+ %       instance(_3440, actHoldingAnObject),
  %       objectActedOn(_3440, _3396),
- %       isa(_3396, tClazzBird),
+ %       instance(_3396, tClazzBird),
  %       performedBy(_3440, _3418),
- %       isa(_3418, mobPerson),
+ %       instance(_3418, mobPerson),
  %       occuring(_3440).
 
 
@@ -532,7 +570,7 @@ test_boxlog(P):- flush_output,fmt(:- test_boxlog(P)), b_implode_varnames(P),nl,n
 
 
 
-:- test_defunctionalize(implies(isa(YEAR, tClazzCalendarYear), temporallyFinishedBy(YEAR, uU(iTimeOf_SecondFn, 59, uU(iTimeOf_MinuteFn, 59, uU(iTimeOf_HourFn, 23, uU(iTimeOf_DayFn, 31, uU(iTimeOf_MonthFn, vDecember, YEAR)))))))).
+:- test_defunctionalize(implies(instance(YEAR, tClazzCalendarYear), temporallyFinishedBy(YEAR, uU(iTimeOf_SecondFn, 59, uU(iTimeOf_MinuteFn, 59, uU(iTimeOf_HourFn, 23, uU(iTimeOf_DayFn, 31, uU(iTimeOf_MonthFn, vDecember, YEAR)))))))).
 
-% >(mudEquals(UUITIMEOF_SECONDFN1_VAR, uU(iTimeOf_SecondFn, 59, UUITIMEOF_MINUTEFN1_VAR)), =>(mudEquals(UUITIMEOF_MINUTEFN1_VAR, uU(iTimeOf_MinuteFn, 59, UUITIMEOF_HOURFN1_VAR)), =>(mudEquals(UUITIMEOF_HOURFN1_VAR, uU(iTimeOf_HourFn, 23, UUITIMEOF_DAYFN1_VAR)), =>(mudEquals(UUITIMEOF_DAYFN1_VAR, uU(iTimeOf_DayFn, 31, UUITIMEOF_MONTHFN1_VAR)), =>(mudEquals(UUITIMEOF_MONTHFN1_VAR, uU(iTimeOf_MonthFn, vDecember, _200)), implies(isa(_200, tClazzCalendarYear), temporallyFinishedBy(_200, UUITIMEOF_SECONDFN1_VAR))))))).
+% >(mudEquals(UUITIMEOF_SECONDFN1_VAR, uU(iTimeOf_SecondFn, 59, UUITIMEOF_MINUTEFN1_VAR)), =>(mudEquals(UUITIMEOF_MINUTEFN1_VAR, uU(iTimeOf_MinuteFn, 59, UUITIMEOF_HOURFN1_VAR)), =>(mudEquals(UUITIMEOF_HOURFN1_VAR, uU(iTimeOf_HourFn, 23, UUITIMEOF_DAYFN1_VAR)), =>(mudEquals(UUITIMEOF_DAYFN1_VAR, uU(iTimeOf_DayFn, 31, UUITIMEOF_MONTHFN1_VAR)), =>(mudEquals(UUITIMEOF_MONTHFN1_VAR, uU(iTimeOf_MonthFn, vDecember, _200)), implies(instance(_200, tClazzCalendarYear), temporallyFinishedBy(_200, UUITIMEOF_SECONDFN1_VAR))))))).
 

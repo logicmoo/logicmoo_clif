@@ -1,4 +1,4 @@
-:- module(logicmoo_snark,[]).
+:- module(logicmoo_snark,[test_boxlog/1,test_boxlog/2,test_defunctionalize/1]).
 /** <module> logicmoo_plarkc - special module hooks into the logicmoo engine allow
    clif syntax to be recocogized via our CycL/KIF handlers 
  
@@ -33,7 +33,6 @@
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 % :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
-:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS
@@ -83,8 +82,27 @@ loadSumo3:-
    % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
    !.
 
+ % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
 
-rst:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
+test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
+
+test_defunctionalize(I):-defunctionalize(I,O),wdmsg(O).
+
+
+/*
+test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(P,O),nl,nl,
+   % b_implode_varnames(O),
+  (is_list(O)->maplist(portray_one_line,O);dmsg(O)),flush_output.
+*/
+
+:- export(test_boxlog/1).
+test_boxlog(P):-
+  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
+  flush_output,dmsg(:- test_boxlog(P)), b_implode_varnames(P),nl,nl,test_boxlog(P,O),nl,nl,
+  (is_list(O)->maplist(portray_one_line,O);wdmsgl(O)),flush_output.
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,6 +113,11 @@ rst:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
 :- after_boot(loadSumo2).
 
 :- after_boot(loadSumo3).
+
+
+rst:- cls,make,consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
+:- fixup_exports.
+:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
 
 end_of_file.
 end_of_file.

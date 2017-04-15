@@ -816,9 +816,9 @@ write_list([]).
 % Numbervars Using Names.
 %
 
-
-unnumbervars_with_names(Term,CTerm):- !, must(quietly(unnumbervars(Term,CTerm))),!.
+unnumbervars_with_names(X,X):-!.
 unnumbervars_with_names(Term,CTerm):- ground(Term),!,duplicate_term(Term,CTerm).
+unnumbervars_with_names(Term,CTerm):- must(quietly(unnumbervars(Term,CTerm))),!.
 
 unnumbervars_with_names(Term,CTerm):-
  must_det_l((
@@ -827,13 +827,13 @@ unnumbervars_with_names(Term,CTerm):-
    b_implode_varnames0(CNamedVars))),!.
 
 
- unnumbervars_with_names(Term,CTerm):-
+unnumbervars_with_names(Term,CTerm):-
   must_det_l((
    source_variables_l(NamedVars),
    copy_term(Term:NamedVars,CTerm:CNamedVars),
    term_variables(CTerm,Vars),
    call((dtrace,get_var_names(Vars,CNamedVars,Names))),
-   b_implode_varnames(Names),
+   b_implode_varnames0(Names),
   % numbervars(CTerm,91,_,[attvar(skip),singletons(false)]),
    append(CNamedVars,NamedVars,NewCNamedVars),
    list_to_set(NewCNamedVars,NewCNamedVarsS),
@@ -1184,7 +1184,9 @@ clauses_to_boxlog(KB,Why,In,Prolog):- clauses_to_boxlog_0(KB,Why,In,Prolog).
 %
 % clauses Converted To Datalog  Primary Helper.
 %
-clauses_to_boxlog_0(KB,Why,In,Prolog):-loop_check(clauses_to_boxlog_1(KB,Why,In,Prolog),show_call(why,(clauses_to_boxlog_5(KB,Why,In,Prolog)))),!.
+clauses_to_boxlog_0(KB,Why,In,Prolog):-
+ loop_check(clauses_to_boxlog_1(KB,Why,In,Prolog),
+    show_call(why,(clauses_to_boxlog_5(KB,Why,In,Prolog)))),!.
 clauses_to_boxlog_0(KB,Why,In,Prolog):-correct_cls(KB,In,Mid),!,clauses_to_boxlog_1(KB,Why,Mid,PrologM),!,Prolog=PrologM.
 
 

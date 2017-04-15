@@ -144,7 +144,7 @@ baseKB:logicmoo_pre_release.
 
 :- if(baseKB:logicmoo_pre_release).
 /*
-:- set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray),spacing(next_argument]).
+:- set_prolog_flag(debugger_write_options,[quoted(true), portray(false), max_depth(1000), attributes(ignore),spacing(next_argument)]).
 :- set_prolog_flag(verbose_autoload, true).
 :- set_prolog_flag(debug, true).
 :- set_prolog_flag(report_error,true),set_prolog_flag(debug_on_error,true).
