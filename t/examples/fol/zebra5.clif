@@ -244,10 +244,4 @@
   (if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
    (and (smokesBrand ?m1 ?b1) (smokesBrand ?m2 ?b2) (different ?b1 ?b2))))
 
-(forall (?h1 tRiddleHouse) 
-   (exists (?b1)
-     (and (livesIn ?h1 ?m1) (smokesBrand ?m1 ?b1))))
-
-
-
-; (ask (and (caresFor ?Who ?Animal) (instance ?Animal tZebra)))
+(fora
