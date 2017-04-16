@@ -1,7 +1,8 @@
-;l
-;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5)).
 ;;/** Module zebra5 - Test Zerbra Puzzle in CLIF for SWI-Prolog
-;; Maintainer: Douglas Miles */
+;; Maintainer: Douglas Miles
+;;
+;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5)).
+;; */
 
 (:- (module zebra5 ()))
 
