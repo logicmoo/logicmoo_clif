@@ -40,7 +40,10 @@ kif_io:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 
 load_clif(File):- 
-  with_lisp_translation(File, kif_process).
+  absolute_file_name(File,Found,[extensions(['','.clif','.kif','.pfc','.pl'])]),
+  with_lisp_translation_cached(Found,=,kif_process_ignore).
+
+kif_process_ignore(P):-ignore(once(kif_process(P))).
 
 :- public(kif_process/1).
 
@@ -51,14 +54,15 @@ load_clif(File):-
 % Knowledge Interchange Format Process.
 %
 kif_process(Var):- is_ftVar(Var),!,wdmsg(warn(var_kif_process(Var))).
+kif_process('$COMMENT'([Assert])):-!, dmsg(Assert).
 % kif_process(Assert):- atom(Assert),set_kif_mode(Assert).
-kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),!,
-   t_l:kif_action_mode(Mode),show_success(kif_process(Mode,Wff)),!.
-kif_process(Wff):- t_l:kif_action_mode(Mode),show_success(kif_process(Mode,Wff)),!.
+kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),t_l:kif_action_mode(Mode),!,ignore(show_call(kif_process(Mode,Wff))),!.
+kif_process(Wff):- t_l:kif_action_mode(Mode),ignore(show_call(kif_process(Mode,Wff))),!.
 
-set_kif_mode(Assert):- must_be(atom,Assert),
-  retractall(t_l:kif_action_mode(_)),asserta(t_l:kif_action_mode(Assert)),
-  fmtl(t_l:kif_action_mode(Assert)),!.
+set_kif_mode(Assert):- ignore((atom(Assert),
+  retractall(t_l:kif_action_mode(_)),
+  asserta(t_l:kif_action_mode(Assert)),
+  fmtl(t_l:kif_action_mode(Assert)))),!.
 
 
 %% kif_process( ?Other, :GoalWff) is det.
@@ -66,8 +70,12 @@ set_kif_mode(Assert):- must_be(atom,Assert),
 % Knowledge Interchange Format Process.
 %
 kif_process(_,Var):- must_be(nonvar,Var),fail.
-kif_process(_,end_of_file):- !.
+kif_process(_,end_of_file):- !,signal_eof(kif_process),!.
 kif_process(_,prolog):- prolog,!.
+
+kif_process(_,'set-kif-option'(Assert)):-!, dmsg('set-kif-option'(Assert)).
+kif_process(_,'$COMMENT'([Assert])):-!, dmsg(Assert).
+kif_process(_,'$COMMENT'(Assert)):-!, dmsg(Assert).
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/0),!,call(Atom).
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/1),!,set_kif_mode(Atom).
 kif_process(_,'kif-mode'(Assert)):- set_kif_mode(Assert).
@@ -76,10 +84,15 @@ kif_process(_,':-'(Wff)):- !, kif_process(call,Wff).
 kif_process(_,'?-'(Wff)):- !, kif_ask(Wff).
 kif_process(_,'ask'(Wff)):- !, kif_ask(Wff).
 kif_process(_,'tell'(Wff)):- !, kif_add(Wff).
+kif_process(call,module(M,Exports)):- !,
+  prolog_load_context(module,Prev),
+  '$set_source_module'(M),
+  maplist(export,Exports),
+  call_on_eof(kif_process,'$set_source_module'(Prev)).
 kif_process(call,Call):- !,call(Call).
 kif_process(tell,Wff):- is_static_predicate(Wff), !, call(Wff).
-kif_process(tell,Wff):- !, kif_add(Wff).
-kif_process(ask,Wff):- !, kif_ask(Wff).
+kif_process(tell,Wff):- !,kif_add(Wff).
+kif_process(ask,Wff):- !,kif_ask(Wff).
 kif_process(Other,Wff):- !, wdmsg(error(missing_kif_process(Other,Wff))),!,fail.
 
 

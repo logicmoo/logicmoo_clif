@@ -1,103 +1,93 @@
-;;/** Module zebra5 - Test Zerbra Puzzle in CLIF for SWI-Prolog
+;; Module zebra5 - Test Zerbra Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
-;;
-;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5)).
-;; */\
-
+;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5))
+;; causes deduction of argument types
 (:- (module zebra5 ()))
-
-(:- (ensure_loaded '(library logicmoo_snark)))
-
-(kif-mode :tell)
-
-(set-kif-option :assume-wff) ;; causes deduction of argument types
-
-(domain livesIn 1 tHuman) 
-(domain livesIn 2 tHouse) 
-
-(domain natOrigin 1 tHuman) 
-(domain natOrigin 2 tCountry) 
-
-(domain colorOf 1 tPhysical) 
-(domain colorOf 2 vtColor) 
-
-(domain address 1 tHouse) 
-(domain address 2 tAddress) 
-(argQuotedIsa address 2 ftInt) 
-
-(domain caresFor 1 tHuman) 
+(:- (ensure_loaded (library logicmoo_snark)))
+(set-kif-option :assume-wff)
+(kif-mode tell)
+(domain livesIn 1 tHuman)
+(domain livesIn 2 tHouse)
+(domain natOrigin 1 tHuman)
+(domain natOrigin 2 tCountry)
+(domain colorOf 1 tPhysical)
+(domain colorOf 2 vtColor)
+(domain address 1 tHouse)
+(domain address 2 tAddress)
+(argQuotedIsa address 2 ftInt)
+(domain caresFor 1 tHuman)
 (domain caresFor 2 tAnimal)
 
 (subclass tNonHumanAnimal tAnimal)
 (subclass tHuman tAnimal)
 (disjointWith tHuman tNonHumanAnimal)
-        
-(domain drinks 1 tHuman) 
+
+(domain drinks 1 tHuman)
 (domain drinks 2 tBeverage)
 
 (typeGenls ttBeverageType tBeverage)
 (instance tCoffee ttBeverageType)
 
-(domain smokesBrand 1 tHuman) 
+(domain smokesBrand 1 tHuman)
 (domain smokesBrand 2 tBrandName)
 (argQuotedIsa smokesBrand 2 ftString)
 
 
-(domain caresForType 1 tHuman) 
-(domainSubclass caresForType 2 tAnimal) 
+(domain caresForType 1 tHuman)
+(domainSubclass caresForType 2 tAnimal)
 
 (iff (caresForType ?m1 ?t1) (and (caresFor ?m1 ?p1) (instance ?p1 ?t1)))
 
-(vtColor vYellow) 
-(vtColor vBlue) 
-(vtColor vGreen) 
-(vtColor vRed) 
+(vtColor vYellow)
+(vtColor vBlue)
+(vtColor vGreen)
+(vtColor vRed)
 (vtColor vIvory)
 
 (domain vtColor 1 Color)
 
 ;; Special Logicmoo operator specific to forward chaining
-(==> 
-  (and (domain ?P ?n ?c)
-     (admittedArgument ?p ?n ?i))   
-  (instance ?i ?c))
+(==>
+(and (domain ?P ?n ?c)
+(admittedArgument ?p ?n ?i))
+(instance ?i ?c))
 
 
 ; ============================================================
-; There are five houses 
+; There are five houses
 ; ============================================================
-(thereExistsExactly 5 ?h1 (instance ?h1 tRiddleHouse)) 
+(thereExistsExactly 5 ?h1 (instance ?h1 tRiddleHouse))
 
 (subclass tRiddleHouse tHouse)
 
 ; All house have a different address
 (forall (?h1 ?h2) (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (different ?h1 ?h2)
- (address ?h1 ?a1) (address ?h2 ?a2))  (different ?a1 ?a2)))
+(address ?h1 ?a1) (address ?h2 ?a2))  (different ?a1 ?a2)))
 
-(address house1 1) 
-(address house2 2) 
-(address house3 3) 
-(address house4 4)                                                          
-(address house5 5) 
+(address house1 1)
+(address house2 2)
+(address house3 3)
+(address house4 4)
+(address house5 5)
 
 ; ============================================================
-; The Englishman lives in the red house 
+; The Englishman lives in the red house
 ; ============================================================
 (exists (?m1 ?h1) (iff (and (livesIn ?m1 ?h1) (natOrigin ?m1 iEngland)) (colorOf ?h1 vRed)))
 
 ; ============================================================
-; The Spaniard owns the dog 
+; The Spaniard owns the dog
 ; ============================================================
 ;; NOTE this file uses purposely overuses instance/2 for performance testing
 (exists (?m1 ?pet) (iff (and (instance ?m1 tHuman) (natOrigin ?m1 iSpain))  (and (caresFor ?m1 ?pet) (instance ?pet tDog))))
 
 ; ============================================================
-; All coffee is drunk in the green house 
+; All coffee is drunk in the green house
 ; ============================================================
 (forall (?b) (and (instance ?b tCoffee)  (drinks ?m1 ?b) (livesIn ?m1 ?h1) (colorOf ?h1 vGreen)))
 
 ; ============================================================
-; The Ukrainian drinks tea 
+; The Ukrainian drinks tea
 ; ============================================================
 (exists (?m1) (if (instance ?m1 tHuman) (natOrigin ?m1 iUkrain)) (and (drinks ?m1 ?b) (instance ?b tTea)))
 
@@ -113,140 +103,140 @@
 (if (nextTo ?h1 ?h2) (nextTo ?h2 ?h1))
 
 ; ============================================================
-; The Old Gold smoker owns snails 
+; The Old Gold smoker owns snails
 ; ============================================================
 
 (exists ((?m1 tHuman)) (and (smokesBrand ?m1 "Old Gold") (caresForType ?m1 tSnail)))
 
 ; ============================================================
-; Kools are smoked in the yellow house 
+; Kools are smoked in the yellow house
 ; ============================================================
 
-(forall (?b1) (cigbrand ?b1 "Kools") (livesIn ?m1 ?h1) (smokesBrand ?m1 ?b1) (colorOf ?h1 vYellow)) 
+(forall (?b1) (cigbrand ?b1 "Kools") (livesIn ?m1 ?h1) (smokesBrand ?m1 ?b1) (colorOf ?h1 vYellow))
 
 ; ============================================================
-; Milk is drunk in the middle house 
+; Milk is drunk in the middle house
 ; ============================================================
 
-(forall (?b1) (instance ?b1 tMilk) (livesIn ?m1 ?h1) (drinks ?m1 ?b1) (address ?h1 3)) 
+(forall (?b1) (instance ?b1 tMilk) (livesIn ?m1 ?h1) (drinks ?m1 ?b1) (address ?h1 3))
 
 ; ============================================================
-; The Norwegian lives in the first house 
+; The Norwegian lives in the first house
 ; ============================================================
 
 (exists (?m1) (and (instance ?m1 tHuman) (natOrigin ?m1 iNorway) (livesIn ?m1 ?h1) (address ?h1 1)))
 
 
 ; ============================================================
-; The man who smokesBrand Chesterfields lives in the house next to the man with the fox 
+; The man who smokesBrand Chesterfields lives in the house next to the man with the fox
 ; ============================================================
 
-(exists (?m1) (and (instance ?m1 tHuman)  
- (livesIn ?m1 ?h1) (smokesBrand ?m1 "Chesterfields") 
- (nextTo ?h1 ?h2) (livesIn ?m2  ?h2) (caresFor ?m1 ?p2) (instance ?p2  tFox)))
+(exists (?m1) (and (instance ?m1 tHuman)
+(livesIn ?m1 ?h1) (smokesBrand ?m1 "Chesterfields")
+(nextTo ?h1 ?h2) (livesIn ?m2  ?h2) (caresFor ?m1 ?p2) (instance ?p2  tFox)))
 
 
 ; ============================================================
-; Kools are smoked in the house next to the house where the horse is kept 
+; Kools are smoked in the house next to the house where the horse is kept
 ; ============================================================
 
-(exists ((?h1 tHouse)) 
- (and (livesIn ?m1 ?h1) (smokesBrand ?m1 "Kools") (caresFor ?m1 ?p1) (instance ?p1  tHorse)))
+(exists ((?h1 tHouse))
+(and (livesIn ?m1 ?h1) (smokesBrand ?m1 "Kools") (caresFor ?m1 ?p1) (instance ?p1  tHorse)))
 
 (sanity-test (subclass tHorse tAnimal))
 
 ; ============================================================
-; The Lucky Strike smoker drinks orange juice 
+; The Lucky Strike smoker drinks orange juice
 ; ============================================================
 
-(exists (?m1) (and (instance ?m1 tHuman) (smokesBrand ?m1 "LuckyStrikes") 
-  (drinks ?m1 ?b1) (instance ?b1 tOrangeJuice)))
+(exists (?m1) (and (instance ?m1 tHuman) (smokesBrand ?m1 "LuckyStrikes")
+(drinks ?m1 ?b1) (instance ?b1 tOrangeJuice)))
 
 ; ============================================================
-; The Japanese smokes Parliaments 
+; The Japanese smokes Parliaments
 ; ============================================================
 
 (and (natOrigin ?m1 iJapan) (smokesBrand ?m1 "Parliaments"))
 
 
 ; ============================================================
-; The Norwegian lives next to the blue house 
+; The Norwegian lives next to the blue house
 ; ============================================================
 
-(exists (?h1) 
- (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (livesIn ?m1 ?h1) 
-  (natOrigin ?m1 iNorway) (nextTo ?h1 ?h2)) (colorOf ?h2 vBlue)))
+(exists (?h1)
+(if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (livesIn ?m1 ?h1)
+(natOrigin ?m1 iNorway) (nextTo ?h1 ?h2)) (colorOf ?h2 vBlue)))
 
 
 ; ============================================================
-; In the interest of clarity   it must be added that 
-; each of the five houses is painted a different color  
+; In the interest of clarity   it must be added that
+; each of the five houses is painted a different color
 ; ============================================================
 
 ; new syntax makes us
-;  (forall (?h1) 
+;  (forall (?h1)
 ;   (if (instance ?h1 tHouse) (exists (c1) (colorOf ?h1 ?c1))))
 
 ; we'll use old way though
 (forall ((?h1 tHouse))
-   (exists (c1) (colorOf ?h1 ?c1)))
+(exists (c1) (colorOf ?h1 ?c1)))
 
 
 
-(forall (?h1 ?h2) 
-   (if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (colorOf ?h1 ?c1) (different ?h1 ?h2))
-             (and (colorOf ?h2 ?c2) (different ?c1 ?c2))))
+(forall (?h1 ?h2)
+(if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (colorOf ?h1 ?c1) (different ?h1 ?h2))
+(and (colorOf ?h2 ?c2) (different ?c1 ?c2))))
 
 
 
 ; ============================================================
-; and their inhabitants are of different national extractions 
-; ============================================================
-
-(forall ((?h1 tRiddleHouse))
-   (exists (?o1)
-     (and (livesIn ?m1 ?h1) (natOrigin ?m1 ?o1))))
-
-(forall (?h1 ?h2) 
-   (if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (livesIn ?m1 ?h1) (livesIn ?m2 ?h2) (different ?h1 ?h2)
-    (and (natOrigin ?m1 ?o1) (natOrigin ?m2 ?o2) (different ?o1 ?o2)))))
-
-; ============================================================
-; own different pets  
+; and their inhabitants are of different national extractions
 ; ============================================================
 
 (forall ((?h1 tRiddleHouse))
-  (exists ((?p1 tNonHumanAnimal))
-     (and (livesIn ?m1 ?h1) (caresFor ?m1 ?p1))))
+(exists (?o1)
+(and (livesIn ?m1 ?h1) (natOrigin ?m1 ?o1))))
 
-(forall (?m1 ?m2) 
-  (if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
-   (and  (caresFor ?m1 ?p1) (caresFor ?m2 ?p2) (instance ?p1 ?o1) (instance ?p2 ?o2) (different ?o1 ?o2))))
-
-; ============================================================
-; drink different beverages 
-; ============================================================
-
-(forall (?m1 ?m2) 
-  (if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
-   (and (drinks ?m1 ?p1) (drinks ?m2 ?p2) (instance ?p1 ?o1) (instance ?p2 ?o2) (different ?o1 ?o2))))
-
-(forall ((?h1 tRiddleHouse)) 
-    (exists ((?bt1 ttBeverageType))
-     (and (livesIn ?m1 ?h1) (drinks ?m1 ?b1) (instance ?b1 ?bt1))))
-
+(forall (?h1 ?h2)
+(if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (livesIn ?m1 ?h1) (livesIn ?m2 ?h2) (different ?h1 ?h2)
+(and (natOrigin ?m1 ?o1) (natOrigin ?m2 ?o2) (different ?o1 ?o2)))))
 
 ; ============================================================
-; and smoke different brands of American cigaretes 
+; own different pets
 ; ============================================================
-
-(forall (?m1 ?m2) 
-  (if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
-   (and (smokesBrand ?m1 ?b1) (smokesBrand ?m2 ?b2) (different ?b1 ?b2))))
 
 (forall ((?h1 tRiddleHouse))
-   (exists (?b1)
-     (and (livesIn ?m1 ?h1) (smokesBrand ?m1 ?b1))))
+(exists ((?p1 tNonHumanAnimal))
+(and (livesIn ?m1 ?h1) (caresFor ?m1 ?p1))))
+
+(forall (?m1 ?m2)
+(if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
+(and  (caresFor ?m1 ?p1) (caresFor ?m2 ?p2) (instance ?p1 ?o1) (instance ?p2 ?o2) (different ?o1 ?o2))))
+
+; ============================================================
+; drink different beverages
+; ============================================================
+
+(forall (?m1 ?m2)
+(if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
+(and (drinks ?m1 ?p1) (drinks ?m2 ?p2) (instance ?p1 ?o1) (instance ?p2 ?o2) (different ?o1 ?o2))))
+
+(forall ((?h1 tRiddleHouse))
+(exists ((?bt1 ttBeverageType))
+(and (livesIn ?m1 ?h1) (drinks ?m1 ?b1) (instance ?b1 ?bt1))))
+
+
+; ============================================================
+; and smoke different brands of American cigaretes
+; ============================================================
+
+(forall (?m1 ?m2)
+(if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
+(and (smokesBrand ?m1 ?b1) (smokesBrand ?m2 ?b2) (different ?b1 ?b2))))
+
+(forall ((?h1 tRiddleHouse))
+(exists (?b1)
+(and (livesIn ?m1 ?h1) (smokesBrand ?m1 ?b1))))
 
 
 
