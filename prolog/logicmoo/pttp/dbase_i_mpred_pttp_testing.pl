@@ -316,6 +316,10 @@ pttp_test(logicmoo_example22,
 % not_firstOrder(tFemale, iGun,E,F,A,B,C,G,D) :- test_and_decrement_search_cost(A, 0, B), C=[H, [-4, D, E, F]|I], G=[H|I].
 % firstOrder(Pred,Arg1,Arg2,E,F,A,B,C,G,D) :- call_prop_val2(Pred,Arg1,Arg2), test_and_decrement_search_cost(A, 0, B), C=[H, [3, D, E, F]|I], G=[H|I].
 
+baseKB:sanity_test:- do_pttp_test(logicmoo_example3).
+
+baseKB:regression_test:- do_pttp_test(logicmoo_example3).
+
 
 % pttp_test_fails_is_ok(logicmoo_example3).
 pttp_test(logicmoo_example3,

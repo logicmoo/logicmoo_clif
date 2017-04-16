@@ -39,22 +39,16 @@
           is_prolog_entailed/1,
           delistify_last_arg/3,
             kb_incr/2,
-            kif/0,
             kif_ask/1,
             kif_ask/2,
             kif_ask_sent/1,
             kif_hook/1,
             is_gaf/1,
             is_kif_clause/1,
-            kif_io/2,
-            kif_process/1,
-            kif_process/2,
-            kif_read/3,
             (kif_add)/1,
             kif_add_adding_constraints/3,
             kif_add_boxes1/2,
             kif_add_boxes3/3,
-            kif_test_string/1,
             kif_to_boxlog/2,
             kif_to_boxlog/3,
             kif_to_boxlog/4,
@@ -89,12 +83,10 @@
             sort_body/3,
             sort_body_0/3,
             subsT_each/3,
-            tkif/0,
             to_dlog_ops/1,
             to_nonvars/3,
             to_prolog_ops/1,
             to_symlog_ops/1,
-            tsn/0,
             type_of_var/3,
             use_was_isa_h/3,
             var_count_num/4,
@@ -112,7 +104,8 @@
    op(400,yfx,'&'),
    op(500,yfx,'v')*/
    % if/2,iif/2,   
-            is_not_entailed/1
+            is_not_entailed/1,
+            test_boxlog/1,test_boxlog/2,test_defunctionalize/1
                     
           ]).
 /** <module> common_logic_snark
@@ -162,19 +155,14 @@
 :- meta_predicate
    % common_logic_snark
    convertAndCall(*,0),
-   % common_logic_snark
-   kif_process(*,0),
-   % common_logic_snark
-   kif_process(0),
-   % common_logic_snark
    kif_add_boxes3(2,?,*),
    % common_logic_snark
    ain_h(2,?,*),
    map_each_clause(1,+),
    map_each_clause(2,+,-),
 
-   %'__aux_maplist/3_map_each_clause+1'(*,*,2),
-   %'__aux_maplist/2_map_each_clause+1'(*,1),
+   '__aux_maplist/3_map_each_clause+1'(*,*,2),
+   % '__aux_maplist/2_map_each_clause+1'(*,1),
 
    % common_logic_snark
    to_nonvars(2,?,?).
@@ -186,7 +174,6 @@
 :- was_dynamic
         baseKB:as_prolog_hook/2,
         elInverse/2,
-        kif_test_string/1,
         
         not_mudEquals/2.
         
@@ -219,7 +206,7 @@ is_kif_clause(R):- kif_hook(R),!.
 is_kif_clause(R):- is_clif(R),!.
 
 
-%= 	 	 
+
 
 %% kif_hook(+TermC) is det.
 %
@@ -261,7 +248,7 @@ kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
 
 
 
-%= 	 	 
+
 
 %% are_clauses_entailed( :TermE) is det.
 %
@@ -286,7 +273,7 @@ is_prolog_entailed(UCL):-clause(UCL,B,Ref),(B\==true->must(B);(dtrace,clause(HH,
 is_prolog_entailed(UCL):- wdmsg(warn(not_is_prolog_entailed(UCL))),!.
 
 
-%= 	 	 
+
 
 %% member_ele( ?E, ?E) is det.
 %
@@ -300,7 +287,7 @@ member_ele((H,T),E):- nonvar(H),nonvar(T),!, (member_ele(H,E);member_ele(T,E)).
 member_ele(E,E).
 
 
-%= 	 	 
+
 
 %% delistify_last_arg( ?Arg, :TermPred, ?Last) is det.
 %
@@ -397,7 +384,7 @@ is_not_entailed(CLIF):-  mpred_nochaining((kif_to_pfc(CLIF,Prolog), \+ are_claus
 
 % this defines a recogniser for clif syntax (well stuff that might be safe to send in thru kif_to_boxlog)
 
-%= 	 	 
+
 
 %% is_clif( :TermCLIF) is det.
 %
@@ -414,7 +401,7 @@ is_clif(CLIF):-
 :- style_check(+singleton).
 
 
-%= 	 	 
+
 
 %% correct_arities( ?VALUE1, ?FmlO, ?FmlO) is det.
 %
@@ -432,7 +419,7 @@ correct_arities(H,Fml,FmlM):- Fml=..[F|ARGS],must_maplist(correct_arities(H),ARG
 
 :- public(subsT_each/3).
 
-%= 	 	 
+
 
 %% subsT_each( ?In, :TermARG2, ?In) is det.
 %
@@ -443,7 +430,7 @@ subsT_each(In,[],In):- !.
 subsT_each(In,[KV|TODO],Out):- notrace(subst_except_l(In,[KV|TODO],Out)),!.
 
 
-%= 	 	 
+
 
 %% subst_except_l( :TermVar, ?VALUE2, :TermVar) is det.
 %
@@ -463,7 +450,7 @@ subst_except_l(HT,_List,HT).
 
 
 
-%= 	 	 
+
 
 %% skolem_in_code( ?X, ?Y) is det.
 %
@@ -471,7 +458,7 @@ subst_except_l(HT,_List,HT).
 %
 skolem_in_code(X,Y):- ignore(X=Y).
 
-%= 	 	 
+
 
 %% skolem_in_code( ?X, ?VALUE2, ?Fml) is det.
 %
@@ -482,7 +469,7 @@ skolem_in_code(X,_,Fml):- when('?='(X,_),skolem_in_code(X,Fml)).
 :- public(not_mudEquals/2).
 :- was_dynamic(not_mudEquals/2).
 
-%= 	 	 
+
 
 %% not_mudEquals( ?X, ?Y) is det.
 %
@@ -492,7 +479,7 @@ not_mudEquals(X,Y):- dif:dif(X,Y).
 
 :- public(type_of_var/3).
 
-%= 	 	 
+
 
 %% type_of_var( ?Fml, ?Var, ?Type) is det.
 %
@@ -503,7 +490,7 @@ type_of_var(Fml,Var,Type):- contains_type_lits(Fml,Var,Lits),!,(member(Type,Lits
 
 
 
-%= 	 	 
+
 
 %% to_dlog_ops( ?VALUE1) is det.
 %
@@ -540,7 +527,7 @@ to_dlog_ops([
      '<=>'='<=>']).
 
 
-%= 	 	 
+
 
 %% to_symlog_ops( ?VALUE1) is det.
 %
@@ -556,7 +543,7 @@ to_symlog_ops([
    ]).
 
 
-%= 	 	 
+
 
 %% to_prolog_ops( ?VALUE1) is det.
 %
@@ -575,7 +562,7 @@ to_prolog_ops([
 
 
 
-%= 	 	 
+
 
 %% to_nonvars( :PRED2Type, ?IN, ?IN) is det.
 %
@@ -596,7 +583,7 @@ convertAndCall(Type,Call):- fail,Call=..[F|IN],must_maplist(to_nonvars(Type),IN,
 convertAndCall(_Type,Call):-call_last_is_var(Call).
 
 
-%= 	 	 
+
 
 %% as_dlog( ?Fml, ?Fml) is det.
 %
@@ -609,7 +596,7 @@ as_dlog(Fml,FmlO):- to_dlog_ops(OPS),subsT_each(Fml,OPS,FmlM),!,correct_arities(
 
 
 
-%= 	 	 
+
 
 %% as_symlog( ?Fml, ?Fml) is det.
 %
@@ -619,7 +606,7 @@ as_symlog(Fml,Fml):- leave_as_is_logically(Fml),!.
 as_symlog(Fml,FmlO):- notrace((as_dlog(Fml,FmlM),to_symlog_ops(OPS),subsT_each(FmlM,OPS,FmlM),correct_arities(['v','&'],FmlM,FmlO))).
 
 
-%= 	 	 
+
 
 %% baseKB:as_prolog_hook( ?Fml, ?Fml) is det.
 %
@@ -633,7 +620,7 @@ baseKB:as_prolog_hook(Fml,FmlO):- as_symlog(Fml,FmlM),
 
 
 
-%= 	 	 
+
 
 %% adjust_kif( ?KB, ?Kif, ?KifO) is det.
 %
@@ -645,7 +632,7 @@ adjust_kif(KB,Kif,KifO):- as_dlog(Kif,KifM),must(adjust_kif0(KB,KifM,KifO)),!.
 
 
 
-%= 	 	 
+
 
 %% adjust_kif0( ?VALUE1, ?V, ?V) is det.
 %
@@ -684,7 +671,7 @@ adjust_kif0(KB,Kif,KifO):- Kif=..[F|ARGS],adjust_kif0(KB,F,ARGS,KifO),!.
 adjust_kif0(KB,PAB,PABO):- PAB=..[P|AB],must_maplist(adjust_kif0(KB),AB,ABO),PABO=..[P|ABO].
 
 
-%= 	 	 
+
 
 %% adjust_kif0( ?KB, ?Not_P, :TermARGS, ?O) is det.
 %
@@ -711,7 +698,7 @@ adjust_kif0(KB,F,ARGS,O):-KIF=..[F|ARGS],length(ARGS,L),L>2,adjust_kif0(KB,KIF,F
 % adjust_kif0(KB,W,[A],O):-is_wrapper_pred(W),adjust_kif(KB,A,O),!.
 
 
-%= 	 	 
+
 
 %% adjust_kif0( ?KB, ?KIF, ?OP, ?ARGS, ?Conj) is det.
 %
@@ -720,7 +707,7 @@ adjust_kif0(KB,F,ARGS,O):-KIF=..[F|ARGS],length(ARGS,L),L>2,adjust_kif0(KB,KIF,F
 adjust_kif0(KB,KIF,OP,ARGS,Conj):-must_maplist(adjust_kif(KB),ARGS,ABO),adjust_kif5(KB,KIF,OP,ABO,Conj).
 
 
-%= 	 	 
+
 
 %% adjust_kif5( ?KB, ?KIF, ?VALUE3, ?ARGS, ?Conj) is det.
 %
@@ -733,7 +720,7 @@ adjust_kif5(      _,_,'&',ARGS,Conj):-list_to_conjuncts('&',ARGS,Conj).
 
 
 
-%= 	 	 
+
 
 %% local_pterm_to_sterm( ?P, ?S) is det.
 %
@@ -759,7 +746,7 @@ local_pterm_to_sterm(P,[Q]):-P=..[F|ARGS],maplist(local_pterm_to_sterm2,ARGS,QAR
 local_pterm_to_sterm(P,[P]).
 
 
-%= 	 	 
+
 
 %% local_pterm_to_sterm2( ?P, ?Q) is det.
 %
@@ -774,7 +761,7 @@ local_pterm_to_sterm2(P,Q):-local_pterm_to_sterm(P,PP),([Q]=PP;Q=PP),!.
 
 %======  make a sequence out of a disjunction =====
 
-%= 	 	 
+
 
 %% flatten_or_list( ?A, ?B, ?C) is det.
 %
@@ -790,7 +777,7 @@ flatten_or_list(_KB,X,[X]).
 
 
 
-%= 	 	 
+
 
 %% fmtl( ?X) is det.
 %
@@ -799,7 +786,7 @@ flatten_or_list(_KB,X,[X]).
 fmtl(X):- baseKB:as_prolog_hook(X,XX), fmt(XX).
 
 
-%= 	 	 
+
 
 %% write_list( ?F) is det.
 %
@@ -809,7 +796,7 @@ write_list([F|R]):- write(F), write('.'), nl, write_list(R).
 write_list([]).
 
 
-%= 	 	 
+
 
 %% unnumbervars_with_names( ?Term, ?CTerm) is det.
 %
@@ -855,7 +842,7 @@ unnumbervars_with_names(Term,CTerm):-
    put_variable_names(NewCNamedVarsSG))),!.
 
 
-%= 	 	 
+
 
 %% get_var_names( :TermV, ?NamedVars, :TermS) is det.
 %
@@ -867,7 +854,7 @@ get_var_names([V|Vars],NamedVars,[S|SNames]):-
     get_var_names(Vars,NamedVars,SNames).
 
 
-%= 	 	 
+
 
 %% get_1_var_name( ?Var, :TermNamedVars, ?Name) is det.
 %
@@ -883,7 +870,7 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
 
 
-%= 	 	 
+
 
 %% wdmsgl( ?CNF) is det.
 %
@@ -920,7 +907,7 @@ kif_to_boxlog3(WffIn,Out,Why):-  kif_to_boxlog(all('$VAR'('KB'),'=>'(asserted_t(
 kif_to_boxlog3(WffIn,NormalClauses,Why):- kif_to_boxlog(WffIn,'$VAR'('KB'),Why,NormalClauses),!.
 
 
-%= 	 	 
+
 
 %% alt_kif_to_boxlog( ?Wff, ?KB, ?Why, ?Out) is det.
 %
@@ -931,7 +918,7 @@ alt_kif_to_boxlog(Wff,KB,Why,Out):- loop_check(kif_to_boxlog(( ~(nesc( ~(Wff))))
 
 :- public(kif_to_boxlog/3).
 
-%= 	 	 
+
 
 %% kif_to_boxlog( ?WffIn, ?Why, ?Out) is det.
 %
@@ -943,7 +930,7 @@ kif_to_boxlog(WffIn,Why,Out):-  kif_to_boxlog(WffIn,'$VAR'('KB'),Why,Out),!.
 :- export(kif_to_boxlog/4).
 
 
-%= 	 	 
+
 
 %% kif_to_boxlog( ?I, ?KB, ?Why, ?Flattened) is det.
 %
@@ -1002,7 +989,7 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
 
 
 
-%= 	 	 
+
 
 %% no_rewrites is det.
 %
@@ -1014,7 +1001,7 @@ baseKB:no_rewrites :- fail.
 
 
 
-%= 	 	 
+
 
 %% check_is_kb( ?KB) is det.
 %
@@ -1024,7 +1011,7 @@ check_is_kb(KB):-attvar(KB),!.
 check_is_kb(KB):-ignore('$VAR'('KB')=KB).
 
 
-%= 	 	 
+
 
 %% add_preconds( ?X, ?X) is det.
 %
@@ -1036,7 +1023,7 @@ add_preconds(X,Z):-
    locally(t_l:dont_use_mudEquals,must(defunctionalize('=>',X,Y)))),must(add_preconds2(Y,Z)).
 
 
-%= 	 	 
+
 
 %% add_preconds2( ?Wff6667, ?PreCondPOS) is det.
 %
@@ -1047,7 +1034,7 @@ add_preconds2(Wff6667,PreCondPOS):-
      add_poss_to(PreCondS,Wff6667, PreCondPOS))).
 
 
-%= 	 	 
+
 
 %% add_poss_to( ?PreCond, ?Wff6667, ?Wff6667) is det.
 %
@@ -1113,7 +1100,7 @@ add_nesc(IN,nesc(IN)).
 % weaken_to_poss(Wff666,Wff666):-!.
 % weaken_to_poss(X,X):-!.
 
-%= 	 	 
+
 
 %% weaken_to_poss( ?PQ, ?PQ) is det.
 %
@@ -1132,7 +1119,7 @@ weaken_to_poss(IN,poss(IN)).
 % shall ~ X => ~ can X
 % ~ shall X => can ~ X
 
-%= 	 	 
+
 
 %% get_lits( ?PQ, ?QQ) is det.
 %
@@ -1148,7 +1135,7 @@ get_lits(IN,OUTLF):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(get_lits
 get_lits(IN,[IN]).
 
 
-%= 	 	 
+
 
 %% simple_negate_literal( ?F, ?FX, ?X) is det.
 %
@@ -1168,7 +1155,7 @@ should_be_poss(argInst).
 % :- was_dynamic(elInverse/2).
 
 
-%= 	 	 
+
 
 %% clauses_to_boxlog( ?KB, ?Why, ?In, ?Prolog) is det.
 %
@@ -1178,7 +1165,7 @@ clauses_to_boxlog(KB,Why,In,Prolog):- clauses_to_boxlog_0(KB,Why,In,Prolog).
 
 
 
-%= 	 	 
+
 
 %% clauses_to_boxlog_0( ?KB, ?Why, ?In, ?Prolog) is det.
 %
@@ -1190,7 +1177,7 @@ clauses_to_boxlog_0(KB,Why,In,Prolog):-
 clauses_to_boxlog_0(KB,Why,In,Prolog):-correct_cls(KB,In,Mid),!,clauses_to_boxlog_1(KB,Why,Mid,PrologM),!,Prolog=PrologM.
 
 
-%= 	 	 
+
 
 %% clauses_to_boxlog_1( ?KB, ?Why, ?In, ?Prolog) is det.
 %
@@ -1199,7 +1186,7 @@ clauses_to_boxlog_0(KB,Why,In,Prolog):-correct_cls(KB,In,Mid),!,clauses_to_boxlo
 clauses_to_boxlog_1(KB, Why,In,Prolog):- clauses_to_boxlog_2(KB,Why,In,PrologM),!,must(Prolog=PrologM).
 
 
-%= 	 	 
+
 
 %% clauses_to_boxlog_2( ?KB, ?Why, :TermIn, ?Prolog) is det.
 %
@@ -1218,7 +1205,7 @@ clauses_to_boxlog_2(KB, Why,cl([H,Head|List],BodyIn),Prolog):-
 clauses_to_boxlog_2(_KB,_Why,(H:-B),(H:-B)):- !.
 
 
-%= 	 	 
+
 
 %% clauses_to_boxlog_5( ?KB, ?Why, ?In, ?Prolog) is det.
 %
@@ -1230,7 +1217,32 @@ clauses_to_boxlog_5(_KB,_Why,cl([HeadIn],[]),HeadIn):-!.
 clauses_to_boxlog_5(_KB,_Why,In,Prolog):-dtrace,In=Prolog.
 
 
-%= 	 	 
+
+ % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
+test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
+
+test_defunctionalize(I):-defunctionalize(I,O),wdmsg(O).
+
+
+/*
+test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(P,O),nl,nl,
+   % b_implode_varnames(O),
+  (is_list(O)->maplist(portray_one_line,O);dmsg(O)),flush_output.
+*/
+
+:- export(test_boxlog/1).
+test_boxlog(P):- must_det(test_boxlog0(P)),!.
+test_boxlog0(P):-
+ must_det_l((
+  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
+  b_implode_varnames(P),
+  flush_output,dmsg(:- test_boxlog(P)), 
+  nl,nl,test_boxlog(P,O),nl,nl,
+ (is_list(O)->maplist(portray_one_line,O);wdmsgl(O)),flush_output)).
+
+
+
+
 
 %% mpred_t_tell_kif( ?OP2, ?RULE) is det.
 %
@@ -1241,90 +1253,9 @@ mpred_t_tell_kif(OP2,RULE):-
    (show_call(why,call((must(kif_add(RULE))))))).
 
 
-%= 	 	 
-
-%% tsn is det.
-%
-% Tsn.
-%
-tsn:- with_all_dmsg(forall(clause(kif,C),must(C))).
-
-% kif:- make.
-:- dynamic(kif_test_string/1).
-
-%= 	 	 
-
-%% tkif is det.
-%
-% Tkif.
-%
-tkif:- kif_test_string(TODO),kif_io(string(TODO),current_output).
-
-
-%= 	 	 
-
-%% regression_test is det.
-%
-% Hook To [baseKB:regression_test/0] For Module Common_logic_snark.
-% Regression Test.
-%
-baseKB:regression_test:- tsn.
-
-:- thread_local(t_l:kif_action_mode/1).
-:- asserta_if_new(t_l:kif_action_mode(tell)).
-
-:- thread_local(t_l:kif_reader_mode/1).
-:- asserta_if_new(t_l:kif_reader_mode(lisp)).
-
-
-%= 	 	 
-
-%% kif_read( ?InS, ?Wff, ?Vs) is det.
-%
-% Knowledge Interchange Format Read.
-%
-kif_read(InS,Wff,Vs):- must(l_open_input(InS,In)),
-  must(((t_l:kif_reader_mode(lisp) ,without_must( catch(input_to_forms(In,Wff,Vs),E,(dmsg(E:kif_read_input_to_forms(In,Wff,Vs)),fail)))) *-> true ;
-      catch(read_term(In,Wff,[module(user),double_quotes(string),variable_names(Vs)]),E,(dmsg(E:kif_read_term_to_forms(In,Wff,Vs)),fail)))).
-
-%= ===== to test program =====-
-% :- ensure_loaded(logicmoo(snark/common_logic_sexpr)).
-
-:- public(kif/0).
-
-%= 	 	 
-
-%% kif is det.
-%
-% Knowledge Interchange Format.
-%
-kif:- current_input(In),current_output(Out),!,kif_io(In,Out).
-
-%open_input(InS,InS):- is_stream(InS),!.
-%open_input(string(InS),In):- text_to_string(InS,Str),string_codes(Str,Codes),open_chars_stream(Codes,In),!.
-
-
-:- public(kif_io/2).
-
-%= 	 	 
-
-%% kif_io( ?InS, ?Out) is det.
-%
-% Knowledge Interchange Format Input/output.
-%
-kif_io(InS,Out):-
-  l_open_input(InS,In),
-   repeat,
-      on_x_debug((once((t_l:kif_action_mode(Mode),write(Out,Mode),write(Out,'> '))),
-        kif_read(In,Wff,Vs),
-         put_variable_names( Vs),
-           portray_clause(Out,Wff,[variable_names(Vs),quoted(true)]),
-           once(kif_process(Wff)),
-           Wff == end_of_file)),!.
-
 :- public(why_to_id/3).
 
-%= 	 	 
+
 
 %% why_to_id( ?Term, ?Wff, ?IDWhy) is det.
 %
@@ -1334,43 +1265,13 @@ why_to_id(Term,Wff,IDWhy):-  \+ atom(Term),term_to_atom(Term,Atom),!,why_to_id(A
 why_to_id(Atom,Wff,IDWhy):- clause_asserted(wid(IDWhy,Atom,Wff)),!.
 why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhyI,IDWhy),assertz_if_new(wid(IDWhy,Atom,Wff)),!.
 
-:- public(kif_process/1).
 
-%= 	 	 
-
-%% kif_process( :GoalAssert) is det.
-%
-% Knowledge Interchange Format Process.
-%
-kif_process(end_of_file):- !.
-kif_process(prolog):- prolog,!.
-kif_process(Assert):- atom(Assert),retractall(t_l:kif_action_mode(_)),asserta(t_l:kif_action_mode(Assert)),fmtl(t_l:kif_action_mode(Assert)),!.
-kif_process(Wff):- t_l:kif_action_mode(Mode),kif_process(Mode,Wff),!.
-
-
-%= 	 	 
-
-%% kif_process( ?Other, :GoalWff) is det.
-%
-% Knowledge Interchange Format Process.
-%
-kif_process(_,':-'(Wff)):- !, kif_process(call,Wff).
-kif_process(_,'?-'(Wff)):- !, kif_ask(Wff).
-kif_process(_,'ask'(Wff)):- !, kif_ask(Wff).
-kif_process(_,'tell'(Wff)):- !, kif_add(Wff).
-kif_process(call,Call):- !,call(Call).
-kif_process(tell,Wff):- !, kif_add(Wff).
-kif_process(ask,Wff):- !, kif_ask(Wff).
-kif_process(Other,Wff):- !, wdmsg(error(missing_kif_process(Other,Wff))),!,fail.
-
-:- public(kif_ask_sent/1).
-
-%= 	 	 
 
 %% kif_ask_sent( ?VALUE1) is det.
 %
 % Knowledge Interchange Format Complete Inference Sentence.
 %
+:- public(kif_ask_sent/1).
 kif_ask_sent(Wff):-
    why_to_id(ask,Wff,Why),
    term_variables(Wff,Vars),
@@ -1386,7 +1287,6 @@ kif_ask_sent(Wff):-
 
 :- public(kif_ask/1).
 
-%= 	 	 
 
 %% kif_ask( :TermP) is det.
 %
@@ -1403,7 +1303,7 @@ kif_ask(Goal0):-  logical_pos(_KB,Goal0,Goal),
 
 :- public(kif_ask/2).
 
-%= 	 	 
+
 
 %% kif_ask( ?VALUE1, ?VALUE2) is det.
 %
@@ -1416,19 +1316,26 @@ kif_ask(Goal0,ProofOut):- logical_pos(_KB,Goal0,Goal),
         call(call,contract_output_proof(ProofOut1,ProofOut)))).
 
 
-%= 	 	 
+
 
 %% kif_add( ?InS) is det.
 %
 % Knowledge Interchange Format Add.
 %
-kif_add(InS):- atom(InS),must_det_l((kif_read(string(InS),Wff,Vs),b_implode_varnames0(Vs),local_sterm_to_pterm(Wff,Wff0),kif_add(Wff0))),!.
+kif_add(InS):- string(InS),
+ must_det_l((
+  input_to_forms(string(InS),Wff,Vs),
+  nop(b_implode_varnames0(Vs)),
+  local_sterm_to_pterm(Wff,Wff0))),
+  InS \== Wff0,
+  kif_add(Wff0),!.
+
 % kif_add(WffIn):- must_det_l((unnumbervars_with_names(WffIn,Wff),why_to_id(tell,Wff,Why),kif_add(Why,Wff))),!.
 kif_add(WffIn):- must_det_l((unnumbervars_with_names(WffIn,Wff),ain(clif(Wff)))),!.
 
 
 
-%= 	 	 
+
 
 %% local_sterm_to_pterm( ?Wff, ?WffO) is det.
 %
@@ -1464,7 +1371,7 @@ assert_wfs_fallback0(Why, HB):- adjust_kif('$VAR'(KB),HB,HBK),demodal('$VAR'(KB)
 
 :- public(kb_incr/2).
 
-%= 	 	 
+
 
 %% kb_incr( ?WffNum1, ?WffNum2) is det.
 %
@@ -1490,7 +1397,7 @@ kif_add_boxes(How,Why,Wff0,Asserts0):-
 */
 
 
-%= 	 	 
+
 
 %% kif_add_adding_constraints( ?Why, ?Isas, :TermGet1Get2) is det.
 %
@@ -1505,7 +1412,7 @@ kif_add_adding_constraints(Why,Isas,((H:- B))):- conjoin(Isas,B,BB), kif_add_box
 kif_add_adding_constraints(Why,Isas,((H))):- kif_add_boxes1(Why,(H:- Isas)).
 
 
-%= 	 	 
+
 
 %% kif_add_boxes1( ?Why, ?List) is det.
 %
@@ -1520,7 +1427,7 @@ kif_add_boxes1(Why,AssertI):- must_det_l((simplify_bodies(AssertI,AssertO),kif_a
 
 
 
-%= 	 	 
+
 
 %% kif_add_boxes3( :PRED2How, ?Why, ?Assert) is det.
 %
@@ -1534,7 +1441,7 @@ kif_add_boxes3(How,Why,Assert):-
   call(How,Why,PTTP))).
 
 
-%= 	 	 
+
 
 %% kif_unnumbervars( ?X, ?YY) is det.
 %
@@ -1550,7 +1457,7 @@ kif_unnumbervars(X,YY):-
 
 
 
-%= 	 	 
+
 
 %% simplify_bodies( ?B, ?BC) is det.
 %
@@ -1561,7 +1468,7 @@ simplify_bodies((B),(BC)):- must_det_l((conjuncts_to_list(B,RB),simplify_list(_K
 
 
 
-%= 	 	 
+
 
 %% simplify_list( ?KB, ?RB, ?BBS) is det.
 %
@@ -1570,7 +1477,7 @@ simplify_bodies((B),(BC)):- must_det_l((conjuncts_to_list(B,RB),simplify_list(_K
 simplify_list(KB,RB,BBS):- list_to_set(RB,BB),must_maplist(removeQ(KB),BB,BBO),list_to_set(BBO,BBS).
 
 
-%= 	 	 
+
 
 %% save_wfs( ?Why, ?PrologI) is det.
 %
@@ -1581,7 +1488,7 @@ save_wfs(Why,PrologI):- must_det_l((baseKB:as_prolog_hook(PrologI,Prolog),
    ain_h(save_in_code_buffer,Why,Prolog)))).
 
 
-%= 	 	 
+
 
 %% nots_to( ?H, ?To, ?HH) is det.
 %
@@ -1589,7 +1496,7 @@ save_wfs(Why,PrologI):- must_det_l((baseKB:as_prolog_hook(PrologI,Prolog),
 %
 nots_to(H,To,HH):-subst_except(H,not,To,HH),subst_except(H,-,To,HH),subst_except(H,~,To,HH),subst_except(H, \+ ,To,HH),!.
 
-%= 	 	 
+
 
 %% neg_h_if_neg( ?H, ?HH) is det.
 %
@@ -1597,7 +1504,7 @@ nots_to(H,To,HH):-subst_except(H,not,To,HH),subst_except(H,-,To,HH),subst_except
 %
 neg_h_if_neg(H,HH):-nots_to(H,'~',HH).
 
-%= 	 	 
+
 
 %% neg_b_if_neg( ?HBINFO, ?B, ?BBB) is det.
 %
@@ -1607,7 +1514,7 @@ neg_b_if_neg(HBINFO,B,BBB):-nots_to(B,'~',BB),sort_body(HBINFO,BB,BBB),!.
 
 
 
-%= 	 	 
+
 
 %% sort_body( ?HBINFO, ?BB, ?BBB) is det.
 %
@@ -1616,7 +1523,7 @@ neg_b_if_neg(HBINFO,B,BBB):-nots_to(B,'~',BB),sort_body(HBINFO,BB,BBB),!.
 sort_body(HBINFO,BB,BBB):-sort_body_0(HBINFO,BB,BBB),(BBB=@=BB->true; (expand_to_hb(HBINFO,H,_),nop(dmsg([(H:-BB),'=>',(H:-BBB)])))).
 
 
-%= 	 	 
+
 
 %% sort_body_0( ?VALUE1, ?SORTED, ?SORTED) is det.
 %
@@ -1634,7 +1541,7 @@ sort_body_0(HBINFO,(A;B),SORTED):-!,disjuncts_to_list((A;B),List),
 sort_body_0(_,SORTED,SORTED).
 
 
-%= 	 	 
+
 
 %% litcost_compare( ?HBINFO, ?Comp, ?A, ?B) is det.
 %
@@ -1645,7 +1552,7 @@ litcost_compare(HBINFO,Comp,A,B):-lit_cost(HBINFO,A,AC),lit_cost(HBINFO,B,BC),co
   (CompC\== (=) -> CompC = Comp ; Comp = (<)).
 
 
-%= 	 	 
+
 
 %% lit_cost( ?HBINFO, ?A, :GoalAC) is det.
 %
@@ -1663,7 +1570,7 @@ lit_cost(HBINFO,A,AC):- expand_to_hb(HBINFO,H,B),
   AC is Singles*3 + VC + UH - SH.
 
 
-%= 	 	 
+
 
 %% simp_code( ?A, ?A) is det.
 %
@@ -1674,7 +1581,7 @@ simp_code(A,A).
 
 
 
-%= 	 	 
+
 
 %% var_count_num( ?Term, ?SharedTest, ?SharedCount, ?UnsharedCount) is det.
 %
@@ -1687,7 +1594,7 @@ var_count_num(Term,SharedTest,SharedCount,UnsharedCount):- term_slots(Term,Slots
   length(UnsharedSlots,UnsharedCount).
 
 
-%= 	 	 
+
 
 %% ain_h( :PRED2How, ?Why, ?H) is det.
 %
@@ -1697,7 +1604,7 @@ ain_h(How,Why,(H:- B)):- neg_h_if_neg(H,HH), neg_b_if_neg((HH:- B),B,BB),!,call(
 ain_h(How,Why,(H)):- neg_h_if_neg(H,HH), call(How,Why,(HH)).
 
 
-%= 	 	 
+
 
 %% save_in_code_buffer( ?VALUE1, ?HB) is det.
 %
@@ -1707,7 +1614,7 @@ save_in_code_buffer(_ ,HB):- simp_code(HB,SIMP),t_l:in_code_Buffer(HB,_,SIMP),!.
 save_in_code_buffer(Why,HB):- simp_code(HB,SIMP),assert(t_l:in_code_Buffer(HB,Why,SIMP)).
 
 
-%= 	 	 
+
 
 %% use_was_isa_h( ?I, :TermT, ?ISA) is det.
 %
@@ -1726,7 +1633,7 @@ to_isa_form0(I,C,isa(I,C)).
 to_isa_form0(I,C,t(C,I)).
 to_isa_form0(I,C,OUT):- atom(C)->OUT=..[C,I].
 
-%= 	 	 
+
 
 %% generate_ante( :TermARG1, :TermARG2, ?InOut, ?InOut) is det.
 %
@@ -1736,7 +1643,7 @@ generate_ante([],[],InOut,InOut).
 generate_ante([I|VarsA],[T|VarsB],In,Isas):- use_was_isa_h(I,T,ISA), conjoin(In,ISA,Mid),generate_ante(VarsA,VarsB,Mid,Isas).
 
 
-%= 	 	 
+
 
 %% get_constraints( ?ListA, ?Isas) is det.
 %

@@ -11,8 +11,9 @@
 
 
 % KIF BASED
-:- export((          must_map_preds/3, 
-          sumo_to_clif/2,
+:- export((
+         must_map_preds/3, 
+         sumo_to_clif/2,
          is_kif_string/1,
          from_kif_string/2,
          convert_if_kif_string/2,

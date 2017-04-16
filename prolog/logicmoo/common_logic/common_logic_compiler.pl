@@ -573,15 +573,15 @@ nnf1(KB,exists(X,Fml),FreeV,exists(X,NNF),Paths):- (is_skolem_setting(removeQ);i
    add_to_vars(X,FreeV,NewVars),
    nnf(KB,Fml,NewVars,NNF,Paths),!.
 
-nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
+nnf1(KB,thereExistsExactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
       nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
 
-nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- 
+nnf1(KB,thereExistsExactly(N,X,Fml),FreeV,NNF,Paths):- 
 	!,
 	NewN is N - 1,
         subst_except(Fml,X,Y,FmlY),
       nnf(KB, exists(Y, (FmlY & (~equals(Y,X)
-       =>  exactly(NewN,X,Fml)))),FreeV,NNF,Paths).
+       =>  thereExistsExactly(NewN,X,Fml)))),FreeV,NNF,Paths).
 
 nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
       nnf(KB,exists(X,Fml),FreeV,NNF,Paths).

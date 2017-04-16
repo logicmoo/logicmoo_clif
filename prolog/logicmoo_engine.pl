@@ -60,6 +60,10 @@ ensure_autoexec:- !. % call_u(consult(logicmoo(pfc/'autoexec.pfc'))).
 %:- use_listing_vars.
 %:- nop((autoload,scan_for_varnames)).
 
+
+:- module_transparent((mpred_load_restore_file/1,mpred_load_restore_file/1,mpred_save_restore_file/1)).
+
+
 mpred_load_restore_file(never):- !,ensure_autoexec,!.
 mpred_load_restore_file(File):- absolute_file_name(File,AFN),AFN\=File,!,mpred_load_restore_file(AFN).
 mpred_load_restore_file(File):- \+ exists_file(File),
@@ -73,7 +77,8 @@ mpred_load_restore_file(File):-
   ensure_loaded(File),
    ((\+ (baseKB:loaded_file_world_time(N,_,NewTime),NewTime>=Time)) ->true ;
     (
-    ignore((baseKB:loaded_file_world_time(N,_,NewTime),NewTime>Time,with_ukb_snark(baseKB,ensure_mpred_file_loaded(N)),fail)),
+    ignore((baseKB:loaded_file_world_time(N,_,NewTime),NewTime>Time,
+     with_umt(baseKB,ensure_mpred_file_loaded(N)),fail)),
     mpred_save_restore_file('some_test.pl~'))))),!.
 
 mpred_save_resore_predicate(M:H,AFN):-
