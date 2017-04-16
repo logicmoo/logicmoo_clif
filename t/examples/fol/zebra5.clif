@@ -2,7 +2,7 @@
 ;; Maintainer: Douglas Miles
 ;;
 ;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/zebra5)).
-;; */
+;; */\
 
 (:- (module zebra5 ()))
 
@@ -66,7 +66,7 @@
 ; ============================================================
 ; There are five houses 
 ; ============================================================
-(thereExistsExactly 5 ?h (instance ?h tRiddleHouse)) 
+(thereExistsExactly 5 ?h1 (instance ?h1 tRiddleHouse)) 
 
 (subclass tRiddleHouse tHouse)
 
@@ -83,23 +83,23 @@
 ; ============================================================
 ; The Englishman lives in the red house 
 ; ============================================================
-(exists (?m ?h) (iff (and (livesIn ?m ?h) (natOrigin ?m iEngland)) (colorOf ?h vRed)))
+(exists (?m1 ?h1) (iff (and (livesIn ?m1 ?h1) (natOrigin ?m1 iEngland)) (colorOf ?h1 vRed)))
 
 ; ============================================================
 ; The Spaniard owns the dog 
 ; ============================================================
 ;; NOTE this file uses purposely overuses instance/2 for performance testing
-(exists (?m ?pet) (iff (and (instance ?m tHuman) (natOrigin ?m iSpain))  (and (caresFor ?m ?pet) (instance ?pet tDog))))
+(exists (?m1 ?pet) (iff (and (instance ?m1 tHuman) (natOrigin ?m1 iSpain))  (and (caresFor ?m1 ?pet) (instance ?pet tDog))))
 
 ; ============================================================
 ; All coffee is drunk in the green house 
 ; ============================================================
-(forall (?b) (and (instance ?b tCoffee)  (drinks ?m ?b) (livesIn ?m ?h) (colorOf ?h vGreen)))
+(forall (?b) (and (instance ?b tCoffee)  (drinks ?m1 ?b) (livesIn ?m1 ?h1) (colorOf ?h1 vGreen)))
 
 ; ============================================================
 ; The Ukrainian drinks tea 
 ; ============================================================
-(exists (?m) (if (instance ?m tHuman) (natOrigin ?m iUkrain)) (and (drinks ?m ?b) (instance ?b tTea)))
+(exists (?m1) (if (instance ?m1 tHuman) (natOrigin ?m1 iUkrain)) (and (drinks ?m1 ?b) (instance ?b tTea)))
 
 
 ; ============================================================
@@ -142,7 +142,7 @@
 ; ============================================================
 
 (exists (?m1) (and (instance ?m1 tHuman)  
- (livesIn ?h1 ?m1) (smokesBrand ?m1 "Chesterfields") 
+ (livesIn ?m1 ?h1) (smokesBrand ?m1 "Chesterfields") 
  (nextTo ?h1 ?h2) (livesIn ?m2  ?h2) (caresFor ?m1 ?p2) (instance ?p2  tFox)))
 
 
@@ -150,8 +150,8 @@
 ; Kools are smoked in the house next to the house where the horse is kept 
 ; ============================================================
 
-(exists (?h1) (and (instance ?h1 tHouse)  
- (livesIn ?h1 ?m1) (smokesBrand ?m1 "Kools") (caresFor ?m1 ?p1) (instance ?p1  tHorse)))
+(exists ((?h1 tHouse)) 
+ (and (livesIn ?m1 ?h1) (smokesBrand ?m1 "Kools") (caresFor ?m1 ?p1) (instance ?p1  tHorse)))
 
 (sanity-test (subclass tHorse tAnimal))
 
@@ -174,7 +174,7 @@
 ; ============================================================
 
 (exists (?h1) 
- (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (livesIn ?h1 ?m1) 
+ (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (livesIn ?m1 ?h1) 
   (natOrigin ?m1 iNorway) (nextTo ?h1 ?h2)) (colorOf ?h2 vBlue)))
 
 
@@ -205,10 +205,10 @@
 
 (forall ((?h1 tRiddleHouse))
    (exists (?o1)
-     (and (livesIn ?h1 ?m1) (natOrigin ?m1 ?o1))))
+     (and (livesIn ?m1 ?h1) (natOrigin ?m1 ?o1))))
 
 (forall (?h1 ?h2) 
-   (if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (livesIn ?h1 ?m1) (livesIn ?h2 ?m2) (different ?h1 ?h2)
+   (if (and (instance ?h1 tRiddleHouse) (instance ?h2 tRiddleHouse) (livesIn ?m1 ?h1) (livesIn ?m2 ?h2) (different ?h1 ?h2)
     (and (natOrigin ?m1 ?o1) (natOrigin ?m2 ?o2) (different ?o1 ?o2)))))
 
 ; ============================================================
@@ -217,7 +217,7 @@
 
 (forall ((?h1 tRiddleHouse))
   (exists ((?p1 tNonHumanAnimal))
-     (and (livesIn ?h1 ?m1) (caresFor ?m1 ?p1))))
+     (and (livesIn ?m1 ?h1) (caresFor ?m1 ?p1))))
 
 (forall (?m1 ?m2) 
   (if (and (instance ?m1 tHuman) (instance ?m2 tHuman) (different ?m1 ?m2))
@@ -233,7 +233,7 @@
 
 (forall ((?h1 tRiddleHouse)) 
     (exists ((?bt1 ttBeverageType))
-     (and (livesIn ?h1 ?m1) (drinks ?m1 ?b1) (instance ?b1 ?bt1))))
+     (and (livesIn ?m1 ?h1) (drinks ?m1 ?b1) (instance ?b1 ?bt1))))
 
 
 ; ============================================================
@@ -246,7 +246,7 @@
 
 (forall ((?h1 tRiddleHouse))
    (exists (?b1)
-     (and (livesIn ?h1 ?m1) (smokesBrand ?m1 ?b1))))
+     (and (livesIn ?m1 ?h1) (smokesBrand ?m1 ?b1))))
 
 
 
