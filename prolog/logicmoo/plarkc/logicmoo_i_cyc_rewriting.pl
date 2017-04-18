@@ -23,7 +23,7 @@
             % BAD?  baseKB:cycPrepending/2,
             % cyc_to_clif_notify/2,
             rename_atom/2,
-            cyc_to_clif/2,
+            cyc_to_pdkb/2,
             cyc_to_mpred_idiom1/2,
             cyc_to_mpred_idiom_unused/2,
             cyc_to_mpred_sent_idiom_2/3,
@@ -1580,7 +1580,7 @@ cyc_to_mpred_idiom1(B,A):-starts_lower(B),dehyphenize_const(B,A).
 
 cyc_to_mpred_idiom_unused([Conj|MORE],Out):-fail, not(is_ftVar(Conj)),!,cyc_to_mpred_sent_idiom_2(Conj,Pred,_),
   locally(thocal:outer_pred_expansion(Conj,MORE),
-    ( must_maplist(cyc_to_clif,MORE,MOREL), 
+    ( must_maplist(cyc_to_pdkb,MORE,MOREL), 
        locally(thocal:outer_pred_expansion(Pred,MOREL),       
          list_to_ops(Pred,MOREL,Out)))),!.
 
@@ -1600,26 +1600,26 @@ label_args(PREFIX,N,[ARG|ARGS]):-atom_concat(PREFIX,N,TOARG),ignore(TOARG=ARG),!
 
 :- thread_local thocal:outer_pred_expansion/2.
 
-cyc_to_clif_notify(B,A):- cyc_to_clif(B,A) -> B\=@=A, nop(dmsg(B==A)).
-%cyc_to_clif_entry(I,O):-fail,cyc_to_clif(I,M),!,must((compound_name_arity(I,FI,_),compound_name_arity(M,MF,_),FI==MF)),O=M.
+cyc_to_clif_notify(B,A):- cyc_to_pdkb(B,A) -> B\=@=A, nop(dmsg(B==A)).
+%cyc_to_clif_entry(I,O):-fail,cyc_to_pdkb(I,M),!,must((compound_name_arity(I,FI,_),compound_name_arity(M,MF,_),FI==MF)),O=M.
 
 re_convert_string(H,H).
 
-:-export(cyc_to_clif/2).
-cyc_to_clif(V,V):-is_ftVar(V),!.
-cyc_to_clif([],[]):-!.
-cyc_to_clif([H],HH):- string(H),re_convert_string(H,HH),!.
-cyc_to_clif(H,HH):- string(H),re_convert_string(H,HH),!.
-cyc_to_clif(I,O):- \+ (compound(I)),do_renames(I,O),!.
-cyc_to_clif('uSubLQuoteFn'(V),V):-atom(V),!.
-% cyc_to_clif(isa(I,C),O):-atom(C),M=..[C,I],!,cyc_to_clif(M,O).
-cyc_to_clif(I,O):- clause_b(ruleRewrite(I,M)),I\=@=M,!,cyc_to_clif(M,O).
+:-export(cyc_to_pdkb/2).
+cyc_to_pdkb(V,V):-is_ftVar(V),!.
+cyc_to_pdkb([],[]):-!.
+cyc_to_pdkb([H],HH):- string(H),re_convert_string(H,HH),!.
+cyc_to_pdkb(H,HH):- string(H),re_convert_string(H,HH),!.
+cyc_to_pdkb(I,O):- \+ (compound(I)),do_renames(I,O),!.
+cyc_to_pdkb('uSubLQuoteFn'(V),V):-atom(V),!.
+% cyc_to_pdkb(isa(I,C),O):-atom(C),M=..[C,I],!,cyc_to_pdkb(M,O).
+cyc_to_pdkb(I,O):- clause_b(ruleRewrite(I,M)),I\=@=M,!,cyc_to_pdkb(M,O).
 
 
-cyc_to_clif([H|T],[HH|TT]):-!,cyc_to_clif(H,HH),cyc_to_clif(T,TT),!.
-cyc_to_clif(I,O):-stack_check,do_renames(I,O),!.
-cyc_to_clif(HOLDS,HOLDSOUT):-HOLDS=..[F|HOLDSL],
-  locally(thocal:outer_pred_expansion(F,HOLDSL),must_maplist( cyc_to_clif,[F|HOLDSL],[C|HOLDSOUTL])),!,
+cyc_to_pdkb([H|T],[HH|TT]):-!,cyc_to_pdkb(H,HH),cyc_to_pdkb(T,TT),!.
+cyc_to_pdkb(I,O):-stack_check,do_renames(I,O),!.
+cyc_to_pdkb(HOLDS,HOLDSOUT):-HOLDS=..[F|HOLDSL],
+  locally(thocal:outer_pred_expansion(F,HOLDSL),must_maplist( cyc_to_pdkb,[F|HOLDSL],[C|HOLDSOUTL])),!,
   ((is_list([C|HOLDSOUTL]), atom(C))-> must(HOLDSOUT=..[C|HOLDSOUTL]) ; HOLDSOUT=[C|HOLDSOUTL]),!.
 
 :-export(do_renames/2).
@@ -1644,11 +1644,11 @@ cyc_to_mpred_sent_idiom_2(and,(','),trueSentence).
 
 list_to_ops(_,V,V):-is_ftVar(V),!.
 list_to_ops(Pred,[],Out):-cyc_to_mpred_sent_idiom_2(_,Pred,Out),!.
-list_to_ops(Pred,In,Out):-not(is_list(In)),!,cyc_to_clif(In,Mid),cyc_to_mpred_sent_idiom_2(_,Pred,ArityOne),Out=..[ArityOne,Mid].
-list_to_ops(_,[In],Out):-!,cyc_to_clif(In,Out).
+list_to_ops(Pred,In,Out):-not(is_list(In)),!,cyc_to_pdkb(In,Mid),cyc_to_mpred_sent_idiom_2(_,Pred,ArityOne),Out=..[ArityOne,Mid].
+list_to_ops(_,[In],Out):-!,cyc_to_pdkb(In,Out).
 list_to_ops(Pred,[H,T],Body):-!,
-    cyc_to_clif(H,HH),
-    cyc_to_clif(T,TT),
+    cyc_to_pdkb(H,HH),
+    cyc_to_pdkb(T,TT),
     (is_list(TT)-> Body=..[Pred,HH|TT]; Body=..[Pred,HH,TT]).
 
 list_to_ops(Pred,[H|T],Body):-!,

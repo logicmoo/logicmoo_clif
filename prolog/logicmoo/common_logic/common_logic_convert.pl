@@ -13,11 +13,11 @@
 % KIF BASED
 :- export((
          must_map_preds/3, 
-         sumo_to_clif/2,
+         sumo_to_pdkb_p5/2,
          is_kif_string/1,
          from_kif_string/2,
          convert_if_kif_string/2,
-         kif_assertion_recipe/2)).
+         sumo_to_pdkb/2)).
 
 
 
@@ -25,38 +25,38 @@ delay_rule_eval(InOut,_Wrap,InOut):-ground(InOut),!.
 delay_rule_eval(In,Wrap,WIn):- WIn=..[Wrap,In].
 
 % for SUMO
-rename_sumo('Collection','ttSumoCollection').
-rename_sumo(format,formatSumo).
-% rename_sumo(documentation,comment).
-rename_sumo('instance', isa).
-rename_sumo('subclass', genls).
-rename_sumo('inverse', genlInverse).
-rename_sumo('domain', 'argIsa').
-rename_sumo('disjoint', 'disjointWith').
+sumo_to_pdkb_const('Collection','ttSumoCollection').
+sumo_to_pdkb_const(format,formatSumo).
+% sumo_to_pdkb_const(documentation,comment).
+sumo_to_pdkb_const('instance', isa).
+sumo_to_pdkb_const('subclass', genls).
+sumo_to_pdkb_const('inverse', genlInverse).
+sumo_to_pdkb_const('domain', 'argIsa').
+sumo_to_pdkb_const('disjoint', 'disjointWith').
 
-rename_sumo('Atom', 'tSumoAtomMolecule').
+sumo_to_pdkb_const('Atom', 'tSumoAtomMolecule').
 
-rename_sumo('range', 'resultIsa').
-rename_sumo('domainSubclass', 'argGenl').
-rename_sumo('rangeSubclass', 'resultGenl').
-rename_sumo(immediateInstance,nearestIsa).
-rename_sumo('partition', 'sumo_partition').
-rename_sumo('Entity','tThing').
-rename_sumo('ListFn',vTheListFn).
-rename_sumo('ListOrderFn',vSumoListOrderFn).
-rename_sumo('AssignmentFn',uFn).
-rename_sumo('SymbolicString',ftString).
-rename_sumo('property','sumoProperty').
-rename_sumo('attribute','sumoAttribute').
-rename_sumo('Attribute','vtSumoAttribute').
-rename_sumo('EnglishLanguage','vEnglishLanguage').
-rename_sumo('Formula','ftFormula').
-rename_sumo('Function','tFunction').
-rename_sumo(forall,all).
-rename_sumo(subrelation,genlPreds).
-rename_sumo('Class','tSet').
-rename_sumo('SetOrClass', 'tCol').
-rename_sumo(I,O):- if_defined(builtin_rn_or_rn_new(I,O)),!.
+sumo_to_pdkb_const('range', 'resultIsa').
+sumo_to_pdkb_const('domainSubclass', 'argGenl').
+sumo_to_pdkb_const('rangeSubclass', 'resultGenl').
+sumo_to_pdkb_const(immediateInstance,nearestIsa).
+sumo_to_pdkb_const('partition', 'sumo_partition').
+sumo_to_pdkb_const('Entity','tThing').
+sumo_to_pdkb_const('ListFn',vTheListFn).
+sumo_to_pdkb_const('ListOrderFn',vSumoListOrderFn).
+sumo_to_pdkb_const('AssignmentFn',uFn).
+sumo_to_pdkb_const('SymbolicString',ftString).
+sumo_to_pdkb_const('property','sumoProperty').
+sumo_to_pdkb_const('attribute','sumoAttribute').
+sumo_to_pdkb_const('Attribute','vtSumoAttribute').
+sumo_to_pdkb_const('EnglishLanguage','vEnglishLanguage').
+sumo_to_pdkb_const('Formula','ftFormula').
+sumo_to_pdkb_const('Function','tFunction').
+sumo_to_pdkb_const(forall,all).
+sumo_to_pdkb_const(subrelation,genlPreds).
+sumo_to_pdkb_const('Class','tSet').
+sumo_to_pdkb_const('SetOrClass', 'tCol').
+sumo_to_pdkb_const(I,O):- if_defined(builtin_rn_or_rn_new(I,O)),!.
 
 
 
@@ -74,7 +74,7 @@ is_kif_string(String):-atomic(String),name(String,Codes), memberchk(40,Codes),me
 %
 % Convert If Knowledge Interchange Format String.
 %
-convert_if_kif_string(I, O):-is_kif_string(I),kif_assertion_recipe(I,O),!, \+ is_list(O).
+convert_if_kif_string(I, O):-is_kif_string(I),sumo_to_pdkb(I,O),!, \+ is_list(O).
 
 
 last_chance_doc(Wff0,WffO):- atomic(Wff0),atom_contains(Wff0,' '),string_to_mws(Wff0,MWS),last_chance_doc(MWS,WffO),!.
@@ -90,65 +90,72 @@ last_chance_doc(IO,IO).
 %
 % Converted From Knowledge Interchange Format String.
 %
-from_kif_string(I,Wff) :- input_to_forms(I,Wff,Vs)->must(put_variable_names(Vs)),!.
-from_kif_string(String,Forms) :- codelist_to_forms(String,Forms),!.
+convert_1_kif_string(I,Wff):- input_to_forms(I,Wff,Vs)->must(put_variable_names(Vs)),!.
+
+from_kif_string(Wff,Wff):- \+ atomic(Wff), \+ is_list(Wff),!.
+from_kif_string(I,Wff) :- string(I),convert_1_kif_string(string(I),Wff),!.
+from_kif_string(I,Wff) :- atom(I),atom_contains(I,' '),convert_1_kif_string(atom(I),Wff),!.
+from_kif_string([C|String],Wff) :- is_list(String),text_to_string([C|String],Text),one_must(convert_1_kif_string(string(Text),Wff),codelist_to_forms(string(Text),Wff)),!.
 from_kif_string(Wff,Wff).
 
 
 :- module_transparent(must_map_preds/3).
 must_map_preds([],IO,IO):-!.
-must_map_preds([one(Pred)|ListOfPreds],IO,Out):- break, must(call(Pred,IO)),!,
-   must_map_preds(ListOfPreds,IO,Out).
-must_map_preds([Pred|ListOfPreds],In,Out):- must(call(Pred,In,Mid)),!,
-   must_map_preds(ListOfPreds,Mid,Out),!.
+must_map_preds([one(Pred)|ListOfPreds],IO,Out):- !, maybe_notrace(call(Pred,IO)),!,must_map_preds(ListOfPreds,IO,Out).
+must_map_preds([Pred|ListOfPreds],In,Out):- maybe_notrace(call(Pred,In,Mid)),!,must_map_preds(ListOfPreds,Mid,Out),!.
 
 
 :- thread_local(t_l:no_db_expand_props/0).
 
 fully_expand_always(C0,C1):- locally(t_l:no_db_expand_props,fully_expand('==>'(C0),C1)),!.
 
-kif_assertion_recipe(D,CycLOut):-
-         must_det_l((must_map_preds([
-          %  from_kif_string,
-           sexpr_sterm_to_pterm,
-           sumo_to_clif,
-           %cyc_to_clif,
-           fully_expand_always,
-           % unnumbervars_and_save,
-           sumo_last_pass],D,CycLOut))).
 
-sumo_last_pass(O,O):- \+ compound(O),!.
-% sumo_last_pass((tPred(A),IO),IO):-atom(A),!.
-sumo_last_pass(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_last_pass,SENT,SENTO).
-sumo_last_pass([P|List],OUT):- atom(P), op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
-sumo_last_pass([P|List],[P|List]):-!.
-sumo_last_pass(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_last_pass,ARGS,ARGSO),SENTO=..[CONNECTIVE|ARGSO],!.
-sumo_last_pass(IO,IO).
+sumo_to_pdkb(CycL,CycL):- is_ftVar(CycL).
+sumo_to_pdkb('$COMMENT'(A),'$COMMENT'(A)):- !.
+sumo_to_pdkb(D,CycLOut):-
+         must_det_l((must_map_preds([
+           from_kif_string,
+           sexpr_sterm_to_pterm,
+           sumo_to_pdkb_p5,
+           cyc_to_pdkb_maybe,
+           fully_expand_always,
+           unnumbervars_with_names,
+           sumo_to_pdkb_p9],D,CycLOut))).
+
+cyc_to_pdkb_maybe(I,O):- if_defined(cyc_to_pdkb(I,O),I=O),!.
+
+sumo_to_pdkb_p5(O,O):-is_ftVar(O),!.
+sumo_to_pdkb_p5(documentation(C,'vEnglishLanguage',S),comment(C,S)):-!.
+sumo_to_pdkb_p5(Const,NConst):-atom(Const),sumo_to_pdkb_const(Const,NConst),!.
+sumo_to_pdkb_p5(Const,NConst):-string(Const),string_to_mws(Const,NConst),!.
+sumo_to_pdkb_p5(O,O):- \+ compound(O),!.
+sumo_to_pdkb_p5(I,O):-clause_b(ruleRewrite(I,O))->I\==O,!.
+% sumo_to_pdkb_p5((tPred(_),I),O):-!,sumo_to_pdkb_p5(I,O).
+sumo_to_pdkb_p5(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_to_pdkb_p5,SENT,SENTO).
+sumo_to_pdkb_p5(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_to_pdkb_p5,[CONNECTIVE|ARGS],ARGSO),SENTO=..ARGSO,!.
+sumo_to_pdkb_p5(IO,IO).
+
+sumo_to_pdkb_p9(O,O):- \+ compound(O),!.
+% sumo_to_pdkb_p9((tPred(A),IO),IO):-atom(A),!.
+sumo_to_pdkb_p9(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_to_pdkb_p9,SENT,SENTO).
+sumo_to_pdkb_p9([P|List],OUT):- atom(P), op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
+sumo_to_pdkb_p9([P|List],[P|List]):-!.
+sumo_to_pdkb_p9(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_to_pdkb_p9,ARGS,ARGSO),SENTO=..[CONNECTIVE|ARGSO],!.
+sumo_to_pdkb_p9(IO,IO).
 
 op_type_head(P,uN):-atom(P), atom_concat(_,'Fn',P).
 op_type_head(P,tN):-atom(P).
 
 
 make_var_arg(TYPE,P,List,OUT):- is_ftVar(List),!,OUT=..[TYPE,P,List].
-make_var_arg(TYPE,P,List,OUT):- is_list(List),!,must_maplist(sumo_last_pass,List,ListO),OUT=..[TYPE,P|ListO].
-make_var_arg(TYPE,P,[A0|List],OUT):- sumo_last_pass(A0,A),!,
+make_var_arg(TYPE,P,List,OUT):- is_list(List),!,must_maplist(sumo_to_pdkb_p9,List,ListO),OUT=..[TYPE,P|ListO].
+make_var_arg(TYPE,P,[A0|List],OUT):- sumo_to_pdkb_p9(A0,A),!,
  (is_ftVar(List) -> OUT=..[TYPE,P,A,List];
     (append(Left,Var,List),is_ftVar(Var),!,
-    must_maplist(sumo_last_pass,Left,NewLeft),
+    must_maplist(sumo_to_pdkb_p9,Left,NewLeft),
     append(NewLeft,[Var],NewList),
     OUT=..[TYPE,P,A|NewList])),!.
 
-
-sumo_to_clif(O,O):-is_ftVar(O),!.
-sumo_to_clif(documentation(C,'vEnglishLanguage',S),comment(C,S)):-!.
-sumo_to_clif(Const,NConst):-atom(Const),rename_sumo(Const,NConst),!.
-sumo_to_clif(Const,NConst):-string(Const),string_to_mws(Const,NConst),!.
-sumo_to_clif(O,O):- \+ compound(O),!.
-sumo_to_clif(I,O):-clause_b(ruleRewrite(I,O))->I\==O,!.
-% sumo_to_clif((tPred(_),I),O):-!,sumo_to_clif(I,O).
-sumo_to_clif(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_to_clif,SENT,SENTO).
-sumo_to_clif(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_to_clif,[CONNECTIVE|ARGS],ARGSO),SENTO=..ARGSO,!.
-sumo_to_clif(IO,IO).
 
 
 :- use_module(library(logicmoo_motel)).

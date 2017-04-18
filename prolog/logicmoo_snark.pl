@@ -31,9 +31,11 @@
 :- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_sanity.pl')).
+
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
-% :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
+:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,10 +46,6 @@
 
 :- during_boot(set_prolog_flag(do_renames,restore)).
 
-sumo_ain(I,O):-sexpr_sterm_to_pterm(I,M),sumo_ain1(M,O).
-sumo_ain1('$COMMENT'(A),'$COMMENT'(A)):- !.
-sumo_ain1(D,CycLOut):- must(kif_assertion_recipe(D,CycLOut)).    
-
 sumo_ain2(documentation(_, xtChineseLanguage,_)).
 sumo_ain2(CycLOut):-
     delay_rule_eval(CycLOut,sumo_rule,NewAsserts),
@@ -55,7 +53,7 @@ sumo_ain2(CycLOut):-
     ain(NewAsserts).
 
 loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
-loadSumo(File):- with_lisp_translation_cached(File,sumo_ain,nop).
+loadSumo(File):- with_lisp_translation_cached(File,sumo_to_pdkb,nop).
 
 skip_sumo:- app_argv('--nosumo'),!.
 skip_sumo:- app_argv(List), \+ member('--sumo',List), \+ member('--snark',List), \+ member('--all',List),!.
@@ -93,10 +91,7 @@ loadSumo3:-
 
 :- after_boot(loadSumo3).
 
-
-rst:- cls,make,consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
 :- fixup_exports.
-:- consult(library('logicmoo/common_logic/common_logic_sanity.pl')).
 
 end_of_file.
 end_of_file.

@@ -40,10 +40,11 @@ kif_io:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 
 load_clif(File):- 
-  absolute_file_name(File,Found,[extensions(['','.clif','.kif','.pfc','.pl'])]),
-  with_lisp_translation_cached(Found,=,kif_process_ignore).
+  maybe_notrace(absolute_file_name(File,Found,[extensions(['','.clif','.kif','.pfc','.pl'])])),
+  % with_lisp_translation_cached(Found, = , nop).
+  with_lisp_translation(Found, kif_process_ignore).
 
-kif_process_ignore(P):-ignore(once(kif_process(P))).
+kif_process_ignore(P):-must(once(kif_process(P))).
 
 :- public(kif_process/1).
 
@@ -54,15 +55,14 @@ kif_process_ignore(P):-ignore(once(kif_process(P))).
 % Knowledge Interchange Format Process.
 %
 kif_process(Var):- is_ftVar(Var),!,wdmsg(warn(var_kif_process(Var))).
-kif_process('$COMMENT'([Assert])):-!, dmsg(Assert).
-% kif_process(Assert):- atom(Assert),set_kif_mode(Assert).
-kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),t_l:kif_action_mode(Mode),!,ignore(show_call(kif_process(Mode,Wff))),!.
-kif_process(Wff):- t_l:kif_action_mode(Mode),ignore(show_call(kif_process(Mode,Wff))),!.
+% kif_process(Mode):- atom(Mode),set_kif_mode(Mode).
+kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),t_l:kif_action_mode(Mode),!,ignore(show_failure(kif_process(Mode,Wff))),!.
+kif_process(Wff):- t_l:kif_action_mode(Mode),ignore(show_failure(kif_process(Mode,Wff))),!.
 
-set_kif_mode(Assert):- ignore((atom(Assert),
+set_kif_mode(Mode):- ignore((atom(Mode),
   retractall(t_l:kif_action_mode(_)),
-  asserta(t_l:kif_action_mode(Assert)),
-  fmtl(t_l:kif_action_mode(Assert)))),!.
+  asserta(t_l:kif_action_mode(Mode)),
+  fmtl(t_l:kif_action_mode(Mode)))),!.
 
 
 %% kif_process( ?Other, :GoalWff) is det.
@@ -70,30 +70,50 @@ set_kif_mode(Assert):- ignore((atom(Assert),
 % Knowledge Interchange Format Process.
 %
 kif_process(_,Var):- must_be(nonvar,Var),fail.
-kif_process(_,end_of_file):- !,signal_eof(kif_process),!.
-kif_process(_,prolog):- prolog,!.
+kif_process(_,'$COMMENT'([])):-!.
+kif_process(_,'$COMMENT'([String])):-!, dmsg(String).
+kif_process(_,'$COMMENT'(String)):-!, dmsg(String).
+kif_process(_,'dmsg'(String)):-!, dmsg(String).
+kif_process(_,'wdmsg'(String)):-!, wdmsg(String).
+kif_process(_,'kif-mode'(Mode)):- set_kif_mode(Mode).
+kif_process(_,'kif_mode'(Mode)):- set_kif_mode(Mode).
 
-kif_process(_,'set-kif-option'(Assert)):-!, dmsg('set-kif-option'(Assert)).
-kif_process(_,'$COMMENT'([Assert])):-!, dmsg(Assert).
-kif_process(_,'$COMMENT'(Assert)):-!, dmsg(Assert).
-kif_process(_,Atom):- atom(Atom),current_predicate(Atom/0),!,call(Atom).
-kif_process(_,Atom):- atom(Atom),current_predicate(Atom/1),!,set_kif_mode(Atom).
-kif_process(_,'kif-mode'(Assert)):- set_kif_mode(Assert).
-kif_process(_,'kif_mode'(Assert)):- set_kif_mode(Assert).
-kif_process(_,':-'(Wff)):- !, kif_process(call,Wff).
-kif_process(_,'?-'(Wff)):- !, kif_ask(Wff).
-kif_process(_,'ask'(Wff)):- !, kif_ask(Wff).
-kif_process(_,'tell'(Wff)):- !, kif_add(Wff).
-kif_process(call,module(M,Exports)):- !,
-  prolog_load_context(module,Prev),
-  '$set_source_module'(M),
-  maplist(export,Exports),
-  call_on_eof(kif_process,'$set_source_module'(Prev)).
-kif_process(call,Call):- !,call(Call).
-kif_process(tell,Wff):- is_static_predicate(Wff), !, call(Wff).
-kif_process(tell,Wff):- !,kif_add(Wff).
-kif_process(ask,Wff):- !,kif_ask(Wff).
-kif_process(Other,Wff):- !, wdmsg(error(missing_kif_process(Other,Wff))),!,fail.
+kif_process(kif_add,Wff):- !, show_call(kif_add(Wff)).
+kif_process(kif_ask,Wff):- !, show_call(kif_ask(Wff)).
+
+kif_process(call_u,M:Wff):- !, show_call(call_u(M:Wff)).
+kif_process(call_u,Wff):- !, show_call(call_u(Wff)).
+
+kif_process(_,end_of_file):- !,signal_eof(kif_process),!.
+kif_process(_,_:EOF):- EOF == end_of_file,!,signal_eof(kif_process),!.
+kif_process(_,':-'(Call)):- !, kif_process(call,Call).
+kif_process(_,'?-'(Goal)):- !, kif_process(ask,Goal),break.
+kif_process(_,'ask'(Wff)):- !, kif_process(ask,Wff).
+kif_process(_,'tell'(Wff)):- !, kif_process(tell,Wff).
+kif_process(_,'set-kif-option'(Mode)):-!, dmsg('set-kif-option'(Mode)).
+
+kif_process(call,Was):- Was\=(_:_),!,prolog_load_context(module,Prev),kif_process(call,Prev:Was).
+
+kif_process(_,From:prolog):- !, with_umt(From,prolog),!.
+
+
+
+kif_process(call,Into:module(To,Exports)):- !,
+  prolog_load_context(module,From),
+  '$set_source_module'(To),
+  maplist(To:export,Exports),
+  maplist(From:import,Exports),
+  maplist(Into:import,Exports),
+  call_on_eof(kif_process,'$set_source_module'(From)).
+
+kif_process(_,Atom):- atom(Atom),current_predicate(Atom/0),!,kif_process(call_u,Atom).
+kif_process(_,Atom):- atom(Atom),current_predicate(Atom/1),fail,!,set_kif_mode(Atom).
+kif_process(call,Call):- !,kif_process(call_u,Call).
+kif_process(tell,Call):- is_static_predicate(Call),!,kif_process(call_u,Call).
+kif_process(tell,Wff):- !,kif_process(kif_add,Wff).
+kif_process(ask,Wff):- !,kif_process(kif_ask,Wff).
+kif_process(Other,Wff):- wdmsg(error(missing_kif_process(Other,Wff))),fail.
+kif_process(Pred1,Wff):- current_predicate(Pred1/1),!,call(Pred1,Wff).
 
 
 %open_input(InS,InS):- is_stream(InS),!.

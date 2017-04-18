@@ -125,9 +125,9 @@ reallyLoadTiny:- mpred_notrace.
 :- endif.
 
 
-%TODO FIX :-ain((((cycl(X),{must(cyc_to_clif(X,Y))}) ==> clif(Y)))).
+%TODO FIX :-ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))).
 
-:- ain((((cycl('$VAR'('X')),{must(cyc_to_clif('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
+:- ain((((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
 % ?-listing(cycl).
 
 %TODO FIX :- must(isa(iExplorer2,tHominid)).
@@ -237,7 +237,7 @@ tinyKB_All(PO,MT,STR):- % current_predicate(_:'TINYKB-ASSERTION'/5),!,
                memberchk(str(STR),PROPS), 
               (member(vars(VARS),PROPS)->(nput_variable_names( []),fixvars(P,0,VARS,PO),nput_variable_names( PO));PO=P ))).
 
-loadTinyKB:-forall((tinyKB(C,MT,STR),cyc_to_clif(C,P)),((print_assertion(P,MT,STR),wdmsg(ain(P))))).
+loadTinyKB:-forall((tinyKB(C,MT,STR),cyc_to_pdkb(C,P)),((print_assertion(P,MT,STR),wdmsg(ain(P))))).
 % ssveTinyKB:-tinyKB_All(tinyKB(P,MT,STR),tell((print_assertion(P,MT,STR),ain(P)))).
 
 print_assertion(P,MT,STR):- P=..PL,append([exactlyAssertedELMT|PL],[MT,STR],PPL),PP=..PPL, 
@@ -9493,7 +9493,7 @@ end_of_file.
 end_of_file.
 end_of_file.
 
-%:- trace,(cyc_to_clif("a",_X)).
+%:- trace,(cyc_to_pdkb("a",_X)).
 :- must(predicate_property(tinyKB9(_),number_of_clauses(_))).
 
 :- retractall(tinyKB9(_)).

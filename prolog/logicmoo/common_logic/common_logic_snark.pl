@@ -259,19 +259,22 @@ are_clauses_entailed(E):-var(E),!,fail.
 are_clauses_entailed(B):- unnumbervars(B,A),call_u(map_each_clause(is_prolog_entailed,A)).
 
 
+is_pfc_entailed(B):- unnumbervars(B,A),call_u(map_each_clause(mpred_supported(local),A)).
+
 
 %% is_prolog_entailed( ?Prolog) is det.
 %
 % True if the "Prolog" clause is asserted
 %
 
-is_prolog_entailed(UCL):-clause_asserted(UCL),!.
-is_prolog_entailed(UCL):-clause_asserted_i(UCL),!.
-is_prolog_entailed(UCL):-show_failure(clause_asserted_u(UCL)),!.
+is_prolog_entailed(UCL):-clause_asserted_u(UCL),!.
+is_prolog_entailed(UCL):-show_success(clause_asserted(UCL)),!.
+is_prolog_entailed(UCL):-show_success(clause_asserted_i(UCL)),!.
+is_prolog_entailed(UCL):-boxlog_to_pfc(UCL,PFC),show_failure(is_pfc_entailed(PFC)),!.
+is_prolog_entailed(PFC):-show_failure(is_pfc_entailed(PFC)),!.
 is_prolog_entailed(UCL):-clause(UCL,B),split_attrs(B,A,BB),must(A),BB.
 is_prolog_entailed(UCL):-clause(UCL,B,Ref),(B\==true->must(B);(dtrace,clause(HH,BB,Ref),dmsg(BB:-(UCL,HH)))),!.
-is_prolog_entailed(UCL):- wdmsg(warn(not_is_prolog_entailed(UCL))),!.
-
+is_prolog_entailed(UCL):-dmsg(warn(not_is_prolog_entailed(UCL))),!,fail.
 
 
 
@@ -289,13 +292,13 @@ member_ele(E,E).
 
 
 
-%% delistify_last_arg( ?Arg, :TermPred, ?Last) is det.
+%% delistify_last_arg( ?Arg, :PredMiddleArgs, ?Last) is det.
 %
 % Delistify Last Argument.
 %
-delistify_last_arg(Arg,Pred,Last):-is_list(Arg),!,member(E,Arg),delistify_last_arg(E,Pred,Last).
-delistify_last_arg(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],show_failure(M:NEWCALL),!,member_ele(NEW,Last).
-delistify_last_arg(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],show_failure(NEWCALL),!,member_ele(NEW,Last).
+delistify_last_arg(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),delistify_last_arg(E,Pred,Last).
+delistify_last_arg(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
+delistify_last_arg(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
 
 % sanity that mpreds (manage prolog prodicate) are abily to transform
 
@@ -315,11 +318,13 @@ map_each_clause(P,A):- call(P,A).
 %
 % Converted To Prolog.
 %
-any_to_pfc(B,A):-  must(map_each_clause(any_to_pfc0,B,A)).
+any_to_pfc(B,A):-  sumo_to_pdkb(B,B0),must(map_each_clause(any_to_pfc0,B0,A)).
 
-any_to_pfc0(B,A):-  is_kif_clause(B),!,kif_to_pfc0(B,A).
-any_to_pfc0(B,A):-  is_pfc_clause(B),!,fully_expand(clause(any_to_pfc,any_to_pfc),B,A).
-any_to_pfc0(B,A):-  is_prolog_clause(B),!,boxlog_to_pfc(B,A).
+any_to_pfc0(B,A):-  is_kif_clause(B),!,maybe_notrace(kif_to_pfc0(B,A)).
+any_to_pfc0(B,A):-  is_pfc_clause(B),!,maybe_notrace(fully_expand(clause(any_to_pfc,any_to_pfc),B,A)).
+any_to_pfc0(B,A):-  is_prolog_clause(B),!,maybe_notrace(boxlog_to_pfc(B,A)).
+any_to_pfc0(B,A):-  maybe_notrace(boxlog_to_pfc(B,A)),!.
+% any_to_pfc0(B,A):-  \+ \+ lookup_u(B),!,A=B.
 any_to_pfc0(B,A):-  !, trace_or_throw(should_never_be_here(any_to_pfc0(B,A))).
 any_to_pfc0((H:-B),PrologO):- must((show_failure(why,boxlog_to_pfc((H:-B),Prolog)),!,=(Prolog,PrologO))),!.
 
@@ -367,9 +372,10 @@ pfc_for_print_right(Prolog,PrintPFC):- =(Prolog,PrintPFC).
 %   
 %
 is_entailed_u(CLIF):- 
-  mpred_run,
+ mpred_run,
  mpred_nochaining((
-   any_to_pfc(CLIF,Prolog),!, \+ \+ are_clauses_entailed(Prolog))),!.
+   must_det(any_to_pfc(CLIF,Prolog)),!, 
+   \+ \+ are_clauses_entailed(Prolog))),!.
 
 
 %% is_not_entailed( ?CLIF) is det.
@@ -377,7 +383,8 @@ is_entailed_u(CLIF):-
 % If Is A Not Entailed.
 %  A good sanity Test for required absence of specific side-effect entailments
 %
-is_not_entailed(CLIF):-  mpred_nochaining((kif_to_pfc(CLIF,Prolog), \+ are_clauses_entailed(Prolog))).
+is_not_entailed(CLIF):-  mpred_nochaining((kif_to_boxlog(CLIF,Prolog), 
+  \+ are_clauses_entailed(Prolog))).
 
 :- op(1190,xfx,(:-)).
 :- op(1200,fy,(is_entailed_u)).
@@ -803,8 +810,8 @@ write_list([]).
 % Numbervars Using Names.
 %
 
-unnumbervars_with_names(X,X):-!.
-unnumbervars_with_names(Term,CTerm):- ground(Term),!,duplicate_term(Term,CTerm).
+% unnumbervars_with_names(X,X):-!.
+% unnumbervars_with_names(Term,CTerm):- ground(Term),!,duplicate_term(Term,CTerm).
 unnumbervars_with_names(Term,CTerm):- must(quietly(unnumbervars(Term,CTerm))),!.
 
 unnumbervars_with_names(Term,CTerm):-
@@ -948,11 +955,15 @@ kif_to_boxlog(I,KB,Why,Flattened):- % trace,
 %kif_to_boxlog(Wff,KB,Why,Out):- adjust_kif(KB,Wff,M),Wff \=@= M ,!,kif_to_boxlog(M,KB,Why,Out).
 
 kif_to_boxlog(HB,KB,Why,FlattenedO):- 
- unnumbervars((HB,KB,Why),(HB0,KB0,Why0)),
+  sumo_to_pdkb(HB,HB00)->
+  sumo_to_pdkb(KB,KB00)->
+  sumo_to_pdkb(Why,Why00)->
+ unnumbervars_with_names((HB00,KB00,Why00),(HB0,KB0,Why0))->
   with_no_kif_var_coroutines(must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO))),!.
 
 kif_to_boxlog_attvars(kif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
 kif_to_boxlog_attvars(clif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
+  
 kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
   must_det_l((
    check_is_kb(KB),

@@ -88,7 +88,7 @@ kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(
 addCycL(V):-addTiny_added(V),!.
 addCycL(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL(M),!.
 addCycL(V):-defunctionalize('implies',V,VE),V\=@=VE,!,addCycL(VE).
-addCycL(V):-cyc_to_clif(V,VE),V\=@=VE,!,addCycL(VE).
+addCycL(V):-cyc_to_pdkb(V,VE),V\=@=VE,!,addCycL(VE).
 addCycL(V):-is_simple_gaf(V),!,addCycL0(V),!.
 addCycL(V):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,addCycL0(VE)).
 addCycL(V):-addCycL0(V),!.
@@ -96,7 +96,7 @@ addCycL(V):-addCycL0(V),!.
 addCycL0(V):-addCycL1(V).
 
 addCycL1(V):-into_mpred_form_locally(V,M),V\=@=M,!,addCycL0(M),!.
-addCycL1(V):-cyc_to_clif(V,VE),V\=@=VE,!,addCycL0(VE).
+addCycL1(V):-cyc_to_pdkb(V,VE),V\=@=VE,!,addCycL0(VE).
 addCycL1((TRUE=>V)):-is_true(TRUE),addCycL0(V),!.
 addCycL1(<=(V , TRUE)):-is_true(TRUE),addCycL0(V),!.
 addCycL1((V :- TRUE)):-is_true(TRUE),addCycL0(V),!.
@@ -114,14 +114,14 @@ sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL), ignore
 
 
 cycl_to_mpred(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred(M,CP),!.
-cycl_to_mpred(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
+cycl_to_mpred(V,CP):-cyc_to_pdkb(V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
 cycl_to_mpred(V,CP):-is_simple_gaf(V),!,cycl_to_mpred0(V,CP),!.
 cycl_to_mpred(V,CP):-defunctionalize('implies',V,VE),V\=@=VE,!,cycl_to_mpred(VE,CP).
 cycl_to_mpred(V,CP):-kif_to_boxlog_ex(V,VP),V\=@=VP,!,as_cycl(VP,VE),show_call(tiny_kb,cycl_to_mpred0(VE,CP)).
 cycl_to_mpred(V,CP):-cycl_to_mpred0(V,CP),!.
 
 cycl_to_mpred0(V,CP):-into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,CP),!.
-cycl_to_mpred0(V,CP):-cyc_to_clif(V,VE),V\=@=VE,!,cycl_to_mpred0(VE,CP).
+cycl_to_mpred0(V,CP):-cyc_to_pdkb(V,VE),V\=@=VE,!,cycl_to_mpred0(VE,CP).
 cycl_to_mpred0((TRUE => V),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
 cycl_to_mpred0((V <=> TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.
 cycl_to_mpred0((V :- TRUE),CP):-is_true(TRUE),cycl_to_mpred0(V,CP),!.

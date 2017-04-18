@@ -91,7 +91,7 @@ argQuotedIsa(sentenceTruth,1,'ftAssertible').
 :- ain(((collectionExpansion(COL,RULE),isa(PRED,COL),{subst(RULE,':ARG1',PRED,NEWRULE)}) ==> trueSentence(NEWRULE))).
 :- ain(((expansion(F,RULE),arity(F,A),{make_kw_functor(F,A,CYCL),kw_to_vars((CYCL<==>RULE),NEWRULE)}) ==> trueSentence(NEWRULE))).
 
-nearestIsa(I,C) :- cwc, tSet(C), (fully_expand_real(isa(I,C),ISA)->mpred_fact(ISA)).
+nearestIsa(I,C) :- cwc, tSet(C), must(fully_expand_real(isa(I,C),ISA))->mpred_fact(ISA).
 % nearestGenls(I,C) :- mpred_fact(genls(I,C)).
 
 

@@ -11,7 +11,6 @@
           op(400,yfx,'&'),  
           op(500,yfx,'v'),*/
             atom_compat/3,
-            axiom_lhs_to_rhs/2,
             axiom_lhs_to_rhs/3,
             b_d_p/2,
             boxRule/3,
@@ -176,6 +175,27 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 
 
 */
+%=%   mpred_clausify.P
+%=%      SWI-Prolog version
+%=%   Convert wffs to list of normal logic clauses
+%=%
+%=%   and       &  
+%=%   or        v
+%=%   not       ~
+%=%   xor       xor
+%=%   implies   =>   
+%=%   iff       <=>  
+%=%   all       all(X,0)
+%=%   some      exists(Y,0)
+%=%
+%=%    all(X,p(X) => exists(Y, r(Y) & q(X,Y))) 
+%=%  ===============
+%=%    p(X) => r(sk1(X)) & q(X,sk1(X))
+%=%  ===============
+%=%    r(sk1(X)):- p(X).
+%=%    q(X,sk1(X)):- p(X).
+
+
 :- include(library('pfc2.0/mpred_header.pi')).
 %:- user:ensure_loaded(library(pfc)).
 %:- endif.
@@ -216,28 +236,6 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 
 % :- use_module(logicmoo(snark/common_logic_sexpr)).
 
-%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%=%
-%=% 
-%=%   mpred_clausify.P
-%=%      SWI-Prolog version
-%=%   Convert wffs to list of normal logic clauses
-%=%
-%=%   and       &  
-%=%   or        v
-%=%   not       ~
-%=%   xor       xor
-%=%   implies   =>   
-%=%   iff       <=>  
-%=%   all       all(X,0)
-%=%   some      exists(Y,0)
-%=%
-%=%    all(X,p(X) => exists(Y, r(Y) & q(X,Y))) 
-%=%  ===============
-%=%    p(X) => r(sk1(X)) & q(X,sk1(X))
-%=%  ===============
-%=%    r(sk1(X)):- p(X).
-%=%    q(X,sk1(X)):- p(X).
-
 :- dynamic user:file_search_path/2.
 :- multifile user:file_search_path/2.
 :- prolog_load_context(source,File),file_directory_name(File,Dir),directory_file_path(_,Short,Dir),asserta_if_new(user:file_search_path(Short,Dir)).
@@ -258,10 +256,6 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
  op(300,fx,'~'),
  op(300,fx,'-').
 
-% SWI Prolog modules do not export operators by default
-% so they must be explicitly placed in the user namespace
-
-
 
 % :- use_module(logicmoo(pttp/dbase_i_mpred_pttp_testing)). 
 % :- use_module(logicmoo(pttp/dbase_i_mpred_pttp)). 
@@ -273,6 +267,10 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 %  R is not a room if D is a door and R doesn't have D
 % if there are no doors anywhere then there must not be rooms
 % - room(R):- - has(R,_).
+
+
+% SWI Prolog modules do not export operators by default
+% so they must be explicitly placed in the user namespace
 
 :- %(current_prolog_flag(argv,[pl|_]) -> )
      %op(400, fy, baseKB:(nesc) ),	% Necessity, Always
@@ -296,7 +294,8 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
      ,!.
 
 
-
+:- thread_local(t_l:using_feature/1).
+is_using_feature(Feature):- t_l:using_feature(Feature).
 
 %= 	 	 
 
@@ -312,13 +311,9 @@ to_poss(KB,X,poss(BDT,X)):-share_scopes(KB,BDT),!.
 :- thread_local(t_l:current_form/1).
 
 :- style_check(+singleton).
-%=% Negation Normal Form
-% Usage: nnf(+KB,+Fml, ?NNF)
-% nnf(KB,Fml,NNF):- \+ ground(Fml),unnumbervars_with_names(Fml,FmlNV),nnf0(KB,FmlNV,NNF).
 
-%= 	 	 
 
-%% nnf( ?KB, ?FmlNV, ?NNF) is semidet.
+%% nnf(+KB,+Fml, ?NNF) is det.
 %
 % Negated Normal Form.
 %
@@ -326,7 +321,6 @@ nnf(KB,FmlNV,NNF):-
   must(quietly(unnumbervars_with_names((KB,FmlNV),(KB0,FmlNV0)))),
    must( \+ contains_dvar(KB0:FmlNV0)),
    nnf0(KB0,FmlNV0,NNF).
-
 
 %= 	 	 
 
@@ -376,7 +370,6 @@ nnf_dnf(KB,Fml,DNF):-
    dnf(KB,NNF,DNF))).
 
 
-% get_quantifier_isa(TypedX,X,Col).
 
 %= 	 	 
 
@@ -384,10 +377,10 @@ nnf_dnf(KB,Fml,DNF):-
 %
 % get quantifier  (isa/2).
 %
-get_quantifier_isa(_,_,_):-fail.
+
+get_quantifier_isa([X,Col],X,Col):-nonvar(Col).
 
 
-%= 	 	 
 
 %% logically_matches( ?KB, ?A, ?B) is semidet.
 %
@@ -404,14 +397,6 @@ logically_matches(KB,A,B):- once(corrected_modal_recurse(KB,A,AM)),A\=@=AM,!,log
 logically_matches(_,A,A).
 
 
-%= 	 	 
-
-%% axiom_lhs_to_rhs( ?VALUE1, :TermA, :TermA) is semidet.
-%
-% Axiom Left-hand-side Converted To Right-hand-side.
-%
-axiom_lhs_to_rhs(_,poss(BDT,beliefs(A,~F1)),~nesc(BDT,knows(A,F1))).
-
 is_leave_alone(P):- \+ compound(P),!.
 is_leave_alone(P):- leave_as_is_logically(P),!.
 is_leave_alone(P):- functor(P,F,A),is_leave_alone_pfa(P,F,A).
@@ -422,7 +407,11 @@ is_leave_alone_pfa(_,mudEquals,2).
 
 :- discontiguous(nnf1/5).
 :- discontiguous(axiom_lhs_to_rhs/3).
-%====== drive negation inward ===
+
+% =================================
+% ====== drive negation inward ===
+% =================================
+
 %% nnf(KB,+Fml,+FreeV,-NNF,-Paths) is det.
 %
 % Fml,NNF:    See above.
@@ -431,27 +420,30 @@ is_leave_alone_pfa(_,mudEquals,2).
 
 nnf(KB,Lit,FreeV,LitO,N):- nnf1(KB,Lit,FreeV,LitO,N),!.
 
+% for tracing
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
-
+% NonVar used in OUTPUT
 nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
 
-nnf1(_KB,Lit,[],Lit,1):- is_list(Lit),!.
 
-nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
-nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
-
-nnf1(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
-nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
-
+% Sentence was a Variable
 %nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,trace_or_throw(bad_numbervars(Lit)),ignore(FreeV=[Lit]).
 % % nnf1(KB,Lit,FreeV,Pos,Paths):- is_ftVar(Lit),!,nnf(KB,true_t(Lit),FreeV,Pos,Paths).
 % % nnf1(_KB,true_t(Lit),_FreeV,true_t(Lit),1):- is_ftVar(Lit),!.
+nnf1(_KB,Lit,FreeV,Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
+nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,ignore(FreeV=[Lit]).
+% % nnf1(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf1(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
+
+% Skipped Args
+nnf1(_KB,Lit,[],Lit,1):- is_list(Lit),!.
+nnf1(_KB,Fml,FreeV,Fml,1):- \+ compound(Fml),!,no_freev(FreeV).
+nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,no_freev(FreeV).
+
 
 % nnf1(_KB,Fml,_,Fml,1):- leave_as_is_logically(Fml), !. 
 
-% % nnf1(KB,Lit,FreeV,Pos,1):- is_ftVar(Lit),!,wdmsg(warn(nnf1(KB,Lit,FreeV,Pos,1))),Pos=true_t(Lit).
-
+% Catch and REwrite Temporal/Modals missed by preprocessor
 nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F), Fin \=@= F,!,nnf(KB,F,FreeV,NNF,Paths).
 
 /*
@@ -461,32 +453,258 @@ nnf1(KB,'tColOfCollectionSubsetFn'(Col,'tSetOfTheSetOfFn'(Var,Formulas)),FreeV,V
 */
     
 
+% =================================
+% Necessity, Always
+% =================================
+
 nnf1(KB,Fin,FreeV,BOX,Paths):- corrected_modal(KB,Fin,nesc(BDT,F)),
-      nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX).
+   nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX).
 
-%   poss(A & B) ->  all(Vs,poss(A & B)) ->  ~exists(Vs,nesc(A & B))
 
-%= 	 	 
-
-%% axiom_lhs_to_rhs( :TermVs, :TermVs) is semidet.
+%% axiom_lhs_to_rhs( ?KB, :LHS, :RHS) is semidet.
 %
 % Axiom Left-hand-side Converted To Right-hand-side.
 %
-axiom_lhs_to_rhs(all(Vs,poss(BDT,A & B)) ,  ~exists(Vs,nesc(BDT,A & B))).
 
-%   poss(beliefs(A,~F1)) ->  poss(~knows(A,F1)) ->  ~nesc(knows(A,F1))
+axiom_lhs_to_rhs(_KB, poss(BDT,beliefs(A,~F1)),~nesc(BDT,knows(A,F1))).
+axiom_lhs_to_rhs(_KB, all(Vs,poss(BDT,A & B)) ,  ~exists(Vs,nesc(BDT,A & B))).
+
+% disabled
 nnf1(KB,Fin,FreeV,DIA,Paths):-  fail,  copy_term(Fin,Fml),axiom_lhs_to_rhs(KB,F1,F2) , 
  \+ \+ (numbervars(Fin,0,_,[attvar(bind)]),logically_matches(KB,Fin,F1)),
   show_success(nnf,(nop(Fml),logically_matches(KB,Fin,F1))),show_call(why,nnf1(KB,F2,FreeV,DIA,Paths)).
 
+% =================================
+% Possibly, Eventually / Beliefs / Knowns
+% =================================
+
+%   poss(beliefs(A,~F1)) ->  poss(~knows(A,F1)) ->  ~nesc(knows(A,F1))
 nnf1(KB,Fin,FreeV,CIR,Paths):- corrected_modal(KB,Fin,cir(CT,F)),
       nnf(KB,F,FreeV,NNF,Paths), cirRule(KB,cir(CT,NNF), CIR),!.
 
+% % axiom_lhs_to_rhs(KB,poss(- (- LIT)),poss(LIT)):-set_is_lit(LIT).
+:- style_check(+singleton).
+
+% =================================
+% Typed (ForAll ((?x Man)(?y Woman)) ...                     )
+% =================================
+
+nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      nnf(KB,all(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            nnf(KB,all(X,NNF),FreeV,FmlO,Paths);
+            nnf(KB,all(X,all(MORE,NNF)),FreeV,FmlO,Paths)))).
+
+% =================================
+% Typed (Exists ((?x Man)(?y Woman)) ... )
+% =================================
+
+nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- nonvar(TypedX),get_quantifier_isa(TypedX,X,Col),!,
+    nnf(KB,exists(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths).
+nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X],!,
+    nnf(KB,exists(X,NNF),FreeV,FmlO,Paths).
+nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
+    nnf(KB,exists(X,exists(MORE,NNF)),FreeV,FmlO,Paths).
+
+% =================================
+% Global Typed (ForAll ?x  ... )
+% =================================
+nnf1(KB,all(X,NNF),FreeV,all(X,NNF2),Paths):- is_using_feature(quants_removed_in_removeQ),!,
+   nnf(KB,NNF,NewVars,NNF2,Paths),
+   add_to_vars(X,FreeV,NewVars),!.
+
+nnf1(KB,all(X,NNF),FreeV, NNF2, Paths):- is_using_feature(quants_removed_in_NNF),!,     
+   nnf(KB,NNF,NewVars,NNF2,Paths),
+   add_to_vars(X,FreeV,NewVars),!.
+
+
+% =================================
+% Existential Skolem Setting (only one of the next two clauses are used)  ========
+% =================================
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
+
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+   add_to_vars(X,FreeV,NewVars),
+    term_slots(NewVars,Slots),
+    delete_eq(Slots,X,SlotsV1),
+    delete_eq(SlotsV1,KB,SlotsV2),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    push_skolem(X,SkF),
+    nnf(KB,(~skolem(X,SkF) v Fml),NewVars,NNF,Paths)
+   )),!.
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,exists(X,NNF),Paths):- (is_skolem_setting(removeQ);is_skolem_setting(attvar)),
+   add_to_vars(X,FreeV,NewVars),
+   nnf(KB,Fml,NewVars,NNF,Paths),!.
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf),!,
+ must_det_l((
+   add_to_vars(X,FreeV,NewVars),
+    term_slots(NewVars,Slots),
+    delete_eq(Slots,X,SlotsV1),
+    delete_eq(SlotsV1,KB,SlotsV2),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    push_skolem(X,SkF),
+   nnf(KB,Fml,NewVars,NNF,Paths))),!.
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(push_skolem),!, wdmsg(nnf1(skolemizing(push_skolem,exists(X,Fml)))),
+   push_skolem(X,true),
+   must(nnf1(KB,Fml,FreeV,NNF,Paths)).
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(old_mk_skolem),!, wdmsg(nnf1(skolemizing(exists(X,Fml),with(FreeV)))),
+   must(mk_skolem(KB,Fml,X,FreeV,FmlSk)),
+   must(nnf1(KB,FmlSk,FreeV,NNF,Paths)).
+
+% exists(X,nesc(f(X)))  ->  exists(X, ~( poss( ~( f(X))))) ->   ~( poss( ~( f(X))))
+% disabled
+nnf1(KB,exists(_X,Fml),FreeV,NNF,Paths):- fail, nnf1(KB, ~( poss(b_d(KB,nesc,poss), ~( Fml))),FreeV,NNF,Paths).
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(label),
+   nnf_label(KB,exists(X,Fml),FreeV,NNF,Paths),!.
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(shared),
+   nnf_shared(KB,exists(X,Fml),FreeV,NNF,Paths),!.
+
+% disabled
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(ignore),
+   add_to_vars(X,FreeV,NewVars),
+   nnf(KB,Fml,NewVars,NNF,Paths).
+
+% =================================
+% ==== Cardinality (quantifier macros) ========
+% =================================
+
+% AtLeast 1:  We simply create the existence of 1
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
+   nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
+
+% AtLeast 2: (This is just to confirm code .. thus, will comment out to use "AtLeast X:" rule)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):-  N==2, !,  
+  subst_except(Fml,X,Y,FmlY),
+  %  Would this work?             
+  %      NEWFORM = ((exists(X,Fml) & exists(Y,FmlY) & different(X,Y))),
+  %  or does it need to be implication?
+  NEWFORM = ((exists(X,Fml) & exists(Y,FmlY)) => different(X,Y)),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtLeast 3: (This is just to confirm code .. thus, will comment out to use "AtLeast X:" rule)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):-  N==3, !,
+  subst_except(Fml,X,Y,FmlY),subst_except(Fml,X,Z,FmlZ),
+  NEWFORM = ((exists(X,Fml) & exists(Y,FmlY) & exists(Z,FmlZ)) => (different(X,Y) & different(X,Z) & different(Y,Z))),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtLeast 4: (This is just to confirm code .. thus, will comment out to use "AtLeast X:" rule)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):-  N==4, is_using_feature(list_macros),!,
+ exists([A,B,C,D],
+ NEWFORM =  (different(A,B) & different(A,C) & different(A,D) & different(B,C) & different(B,D) & different(C,D) 
+    & memberOf(X,[A,B,C,D]) => Fml)),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtLeast N:  If AtLeast 4 above is correct than AtLeast N is correcT?
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- 
+   length(SET,N),
+   NEWFORM = all(X, ((allDifferent(SET) & memberOf(X,SET)) => Fml)),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtLeast N:  Non list macro version (Might prefer this?)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
+    subst_except(Fml,X,Y,FmlY),        
+    NEWFORM = exists(Y, (FmlY & different(X,Y) & atleast(NewN,X,Fml))),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtLeast N:  Non list macro version (Might prefer this?)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- is_using_feature(inline_prolog),!,
+    X= Skolem,
+    NEWFORM =  
+       ({between(1,N,Id)} => equals(Skolem, skolemIDAndFormFN(Id,Fml))),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+
+% AtMost N: "If there are AtLeast N then  There Exists No More"
+nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- 
+   subst_except(Fml,X,Y,FmlY),
+   NEWFORM = (atleast(N,X,Fml) => ~exists(Y,FmlY & different(X,Y))),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtMost 1: "There may never be 2 (that is X, Y are different) and have Fml be true"
+nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !, 
+    subst_except(Fml,X,Y,FmlY),
+   NEWFORM = ( ~ ( exists(X,Fml) & exists(Y,FmlY) & different(X,Y) ) ),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% Exactly N: states "There is AtMost N /\ AtLeast N"
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- 
+   NEWFORM = (atleast(N,X,Fml) & atmost(N,X,Fml)),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% Exactly 1: states "There is AtMost and AtLeast 1"
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
+     subst_except(Fml,X,Y,FmlY),
+    nnf(KB,(exists(X,Fml) & exists(Y,FmlY))=>equals(X,Y),FreeV,NNF,Paths).
+
+% Exactly N: "There exists 1 more than the exact 1 smaller group"
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):-  !,
+    subst_except(Fml,X,Y,FmlY),
+    NewN is N - 1,    
+    NEWFORM = exists(Y, (FmlY & (different(X,Y) =>  exactly(NewN,X,Fml)))),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% =================================
+% ==== basic macros ========
+% =================================
+
+% AllDifferent 4: "All 4 members are different"
+nnf1(KB,allDifferent([A,B,C,D]),FreeV,NNF,Paths):- 
+  NEWFORM =  (different(A,B) & different(A,C) & different(A,D) & different(B,C) & different(B,D) & different(C,D)),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AllDifferent Set: "All members are different"
+nnf1(KB,allDifferent(SET),FreeV,NNF,Paths):- is_using_feature(list_macros),is_using_feature(inline_prolog),!,
+  NEWFORM =  (
+    {member(X,SET),member(Y,SET),X\==Y} 
+       =>different(X,Y) ),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% =================================
+%  Temporal LTL/CTL/CTL* Logic
+% =================================
+
+% Release: \phi releases \psi if \psi is true until the first position in which 
+%  \phi is true (or forever if such a position does not exist). 
+nnf1(KB,release(CT,CurrentPsi,ReleaserPhi),FreeV,NNF,Paths):- 
+   share_scopes(KB,CT),!,
+   Fml1 = (ReleaserPhi => ~CurrentPsi),
+  nnf(KB,Fml1,FreeV,NNF,Paths).
+
+% Until: \psi holds at the current or a future position, and \phi has to hold until that position. At that position \phi does not have to hold any more
+nnf1(KB,until(CurrentPsi,DisablerPhi),FreeV,NNF,Paths):- 
+  Fml1 = (CurrentPsi v (DisablerPhi => ~CurrentPsi)),
+  nnf(KB,Fml1,FreeV,NNF,Paths).
+
+% ~until(Future,Current) -> ( always(~Current) v until(~Current,(~Future & ~Current)))
+nnf1(KB,~until(CT,Future,Current),FreeV,NNF,Paths):- 
+
+   nnf(KB, ~( Future),FreeV,NNFuture,_),
+   nnf(KB, ~( Current),FreeV,NNCurrent,_),
+   share_scopes(KB,CT),!,
+   Fml1 = v(always(NNCurrent), until(CT,NNCurrent,&(NNFuture,NNCurrent))),
+   nnf(KB,Fml1,FreeV,NNF,Paths).
+   
+% ~cir(CT,Future) -> cir(CT,~Future)
+nnf1(KB,~cir(CT,Future),FreeV,NNF,Paths):- 
+   nnf(KB,cir(CT,~Future),FreeV,NNF,Paths),!.
+
 % A until B means it B starts after the ending of A
 axiom_lhs_to_rhs(KB,startsAfterEndingOf(B,A),until(CT,A,B)):- share_scopes(KB,CT),!,set_is_lit(A),set_is_lit(B),!.
-
-% axiom_lhs_to_rhs(KB,poss(- (- LIT)),poss(LIT)):-set_is_lit(LIT).
-:- style_check(+singleton).
 
 nnf1(KB,until(CT,A,B),FreeV,NNF,Paths):-  set_is_lit(A),set_is_lit(B),  share_scopes(KB,CT),!,
       nnf(KB,A,FreeV,NNF1,Paths1),
@@ -499,110 +717,16 @@ nnf1(KB,until(CT,A,B),FreeV,NNF,Paths):-  set_is_lit(A),set_is_lit(B),  share_sc
 nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
   nnf(KB,occuring(TIMESPAN) => TRUTH,FreeV,NNF,Paths).
 
-
 nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  nnf(KB,temporallySubsumes(TIMESPAN,TRUTH),FreeV,NNF,Paths).
+
 nnf1(KB,temporallySubsumes(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
  nnf(KB,(until(CT,TRUTH,~TIMESPAN)&until(CT,~TRUTH,TIMESPAN)),FreeV,NNF,Paths).
 
-% ==== typed quantifiers ========
-nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X],!,
-    nnf(KB,all(X,NNF),FreeV,FmlO,Paths).
-nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
-    nnf(KB,all(X,all(MORE,NNF)),FreeV,FmlO,Paths).
-nnf1(KB,all(TypedX,NNF),FreeV,FmlO,Paths):- get_quantifier_isa(TypedX,X,Col),
-    nnf(KB,all(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths).
-
-nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X],!,
-    nnf(KB,exists(X,NNF),FreeV,FmlO,Paths).
-nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
-    nnf(KB,exists(X,exists(MORE,NNF)),FreeV,FmlO,Paths).
-nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- get_quantifier_isa(TypedX,X,Col),
-    nnf(KB,exists(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths).
-
-% ==== quantifiers ========
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf),!,
- must_det_l((
-   add_to_vars(X,FreeV,NewVars),
-    term_slots(NewVars,Slots),
-    delete_eq(Slots,X,SlotsV1),
-    delete_eq(SlotsV1,KB,SlotsV2),
-    skolem_f(KB, Fml, X, SlotsV2, SkF),
-    push_skolem(X,SkF),
-   nnf(KB,Fml,NewVars,NNF,Paths))),!.
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
- must_det_l((
-   add_to_vars(X,FreeV,NewVars),
-    term_slots(NewVars,Slots),
-    delete_eq(Slots,X,SlotsV1),
-    delete_eq(SlotsV1,KB,SlotsV2),
-    skolem_f(KB, Fml, X, SlotsV2, SkF),
-    push_skolem(X,SkF),
-   nnf(KB,(~skolem(X,SkF) v Fml),NewVars,NNF,Paths))),!.
-
-% ==== quantifiers ========
-nnf1(KB,all(X,NNF),FreeV,all(X,NNF2),Paths):-  
-     add_to_vars(X,FreeV,NewVars),
-     nnf(KB,NNF,NewVars,NNF2,Paths).
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(push_skolem),!, wdmsg(nnf1(skolemizing(push_skolem,exists(X,Fml)))),
-   push_skolem(X,true),
-   must(nnf1(KB,Fml,FreeV,NNF,Paths)).
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(old_mk_skolem),!, wdmsg(nnf1(skolemizing(exists(X,Fml),with(FreeV)))),
-   must(mk_skolem(KB,Fml,X,FreeV,FmlSk)),
-   must(nnf1(KB,FmlSk,FreeV,NNF,Paths)).
-
-% exists(X,nesc(f(X)))  ->  exists(X, ~( poss( ~( f(X))))) ->   ~( poss( ~( f(X))))
-% nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- nnf1(KB, ~( poss(b_d(KB,nesc,poss), ~( Fml))),FreeV,NNF,Paths).
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(label),
-   nnf_label(KB,exists(X,Fml),FreeV,NNF,Paths),!.
-
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(shared),
-   nnf_shared(KB,exists(X,Fml),FreeV,NNF,Paths),!.
 
 
-nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(ignore),
-   add_to_vars(X,FreeV,NewVars),
-   nnf(KB,Fml,NewVars,NNF,Paths).
-
-nnf1(KB,exists(X,Fml),FreeV,exists(X,NNF),Paths):- (is_skolem_setting(removeQ);is_skolem_setting(attvar)),
-   add_to_vars(X,FreeV,NewVars),
-   nnf(KB,Fml,NewVars,NNF,Paths),!.
-
-nnf1(KB,thereExistsExactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
-      nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
-
-nnf1(KB,thereExistsExactly(N,X,Fml),FreeV,NNF,Paths):- 
-	!,
-	NewN is N - 1,
-        subst_except(Fml,X,Y,FmlY),
-      nnf(KB, exists(Y, (FmlY & (~equals(Y,X)
-       =>  thereExistsExactly(NewN,X,Fml)))),FreeV,NNF,Paths).
-
-nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
-      nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
-
-nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- 
-	!,
-	NewN is N - 1,
-        subst_except(Fml,X,Y,FmlY),
-      nnf(KB, exists(Y, (FmlY & (~equals(Y,X)
-       =>  atleast(NewN,X,Fml)))),FreeV,NNF,Paths).
-
-nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !, 
-        subst_except(Fml,X,Y,FmlY),
-        Z=X,FmlZ=Fml, % subst_except(Fml,X,Z,FmlZ),
-      nnf(KB,  ~equals(Y,Z) => ~((exists(Y,FmlY) & exists(Z,FmlZ))),FreeV,NNF,Paths).
-
-nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- 
-	!,
-        subst_except(Fml,X,Y,FmlY),
-	NewN is N - 1,
-      nnf(KB,(exists(Y,FmlY) & ~equals(Y,X) & atmost(NewN,X,Fml)),FreeV,NNF,Paths).
+% =================================
+% Back to Normal NNF-ing 
+% =================================
 
 nnf1(KB, ~( xor(X , Y)),FreeV,NNF,Paths):-
    !,
@@ -612,18 +736,21 @@ nnf1(KB,xor(X , Y),FreeV,NNF,Paths):-
    !,
   nnf(KB,((X v Y) & ( ~( X) v  ~( Y))),FreeV,NNF,Paths).
    
-nnf1(KB,(C => (A & B)),FreeV,NNFO,PathsO):- 
+nnf1(KB,(C => (A & B)),FreeV,NNFO,PathsO):- is_using_feature(two_implications),!,
       nnf(KB,A,FreeV,NNF1,Paths1),contains_no_negs(NNF1),
-      nnf(KB,B,FreeV,NNF2,Paths2),contains_no_negs(NNF2),
-        can_use_hack(two_implications),!,
+      nnf(KB,B,FreeV,NNF2,Paths2),contains_no_negs(NNF2),        
         to_poss(KB,NNF1,NNF1WFFChk),to_poss(KB,NNF2,NNF2WFFChk),
         FullNNF2 = ((NNF1WFFChk => (C => NNF2))),
         FullNNF1 = ((NNF2WFFChk => (C => NNF1))),
-	% Paths is Paths1 * Paths2,
+	PathsO is Paths1 * Paths2,
 	(Paths1 > Paths2 -> NNF = (FullNNF2 & FullNNF1);
 		            NNF = (FullNNF1 & FullNNF2)),
-        did_use_hack(two_implications),
+       did_use_hack(two_implications),
        nnf(KB,NNF,FreeV,NNFO,PathsO).
+
+nnf1(KB,(A & B),FreeV,NNF,Paths):- is_using_feature(co_mingling),!,
+   NEWFORM = (poss( A & B) => nesc( A & B )),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 nnf1(KB,(A & B),FreeV,NNF,Paths):- !,
       nnf(KB,A,FreeV,NNF1,Paths1),
@@ -647,38 +774,6 @@ nnf1(KB,(A v B),FreeV,NNF,Paths):-
 	(Paths1 > Paths2 -> NNF = (NNF2 v NNF1);
 		            NNF = (NNF1 v NNF2)).
 
-/*
-% Release: \phi releases \psi if \psi is true until the first position in which 
-  \phi is true (or forever if such a position does not exist).
-*/
-
-nnf1(KB,Fml,FreeV,NNF,Paths):- 
-   logically_matches(KB,Fml,release(CT,CurrentPsi,ReleaserPhi)),
-   share_scopes(KB,CT),!,
-   Fml1 = (ReleaserPhi => ~CurrentPsi),
-  nnf(KB,Fml1,FreeV,NNF,Paths).
-
-% Until: \psi holds at the current or a future position, and \phi has to hold until that position. At that position \phi does not have to hold any more
-nnf1(KB,Fml,FreeV,NNF,Paths):- 
-   logically_matches(KB,Fml,until(CurrentPsi,DisablerPhi)),
-   Fml1 = (CurrentPsi v (DisablerPhi => ~CurrentPsi)),
-  nnf(KB,Fml1,FreeV,NNF,Paths).
-
-% ~until(Future,Current) -> ( always(~Current) v until(~Current,(~Future & ~Current)))
-nnf1(KB,Fml,FreeV,NNF,Paths):- 
-   logically_matches(KB,Fml,~until(CT,Future,Current)),
-  nnf(KB, ~( Future),FreeV,NNFuture,_),
-   nnf(KB, ~( Current),FreeV,NNCurrent,_),
-   share_scopes(KB,CT),!,
-   Fml1 = v(always(NNCurrent), until(CT,NNCurrent,&(NNFuture,NNCurrent))),
-   nnf(KB,Fml1,FreeV,NNF,Paths).
-   
-% ~cir(CT,Future) -> cir(CT,~Future)
-nnf1(KB,Fml,FreeV,NNF,Paths):- 
-   logically_matches(KB,Fml,~cir(CT,Future)),
-   nnf(KB,cir(CT,~Future),FreeV,NNF,Paths),!.
-/*
-*/   
 
 nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
       (Fml = (beliefs(BDT,~F)) -> Fml1 = knows(BDT, ( F));
@@ -717,26 +812,13 @@ nnf1(KB,Fml,FreeV,NNF,Paths):-
          Fml = '<=>'(A,B) -> Fml1 = v('=>'(A, B), '=>'(B, A) )
 	),!, nnf(KB,Fml1,FreeV,NNF,Paths).
 
-nnf1(_, ~( Fml),_FreeV, ~( Fml),1):- is_ftVar(Fml),!,push_dom(Fml,ftSentence).
-
-nnf1(_KB,mudEquals(A,B),FreeV,mudEquals(A,B),1):- is_ftVar(A), !,no_freev(FreeV).
-
-nnf1(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
-
-% nnf(KB,Fml,_,Fml,1):- Fml=..[F,KB,_],third_order(F),!.
-
-nnf1(KB,Fml,FreeV,FmlO,N):- 
-  compound(Fml),
-  \+ is_precond_like(Fml),
-  arg(_,Fml,Function),
-  compound(Function),
-  notrace(is_function_expr(Function)),
-  % notrace(\+ has_function(Function)),
-  function_to_predicate(Function,NewVar,PredifiedFunction),!,
-  subst(Fml,Function,NewVar,FmlMid),!,
-  nnf(KB,all(NewVar,(PredifiedFunction => FmlMid)),FreeV,FmlO,N).
 
 /*
+
+% =================================
+% Higher Order
+% =================================
+
 nnf1(KB,Fml,FreeV,Out,Path):- Fml=..[F,A],third_order(F),  
   nnf(KB,A,FreeV,NNF1,Path1),!,
   Fml2=..[F,KB,NNF1],nnf(KB,Fml2,FreeV,Out,Path2),Path is Path1+Path2.
@@ -757,10 +839,39 @@ nnf1(KB,Fml,FreeV,Out,Paths):-
 
 */
 
+% =================================
+% Forth Order Logic
+% =================================
 nnf1(KB,Fml,FreeV,FmlO,Paths):- no_poss(Fml),
   breakup_nnf(KB,Fml,FmlM),
   Fml\=@=FmlM,
   nnf(KB,FmlM,FreeV,FmlO,Paths).
+
+
+% nnf(KB,Fml,_,Fml,1):- Fml=..[F,KB,_],third_order(F),!.
+
+
+% =================================
+% Logical Atoms
+% =================================
+
+nnf1(_, ~( Fml),_FreeV, ~( Fml),1):- is_ftVar(Fml),!,push_dom(Fml,ftSentence).
+
+nnf1(_KB,mudEquals(A,B),FreeV,mudEquals(A,B),1):- is_ftVar(A), !,no_freev(FreeV).
+
+nnf1(_KB,PreCond,FreeV,PreCond,1):- is_precond_like(PreCond), !,no_freev(FreeV).
+
+
+nnf1(KB,Fml,FreeV,FmlO,N):- 
+  compound(Fml),
+  \+ is_precond_like(Fml),
+  arg(_,Fml,Function),
+  compound(Function),
+  notrace(is_function_expr(Function)),
+  % notrace(\+ has_function(Function)),
+  function_to_predicate(Function,NewVar,PredifiedFunction),!,
+  subst(Fml,Function,NewVar,FmlMid),!,
+  nnf(KB,all(NewVar,(PredifiedFunction => FmlMid)),FreeV,FmlO,N).
 
 % nnf(KB, IN,FreeV,OUT,Paths):- simplify_cheap(IN,MID),IN\=@=MID,nnf(KB, MID,FreeV,OUT,Paths).
 % nnf(_KB , IN,[],OUT,1):- mnf(IN,OUT),IN\=OUT,!.
@@ -930,6 +1041,7 @@ breakup_nnf(KB,knows(AG,(~X v ~Y)), ~ beliefs(AG,(U & V))) :- !,
    breakup_nnf(KB,X,U), breakup_nnf(KB,Y,V).
 
 */
+
 breakup_nnf(KB,beliefs(Agt,(X & Y)),(beliefs(Agt,Xp) & beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
 % wrong .. breakup_nnf(KB,knows(Agt,(X v Y)),(beliefs(Agt,Xp) v beliefs(Agt,Yp))) :- ! ,  breakup_nnf(KB,X,Xp),breakup_nnf(KB,Y,Yp).
 
@@ -1320,6 +1432,7 @@ pnf(KB, [A|B], Vs,       PNF ):- !, pnf(KB,A,Vs,Ap), pnf(KB,B,Vs,Bp),
                                      (A\=Ap; B\=Bp), pnf(KB,[Ap|Bp],Vs,PNF),!.
 
 
+% disabled
 pnf(KB, H,Vars,FOO ):- fail,  compound(H),H=..[F|ARGS], is_sentence_functor(F), !, pnf(KB, [F|ARGS],Vars,FOOL ),FOO=..FOOL.
 
 pnf(_KB,          PNF, _,       PNF ).
@@ -1359,7 +1472,7 @@ cf(Why,KB,_Original,PNF, FlattenedO):-
   demodal_clauses(KB,FlattenedO3,FlattenedO4),
   remove_unused_clauses(FlattenedO4,FlattenedO),
   nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
-  boxlog_to_pfc(FlattenedO,PFCPreview),
+  maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),
   pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
   extract_conditions(PFCPreview,Conds), dmsg(conds= (Conds=>PFCPreview)))))).
 
@@ -1394,7 +1507,7 @@ invert_modal(_KB,nesc(BD,A),poss(BD,A)):-set_is_lit(A),!.
 invert_modal(_KB,poss(BD,A),nesc(BD,A)):-set_is_lit(A),!.
 invert_modal(KB,A,OUT):- must(adjust_kif0(KB,poss(A),OUT)).
 
-% invert_modal(KB,A,poss(b_d(KB,nesc,poss),A)):- can_use_hack(default_nesc),set_is_lit(A),!.
+% invert_modal(KB,A,poss(b_d(KB,nesc,poss),A)):- is_using_feature(default_nesc),set_is_lit(A),!.
 % invert_modal(KB,A,A):-!.
 
 
@@ -1543,6 +1656,7 @@ is_sent_op_modality(nesc).
 %
 % Atom Compat.
 %
+ /* disabled */
 atom_compat(F,HF,HHF):- fail,F\=HF, is_sent_op_modality(F),is_sent_op_modality(HF), format(atom(HHF),'~w_~w',[F,HF]).
 
 remove_unused_clauses([],[]):- !.
@@ -1608,7 +1722,7 @@ demodal_head_body(KB,Head,Body,(HeadO:-BodyO)):-
 
 % demodal_head(_KB,~skolem(A,B),unused(~skolem(A,B)),true):- nonvar(B),!.
 demodal_head(_KB,~skolem(A,B),unused_skolem(A,B),true):- nonvar(B),!.
-demodal_head(_KB,~equals(A,B),not_equals(A,B),true):-!.
+demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
 demodal_head(_KB,~isa(A,B),not_isa(A,B),true):- nonvar(B),!.
 demodal_head(_KB,naf(~Head),poss(Head),true):- !.
 demodal_head(_KB,Head,Head,true):- !.
@@ -2011,7 +2125,8 @@ skolem_f(KB, F, X, FreeVIn, SkF):-
         gensym(SKU,SKN),
         concat_atom(['sk',SKN,'Fn'],Fun),
 	SkF =..[Fun|FreeVSet])),
-        oo_put_attr(X,sk,SkF).
+       % @TODO  maybye use sk again
+        nop(oo_put_attr(X,sk,SkF)).
 
 
 %= 	 	 

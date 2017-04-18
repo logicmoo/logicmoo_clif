@@ -65,10 +65,9 @@ Per-Litteral features
             body_for_mpred_2/5,
             body_for_pfc/5,
            boxlog_to_pfc/2,
-          boxlog_to_pfc_pass_1/2,
-          boxlog_to_pfc_pass_2/3,
-          boxlog_to_pfc_pass_4/2,
-            boxlog_to_pfc_pass_3/4,
+           boxlog_to_pfc_pass_2/3,
+           boxlog_to_pfc_pass_3/4,
+           boxlog_to_pfc_pass_4/2,           
             can_use_hack/1,
             % conjoin_body/3,
             conjoin_maybe/3,
@@ -107,6 +106,9 @@ Per-Litteral features
 :- user:use_module(library(dialect/hprolog),[]).
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).
 
+:- use_module(library(lockable_vars)).
+:- use_module(library(listing_vars)).
+
 :- virtualize_source_file.
 
 :-
@@ -124,7 +126,6 @@ Per-Litteral features
  op(300,fx,'~'),
  op(300,fx,'-').
 
-:- use_module(library(listing_vars)).
 %= 	 	 
 
 %% is_units_h( ?A) is semidet.
@@ -148,7 +149,7 @@ is_units_b(A):-maplist(is_unit,A).
 %
 % If Is A Unit.
 %
-is_unit.
+is_unit :- dmsg(is_unit),break.
 
 %= 	 	 
 
@@ -205,9 +206,10 @@ vg(_,B,C):-vg(B),vg(C).
 %
 % Make Must Be Successfull Ground.
 %
+
 make_must_ground(H,BB,VG):-
-   term_slots(H,HVs),
-   term_slots(BB,BBVs),
+   term_slots(H,HVs)->
+   term_slots(BB,BBVs)->
    hprolog:intersect_eq(HVs,BBVs,Shared),
    hprolog:list_difference_eq(HVs,BBVs,UHVs),
    hprolog:list_difference_eq(BBVs,HVs,UBBVs),
@@ -220,6 +222,7 @@ make_must_ground(H,BB,VG):-
 %
 % Make Vg.
 %
+make_vg([],[],[],true):-!.
 make_vg([],Shared,[],{(S)}):-  S=..[is_unit|Shared],!.
 make_vg(_,Shared,_,{(S)}):-  S=..[is_unit|Shared],!.
 make_vg(B,S,H,{(CB,CS,CH)}):- CB=..[is_units_b,B],CS=..[is_unit|S],CH=..[is_units_h,H].
@@ -249,21 +252,16 @@ get_op_alias_compile(_,fwc).
 %
 % Datalog Converted To Prolog Forward Chaining.
 %
-boxlog_to_pfc(PFCM,PFC):- is_list(PFCM),must_maplist(boxlog_to_pfc,PFCM,PFC).
+boxlog_to_pfc(H0,H0):- is_ftVar(H0),!.
+boxlog_to_pfc(PFCM,PFC):- is_list(PFCM),!,must_maplist(boxlog_to_pfc,PFCM,PFC).
 boxlog_to_pfc((A,B),C):- !, must_maplist(boxlog_to_pfc,[A,B],[AA,BB]),conjoin(AA,BB,C).
-boxlog_to_pfc(BOXLOG,PFCO):- subst(BOXLOG,(not),(~),BOXLOGM),must(boxlog_to_pfc_pass_1(BOXLOGM,PFC)),!,subst(PFC,(not),(~),PFCO).
-
-
-%% boxlog_to_pfc_pass_1( ?H, ?OUTPUT) is semidet.
-%
-% Datalog Converted To Compile.
-%
-boxlog_to_pfc_pass_1(H0,OUTPUT):-
-  subst(H0,('not'),('~'),H),
-  get_op_alias_compile((:-),TYPE),!,
-  lock_vars(H),
-  must((boxlog_to_pfc_pass_2(TYPE,H,OUTPUTM))),!,OUTPUTM=OUTPUT,
-  unlock_vars(OUTPUT).
+boxlog_to_pfc(H0,PFCO):-
+  sumo_to_pdkb(H0,H00),
+  subst(H00,('not'),('~'),H),
+  get_op_alias_compile((:-),TYPE),!,  
+  with_vars_locked(throw,H,((maybe_notrace((boxlog_to_pfc_pass_2(TYPE,H,OUTPUTM))),!,
+    OUTPUTM=OUTPUT))),
+  subst(OUTPUT,(not),(~),PFCO).
 
 	 
 
@@ -295,8 +293,8 @@ boxlog_to_pfc_pass_2((:-),H,H):-  !.
 
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_),!.
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),OUT):- term_slots(H,HV),term_slots(B,BV), HV\==BV,!,boxlog_to_pfc_pass_2(bwc,(~(H):-B),OUT).
-boxlog_to_pfc_pass_2(fwc,(~(H):-B),(BBB==>HH)):- body_for_pfc(fwc,~(H),HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB).
-boxlog_to_pfc_pass_2(fwc,(H:-B),(BBB==>HH)):- body_for_pfc(fwc,H,HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB).
+boxlog_to_pfc_pass_2(fwc,(~(H):-B),(BBBHH)):- body_for_pfc(fwc,~(H),HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB),body_head_pfc(BBB,HH,BBBHH).
+boxlog_to_pfc_pass_2(fwc,(H:-B),(BBBHH)):- body_for_pfc(fwc,H,HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB),body_head_pfc(BBB,HH,BBBHH).
 boxlog_to_pfc_pass_2(fwc,~(H),~(H)):-  !.
 boxlog_to_pfc_pass_2(fwc,H,H):-  !.
 
@@ -311,6 +309,8 @@ boxlog_to_pfc_pass_2(TYPE,(H:-BB),OUTPUT):- !,boxlog_to_pfc_pass_3(TYPE,H,BB,OUT
 boxlog_to_pfc_pass_2(TYPE,~(H),OUTPUT):-  !,boxlog_to_pfc_pass_3(TYPE,~(H),true,OUTPUT).
 boxlog_to_pfc_pass_2(TYPE,H,OUTPUT):-     !,boxlog_to_pfc_pass_3(TYPE,H,true,OUTPUT).
 
+body_head_pfc(BBB,HH,HH):-is_true(BBB),!.
+body_head_pfc(BBB,HH,(BBB==>HH)).
 
 %= 	 	 
 

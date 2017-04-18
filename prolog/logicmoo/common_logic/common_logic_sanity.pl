@@ -46,8 +46,10 @@ fst:-  set_prolog_flag(write_attributes,ignore),freeze(X,(\+ is_ftVar(X),X==[]->
 
 
 zebra5 :- make,load_clif(pack(logicmoo_base/t/examples/fol/'zebra5.clif')).
-z:- zebra5.
 rzebra5 :- rtrace(load_clif(pack(logicmoo_base/t/examples/fol/'zebra5.clif'))).
+
+z:- cls,zebra5,!.
+z:- rzebra5,!.
 
 boxlog :- ensure_loaded(pack(logicmoo_base/t/examples/fol/'fol_sanity.pl')).
 
@@ -79,8 +81,6 @@ kif_test(X):- kif_add(X).
 
 
 kif_result(_).
-
-
 
 
 baseKB:sanity_test:- kif_test(all(R,'=>'(room(R) , exists(D, '&'(door(D) , has(R,D)))))).
