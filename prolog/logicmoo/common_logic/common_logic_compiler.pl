@@ -748,7 +748,8 @@ nnf1(KB,(C => (A & B)),FreeV,NNFO,PathsO):- is_using_feature(two_implications),!
        did_use_hack(two_implications),
        nnf(KB,NNF,FreeV,NNFO,PathsO).
 
-nnf1(KB,(A & B),FreeV,NNF,Paths):- is_using_feature(co_mingling),!,
+% disabled
+nnf1(KB,(A & B),FreeV,NNF,Paths):- fail, is_using_feature(co_mingling),!,
    NEWFORM = (poss( A & B) => nesc( A & B )),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
@@ -1020,6 +1021,8 @@ cant_distrubute_on(&,beliefs,2).
 %breakup_nnf(KB,eventually(F),X) :- !, breakup_nnf(KB,until(CT,true,F),X).
 %breakup_nnf(KB,~(eventually(F)),X) :- !, breakup_nnf(KB,~(until(CT,true,F)),X).
 
+breakup_nnf(_,Y,Y):- \+ compound(Y),!.
+breakup_nnf(_,Y,Y):- is_ftVar(Y),!.
 breakup_nnf(KB,cir(CT,(X & Y)),(cir(CT,Xp) & cir(CT,Yp))) :- ! , breakup_nnf(KB,X,Xp), breakup_nnf(KB,Y,Yp).
 breakup_nnf(KB,cir(CT,X),cir(CT,Xp)) :- !,  breakup_nnf(KB,X,Xp).
 

@@ -53,7 +53,8 @@ arity(pfclog,1).
 compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % {sanity(is_entailed_u(CLIF))}
 
-boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> (pfclog(PROLOG),{sanity(show_success(are_clauses_entailed(BOXLOG)))}).
+(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)}) ==> (pfclog(PROLOG),
+                                   {sanity(show_success(are_clauses_entailed(BOXLOG)))}).
 % pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
 % {all_different_head_vals(PROLOG)},
 pfclog(PROLOG) ==> PROLOG,{ain(actn(is_pfc_entailed(PROLOG)))}.

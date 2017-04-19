@@ -36,7 +36,7 @@
 (domain caresForType 1 tHuman)
 (domainSubclass caresForType 2 tAnimal)
 
-(iff (caresForType ?m1 ?t1) (and (caresFor ?m1 ?p1) (instance ?p1 ?t1)))
+(iff (and (caresForType ?m1 ?t1) (instance ?p1 ?t1) ) (caresFor ?m1 ?p1))
 
 (domain vtColor 1 vtColor)
 
