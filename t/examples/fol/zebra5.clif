@@ -249,4 +249,3 @@
 (sanity-test (and (caresFor ?Who ?Animal) (instance ?Animal tZebra)) '(?? ??))
 
 (dmsg "Zebra.clif loaded")
-			  

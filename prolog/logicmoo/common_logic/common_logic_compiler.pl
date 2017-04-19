@@ -307,6 +307,10 @@ to_poss(KB,X,poss(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
 to_poss(KB,poss(BDT,X),poss(BDT,X)):-nonvar(BDT),!,share_scopes(KB,BDT),!.
 to_poss(KB,X,poss(BDT,X)):-share_scopes(KB,BDT),!.
 
+to_nesc(KB,X,nesc(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
+to_nesc(KB,nesc(BDT,X),nesc(BDT,X)):-nonvar(BDT),!,share_scopes(KB,BDT),!.
+to_nesc(KB,X,nesc(BDT,X)):-share_scopes(KB,BDT),!.
+
 
 :- thread_local(t_l:current_form/1).
 
@@ -418,13 +422,16 @@ is_leave_alone_pfa(_,mudEquals,2).
 % FreeV:      List of free variables in Fml.
 % Paths:      Number of disjunctive paths in Fml.
 
-nnf(KB,Lit,FreeV,LitO,N):- nnf1(KB,Lit,FreeV,LitO,N),!.
+nnf(KB,Lit,FreeV,LitO,N):- 
+  (nb_current('$nnf_outer',Was);Was=[]),
+  b_setval('$nnf_outer',[Lit|Was]),
+  nnf1(KB,Lit,FreeV,LitO,N),!.
 
 % for tracing
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
 % NonVar used in OUTPUT
-nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
+nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
 
 
 % Sentence was a Variable
@@ -649,7 +656,7 @@ nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- fail,  % wont work due to ~atleast = 
 % AtMost N: "If there exists 1 then there exists at most N-1"
 nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
    subst_except(Fml,X,Y,FmlY),
-   NEWFORM = (exists(Y, FmlY) => atmost(NewN,X,Fml)),
+   NEWFORM = (exists(Y, FmlY) => atmost(NewN,X,Fml & different(X,Y))),
   nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 
@@ -761,9 +768,10 @@ nnf1(KB,(C => (A & B)),FreeV,NNFO,PathsO):- is_using_feature(two_implications),!
        did_use_hack(two_implications),
        nnf(KB,NNF,FreeV,NNFO,PathsO).
 
-% disabled
-nnf1(KB,(A & B),FreeV,NNF,Paths):- fail, is_using_feature(co_mingling),!,
-   NEWFORM = (poss( A & B) => nesc( A & B )),
+% not disabled
+nnf1(KB,(A & B),FreeV,NNF,Paths):- fail, nb_current('$nnf_outer',[_,Was|_]), \+ has_modals(Was),!,
+  % is_using_feature(co_mingling),!,
+   NEWFORM = ((poss(B) => A) & (poss(A) => B)) ,
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 nnf1(KB,(A & B),FreeV,NNF,Paths):- !,
@@ -1665,6 +1673,8 @@ demodal(KB,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal(KB),ARGS,ARGSO),!,HH=..[
 is_sent_op_modality(not).
 is_sent_op_modality(poss).
 is_sent_op_modality(nesc).
+
+has_modals(P):- notrace((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,nesc,_)))),!.
 
 %= 	 	 
 

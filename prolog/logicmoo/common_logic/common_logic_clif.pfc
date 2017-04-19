@@ -43,11 +43,13 @@ workflow_holder_queue(boxlog).
 workflow_holder_queue(pfclog).
 
 workflow_holder_queue(Atom) ==>
+  ~tCol(Atom),
   {dynamic(Atom/1),
    kb_shared(Atom/1)},
   rtArgsVerbatum(Atom),
   {mpred_trace(Atom)},
-  arity(Atom,1).
+  arity(Atom,1),
+  (t(Atom,Arg) ==> {wdmsg((Atom=Arg))}).
 
 
 % recompile_clif:- cwc, \+ compile_clif,!,ain(==> compile_clif).

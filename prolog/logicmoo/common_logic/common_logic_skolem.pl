@@ -136,7 +136,7 @@ cond:attr_unify_hook(Cond,Value):- var(Value),!,push_cond(Value,Cond),!.
 cond:attr_unify_hook([X|Cond],_Value):- !, maplist(call_u,[X|Cond]).
 cond:attr_unify_hook(Cond,_Value):- call_u(Cond).
 
-push_skolem(Onto,SK_ADD):- var(Onto), \+ attvar(Onto), dmsg(warn(var_not_push_skolem(Onto,SK_ADD))),!.
+push_skolem(Onto,SK_ADD):- var(Onto), \+ attvar(Onto), nop(dmsg(warn(var_not_push_skolem(Onto,SK_ADD)))),!.
 push_skolem(Onto,SK_ADD):-push_skolem(Onto,SK_ADD,_).
 
 push_skolem(Onto,SK_ADD,SK_FINAL):- oo_get_attr(Onto,sk,SLPREV),!,merge_forms(SLPREV,SK_ADD,SK_FINAL),sk_replace(Onto,SK_FINAL),!.
