@@ -54,13 +54,15 @@
 ; ============================================================
 ; There are five houses
 ; ============================================================
-(thereExistsExactly 5 ?h1 (instance ?h1 tRiddleHouse))
+(exactly 5 ?h1 (instance ?h1 tRiddleHouse))
 
 (subclass tRiddleHouse tHouse)
 
 ; All house have a different address
-(forall (?h1 ?h2) (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (different ?h1 ?h2)
- (address ?h1 ?a1) (address ?h2 ?a2))  (different ?a1 ?a2)))
+(forall (?h1 ?h2) 
+ (if (and (instance ?h1 tHouse) (instance ?h2 tHouse) (different ?h1 ?h2)
+                 (address ?h1 ?a1) (address ?h2 ?a2)) 
+     (different ?a1 ?a2)))
 
 (address house1 1)
 (address house2 2)
@@ -87,7 +89,7 @@
 ; ============================================================
 ; The Ukrainian drinks tea
 ; ============================================================
-(exists (?m1) (if (instance ?m1 tHuman) (natOrigin ?m1 iUkrain)) (and (drinks ?m1 ?b) (instance ?b tTea)))
+(exists (?m1) (if (and (instance ?m1 tHuman) (natOrigin ?m1 iUkrain)) (and (drinks ?m1 ?b) (instance ?b tTea))))
 
 
 ; ============================================================

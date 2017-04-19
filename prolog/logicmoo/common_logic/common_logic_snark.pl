@@ -256,10 +256,10 @@ kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
 %
 % 
 are_clauses_entailed(E):-var(E),!,fail.
-are_clauses_entailed(B):- unnumbervars(B,A),call_u(map_each_clause(is_prolog_entailed,A)).
+are_clauses_entailed(B):- unnumbervars(B,A),map_each_clause(is_prolog_entailed,A).
 
 
-is_pfc_entailed(B):- unnumbervars(B,A),call_u(map_each_clause(mpred_supported(local),A)).
+is_pfc_entailed(B):- unnumbervars(B,A),map_each_clause(mpred_supported(local),A).
 
 
 %% is_prolog_entailed( ?Prolog) is det.
@@ -910,8 +910,7 @@ wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(_KB,(NAME:-N
 kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog3(Wff,Out,Why)).
 
 kif_to_boxlog3(Wff,Out,Why):- kif_to_boxlog(Wff,Why,Out),!.
-kif_to_boxlog3(WffIn,Out,Why):-  kif_to_boxlog(all('$VAR'('KB'),
-  '=>'(asserted_t('$VAR'('KB'),WffIn),WffIn)),'$VAR'('KB'),Why,Out),!.
+kif_to_boxlog3(WffIn,Out,Why):-  kif_to_boxlog(all('$VAR'('KB'),'=>'(asserted_t('$VAR'('KB'),WffIn),WffIn)),'$VAR'('KB'),Why,Out),!.
 kif_to_boxlog3(WffIn,NormalClauses,Why):- kif_to_boxlog(WffIn,'$VAR'('KB'),Why,NormalClauses),!.
 
 

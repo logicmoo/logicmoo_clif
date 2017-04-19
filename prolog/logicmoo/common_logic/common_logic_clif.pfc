@@ -38,29 +38,40 @@ vim: set filetype=md:
       PROLOG,{slow_sanity(is_entailed_u(CLIF))})).
 */
 
-:- dynamic(pfclog/1).
-:- dynamic(boxlog/1).
-:- dynamic(clif/1).
+workflow_holder_queue(clif).
+workflow_holder_queue(boxlog).
+workflow_holder_queue(pfclog).
 
-arity(clif,1).
-arity(boxlog,1).
-arity(pfclog,1).
- ==>(hybrid_support(clif,1)).
- ==>(hybrid_support(boxlog,1)).
- ==>(hybrid_support(pfclog,1)).
+workflow_holder_queue(Atom) ==>
+  {dynamic(Atom/1),
+   kb_shared(Atom/1)},
+  rtArgsVerbatum(Atom),
+  {mpred_trace(Atom)},
+  arity(Atom,1).
 
-
-compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
-% {sanity(is_entailed_u(CLIF))}
-
-(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)}) ==> (pfclog(PROLOG),
-                                   {sanity(show_success(are_clauses_entailed(BOXLOG)))}).
-% pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
-% {all_different_head_vals(PROLOG)},
-pfclog(PROLOG) ==> PROLOG,{ain(actn(is_pfc_entailed(PROLOG)))}.
 
 % recompile_clif:- cwc, \+ compile_clif,!,ain(==> compile_clif).
 recompile_clif:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif).
+compile_clif ==> ((clif(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+% {sanity(is_entailed_u(CLIF))}
+
+
+
+/* LATER ..
+(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)}) ==> (pfclog(PROLOG),
+                                   {nop(ignore((show_failure(are_clauses_entailed(BOXLOG)))))}).
+*/
+
+boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> pfclog(PROLOG).
+
+% pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
+% {all_different_head_vals(PROLOG)},
+
+/*
+LATER
+pfclog(PROLOG) ==> (PROLOG, {nop(ain(actn(is_pfc_entailed(PROLOG))))}).
+*/
+
 
 /*
 

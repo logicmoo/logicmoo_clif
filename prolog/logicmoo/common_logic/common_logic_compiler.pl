@@ -610,30 +610,29 @@ nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):-  N==4, is_using_feature(list_macros)
     nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 % AtLeast N:  If AtLeast 4 above is correct than AtLeast N is correcT?
-nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- 
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- is_using_feature(list_macros),!,
    length(SET,N),
    NEWFORM = all(X, ((allDifferent(SET) & memberOf(X,SET)) => Fml)),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
-% AtLeast N:  Non list macro version (Might prefer this?)
-nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
-    subst_except(Fml,X,Y,FmlY),        
-    NEWFORM = exists(Y, (FmlY & different(X,Y) & atleast(NewN,X,Fml))),
-    nnf(KB,NEWFORM,FreeV,NNF,Paths).
-
-% AtLeast N:  Non list macro version (Might prefer this?)
+% AtLeast N:  Non list macro PFCLog version (Might prefer this?)
 nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- is_using_feature(inline_prolog),!,
     X= Skolem,
     NEWFORM =  
        ({between(1,N,Id)} => equals(Skolem, skolemIDAndFormFN(Id,Fml))),
     nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
+% AtLeast N:  This constructs N separate Skolems.. but did i name them the same?
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
+    subst_except(Fml,X,Y,FmlY),        
+    NEWFORM = ((exists(Y, FmlY) & atleast(NewN,X,Fml)) => different(X,Y)),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths),!.
 
-% AtMost N: "If there are AtLeast N then  There Exists No More"
-nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- 
-   subst_except(Fml,X,Y,FmlY),
-   NEWFORM = (atleast(N,X,Fml) => ~exists(Y,FmlY & different(X,Y))),
-  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+% AtLeast N:  Non list macro version (Might prefer this?)
+nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
+    subst_except(Fml,X,Y,FmlY),        
+    NEWFORM = exists(Y, (FmlY & different(X,Y) & atleast(NewN,X,Fml))),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths),!.
 
 % AtMost 1: "There may never be 2 (that is X, Y are different) and have Fml be true"
 nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !, 
@@ -641,15 +640,29 @@ nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
    NEWFORM = ( ~ ( exists(X,Fml) & exists(Y,FmlY) & different(X,Y) ) ),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
+% AtMost N: "If there are AtLeast N then  There Exists No More"
+nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- fail,  % wont work due to ~atleast = atmost (creating a loop (when in NNF))
+   subst_except(Fml,X,Y,FmlY),
+   NEWFORM = (atleast(N,X,Fml) => ~exists(Y, FmlY & different(X,Y))),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtMost N: "If there exists 1 then there exists at most N-1"
+nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
+   subst_except(Fml,X,Y,FmlY),
+   NEWFORM = (exists(Y, FmlY) => atmost(NewN,X,Fml)),
+  nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+
 % Exactly N: states "There is AtMost N /\ AtLeast N"
-nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- 
+nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):-            !,
    NEWFORM = (atleast(N,X,Fml) & atmost(N,X,Fml)),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 % Exactly 1: states "There is AtMost and AtLeast 1"
 nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- N==1, !,
      subst_except(Fml,X,Y,FmlY),
-    nnf(KB,(exists(X,Fml) & exists(Y,FmlY))=>equals(X,Y),FreeV,NNF,Paths).
+     NEWFORM = (exists(X,Fml) & exists(Y,FmlY))=>equals(X,Y),
+    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 % Exactly N: "There exists 1 more than the exact 1 smaller group"
 nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):-  !,
@@ -1709,6 +1722,7 @@ demodal_body(KB,Head,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal_body(KB,Head),
 pos_or_isa(isa(_,_)).
 pos_or_isa(poss(_)).
 
+pred_of(Head, Head):- is_ftVar(Head),!.
 pred_of(~ Head, Head).
 pred_of(Head, Head).
 
@@ -1723,9 +1737,12 @@ demodal_head_body(KB,Head,Body,(HeadO:-BodyO)):-
    conjoin(HeadExtra,Body,NewBod),
    demodal_body(KB,Head,NewBod,BodyO),!.
 
-% demodal_head(_KB,~skolem(A,B),unused(~skolem(A,B)),true):- nonvar(B),!.
-demodal_head(_KB,~skolem(A,B),unused_skolem(A,B),true):- nonvar(B),!.
-demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
+demodal_head(_KB,~skolem(A,B),unused(~skolem(A,B)),true):- nonvar(B),!.
+% demodal_head(_KB,~skolem(A,B),unused_skolem(A,B),true):- nonvar(B),!.
+% demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
+demodal_head(_KB,~different(A,B),equals(A,B),true):-!.
+demodal_head(_KB,~equals(A,B), different(A,B),true):-!.
+demodal_head(_KB,~mudEquals(A,B), different(A,B),true):-!.
 demodal_head(_KB,~isa(A,B),not_isa(A,B),true):- nonvar(B),!.
 demodal_head(_KB,naf(~Head),poss(Head),true):- !.
 demodal_head(_KB,Head,Head,true):- !.
