@@ -425,6 +425,9 @@ discovered_term_slots(_Fml,_Slots).
 % FreeV:      List of free variables in Fml.
 % Paths:      Number of disjunctive paths in Fml.
 
+% NonVar used in OUTPUT VAR
+nnf(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
+nnf(KB,Lit,FreeV,LitO,N):-var(FreeV),!,trace_or_throw(bad_nnf(KB,Lit,FreeV,LitO,N)).
 nnf(KB,Lit,FreeV,LitO,N):- 
   (nb_current('$nnf_outer',Was);Was=[]),
   b_setval('$nnf_outer',[Lit|Was]),
@@ -432,10 +435,6 @@ nnf(KB,Lit,FreeV,LitO,N):-
 
 % for tracing
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
-
-% NonVar used in OUTPUT VAR
-nnf1(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
-nnf1(KB,Lit,FreeV,LitO,N):-var(FreeV),!,trace_or_throw(bad_nnf(KB,Lit,FreeV,LitO,N)).
 
 % Sentence was a Variable
 nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!,push_dom(Lit,ftSentence),discovered_var(Lit,FreeV).
