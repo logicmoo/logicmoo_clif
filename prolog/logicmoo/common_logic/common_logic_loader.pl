@@ -109,12 +109,15 @@ kif_process(call,Into:module(To,Exports)):- !,
 
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/0),!,kif_process(call_u,Atom).
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/1),fail,!,set_kif_mode(Atom).
+kif_process(tell,(H <- B)):- !, ain((H <- B)).
+kif_process(tell,(P ==> Q)):- !, ain((P ==> Q)).
 kif_process(call,Call):- !,kif_process(call_u,Call).
 kif_process(tell,Call):- is_static_predicate(Call),!,kif_process(call_u,Call).
 kif_process(tell,Wff):- !,kif_process(kif_add,Wff).
 kif_process(ask,Wff):- !,kif_process(kif_ask,Wff).
 kif_process(Other,Wff):- wdmsg(error(missing_kif_process(Other,Wff))),fail.
 kif_process(Pred1,Wff):- current_predicate(Pred1/1),!,call(Pred1,Wff).
+
 
 
 %open_input(InS,InS):- is_stream(InS),!.

@@ -437,8 +437,10 @@ nnf(KB,Lit,FreeV,LitO,N):-
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
 % Sentence was a Variable
-nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!,push_dom(Lit,ftSentence),discovered_var(Lit,FreeV).
-nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!,push_dom(Lit,ftSentence),discovered_var(Lit,FreeV).
+nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!, %push_dom(Lit,ftSentence),
+ discovered_var(Lit,FreeV).
+nnf1(_KB,~Lit,FreeV,~Lit,1):- is_ftVar(Lit),!, %push_dom(Lit,ftSentence),
+ discovered_var(Lit,FreeV).
 
 % Skipped Args
 nnf1(_KB,Lit,FreeV,Lit,1):- is_list(Lit),!,discovered_term_slots(Lit,FreeV).

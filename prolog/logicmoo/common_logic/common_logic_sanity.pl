@@ -48,6 +48,8 @@ fst:-  set_prolog_flag(write_attributes,ignore),freeze(X,(\+ is_ftVar(X),X==[]->
 zebra :- make,load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif')).
 
 zebra5 :- make,load_clif(pack(logicmoo_base/t/examples/fol/'zebra5.clif')).
+zebra1 :- make,load_clif(pack(logicmoo_base/t/examples/fol/'zebra1.clif')).
+zebra0 :- make,load_clif(pack(logicmoo_base/t/examples/fol/'zebra0.clif')).
 
 rzebra5 :- rtrace(load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif'))).
 
@@ -55,6 +57,38 @@ z:- cls,zebra5,!.
 z:- rzebra5,!.
 
 boxlog :- ensure_loaded(pack(logicmoo_base/t/examples/fol/'fol_sanity.pl')).
+
+
+:- kb_shared(compile_clif/0).
+clif_uncompile:-  ain(==>( \+ compile_clif)),clif_show.
+clif_recompile:-  ain(==>( \+ compile_clif)), ain(==> compile_clif),clif_show.
+clif_compile:-  ain(==> compile_clif),clif_show.
+clif_show:-  listing(clif/1),listing(boxlog/1).
+:- export(clif_recompile/0).
+:- export(clif_compile/0).
+:- export(clif_uncompile/0).
+:- export(clif_show/0).
+
+:- kb_shared(compile_boxlog/0).
+:- export(boxlog_recompile/0).
+:- export(boxlog_compile/0).
+:- export(boxlog_uncompile/0).
+:- export(boxlog_show/0).
+boxlog_uncompile:-  ain(==>( \+ compile_boxlog)),boxlog_show.
+boxlog_recompile:-  ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog),boxlog_show.
+boxlog_compile:-  ain(==> compile_boxlog),boxlog_show.
+boxlog_show:-  listing(boxlog/1),listing(pfclog/1).
+
+:- kb_shared(compile_pfclog/0).
+:- export(pfclog_recompile/0).
+:- export(pfclog_compile/0).
+:- export(pfclog_uncompile/0).
+:- export(pfclog_show/0).
+
+pfclog_uncompile:-  ain(==>( \+ compile_pfclog)),pfclog_show.
+pfclog_recompile:-  ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog),pfclog_show.
+pfclog_compile:-  ain(==> compile_pfclog),pfclog_show.
+pfclog_show:-  listing(pfclog/1).
 
 
 %% tsn is det.
@@ -110,3 +144,5 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 
 
 :- fixup_exports.
+
+

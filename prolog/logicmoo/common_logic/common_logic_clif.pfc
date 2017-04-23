@@ -53,29 +53,14 @@ workflow_holder_queue(Atom) ==>
   (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
-:- kb_shared(compile_clif/0).
-clif_uncompile:- cwc, ain(==>( \+ compile_clif)),clif_show.
-clif_recompile:- cwc, ain(==>( \+ compile_clif)), ain(==> compile_clif),clif_show.
-clif_compile:- cwc, ain(==> compile_clif),clif_show.
-clif_show:- cwc, listing(clif/1),listing(boxlog/1).
 compile_clif ==> 
 (clif(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % {sanity(is_entailed_u(CLIF))}
 
-:- kb_shared(compile_boxlog/0).
-boxlog_uncompile:- cwc, ain(==>( \+ compile_boxlog)),boxlog_show.
-boxlog_recompile:- cwc, ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog),boxlog_show.
-boxlog_compile:- cwc, ain(==> compile_boxlog),boxlog_show.
-boxlog_show:- cwc, listing(boxlog/1),listing(pfclog/1).
 compile_boxlog ==> 
 (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> pfclog(PROLOG)).
 % {sanity(are_clauses_entailed(BOXLOG))}
 
-:- kb_shared(compile_pfclog/0).
-pfclog_uncompile:- cwc, ain(==>( \+ compile_pfclog)),pfclog_show.
-pfclog_recompile:- cwc, ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog),pfclog_show.
-pfclog_compile:- cwc, ain(==> compile_pfclog),pfclog_show.
-pfclog_show:- cwc, listing(pfclog/1).
 compile_pfclog ==> 
 (pfclog(PROLOG) ==> PROLOG).
 % {(sanity(is_pfc_entailed(PROLOG)))}

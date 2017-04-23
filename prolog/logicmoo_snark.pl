@@ -31,7 +31,7 @@
 :- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
-:- reexport(library('logicmoo/common_logic/common_logic_sanity.pl')).
+:- reexport(system:library('logicmoo/common_logic/common_logic_sanity.pl')).
 
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
