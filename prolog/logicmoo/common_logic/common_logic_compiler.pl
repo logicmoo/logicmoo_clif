@@ -2194,7 +2194,8 @@ skolem_f(KB, F, X, FreeVIn, SkF):-
 	contains_var_lits(F,X,LitsList),
         mk_skolem_name(KB,X,LitsList,'',SK),
         atom_concat(SK,'_',SKU),
-        =(SKU,SKN), % gensym(SKU,SKN),        
+        % =(SKU,SKN), 
+        gensym(SKU,SKN),        
         concat_atom(['sk',SKN,'Fn'],Fun),
 	SkF =..[Fun|FreeVSet])),
        % @TODO  maybye use sk again

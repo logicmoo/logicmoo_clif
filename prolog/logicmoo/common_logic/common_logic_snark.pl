@@ -218,13 +218,19 @@ kif_hook(_H <- _):-  !,fail.
 kif_hook(_H --> _):- !,fail.
 kif_hook(_ ==> _):-  !,fail.
 kif_hook(_ <==> _):- !,fail.
-% uncommenting these next 3 lines may dbreak sanity_birdt test
-kif_hook( ~(H)):- !,nonvar(H),kif_hook(H).
-kif_hook( \+ H):- !,nonvar(H),kif_hook(H).
-kif_hook( not(H)):- !,nonvar(H),kif_hook(H).
+% uncommenting these next 3 lines may break sanity_birdt test
+
+ kif_hook(  ~(H)):- !,nonvar(H),kif_hook(H).
+ kif_hook(  \+ H):- !,nonvar(H),kif_hook(H).
+ kif_hook(not(H)):- !,nonvar(H),kif_hook(H).
+
 kif_hook( naf(H)):- !,nonvar(H),kif_hook(H).
 kif_hook(In):- kif_hook_skel(In).
-kif_hook(C):- C=..[F,A|_],is_sentence_functor(F),!,kif_hook(A).
+kif_hook(C):- callable(C),functor(C,F,A),kif_hook(C,F,A).
+
+kif_hook(_,F,_):- atom_concat('sk',_,F),atom_concat(_,'Fn',F),!.
+kif_hook(C,_,_):- leave_as_is(C),!,fail.
+kif_hook(C,F,_):- is_sentence_functor(F),!,arg(_,C,E),kif_hook(E).
 
 
 %% kif_hook_skel(+TermC) is det.
@@ -1374,25 +1380,6 @@ kif_ask(Goal0,ProofOut):- logical_pos(_KB,Goal0,Goal),
 
 
 
-%% kif_add( ?InS) is det.
-%
-% Knowledge Interchange Format Add.
-%
-kif_add(InS):- 
- sanity( \+ is_ftVar(InS)),
- string(InS),!,
- must_det_l((
-  input_to_forms(string(InS),Wff,Vs),
-  nop(b_implode_varnames0(Vs)),
-  local_sterm_to_pterm(Wff,Wff0))),
-  InS \== Wff0,
-  kif_add(Wff0),!.
-
-
-kif_add(Goal0):-  call_unwrap(Goal0,Goal),!,kif_add(Goal).
-% unnumbervars_with_names(WffIn,Wff),
-kif_add(WffIn):- ain(clif(WffIn)),!.
-
 
 call_unwrap(WffIn,OUT):- call_unwrap0(WffIn,OUT),!,WffIn\==OUT.
 
@@ -1413,12 +1400,41 @@ local_sterm_to_pterm(Wff,WffO):- sexpr_sterm_to_pterm(Wff,WffO),!.
 
 
 :- op(1000,fy,(kif_add)).
+%% kif_add( ?InS) is det.
+%
+% Knowledge Interchange Format Add.
+%
+kif_add(InS):- 
+ sanity( \+ is_ftVar(InS)),
+ string(InS),!,
+ must_det_l((
+  input_to_forms(string(InS),Wff,Vs),
+  nop(b_implode_varnames0(Vs)),
+  local_sterm_to_pterm(Wff,Wff0))),
+  InS \== Wff0,
+  kif_add(Wff0),!.
+kif_add(Goal0):-  call_unwrap(Goal0,Goal),!,kif_add(Goal).
+kif_add([]).
+kif_add([H|T]):- !,kif_add(H),kif_add(T).
+kif_add((H <- B)):- !, ain((H <- B)).
+kif_add((H :- B)):- !, ain((H :- B)).
+kif_add((P ==> Q)):- !, ain((P ==> Q)). 
+kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
+kif_add(WffIn):- show_call(ain(WffIn)),!.
+% unnumbervars_with_names(WffIn,Wff),
+kif_add(WffIn):- show_call(ain(clif(WffIn))),!.
+
+
 
 /*
 :- public((kif_add)/2).
 
 kif_add(_,[]).
 kif_add(Why,[H|T]):- !,must_det_l((kif_add(Why,H),kb_incr(Why,Why2),kif_add(Why2,T))).
+kif_add(Why,(H <- B)):- !, mpred_ain((H <- B),Why).
+kif_add(Why,(P ==> Q)):- !, ain((P ==> Q),Why). 
+
+
 kif_add(Why,Wff):-
    must_det_l((kif_to_boxlog(Wff,Why,Asserts),
       kif_add_boxes(assert_wfs_def,Why,Wff,Asserts))),!.

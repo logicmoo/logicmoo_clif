@@ -69,6 +69,16 @@
 (meta_argtypes (leftof house house))
 
 
+(trait drinks) (trait smokes) (trait pet)
+(trait position) ; we add position 
+
+(all (?P ?Trait) 
+   ( exists (?Value)
+    (implies (person ?P) (implies (trait ?Trait)  (t ?Trait ?P ?Value)))))
+
+
+(rtSymmetricBinaryPredicate neighbor)
+
 {exists([P1,I1,I2,P2,H1,H2],
   ((position(P1,I1) & lives(P1,H1) & leftof(H1,H2) & {plus(I1, 1, I2)} & position(P2,I2) & lives(P2,H2))))}.
 
@@ -91,37 +101,37 @@
 (leftof green  white)
 
 ;;  5. The green house's owner drinks coffee. 
-(exists  (X) (and  (lives X  green)   (drinks X  coffee)))
+(exists  (X) (&  (lives X  green)   (drinks X  coffee)))
 
 ;;  6. The owner who smokes Pall Mall rears birds. 
-(exists  (X) (and  (smokes X  pallmalls)   (pet X  birds)))
+(exists  (X) (&  (smokes X  pallmalls)   (pet X  birds)))
 
 ;;  7. The owner of the yellow house smokes Dunhill. 
-(exists  (X) (and  (lives X  yellow)   (smokes X  dunhills)))
+(exists  (X) (&  (lives X  yellow)   (smokes X  dunhill)))
 
 ;;  8. The owner living in the center house drinks milk. 
-(exists  (X) (and  (position X  3)   (drinks X  milk)))
+(exists  (X) (&  (position X  3)   (drinks X  milk)))
 
 ;;  9. The Norwegian lives in the first house. 
 (position norwegian  1)
 
 ;;  10. The owner who smokes Blends lives next to the one who keeps cats. 
-(exists (X) (exists (Y) (and (smokes X  blend)   (neighbor X  Y)   (pet Y  cat))))
+(exists (X) (exists (Y) (& (& (smokes X  blends)   (neighbor X  Y))   (pet Y  cat))))
 
 ;;  11. The owner who keeps the horse lives next to the one who smokes Dunhill. 
-(exists (X) (exists (Y) (and  (pet X  horses)   (neighbor X  Y)   (smokes Y  dunhill))))
+(exists (X) (exists (Y) (& (&   (pet X  horses)   (neighbor X  Y))   (smokes Y  dunhill))))
 
 ;;  12. The owner who smokes Bluemasters drinks beer. 
-(exists  (X) (and  (smokes X  bluemasters)   (drinks X  bier)))
+(exists  (X) (& (smokes X  bluemasters)   (drinks X  bier)))
 
 ;;  13. The German smokes Prince. 
 (smokes german  prince)
 
 ;;  14. The Norwegian lives next to the blue house. 
-(exists  (X) (and  (neighbor norwegian  X)   (lives X  blue)))
+(all  (X) (<=>  (neighbor norwegian  X) (lives X  blue)))
 
 ;;  15. The owner who smokes Blends lives next to the one who drinks water. 
-(exists (X) (exists (Y) (and  (smokes X  blends)   (neighbor X Y)   (drinks Y  water))))
+(exists (X) (exists (Y) (& (&  (smokes X  blends)   (neighbor X Y))   (drinks Y  water))))
 
 
 
@@ -131,10 +141,10 @@
 (trait drinks) (trait smokes) (trait pet)
 (trait position) ; we add position 
 
-
 (all (?P ?Trait) 
-   (exists (?Value)
-    (implies (person ?P) (implies (trait Trait)  (t ?Trait ?P ?Value)))))
+   ( exists (?Value)
+    (implies (person ?P) (implies (trait ?Trait)  (t ?Trait ?P ?Value)))))
+
 
 ; No owners have the same pet  smokes the same
 ; brand of cigar  or drinks the same beverage.

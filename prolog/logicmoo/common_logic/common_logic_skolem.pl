@@ -136,7 +136,7 @@ cond:attr_unify_hook(Cond,Value):- var(Value),!,push_cond(Value,Cond),!.
 cond:attr_unify_hook([X|Cond],_Value):- !, maplist(call_u,[X|Cond]).
 cond:attr_unify_hook(Cond,_Value):- call_u(Cond).
 
-push_skolem(Onto,SK_ADD):- var(Onto), \+ attvar(Onto), nop(dmsg(warn(var_not_push_skolem(Onto,SK_ADD)))),!.
+%push_skolem(Onto,SK_ADD):- var(Onto), \+ attvar(Onto), nop(dmsg(warn(var_not_push_skolem(Onto,SK_ADD)))),!.
 push_skolem(Onto,SK_ADD):-push_skolem(Onto,SK_ADD,_).
 
 push_skolem(Onto,SK_ADD,SK_FINAL):- oo_get_attr(Onto,sk,SLPREV),!,merge_forms(SLPREV,SK_ADD,SK_FINAL),sk_replace(Onto,SK_FINAL),!.
@@ -175,12 +175,14 @@ portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk
 % Attr Portray Hook.
 %
  % vn:attr_portray_hook(Name, _) :- write('???'), write(Name),!.
-vn:attr_portray_hook(_, _) :- !.
-sk:attr_portray_hook(_, _) :- !.
+%vn:attr_portray_hook(_, _) :- !.
+%sk:attr_portray_hook(_, _) :- !.
 
 :- multifile(user:portray/1).
 :- dynamic(user:portray/1).
-user:portray(Sk):- get_attr(Sk, vn, Name), get_attrs(Sk,att(vn,Name,[])),write(Name),!,write('{}').
+% user:portray(Sk):- get_attr(Sk, vn, Name), get_attrs(Sk,att(vn,Name,[])),write(Name),!,write('{}').
+
+/*
 
 %% portray_attvar( ?Var) is semidet.
 %
@@ -207,7 +209,7 @@ user:portray(Sk):- get_attr(Sk, vn, Name), get_attrs(Sk,att(vn,Name,[])),write(N
 	get_attrs(Var, Attr),
 	catch(writeq('??'(VarName,Attr)),_,'$attvar':portray_attrs(Attr, Var)),
 	write('>}').
-
+*/
 
 :- multifile(user:portray/1).
 :- dynamic(user:portray/1).
@@ -216,7 +218,8 @@ user:portray(Sk):- get_attr(Sk, vn, Name), get_attrs(Sk,att(vn,Name,[])),write(N
 %% sk_form:attribute_goals(@V)// is det.
 %	copy_term/3, which also determines  the   toplevel  printing  of
 %	residual constraints.
-sk:attribute_goals(Sk) --> {sk_form(Sk, Form)},!,[form_sk(Sk,Form)].
+
+% % % sk:attribute_goals(Sk) --> {sk_form(Sk, Form)},!,[form_sk(Sk,Form)].
 
 skolem_test(_):- !.
 skolem_test(Form):- show_call(call_u(Form)).

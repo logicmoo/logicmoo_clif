@@ -223,6 +223,8 @@ make_must_ground(H,BB,VG):-
 % Make Vg.
 %
 make_vg([],[],[],true):-!.
+make_vg([],[],_,true):-!.
+make_vg(_,[],[],true):-!.
 make_vg([],Shared,[],{(S)}):-  S=..[is_unit|Shared],!.
 make_vg(_,Shared,_,{(S)}):-  S=..[is_unit|Shared],!.
 make_vg(B,S,H,{(CB,CS,CH)}):- CB=..[is_units_b,B],CS=..[is_unit|S],CH=..[is_units_h,H].
@@ -259,11 +261,15 @@ boxlog_to_pfc(H0,PFCO):-
   sumo_to_pdkb(H0,H00),
   subst(H00,('not'),('~'),H),
   get_op_alias_compile((:-),TYPE),!,  
-  with_vars_locked(throw,H,((maybe_notrace((boxlog_to_pfc_pass_2(TYPE,H,OUTPUTM))),!,
+  with_vars_locked(throw,H,((maybe_notrace((boxlog_to_pfc_pass_1(TYPE,H,OUTPUTM))),!,
     OUTPUTM=OUTPUT))),
   subst(OUTPUT,(not),(~),PFCO).
 
-	 
+
+
+boxlog_to_pfc_pass_1(TYPE,HB,OUTPUTM):-
+  expand_to_hb(HB,H,B),
+  boxlog_to_pfc_pass_2(TYPE,(H:-B),OUTPUTM),!.
 
 %% boxlog_to_pfc_pass_2( ?TYPE, :TermH, ?OUTPUT) is semidet.
 %
@@ -453,7 +459,7 @@ isk_bind(Var,Val,SK):-show_call(add_dom(Var,[Val,SK])).
 %
 head_for_skolem(H,if_missing(H,HH),skolem(In,NewOut)):- contains_var(In,H),subst(H,In,NewOut,HH),!.
 
-
+is_skolem_arg(Var):- callable(Var),functor(Var,F,_),atom_concat('sk',_,F),atom_concat(_,'Fn',F).
 
 
 %% body_for_mpred_2( +Mode, +Head, -NewHead, +BodyIn, -NewBody) is semidet.
@@ -470,7 +476,12 @@ body_for_mpred_2(Mode,Head,HeadO,(A;B),(AA;BB)):-!,body_for_mpred_1(Mode,Head,He
 body_for_mpred_2((:-),Head,HeadO,(A/B),(AA,BB)):-!,body_for_mpred_1(Mode,Head,HeadM,A,AA),body_for_pfc(Mode,HeadM,HeadO,B,BB).
 body_for_mpred_2(Mode,Head,HeadO,(A/B),(AA/BB)):-!,body_for_mpred_1(Mode,Head,HeadM,A,AA),body_for_pfc(Mode,HeadM,HeadO,B,BB).
 
-body_for_mpred_2((fwc),H,HEAD,I,O):- H\=if_missing(_,_), sub_term(Var,H),attvar(Var),get_attr(Var,sk,Sk),subst(H,Var,NewVar,NewH),head_for_skolem(NewH,SKHEAD,skolem(NewVar,Sk)), !,
+body_for_mpred_2((fwc),H,HEAD,I,O):- H\=if_missing(_,_), sub_term(Var,H),attvar(Var),get_attr(Var,sk,Sk),
+   subst(H,Var,NewVar,NewH),head_for_skolem(NewH,SKHEAD,skolem(NewVar,Sk)), !,
+   body_for_mpred_2((fwc),SKHEAD,HEAD,I,O).
+
+body_for_mpred_2((fwc),HwSk,HEAD,I,O):- HwSk\=if_missing(_,_), sub_term(Sk,HwSk),is_skolem_arg(Sk),subst(HwSk,Sk,Var,H),
+   subst(H,Var,NewVar,NewH),head_for_skolem(NewH,SKHEAD,skolem(NewVar,Sk)), !,
    body_for_mpred_2((fwc),SKHEAD,HEAD,I,O).
 
 body_for_mpred_2((fwc),H,HEAD,{skolem(In,NewOut)},true):- head_for_skolem(H,HEAD,skolem(In,NewOut)),!.

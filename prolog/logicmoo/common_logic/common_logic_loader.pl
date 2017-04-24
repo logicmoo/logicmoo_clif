@@ -78,8 +78,8 @@ kif_process(_,'wdmsg'(String)):-!, wdmsg(String).
 kif_process(_,'kif-mode'(Mode)):- set_kif_mode(Mode).
 kif_process(_,'kif_mode'(Mode)):- set_kif_mode(Mode).
 
-kif_process(kif_add,Wff):- !, show_call(kif_add(Wff)).
-kif_process(kif_ask,Wff):- !, show_call(kif_ask(Wff)).
+kif_process(kif_add,Wff):- !, show_failure(kif_add(Wff)).
+kif_process(kif_ask,Wff):- !, show_failure(kif_ask(Wff)).
 
 kif_process(call_u,M:Wff):- !, show_call(call_u(M:Wff)).
 kif_process(call_u,Wff):- !, show_call(call_u(Wff)).
@@ -109,8 +109,6 @@ kif_process(call,Into:module(To,Exports)):- !,
 
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/0),!,kif_process(call_u,Atom).
 kif_process(_,Atom):- atom(Atom),current_predicate(Atom/1),fail,!,set_kif_mode(Atom).
-kif_process(tell,(H <- B)):- !, ain((H <- B)).
-kif_process(tell,(P ==> Q)):- !, ain((P ==> Q)).
 kif_process(call,Call):- !,kif_process(call_u,Call).
 kif_process(tell,Call):- is_static_predicate(Call),!,kif_process(call_u,Call).
 kif_process(tell,Wff):- !,kif_process(kif_add,Wff).
