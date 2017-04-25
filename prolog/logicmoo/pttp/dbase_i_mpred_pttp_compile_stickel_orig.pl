@@ -95,6 +95,7 @@ new_head_body(_Head, _Body,Head1 ,Body1,(Head1 :- Body1)):-
    true. 
    %   dmsg(pp((head_features(Head1) :-head_body_was(Head, Body), Body1))).
 
+:- meta_predicate(call_proof(0,*)).
 call_proof(Call,_):-catch(call(Call),E,(wdmsg(error(E:Call)),fail)).
 
 add_features0((Head :- Body),OUT):-pttp_builtin(Head),!, add_features_hb(Head , Body , _Head1 , Body1),!,OUT=(Head :- Body1).
@@ -355,8 +356,10 @@ search_cost(Body,HeadArgs,N) :-
 %%%   the fact that the DepthIn and DepthOut arguments of
 %%%   search are also the DepthIn and DepthOut arguments of Goal.
 %%% SOURCE
+:- meta_predicate search(0,?,?,?,?,?,?).
 search(Goal,Max,Min,Inc,PrevInc,DepthIn,DepthOut):-search0(Goal,Max,Min,Inc,PrevInc,DepthIn,DepthOut).
 
+:- meta_predicate search0(0,?,?,?,?,?,?).
 search0(Goal,Max,Min,Inc,PrevInc,DepthIn,DepthOut):- % dtrace,
         search1(Goal,Max,Min,Inc,PrevInc,DepthIn,DepthOut).
 
@@ -364,6 +367,8 @@ search1(_Goal,Max,Min,_Inc,_PrevInc,_DepthIn,_DepthOut) :-
 	Min > Max,
 	!,
 	fail.
+
+:- meta_predicate search1(0,*,*,*,*,*,*).
 search1(Goal,_Max,Min,_Inc,PrevInc,DepthIn,DepthOut) :-
         write_search_progress(Min),
 	DepthIn = Min,

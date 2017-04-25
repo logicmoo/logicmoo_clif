@@ -37,6 +37,10 @@
 :- system:op(1130,xfx,('<=>')).
 
 
+:- meta_predicate prolog_statistics_time(0).
+:- meta_predicate setupTest(*,0).
+
+
 :-  system:op(600,yfx,('&')).
 :-  system:op(600,yfx,('v')).
 :-  system:op(350,xfx,('xor')).

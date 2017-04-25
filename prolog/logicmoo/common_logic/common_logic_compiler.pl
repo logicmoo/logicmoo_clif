@@ -382,7 +382,7 @@ nnf_dnf(KB,Fml,DNF):-
 % get quantifier  (isa/2).
 %
 
-get_quantifier_isa([X,Col],X,Col):-nonvar(Col).
+get_quantifier_isa([X,Col],X,Col):-var(X),nonvar(Col).
 
 
 

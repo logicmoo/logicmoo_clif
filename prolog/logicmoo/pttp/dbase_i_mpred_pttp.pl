@@ -256,6 +256,7 @@ do_pttp_test(TestName,Data) :-
 pttp_test_prove(TestName,_):- pttp_test_query(TestName,Other),!,call30timed(TestName,Other).
 pttp_test_prove(TestName,A):- call30timed(TestName,pttp_prove(A)).
 
+:- meta_predicate call30timed(*,0).
 call30timed(TestName,CALL):-  
    statistics(cputime, D),
         (   CALL  % catch(call_with_time_limit(CALL,30),time_limit_exceeded,(wdmsg(error_time_limit_exceeded(CALL)),fail))
@@ -373,6 +374,7 @@ pttp_assert_int_wid(ID,_:L):-!, pttp_assert_int_wid(ID,L).
 pttp_assert_int_wid(ID,YB):- must((get_functor(YB,F,A),renumbervars_a(YB,Y),pttp_assert_int_wid04(ID,Y,F,A),assertz_unumbered(Y))).
 
 
+:- meta_predicate pttp_assert_int_wid04(*,0,*,*).
 
 pttp_assert_int_wid04(_,Y,_,_):- is_static_predicate_pttp(Y,Why),must( dmsg(error(warn(is_static_predicate_pttp(Y,Why))))),!.
 pttp_assert_int_wid04(_,_,F,A):- was_pttp_functor(external,F,A),!.

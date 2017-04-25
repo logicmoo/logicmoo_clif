@@ -919,6 +919,8 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
 
 
+:- meta_predicate wdmsgl0(2,*).
+:- meta_predicate wdmsgl(2,*).
 
 %% wdmsgl( ?CNF) is det.
 %

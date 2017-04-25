@@ -2,9 +2,9 @@
 
 :- module(missing_count,[]).
 
-:- use_module(library(logicmoo_snark)).
+:- use_module(library(logicmoo_user)).
 
-existing_count(X,G,EC):- findall(X,G,List),length(List,EC).
+user:existing_count(X,G,EC):- findall(X,G,List),length(List,EC).
 
 :- debug_logicmoo(_).
 :- nodebug_logicmoo(http(_)).

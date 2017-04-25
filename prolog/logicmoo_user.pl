@@ -22,10 +22,33 @@
  op(300,fx,'~'),
  op(300,fx,'-')*/  ]).
 
+
+:- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- set_prolog_flag(readline,editline).
+% :- set_prolog_flag(readline,true).
+
+:- if(current_prolog_flag(readline,editline)).
+:- use_module(library(readline)).
+:- listing(prolog:history/2).
+:- abolish(prolog:history/2).
+:- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- reconsult(library(editline)).
+:- else.
+:- use_module(library(editline)).
+:- listing(prolog:history/2).
+:- abolish(prolog:history/2).
+:- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- set_prolog_flag(readline,readline).
+:- reconsult(library(readline)).
+:- endif.
+
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
-:- user:ensure_loaded(logicmoo_webbot).
-:- user:ensure_loaded(library(pfc)).
+:- user:use_module(logicmoo_snark).
+:- user:use_module(library(pfc)).
+:- user:use_module(library(xlisting)).
+:- user:use_module(library(gvar_syntax)).
+:- user:use_module(library(dictoo)).
 :- set_prolog_flag(pfc_booted,false).
 
 
@@ -51,6 +74,8 @@
 :- set_prolog_flag(read_attvars,false).
 
 :- ((hook_database:call(asserta_if_new,(ereq(G):- !, baseKB:call_u(G))))).
+:- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, baseKB:call_u(G))))).
+
 :- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, baseKB:call_u(G))))).
 
 :-  prolog_statistics:time((baseKB:ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc')))).

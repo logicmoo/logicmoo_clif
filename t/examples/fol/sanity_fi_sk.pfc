@@ -2,6 +2,7 @@
 
 :- module(sanity_fi_sk,[]).
 
+:- make.
 /*
 
 <
@@ -91,11 +92,14 @@ N=((min_isa, max_isa),dom,[pred])
 :- notrace.
 */
 :- use_module(library(logicmoo_user)).
+:- reconsult(library(script_files)).
+
 
 %=  setup pfc
 :- begin_pfc.
+:- kif_compile.
 
-:- process_this_script.
+% :- process_this_script.
 
 %= save compiled clauses using forward chaining storage (by default)
 %= we are using forward chaining just so any logical errors, performance and program bugs manefest
@@ -126,6 +130,21 @@ never_assert_u(mother(trudy,das)).
 :- dynamic(father/2).
 
 clif(forall(c,exists([m,f], if(human(c), (mother(c,m) & father(c,f)))))).
+%             =boxlog=
+% ~human(C) :-
+%       ~mother(C, _3016).
+%             =boxlog=
+% ~human(C) :-
+%       ~father(C, f).
+%             =boxlog=
+% father(C, f) :-
+%       human(C).
+%             =boxlog=
+% mother(C, skIsFInArg2of_1Fn(C)) :-
+%       human(C).
+%             =boxlog=
+% isa(skIsFInArg2of_1Fn(C), f).
+
 
 :- must(clif(forall(c,exists([m,f], if(human(c), (mother(c,m) & father(c,f))))))).
 

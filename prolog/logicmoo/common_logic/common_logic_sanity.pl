@@ -58,12 +58,21 @@ z:- rzebra5,!.
 
 boxlog :- ensure_loaded(pack(logicmoo_base/t/examples/fol/'fol_sanity.pl')).
 
+kif_uncompile:- pfclog_uncompile,boxlog_uncompile,clif_uncompile.
+kif_compile:- clif_compile,boxlog_compile,pfclog_compile.
+kif_recompile:- kif_uncompile,kif_compile.
+kif_show:-  baseKB:listing(clif/1),baseKB:listing(boxlog/1),baseKB:listing(pfclog/1).
+:- export(kif_recompile/0).
+:- export(kif_compile/0).
+:- export(kif_uncompile/0).
+:- export(kif_show/0).
+
 
 :- kb_shared(compile_clif/0).
 clif_uncompile:-  ain(==>( \+ compile_clif)),clif_show.
 clif_recompile:-  ain(==>( \+ compile_clif)), ain(==> compile_clif),clif_show.
 clif_compile:-  ain(==> compile_clif),clif_show.
-clif_show:-  listing(clif/1),listing(boxlog/1).
+clif_show:-  baseKB:listing(clif/1),baseKB:listing(boxlog/1).
 :- export(clif_recompile/0).
 :- export(clif_compile/0).
 :- export(clif_uncompile/0).
@@ -77,7 +86,7 @@ clif_show:-  listing(clif/1),listing(boxlog/1).
 boxlog_uncompile:-  ain(==>( \+ compile_boxlog)),boxlog_show.
 boxlog_recompile:-  ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog),boxlog_show.
 boxlog_compile:-  ain(==> compile_boxlog),boxlog_show.
-boxlog_show:-  listing(boxlog/1),listing(pfclog/1).
+boxlog_show:-  baseKB:listing(boxlog/1),baseKB:listing(pfclog/1).
 
 :- kb_shared(compile_pfclog/0).
 :- export(pfclog_recompile/0).
@@ -88,7 +97,7 @@ boxlog_show:-  listing(boxlog/1),listing(pfclog/1).
 pfclog_uncompile:-  ain(==>( \+ compile_pfclog)),pfclog_show.
 pfclog_recompile:-  ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog),pfclog_show.
 pfclog_compile:-  ain(==> compile_pfclog),pfclog_show.
-pfclog_show:-  listing(pfclog/1).
+pfclog_show:-  baseKB:listing(pfclog/1).
 
 
 %% tsn is det.

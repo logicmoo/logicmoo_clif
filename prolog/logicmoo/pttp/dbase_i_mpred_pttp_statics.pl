@@ -316,7 +316,8 @@ argument_type_checking(HF,HeadArgs,constrain_args(HF,HeadArgs)):-current_predica
 argument_type_checking(HF,HeadArgs,constrain_args_pttp(HF,HeadArgs)):-current_predicate(constrain_args_pttp/2).
 argument_type_checking(_,_,true).
 
-pretest_call(C):-C.
+:- meta_predicate pretest_call(0).
+pretest_call(C):-call(C).
 
 
 
