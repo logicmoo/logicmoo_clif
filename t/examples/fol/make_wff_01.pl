@@ -52,7 +52,25 @@ possible(livesAt(fred,green_house)).
 
 all(X, if(livesAt(X, green_house),drinks(X, coffee))).
 
-:- must(instance(fred,drinker)).
+:- must(possible(instance(fred,drinker))).
 :- must(instance(coffee,beverage_class)).
+
+
+% =================================================================================
+% Test 3
+% =================================================================================
+
+livesAt(sue,green_house).
+
+:- must(instance(sue,drinker)).
+
+
+% =================================================================================
+% Test 4
+% =================================================================================
+
+livesAt(sue,red_house).
+
+:- must(\+ instance(sue,drinker)).
 
 
