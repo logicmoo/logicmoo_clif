@@ -70,10 +70,10 @@ possible(livesAt(joe,green_house)).
 % =================================================================================
 
 % all objects in the universe that may drink coffee do drink coffee
-all(X, if(possible(drinks(X, coffee)),drinks(X, coffee))).
+%all(X, if(possible(drinks(X, coffee)),drinks(X, coffee))).
 
 % all objects in the universe that may live in the green house do live in the green house
-all(X, if(possible(livesAt(X, green_house)),lives(X, green_house) )).
+%all(X, if(possible(livesAt(X, green_house)),lives(X, green_house) )).
 
 
 
