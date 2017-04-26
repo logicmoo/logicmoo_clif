@@ -6,7 +6,7 @@
 
 :- ensure_loaded(library(logicmoo_user)).
 
-:- set_prolog_flag(dialect,clif).
+:- set_lang(clif).
 
 % =================================================================================
 % Set our engine up
@@ -24,6 +24,7 @@
 % =================================================================================
 % Define a couple predicates
 % =================================================================================
+:- multifile arity/2.
 
 % maximum cardinality of livesAt/2 is 1
 instance(livesAt,'FunctionalBinaryPredicate').

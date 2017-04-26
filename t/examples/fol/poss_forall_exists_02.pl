@@ -1,7 +1,7 @@
 #!/usr/bin/env swipl
 
 :- ensure_loaded(logicmoo_user).
-:- set_prolog_flag(dialect,clif).
+:- set_lang(clif).
 
 
 % maximum cardinality of livesAt/2 is 1
