@@ -2,6 +2,9 @@
 
 :- module(sanity_fi_sk,[]).
 
+:- kb_shared(system:(<-)/2).
+:- kb_shared(system:(<==)/2).
+
 :- make.
 /*
 
@@ -130,20 +133,26 @@ never_assert_u(mother(trudy,das)).
 :- dynamic(father/2).
 
 clif(forall(c,exists([m,f], if(human(c), (mother(c,m) & father(c,f)))))).
-%             =boxlog=
+%
 % ~human(C) :-
-%       ~mother(C, _3016).
-%             =boxlog=
+%       ~mother(C, _8290).
+%
+% ~human(C)<- ~mother(C, _4806), {is_unit(C)}.
+%
 % ~human(C) :-
-%       ~father(C, f).
-%             =boxlog=
-% father(C, f) :-
+%       ~father(C, _3412).
+%
+% ~human(C)<- ~father(C, _4756), {is_unit(C)}.
+%
+% father(C, skArg2of_1Fn(C)) :-
 %       human(C).
-%             =boxlog=
-% mother(C, skIsFInArg2of_1Fn(C)) :-
+%
+% human(C), {is_unit(C)}==>if_missing(father(C, _4770), father(C, skArg2of_1Fn(C))).
+%
+% mother(C, skArg2of_2Fn(C)) :-
 %       human(C).
-%             =boxlog=
-% isa(skIsFInArg2of_1Fn(C), f).
+%
+% human(C), {is_unit(C)}==>if_missing(mother(C, _3586), mother(C, skArg2of_2Fn(C))).
 
 
 :- must(clif(forall(c,exists([m,f], if(human(c), (mother(c,m) & father(c,f))))))).

@@ -1,6 +1,7 @@
 #!/usr/bin/env swipl
 
 :- include('sanity_fi_sk.pfc').
+:- rtrace(kb_shared((<-)/2)).
 
 :- begin_pfc.
 
@@ -26,7 +27,7 @@ human(P2)<-human(P1),related_to(P1,P2).
 :- printAll(must(father(_,_))).
 :- printAll(must(mother(_,_))).
 
-~human(hum1).
+:- rtrace(ain_expanded(~human(hum1))).
 
 
 
