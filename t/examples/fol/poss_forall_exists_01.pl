@@ -12,3 +12,6 @@ all(X, if(possible(lives(X, green)),lives(X, green) )).
 % only things that possibly can drink coffee live in the green house?
 all(X, lives(X, green) & drinks(X, coffee)).
 
+
+% this is just an asserion test..  it cannont fail (it is used to set up other tests)
+
