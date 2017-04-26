@@ -50,7 +50,7 @@
 %
 % =================================================================================
 
-:-asserta(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
+:-asserta_if_new(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
 
 :- show_kif_to_boxlog(all(X, livesAt(X, green_house) & drinks(X, coffee))).
 
@@ -59,8 +59,6 @@
 :- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house) & drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
 
 :- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house)) & poss(drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
-
-:- break.
 
 ~poss(livesAt(fred,green_house)).
 

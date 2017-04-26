@@ -32,27 +32,42 @@
 % Define a couple predicates
 % =================================================================================
 
+:-kb_shared(livesAt/2).
 % maximum cardinality of livesAt/2 is 1
-instance(livesAt,'FunctionalBinaryPredicate').
-% thus implies
-arity(livesAt,2).
-domain(livesAt,1,human).
-domain(livesAt,2,dwelling).
+==> isa(livesAt,'FunctionalBinaryPredicate').
+==> argIsa(livesAt,1,human).
+==> argIsa(livesAt,2,dwelling).
 
 % define drinks/2
-arity(drinks,2).
-domain(drinks,1,human).
-domain(drinks,2,beverage_class).
+:-kb_shared(drinks/2).
+==> argIsa(drinks,1,human).
+==> argIsa(drinks,2,beverage_class).
 
 % =================================================================================
-% Note these two assertions are implicit to the system and have no side effect
+% But given the above: 
+%
+%   Only things that possibly can drink coffee live in the green house?
+%
 % =================================================================================
 
-% all objects in the universe that do drink coffee, may drink coffee
-all(X, if(drinks(X, coffee),possible(drinks(X, coffee)))).
+:-asserta_if_new(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
 
-% for any objects in the universe that live in the green house must obvously have that as a possibility
-all(X, if(livesAt(X, green),possible(livesAt(X, green)))).
+:- show_kif_to_boxlog(all(X, livesAt(X, green_house) & drinks(X, coffee))).
+
+% this should have meant: 
+
+:- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house) & drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
+
+:- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house)) & poss(drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
+
+~poss(livesAt(fred,green_house)).
+
+% Does fred drink coffee? (should be unknown)
+:- \+ drinks(fred,coffee).
+
+poss(livesAt(joe,green_house)).
+:- drinks(joe,coffee).
+
 
 % =================================================================================
 % Some facts about the world
