@@ -6,35 +6,72 @@
 
 :- ensure_loaded(library(logicmoo_user)).
 
+:- make.
+
 :- set_lang(clif).
+:- begin_pfc.
 
 % =================================================================================
 % Set our engine up
 % =================================================================================
 
 % deduce instances from usages in args having the effect of deducing human,dwelling,beverage_class are classes
-==> make_wff(true).
-% set false so make_wff/1 will be noticed (default is true)
-==> assume_wff(false).
+==> feature_setting(make_wff,true).
 % set truth maintainance system to remove previous assertions that new assertions disagree with 
-==> tms_mode(remove_conflicting).
+==> feature_setting(tms_mode,remove_conflicting).
+
+:- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
+
+:- set_prolog_flag_until_eof(do_renames,mpred_expansion).
+
+:- kif_compile.
 
 :- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
 
 % =================================================================================
+% temp test
+% =================================================================================
+
+ff1:- show_kif_to_boxlog(if(nesc(livesAt(X, green_house)),nesc(drinks(X, coffee)))).
+ff2:- show_kif_to_boxlog(if((livesAt(X, green_house)),(drinks(X, coffee)))).
+
+ff3:- show_kif_to_boxlog(nesc(drinks(_X, coffee))).
+ff4:- show_kif_to_boxlog(~nesc(drinks(_X, coffee))).
+ff5:- show_kif_to_boxlog(~poss(drinks(_X, coffee))).
+ff6:- show_kif_to_boxlog(poss(drinks(_X, coffee))).
+
+
+:- show_kif_to_boxlog(all(X, if(nesc(livesAt(X, green_house)),poss(livesAt(X, green_house))))).
+
+:- show_kif_to_boxlog(all(X, if(poss(livesAt(X, green_house)),nesc(livesAt(X, green_house))))).
+
+:- break.
+
+% =================================================================================
+% Note these two assertions are implicit to the system and have no side effect 
+% (they are here to serve as a reminder)
+% =================================================================================
+
+% for any objects in the universe that live in the green house must obvously have that as a possibility
+all(X, if(livesAt(X, green_house),poss(livesAt(X, green_house)))).
+
+% all objects in the universe that do drink coffee, may drink coffee
+if(nesc(drinks(X, coffee)),poss(drinks(X, coffee))).
+
+
+% =================================================================================
 % Define a couple predicates
 % =================================================================================
-:- multifile arity/2.
 
 % maximum cardinality of livesAt/2 is 1
 instance(livesAt,'FunctionalBinaryPredicate').
 % thus implies
-arity(livesAt,2).
-domain(livesAt,1,human).
-domain(livesAt,2,dwelling).
+==> arity(livesAt,2).
+==> domain(livesAt,1,human).
+==> domain(livesAt,2,dwelling).
 
 % define drinks/2
-arity(drinks,2).
+==> arity(drinks,2).
 domain(drinks,1,human).
 domain(drinks,2,beverage_class).
 
@@ -57,7 +94,7 @@ all(X, if(livesAt(X, green),possible(livesAt(X, green)))).
 % =================================================================================
 all(X, livesAt(X, green_house) & drinks(X, coffee)).
 
-~possible(livesAt(fred,green_house)).
+~poss(livesAt(fred,green_house)).
 
 % Does fred drink coffee? (should be unknown)
 :- \+ drinks(fred,coffee).

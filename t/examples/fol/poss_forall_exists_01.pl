@@ -6,18 +6,25 @@
 
 :- ensure_loaded(library(logicmoo_user)).
 
-:- set_prolog_flag(dialect,clif).
+:- make.
+
+:- set_lang(clif).
+:- begin_pfc.
 
 % =================================================================================
 % Set our engine up
 % =================================================================================
 
 % deduce instances from usages in args having the effect of deducing human,dwelling,beverage_class are classes
-==> make_wff(true).
-% set false so make_wff/1 will be noticed (default is true)
-==> assume_wff(false).
+==> feature_setting(make_wff,true).
 % set truth maintainance system to remove previous assertions that new assertions disagree with 
-==> tms_mode(remove_conflicting).
+==> feature_setting(tms_mode,remove_conflicting).
+
+:- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
+
+:- set_prolog_flag_until_eof(do_renames,mpred_expansion).
+
+:- kif_compile.
 
 :- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
 
@@ -25,28 +32,16 @@
 % Define a couple predicates
 % =================================================================================
 
+:-kb_shared(livesAt/2).
 % maximum cardinality of livesAt/2 is 1
-instance(livesAt,'FunctionalBinaryPredicate').
-% thus implies
-arity(livesAt,2).
-domain(livesAt,1,human).
-domain(livesAt,2,dwelling).
+==> isa(livesAt,'FunctionalBinaryPredicate').
+==> argIsa(livesAt,1,human).
+==> argIsa(livesAt,2,dwelling).
 
 % define drinks/2
-arity(drinks,2).
-domain(drinks,1,human).
-domain(drinks,2,beverage_class).
-
-% =================================================================================
-% Note these two assertions are implicit to the system and have no side effect 
-% (they are here to serve as a reminder)
-% =================================================================================
-
-% all objects in the universe that do drink coffee, may drink coffee
-all(X, if(drinks(X, coffee),possible(drinks(X, coffee)))).
-
-% for any objects in the universe that live in the green house must obvously have that as a possibility
-all(X, if(livesAt(X, green),possible(livesAt(X, green)))).
+:-kb_shared(drinks/2).
+==> argIsa(drinks,1,human).
+==> argIsa(drinks,2,beverage_class).
 
 % =================================================================================
 % But given the above: 
@@ -54,14 +49,25 @@ all(X, if(livesAt(X, green),possible(livesAt(X, green)))).
 %   Only things that possibly can drink coffee live in the green house?
 %
 % =================================================================================
-all(X, livesAt(X, green_house) & drinks(X, coffee)).
 
-~possible(livesAt(fred,green_house)).
+:-asserta(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
+
+:- show_kif_to_boxlog(all(X, livesAt(X, green_house) & drinks(X, coffee))).
+
+% this should have meant: 
+
+:- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house) & drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
+
+:- show_kif_to_boxlog(all(X, (poss(livesAt(X, green_house)) & poss(drinks(X, coffee))) => livesAt(X, green_house) & drinks(X, coffee))).
+
+:- break.
+
+~poss(livesAt(fred,green_house)).
 
 % Does fred drink coffee? (should be unknown)
 :- \+ drinks(fred,coffee).
 
-possible(livesAt(joe,green_house)).
+poss(livesAt(joe,green_house)).
 :- drinks(joe,coffee).
 
 
@@ -70,10 +76,10 @@ possible(livesAt(joe,green_house)).
 % =================================================================================
 
 % all objects in the universe that may drink coffee do drink coffee
-%all(X, if(possible(drinks(X, coffee)),drinks(X, coffee))).
+%all(X, if(poss(drinks(X, coffee)),drinks(X, coffee))).
 
 % all objects in the universe that may live in the green house do live in the green house
-%all(X, if(possible(livesAt(X, green_house)),lives(X, green_house) )).
+%all(X, if(poss(livesAt(X, green_house)),lives(X, green_house) )).
 
 
 

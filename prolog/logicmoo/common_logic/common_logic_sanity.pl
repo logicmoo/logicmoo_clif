@@ -100,6 +100,8 @@ pfclog_compile:-  ain(==> compile_pfclog),pfclog_show.
 pfclog_show:-  baseKB:listing(pfclog/1).
 
 
+show_kif_to_boxlog(P):- ain(P), nl,wdmsg(:- (show_kif_to_boxlog(P))),kif_to_boxlog(P,O),wdmsgl(O),nl.
+
 %% tsn is det.
 %
 % Tsn.

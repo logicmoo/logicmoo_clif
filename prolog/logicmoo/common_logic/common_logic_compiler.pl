@@ -31,7 +31,7 @@
             corrected_modal_recurse0/3,
             ct_op/1,
             delete_sublits/3,
-            demodal/3,
+            to_modal1/3,
             is_skolem_setting/1,
             demodal_sents/3,
             diaRule/3,
@@ -455,6 +455,18 @@ nnf1(KB,'tColOfCollectionSubsetFn'(Col,'tSetOfTheSetOfFn'(Var,Formulas)),FreeV,V
    asserta(added_constraints(KB,Var,SubForms)).
 */
     
+% Simplification
+nnf1(KB,~nesc(BDT,~F),FreeV,BOX,Paths):- nonvar(F),!,
+   nnf1(KB,poss(BDT,F),FreeV,BOX,Paths).
+
+nnf1(KB,~poss(BDT,~F),FreeV,BOX,Paths):- nonvar(F),!,
+   nnf1(KB,nesc(BDT,F),FreeV,BOX,Paths).
+
+nnf1(KB,~nesc(BDT,F),FreeV,BOX,Paths):- nonvar(F),!,
+   nnf1(KB,poss(BDT,~F),FreeV,BOX,Paths).
+
+nnf1(KB,~poss(BDT,F),FreeV,BOX,Paths):- nonvar(F),!,
+   nnf1(KB,nesc(BDT,~F),FreeV,BOX,Paths).
 
 % =================================
 % Necessity, Always
@@ -465,7 +477,18 @@ nnf1(KB,nesc(BDT,F),FreeV,BOX,Paths):-
 
 
 % =================================
-% Possibly, Eventually / Beliefs / Knowns
+% Possibly
+% =================================
+
+% dmiles thinks this is ok
+nnf1(KB,poss(BDT,PQ),FreeV,DIA,Paths):- fail, compound(PQ),PQ = (P=>Q), !,
+   nnf1(KB,poss(BDT,P)=>Q,FreeV,DIA,Paths).
+
+nnf1(KB,poss(BDT,F),FreeV,DIA,Paths):- 
+   nnf(KB,F,FreeV,NNF,Paths), dnf(KB,NNF,DNF), diaRule(KB,poss(BDT,DNF), DIA).
+
+% =================================
+% Possibly, Eventually / Beliefs / Knows
 % =================================
 
 nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),   
@@ -1158,7 +1181,7 @@ third_order(asserted_t).
 %
 boxRule(_KB,BOX, BOX):-leave_as_is_logically(BOX),!.
 boxRule(KB,nesc(BDT,(A & B)), (BA & BB)):- nonvar(A),!, boxRule(KB,nesc(BDT,A),BA), boxRule(KB,nesc(BDT,B),BB).
-boxRule(KB,nesc(BDT, IN), BOX):- \+ is_lit_atom(IN), share_scopes(KB,BDT), nnf(KB, ~( nesc(BDT,  ~( IN))),BOX).
+% boxRule(KB,nesc(BDT, IN), BOX):- \+ is_lit_atom(IN), share_scopes(KB,BDT), nnf(KB, ~( nesc(BDT,  ~( IN))),BOX).
 boxRule(_KB,BOX, BOX).
  
 
@@ -1180,6 +1203,8 @@ leave_as_is_logically(LIST):- is_list(LIST),!, maplist(leave_as_is_logically,LIS
 diaRule(KB,A,B):- convertAndCall(as_dlog,diaRule(KB,A,B)).
 diaRule(_KB,BOX, BOX):-leave_as_is_logically(BOX),!.
 diaRule(KB,poss(BDT,(A v B)), v(DA,DB)):- !, diaRule(KB,poss(BDT,A),DA), diaRule(KB,poss(BDT,B),DB).
+% dmiles thinks this is ok
+% diaRule(KB,poss(BDT,(A & B)), &(DA,DB)):- !, diaRule(KB,poss(BDT,A),DA), diaRule(KB,poss(BDT,B),DB).
 diaRule(_KB,DIA, DIA).
 
 
@@ -1400,18 +1425,25 @@ dnf1(_KB,DNF,                  DNF ).
 %
 simplify_cheap(IN,OUT):-nonvar(OUT),!,simplify_cheap(IN,M),!,OUT=M.
 simplify_cheap(IN,IN):- leave_as_is_logically(IN),!.
-simplify_cheap(nesc(BDT,OUT),OUT):- !,nonvar(OUT),is_modal(OUT,BDT),!.
+% simplify_cheap(nesc(BDT,OUT),OUT):- !,nonvar(OUT),is_modal(OUT,BDT),!.
+% simplify_cheap(poss(BDT, poss(BDT, F)),  poss(BDT, F)):-nonvar(F),!.
+
+simplify_cheap( ~( poss(BDT,  ~(  F))), OUT):-nonvar(F),!, simplify_cheap_must(nesc(BDT,F),OUT).
+simplify_cheap( ~( nesc(BDT,  ~(  F))), OUT):-nonvar(F),!, simplify_cheap_must(poss(BDT,F),OUT).
+simplify_cheap( ~( poss(BDT,  (  F))), OUT):-nonvar(F),!, simplify_cheap_must(nesc(BDT,~F),OUT).
+simplify_cheap( ~( nesc(BDT,  (  F))), OUT):-nonvar(F),!, simplify_cheap_must(poss(BDT,~F),OUT).
 simplify_cheap(poss(BDT,nesc(BDT,IN)),OUT):- simplify_cheap_must(poss(BDT,IN),OUT).
 simplify_cheap(poss(BDT,poss(BDT,IN)),OUT):- simplify_cheap_must(poss(BDT,IN),OUT).
 simplify_cheap(nesc(BDT,poss(BDT,IN)),OUT):- simplify_cheap_must(poss(BDT,IN),OUT).
-% simplify_cheap( ~(  ~( IN)),OUT):- simplify_cheap_must(IN,OUT).
-simplify_cheap( ~(  poss(BDT, poss(BDT, F))),  ~( F)):-nonvar(F),!.
-simplify_cheap(poss(BDT, poss(BDT, F)),  poss(BDT, F)):-nonvar(F),!.
-simplify_cheap( ~( poss(_,  ~(  F))), F):-nonvar(F),!.
+simplify_cheap(nesc(BDT,nesc(BDT,IN)),OUT):- simplify_cheap_must(nesc(BDT,IN),OUT).
+%simplify_cheap( ~(  ~( IN)),OUT):- simplify_cheap_must(IN,OUT).
+%simplify_cheap( ~(  poss(BDT, poss(BDT, F))),  ~( F)):-nonvar(F),!.
+%simplify_cheap(poss(BDT, poss(BDT, F)),  poss(BDT, F)):-nonvar(F),!.
+%simplify_cheap( ~( poss(_,  ~(  F))), F):-nonvar(F),!.
 %simplify_cheap(IN,-OUT):- IN =  ~( poss(BDT,OUT)), is_modal(OUT,BDT),!.
 %simplify_cheap(IN,-OUT):- IN =  ~( nesc(BDT,OUT)), \+is_modal(OUT,BDT),!.
-
-
+simplify_cheap(INOUT,INOUT).
+ 
 %= 	 	 
 
 %% simplify_cheap_must( ?IN, ?IN) is det.
@@ -1419,7 +1451,7 @@ simplify_cheap( ~( poss(_,  ~(  F))), F):-nonvar(F),!.
 % Simplify Cheap Must Be Successfull.
 %
 simplify_cheap_must(IN,IN):- leave_as_is_logically(IN),!.
-simplify_cheap_must(IN,OUT):- simplify_cheap(IN,OUT).
+simplify_cheap_must(IN,OUT):- simplify_cheap(IN,OUT),!.
 simplify_cheap_must(IN,IN).
 
 
@@ -1608,6 +1640,7 @@ removeQ_LC(KB, MID,FreeV,OUT):-loop_check(removeQ(KB, MID,FreeV,OUT)).
 %
 removeQ(_,Var,_ ,Var):- leave_as_is_logically(Var),!.
 
+% removeQ(KB, H, Vars, HH ):- convertAndCall(as_dlog,removeQ(KB,H, Vars, HH )).
 removeQ(KB, IN,FreeV,OUT):-  once(simplify_cheap(IN,MID)), IN\=@=MID, removeQ_LC(KB, MID,FreeV,OUT),!.
 
 removeQ(KB,  ~( NN),Vars, XF):- nonvar(NN),NN= ~( F), invert_modal(KB,F,FI),!, removeQ(KB,  FI,Vars, XF) .
@@ -1621,8 +1654,8 @@ removeQ(KB,  ~( nesc(BDT, (F))),Vars, XF):- !,removeQ(KB, poss(BDT,  ~( F)),Vars
 removeQ(KB,  ~( poss(BDT, (F))),Vars, XF):- !,removeQ(KB, nesc(BDT,  ~( F)),Vars, XF).
 */
 
-removeQ(KB, nesc(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( poss(BDT, F)),Vars, XF).
-removeQ(KB, poss(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( nesc(BDT, F)),Vars, XF).
+% removeQ(KB, nesc(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( poss(BDT, F)),Vars, XF).
+% removeQ(KB, poss(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( nesc(BDT, F)),Vars, XF).
 
 removeQ(KB,  exists(X,F),Vars, HH):- is_skolem_setting(removeQ),!,wdmsg(removeQ(skolemizing(exists(X,F)))),
 	mk_skolem(KB,F,X,Vars,Fsk),
@@ -1674,31 +1707,30 @@ display_form(KB,Form):- demodal_sents(KB,Form,OutM),local_pterm_to_sterm(OutM,Ou
 %
 % Demodal Sentences.
 %
-demodal_sents(KB,I,O):- must(demodal(KB,I,M)),must(modal2sent(M,O)).
+demodal_sents(KB,I,O):- must(to_modal1(KB,I,M)),must(modal2sent(M,O)).
 
 
 %= 	 	 
 
-%% demodal( ?KB, :TermIn, ?Prolog) is det.
+%% to_modal1( ?KB, :TermIn, ?Prolog) is det.
 %
 % Demodal.
 %
-demodal(KB,In,Prolog):- call_last_is_var(demodal(KB,In,Prolog)),!.
-demodal(_KB,Var, Var):- quietly(var_or_atomic(Var)),!.
-demodal(KB,[H|T],[HH|TT]):- !, demodal(KB,H,HH),demodal(KB,T,TT).
-demodal(KB,  ~( H),  ~( HH)):-!, demodal(KB,H, HH),!.
 
-demodal(KB, nesc(b_d(KB2,X,_),F), HH):-KB\==KB2,XF =..[X,KB2,F],!,demodal(KB2,XF, HH).
-demodal(KB, poss(b_d(KB2,_,X),F), HH):-KB\==KB2,XF =..[X,KB2,F],!,demodal(KB2,XF, HH).
+% to_modal1(KB,In,Prolog):- call_last_is_var(to_modal1(KB,In,Prolog)),!.
+to_modal1(_KB,Var, Var):- quietly(var_or_atomic(Var)),!.
+to_modal1(KB,[H|T],[HH|TT]):- !, to_modal1(KB,H,HH),to_modal1(KB,T,TT).
 
-demodal(KB, nesc(b_d(KB,X,_),F),   HH):- XF =..[X,F], !,demodal(KB,XF, HH).
-demodal(KB, poss(b_d(KB,_,X),F),   HH):- XF =..[X,F], !,demodal(KB,XF, HH).
+to_modal1(KB, nesc(b_d(KB2,X,_),F), HH):- atom(X),KB\==KB2,XF =..[X,KB2,F],!,to_modal1(KB2,XF, HH).
+to_modal1(KB, poss(b_d(KB2,_,X),F), HH):- atom(X),KB\==KB2,XF =..[X,KB2,F],!,to_modal1(KB2,XF, HH).
 
-demodal(KB,~(H), ~( HH)):- nonvar(H),demodal(KB,H,HH).
-demodal(KB,nesc(F), HH):- !,demodal(KB,F, HH).
-demodal(KB, ~( H), ~( HH)):- nonvar(H),demodal(KB,H,HH).
+to_modal1(KB, nesc(b_d(KB,X,_),F),   HH):- atom(X), XF =..[X,F], !,to_modal1(KB,XF, HH).
+to_modal1(KB, poss(b_d(KB,_,X),F),   HH):- atom(X), XF =..[X,F], !,to_modal1(KB,XF, HH).
 
-demodal(KB,H,HH ):- H=..[F|ARGS],!,must_maplist(demodal(KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
+to_modal1(KB, nesc(_,F),   HH):- XF =..[nesc,F], !,to_modal1(KB,XF, HH).
+to_modal1(KB, poss(_,F),   HH):- XF =..[poss,F], !,to_modal1(KB,XF, HH).
+
+to_modal1(KB,H,HH ):- H=..[F|ARGS],!,must_maplist(to_modal1(KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
 
 
 %= 	 	 
@@ -1727,14 +1759,19 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
    unused_clause(Unused) -> remove_unused_clauses(FlattenedO4,FlattenedO);
      (remove_unused_clauses(FlattenedO4,FlattenedM),FlattenedO=[Unused|FlattenedM]).
 
+unusual_body :- call_u(feature_setting(use_unusual_body,true)),!,dmsg(used(unusual_body)).
+unusual_body :- dmsg(skipped(unusual_body)),!,fail.
+
 unused_clause(unused(C):-_):-nonvar(C),!.
+unused_clause((C v _):-_):-nonvar(C),!.
 % unused_clause(naf(C):- ~ _):-nonvar(C),!.
 
-demodal_clauses3(KB,FlattenedOOO,FlattenedO):-
-        demodal_clauses(KB,FlattenedOOO,FlattenedO2),
+demodal_clauses3(KB,FlattenedO1,FlattenedOO):-
+        demodal_clauses(KB,FlattenedO1,FlattenedO2),
         demodal_clauses(KB,FlattenedO2,FlattenedO3),
         demodal_clauses(KB,FlattenedO3,FlattenedO4),
-      remove_unused_clauses(FlattenedO4,FlattenedO).
+        demodal_clauses(KB,FlattenedO4,FlattenedO5),
+      remove_unused_clauses(FlattenedO5,FlattenedOO).
 
 demodal_clauses(_KB,Var, Var):- var_or_atomic(Var),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
@@ -1742,30 +1779,67 @@ demodal_clauses(KB,List,ListO):- is_list(List),!,must_maplist(demodal_clauses(KB
 demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO),!.
 
 % demodal_body(_KB,~ _Head,(skolem(_,B), \+ G), \+ G ):- nonvar(B),nonvar(G),!.
-demodal_body(_KB,_Head,Var, Var):- var_or_atomic(Var),!.
-demodal_body(KB,Head,List,ListO):- is_list(List),!,must_maplist(demodal_body(KB,Head),List,ListO),!.
+demodal_body(_KB,_Head,Var, Var):- var(Var),!.  
+demodal_body(_KB, ~ _Head, (pos(A), ~B), ~B):- A==B,!.
+demodal_body(_KB, ~ _Head, (~B, pos(A)), ~B):- A==B,!.
+demodal_body(_KB, _Head, (pos(A), ~B), pos(B)):- A==B,!.
+demodal_body(_KB, _Head, (~B, pos(A)), pos(B)):- A==B,!.
+demodal_body(_KB,_Head, poss([infer_by(_)],G), poss(G)).
+demodal_body(_KB,_Head, nesc([infer_by(_)],G), nsec(G)).
+demodal_body(_KB,_Head, nesc(G), proven(G)):- nonvar(G),!.
+
+demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
+demodal_body(_KB, _Head, (A , B , C), (A , B)):- A==C,!.
+demodal_body(_KB, _Head, (A , B , C), (A , C)):- A==B,!.
+demodal_body(_KB, _Head, (A , B), A):- A==B,!.
+
 demodal_body(KB,Head,[H|T],[HH|TT]):- !, must(( demodal_body(KB,Head,H,HH),demodal_body(KB,Head,T,TT))),!.
+
 % demodal_clauses(KB,G,O):- G=..[F,H], \+ leave_as_is(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], demodal_clauses(KB,GG,O).
 
 demodal_body(_KB,_Head,naf(~skolem(A,B)),skolem(A,B)):- nonvar(B),!.
 
+demodal_body(_KB,Head, v(A, ~B), ~B):- A==Head,!.
+demodal_body(_KB,Head, v(~B, A), ~B):- A==Head,!.
+demodal_body(_KB,Head, v(A, B), B):- A==Head,!.
+demodal_body(_KB,Head, v(B, A), B):- A==Head,!.
+
+demodal_body(_KB, _Head, poss(A & B), (poss(A) , poss(B))):-nonvar(A),!.
+
 %demodal_body(_KB, ~ _Head,(G1,G2), (G1 , \+ GG2)):- G2 \= (_,_), G2 = ~(GG2).
 %demodal_body(_KB,_Head,(G1,G2), (G1, poss(GG2) )):- G2 \= (_,_), G2 = ~(GG2), nonvar(GG2).
-demodal_body(_KB,_Head,poss([infer_by(_)],G), poss(G)).
-demodal_body(_KB,_Head,nesc([infer_by(_)],G), G).
+
+demodal_body(KB,Head,(H & T),(HH,TT)):- !, must(( demodal_body(KB,Head,H,HH),demodal_body(KB,Head,T,TT))),!.
+demodal_body(KB,Head,(H,T),(HH,TT)):- !, must(( demodal_body(KB,Head,H,HH),demodal_body(KB,Head,T,TT))),!.
+demodal_body(KB,Head,(H v T),(HH v TT)):- !, must(( demodal_body(KB,Head,H,HH),demodal_body(KB,Head,T,TT))),!.
+
+
+demodal_body(_KB, _Head, G, G):- !.
+
 demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
+demodal_body(_KB, Head, G, true):- G==Head, unusual_body,!.
 % demodal_body(_KB,_Head, poss(isa(I,C)), isa(I,C)):- !.
 
 demodal_body(_KB,_Head, naf(~ G), poss(G)):- nonvar(G),!.
-demodal_body(_KB,_Head, ~ (~ G), proven(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, ~ (~ G), proven(G)):- nonvar(G), unusual_body,!.
+
+
+
 demodal_body(KB,Head, v(~A, B), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
 %demodal_body(KB,Head, v(~B, A), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
 demodal_body(KB,Head, v(~A, B), (AA *-> BB)):- nonvar(A),!,demodal_body(KB,Head,A,AA),demodal_body(KB,Head,B,BB).
 demodal_body(_KB,_Head, \+ (~ G), proven(G)):- nonvar(G),!.
 demodal_body(_KB,_Head, \+ (~ G), poss(G)):- nonvar(G),!.
 
-%demodal_body(_KB, Head, ( H, poss(G) ) , (H, G)):- pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
-%demodal_body(_KB, Head, ( poss(G) , H) , (G, H)):-  pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead.
+demodal_body(_KB, _Head, ( H, poss(G) ) , poss(G)):- H==G , unusual_body.
+demodal_body(_KB, _Head, ( H, (G) ) , (G)):- H==G, unusual_body.
+demodal_body(_KB, _Head, ( H, G ) , G):- H==true, unusual_body.
+demodal_body(_KB, _Head, ( G, H ) , G):- H==true, unusual_body.
+demodal_body(_KB, _Head, ( G *-> H ) , G):- H==true, unusual_body.
+demodal_body(_KB, _Head, ( H *-> G ) , G):- H==true, unusual_body.
+
+%demodal_body(_KB, Head, ( H, poss(G) ) , (H, G)):- pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead,!.
+%demodal_body(_KB, Head, ( poss(G) , H) , (G, H)):-  pos_or_isa(H), pred_of(Head,GHead)-> G \= GHead,!.
 %demodal_body(_KB, Head, ( poss(G) ) , (G)):-  shared_vars(Head,G,SVG),SVG=[].
 %demodal_body(_KB, Head, ( poss(G) ) , (G)):- Head \= ~ _,!.
 
@@ -1797,6 +1871,7 @@ demodal_head(_KB,~equals(A,B), different(A,B),true):-!.
 demodal_head(_KB,~mudEquals(A,B), different(A,B),true):-!.
 demodal_head(_KB,~isa(A,B),not_isa(A,B),true):- nonvar(B),!.
 demodal_head(_KB,naf(~Head),poss(Head),true):- !.
+demodal_head(_KB,nesc(Head),Head,true):- !.
 demodal_head(_KB,Head,Head,true):- !.
 demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 
@@ -1806,6 +1881,7 @@ demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 %
 % Modal2sent.
 %
+modal2sent(Var, Var):- !.
 modal2sent(Var, Var):- var_or_atomic(Var),!.
 % modal2sent(G,O):- G=..[F,H], \+ leave_as_is(H), H=..[HF,HH], atom_compat(F,HF,HHF),!, GG=..[HHF,HH], modal2sent(GG,O).
 modal2sent([H|T],[HH|TT]):- !, must(( modal2sent(H,HH),modal2sent(T,TT))),!.
@@ -2072,7 +2148,7 @@ mpred_quf_0(In,In).
 %
 nonegate(_KB,IO,IO):-!.
 nonegate(KB,List,OutZ):- is_list(List),must_maplist(nonegate(KB),List,OutZ),!.
-nonegate(KB,Fml,OutZ):- simplify_cheap(Fml,Fml2), Fml \=@= Fml2,nonegate(KB,Fml2,OutZ),!.
+nonegate(KB,Fml,OutZ):- simplify_cheap(Fml,Fml2)-> Fml \=@= Fml2,nonegate(KB,Fml2,OutZ),!.
 nonegate(KB,Fml,OutZ):- must((unbuiltin_negate(KB,Fml,Out),!,defunctionalize(Out,OutY),!,must(mpred_quf(OutY,OutZ)))),!.
 
 
@@ -2427,12 +2503,12 @@ correct_boxlog_0(BOXLOG,KB,Why,FlattenedS):-
   must_det_l((  
    must_maplist(adjust_kif(KB),BOXLOG,MODAL),
    %wdmsgl(modal(MODAL)),   
-   must_maplist(demodal(KB),MODAL,CLAUSES),
+   must_maplist(to_modal1(KB),MODAL,CLAUSES),
    must_maplist(correct_cls(KB),CLAUSES,NCFs),
    must_maplist(clauses_to_boxlog(KB,Why),NCFs,ListOfLists),
    flatten([ListOfLists],Flattened),
    must_maplist(removeQ(KB),Flattened,FlattenedM),
-   must_maplist(demodal(KB),FlattenedM,FlattenedO),
+   must_maplist(to_modal1(KB),FlattenedM,FlattenedO),
    predsort(variants_are_equal,FlattenedO,FlattenedS),
    nop(wdmsgl(horn(FlattenedS))))),!.
 

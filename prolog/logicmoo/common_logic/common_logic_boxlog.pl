@@ -489,6 +489,20 @@ body_for_mpred_2((fwc),H,HEAD,skolem(In,NewOut),true):- head_for_skolem(H,HEAD,s
 body_for_mpred_2(_Mode,~(Head),~(Head),skolem(_,_),true).
 %body_for_mpred_2(Mode,H,H,skolem(_,_),true).
 body_for_mpred_2(_Mode,Head,Head,skolem(In,Out),{ignore(In=Out)}).
+
+body_for_mpred_2(Mode,Head,HeadO,(X & Y),XY):-
+   body_for_mpred_2(Mode,Head,HeadM,X,XX),body_for_mpred_2(Mode,HeadM,HeadO,Y,YY),
+   conjoin_maybe(XX,YY,XY),!.
+  
+body_for_mpred_2(Mode,Head,HeadO,(X , Y),XY):-
+   body_for_mpred_2(Mode,Head,HeadM,X,XX),body_for_mpred_2(Mode,HeadM,HeadO,Y,YY),
+   conjoin_maybe(XX,YY,XY),!.
+
+body_for_mpred_2(Mode,Head,HeadO,(X ; Y),(XX ; YY)):-
+   body_for_mpred_2(Mode,Head,HeadM,X,XX),body_for_mpred_2(Mode,HeadM,HeadO,Y,YY),!.
+   
+
+body_for_mpred_2(_Mode,Head,Head,poss(X),poss(X)).
 body_for_mpred_2(_Mode,Head,Head,poss(X),{loop_check(\+ ~(X),true)}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{(In=Out;when('nonvar'(In),ignore((In=Out))))}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{when((?=(In,_);nonvar(In)),ignore(Out=In))}).
