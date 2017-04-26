@@ -22,10 +22,10 @@ domain(drinks,2,beverage_class).
 % Note these two assertions are implicit to the system and have no side effect
 % =================================================================================
 
-% all objects in the universe that may drink coffee do drink coffee
+% all objects in the universe that do drink coffee, may drink coffee
 all(X, if(drinks(X, coffee),possible(drinks(X, coffee)))).
 
-% all objects in the universe that may live in the green house do live in the green house
+% for any objects in the universe that live in the green house must obvously have that as a possibility
 all(X, if(livesAt(X, green),possible(livesAt(X, green)))).
 
 % =================================================================================
