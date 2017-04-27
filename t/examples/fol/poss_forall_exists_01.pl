@@ -26,8 +26,6 @@
 
 :- kif_compile.
 
-:- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
-
 % =================================================================================
 % Define a couple predicates
 % =================================================================================
@@ -49,8 +47,6 @@
 %   Only things that possibly can drink coffee live in the green house?
 %
 % =================================================================================
-
-:-asserta_if_new(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
 
 :- show_kif_to_boxlog(all(X, livesAt(X, green_house) & drinks(X, coffee))).
 

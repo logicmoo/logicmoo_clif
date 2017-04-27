@@ -1120,7 +1120,6 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 %
 
 qualify_nesc(Wff666,Wff666):- var(Wff666),!.
-qualify_nesc(nesc(Wff666),(poss(Wff666)=>nesc(Wff666))):-!.
 qualify_nesc(IN,OUT):-is_list(IN),must_maplist(qualify_nesc,IN,OUT),!.
 qualify_nesc(Wff666,Wff666):- leave_as_is(Wff666),!.
 qualify_nesc(Wff666,Wff666):- contains_modal(Wff666),!.
@@ -1133,10 +1132,12 @@ qualify_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),qualify_nes
 qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
 qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
 
-qualify_nesc( ~(IN), nesc(~(IN))):-!.
-qualify_nesc(IN, poss(IN)=>nesc(IN)):-!.
+% qualify_nesc( ~(IN), nesc(~(IN))):-!.
+qualify_nesc( ~(IN), ~(poss(IN))):-!.
+qualify_nesc(IN, poss(IN) & nesc(IN)):-!.
 
 % never seen
+qualify_nesc(nesc(Wff666),(poss(Wff666)=>nesc(Wff666))):-!.
 qualify_nesc(P=>Q,nesc(P=>Q)):-!.
 qualify_nesc(   IN,  nesc(IN)).
 qualify_nesc(P<=>Q,PQ & QP):- !,qualify_nesc(P=>Q,PQ),qualify_nesc(Q=>P,QP).

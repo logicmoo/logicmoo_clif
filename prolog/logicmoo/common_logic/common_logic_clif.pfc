@@ -16,7 +16,6 @@ vim: set filetype=md:
 %  <a href="https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md">https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md</a>
 */
 
-
 % :- set_fileAssertMt(baseKB).
 % :- set_defaultAssertMt(baseKB).
 
@@ -73,5 +72,27 @@ compile_pfclog ==>
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
 ({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
 
-% LATER (CLIF/is_kif_clause(CLIF) ==> clif(CLIF)).
+% Remove negations probably
+(clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 
+% LATER maybe case
+% P/(mpred_non_neg_literal(P),\+ contains_modal(P)) ==> poss(P).
+
+% when sometnhing begins to be possible remove the negation and remove the impossibility
+poss(P) ==> \+ ~ P, \+ ~poss(P).
+
+% when something begins to be definately false remove it and remove the possibility of it
+% ~P/(nonvar(P),mpred_positive_literal(P)) ==> \+ P, \+ poss(P).
+
+~P/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P)) ==>  \+ poss(P), {mpred_fwc(~poss(P))}.
+
+% when something begins to be impossibile, make sure it is false, remove it and remove the possibility of it 
+~poss(P) ==> (~P, \+ P, \+ poss(P)).
+
+:- kb_shared(((<-)/2)).
+
+% something is possible when is already true or if it is not false and not impossible
+:- ain(poss(G) :- {nonvar(G), (call_u(G) ; (\+ call_u(~G), \+ call_u(~poss(G))))}).
+
+% something is impossible when it is false
+:- ain(~poss(G) :-  {nonvar(G), call_u(~G)}).

@@ -551,9 +551,6 @@ did_use_hack(X):-wdmsg(did_use_hack(X)).
 
 
 
-:-asserta_if_new(baseKB:poss(G):- (cwc, \+ call_u(~G),!)).
-
-
 %= 	 	 
 
 %% boxlog_to_pfc_pass_4( :TermIN, :TermOUT) is semidet.
