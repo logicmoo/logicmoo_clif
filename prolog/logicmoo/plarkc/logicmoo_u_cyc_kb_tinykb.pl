@@ -259,16 +259,18 @@ mtDressedMt('iTemporaryEnglishParaphraseMt').
 mtDressedMt('iAct_GeneralCycKE').
 mtDressedMt('iTechnicalEnglishLexicalMt').
 
+into_mpred_form_tiny(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
+into_mpred_form_tiny(V,R):- into_mpred_form(V,R),!. 
 
-call_tiny_stub(V,MT,STR):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),
+call_tiny_stub(V,MT,STR):-into_mpred_form_tiny(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),
  CALL=..[exactlyAssertedELMT|ARGS],!,
  baseKB:call(elmt:CALL,MT,STR).
 
-make_el_stub(V,MT,STR,CALL):-into_mpred_form_locally(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[elmt:exactlyAssertedELMT|CARGS],!.
+make_el_stub(V,MT,STR,CALL):-into_mpred_form_tiny(V,M),!,M=..ML,((ML=[t|ARGS]-> true; ARGS=ML)),append(ARGS,[MT,STR],CARGS),CALL=..[elmt:exactlyAssertedELMT|CARGS],!.
 
 tinyAssertion(V,MT,STR):- 
  nonvar(V) -> call_tiny_stub(V,MT,STR);
-  (tinyAssertion0(W,MT,STR),once(into_mpred_form_locally(W,V))).
+  (tinyAssertion0(W,MT,STR),once(into_mpred_form_tiny(W,V))).
 
 tinyAssertion0(t(A,B,C,D,E),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,D,E,MT,STR).
 tinyAssertion0(t(A,B,C,D),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,D,MT,STR).
@@ -276,13 +278,13 @@ tinyAssertion0(t(A,B,C),MT,STR):-elmt:exactlyAssertedELMT(A,B,C,MT,STR).
 tinyAssertion0(t(A,B),MT,STR):-elmt:exactlyAssertedELMT(A,B,MT,STR).
 
 
-addTinyCycL(CycLIn):- into_mpred_form_locally(CycLIn,CycL),
+addTinyCycL(CycLIn):- into_mpred_form_tiny(CycLIn,CycL),
   ignore((tiny_support(CycL,_MT,CALL),must(retract(CALL)))),!,
   addCycL(CycL),!.
 
 
 
-tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_locally(CycLIn,CycL), 
+tiny_support(CycLIn,MT,CALL):- compound(CycLIn),!,into_mpred_form_tiny(CycLIn,CycL), 
   CycL=..[F|Args], append(Args,[MT,_STR],WMT),
   CCALL=..[exactlyAssertedELMT,F|WMT],!,
   ((baseKB:clause(elmt:CCALL,true), CCALL=CALL) ; baseKB:clause(elmt:CCALL,(CALL,_))).
