@@ -93,9 +93,9 @@ poss(P) ==> \+ ~ P, \+ ~poss(P).
 :- ain(~poss(G) :-  {nonvar(G), call_u(~G)}).
 
 % when something begins to be definately false, remove it.
-~P/(nonvar(P),mpred_positive_literal(P)) ==>  \+ P.
+((~P)/(nonvar(P),mpred_positive_literal(P))) ==>  \+ P.
 
 :- rtrace.
 % when something begins to be definately false remove it and remove the possibility of it
-((~P/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
+(((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
 :- nortrace.
