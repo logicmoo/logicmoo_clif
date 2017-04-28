@@ -43,11 +43,12 @@ poss(a(b)).
 % TODO Why would this make it fail? when ~poss(a(b)). doesn't?
 ~a(b).
 
+:- listing(poss).
+
 :- mpred_test(\+ poss(a(b))).
 
 :- mpred_test(~ poss(a(b))).
 
-:- listing(poss).
 
 :- mpred_test( ~a(b)).
 
