@@ -21,6 +21,12 @@
 :- module(mpred_motel,[ getLibraries/0]).
 %:- endif.
 :- style_check(-singleton).
+
+assert_logged(A):-assert(A).
+asserta_logged(A):-asserta(A).
+assertz_logged(A):-assertz(A).
+:- op(950,fy,skipped).
+skipped(G):- nop(G).
 /*
 :- discontiguous testAllMotelExamples/1. 
 :- discontiguous testMotel/1. 
@@ -659,136 +665,136 @@ simple_term(X) :-
  */
 
 loadLibraries(sicstus) :-
-	assertz((gensym(Prefix, V) :-
+	assertz_logged((gensym(Prefix, V) :-
 	var(V),
 	atomic(Prefix),
 	(   retract(gensym_counter(Prefix, M))
 	;   M = 0
 	),
 	N is M+1,
-	asserta(gensym_counter(Prefix, N)),
+	asserta_logged(gensym_counter(Prefix, N)),
 	name(Prefix,P1),
 	name(N,N1),
 	append(P1,N1,V1),
 	name(V,V1),
 	!)),
-	assertz((getTwoRandomNumbers(RT,CT) :-
+	assertz_logged((getTwoRandomNumbers(RT,CT) :-
 	statistics(runtime,[RT,CT]))),
-	assertz((getRuntime(RT) :-
+	assertz_logged((getRuntime(RT) :-
 	statistics(runtime,[RT|_]))),
-	assertz((append([],L2,L2))),
-	assertz((append([A1|L1],L2,[A1|L3]) :-
+	assertz_logged((append([],L2,L2))),
+	assertz_logged((append([A1|L1],L2,[A1|L3]) :-
 	append(L1,L2,L3))),
-	assertz((not(Goal) :- call(\+ Goal))),
-	assertz((once(Goal) :- Goal, !)),
-	assertz((ask(A1) :- deduce(A1))),
-	assertz((ask(A1,A2) :- deduce(A1,A2))),
-	assertz((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
-	assertz((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
-	assertz((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
-	assertz((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
+	assertz_logged((not(Goal) :- call(\+ Goal))),
+	assertz_logged((once(Goal) :- Goal, !)),
+	assertz_logged((ask(A1) :- deduce(A1))),
+	assertz_logged((ask(A1,A2) :- deduce(A1,A2))),
+	assertz_logged((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
+	assertz_logged((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
+	assertz_logged((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
 	!.
 loadLibraries(eclipse) :-
-	assertz((gensym(Prefix, V) :-
+	assertz_logged((gensym(Prefix, V) :-
 	var(V),
 	atomic(Prefix),
 	(   retract(gensym_counter(Prefix, M))
 	;   M = 0
 	),
 	N is M+1,
-	asserta(gensym_counter(Prefix, N)),
+	asserta_logged(gensym_counter(Prefix, N)),
 	name(Prefix,P1),
 	name(N,N1),
 	append(P1,N1,V1),
 	name(V,V1),
 	!)),
-	assertz((getTwoRandomNumbers(RT,CT) :-
+	assertz_logged((getTwoRandomNumbers(RT,CT) :-
 	statistics(runtime,[RT,CT]))),
-	assertz((getRuntime(RT) :-
+	assertz_logged((getRuntime(RT) :-
 	statistics(runtime,[RT|_]))),
-	assertz((append([],L2,L2))),
-	assertz((append([A1|L1],L2,[A1|L3]) :-
+	assertz_logged((append([],L2,L2))),
+	assertz_logged((append([A1|L1],L2,[A1|L3]) :-
 	append(L1,L2,L3))),
-	assertz((ask(A1) :- deduce(A1))),
-	assertz((ask(A1,A2) :- deduce(A1,A2))),
-	assertz((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
-	assertz((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
-	assertz((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
-	assertz((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
+	assertz_logged((ask(A1) :- deduce(A1))),
+	assertz_logged((ask(A1,A2) :- deduce(A1,A2))),
+	assertz_logged((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
+	assertz_logged((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
+	assertz_logged((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
 	!.
 loadLibraries(swiprolog) :-
-	assertz((ask(A1) :- deduce(A1))),
-	assertz((ask(A1,A2) :- deduce(A1,A2))),
-	assertz((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
-	assertz((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
-	assertz((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
-	assertz((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
-	assertz((portray(not(F)) :- display(not(F)))),
-	assertz((getTwoRandomNumbers(RT,CT) :-
+	assertz_logged((ask(A1) :- deduce(A1))),
+	assertz_logged((ask(A1,A2) :- deduce(A1,A2))),
+	assertz_logged((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
+	assertz_logged((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
+	assertz_logged((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
+	assertz_logged((portray(not(F)) :- display(not(F)))),
+	assertz_logged((getTwoRandomNumbers(RT,CT) :-
 	statistics(cputime,RT1), RT is (ceil(RT1 * 100000)) mod 100000, statistics(atoms,CT))),
-	assertz((getRuntime(RT) :-
+	assertz_logged((getRuntime(RT) :-
 	statistics(cputime,RT1), RT is ceil(RT1 * 1000))),
 	%index(kb_in(1,0,0,0,1,1,0,0,0,0)),
 	%index(eq(1,0,0,1,1,0,0,0,0)),
 	%index(constraint(1,0,0,1,0,0,0,0)),
-	assertz((retractall_head(Head) :- retract(Head), fail)),
-	assertz((retractall_head(Head) :- retract((Head :- _Body)), fail)),
-	assertz((retractall_head(_))),
+	assertz_logged((retractall_head(Head) :- retract(Head), fail)),
+	assertz_logged((retractall_head(Head) :- retract((Head :- _Body)), fail)),
+	assertz_logged((retractall_head(_))),
 	!.
 loadLibraries(poplog) :-
 	op(600,xfy,':'),
-	assertz((gensym(Prefix, V) :-
+	assertz_logged((gensym(Prefix, V) :-
 	var(V),
 	atomic(Prefix),
 	(   retract(gensym_counter(Prefix, M))
 	;   M = 0
 	),
 	N is M+1,
-	asserta(gensym_counter(Prefix, N)),
+	asserta_logged(gensym_counter(Prefix, N)),
 	name(Prefix,P1),
 	name(N,N1),
 	append(P1,N1,V1),
 	name(V,V1),
 	!)),
-	assertz((append([],L2,L2))),
-	assertz((append([A1|L1],L2,[A1|L3]) :-
+	assertz_logged((append([],L2,L2))),
+	assertz_logged((append([A1|L1],L2,[A1|L3]) :-
 	append(L1,L2,L3))),
-	assertz((ask(A1) :- deduce(A1))),
-	assertz((ask(A1,A2) :- deduce(A1,A2))),
-	assertz((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
-	assertz((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
-	assertz((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
-	assertz((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
-	assertz((once(Goal) :- Goal, !)),
-	assertz((saveMOTEL(F) :- save_program(F))),
+	assertz_logged((ask(A1) :- deduce(A1))),
+	assertz_logged((ask(A1,A2) :- deduce(A1,A2))),
+	assertz_logged((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
+	assertz_logged((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
+	assertz_logged((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
+	assertz_logged((once(Goal) :- Goal, !)),
+	assertz_logged((saveMOTEL(F) :- save_program(F))),
 	!.
 loadLibraries(quintus) :-
-	assertz((gensym(Prefix, V) :-
+	assertz_logged((gensym(Prefix, V) :-
 	var(V),
 	atomic(Prefix),
 	(   retract(gensym_counter(Prefix, M))
 	;   M = 0
 	),
 	N is M+1,
-	asserta(gensym_counter(Prefix, N)),
+	asserta_logged(gensym_counter(Prefix, N)),
 	name(Prefix,P1),
 	name(N,N1),
 	append(P1,N1,V1),
 	name(V,V1),
 	!)),
-	assertz((getTwoRandomNumbers(RT,CT) :-
+	assertz_logged((getTwoRandomNumbers(RT,CT) :-
 	statistics(runtime,[RT,CT]))),
-	assertz((getRuntime(RT) :-
+	assertz_logged((getRuntime(RT) :-
 	statistics(runtime,[RT|_]))),
-	assertz((not(Goal) :- call(\+ Goal))),
-	assertz((once(Goal) :- Goal, !)),
-	assertz((ask(A1) :- deduce(A1))),
-	assertz((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
-	assertz((ask(A1,A2) :- deduce(A1,A2))),
-	assertz((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
-	assertz((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
-	assertz((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
-	assertz((saveMOTEL(F) :- save_program(F))),
+	assertz_logged((not(Goal) :- call(\+ Goal))),
+	assertz_logged((once(Goal) :- Goal, !)),
+	assertz_logged((ask(A1) :- deduce(A1))),
+	assertz_logged((ask(A1,A2,A3,A4) :- deduce(A1,A2,A3,A4))),
+	assertz_logged((ask(A1,A2) :- deduce(A1,A2))),
+	assertz_logged((ask(A1,A2,A3) :- deduce(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3) :- hop_map(A1,A2,A3))),
+	assertz_logged((map(A1,A2,A3,A4) :- hop_map(A1,A2,A3,A4))),
+	assertz_logged((saveMOTEL(F) :- save_program(F))),
 	!.
 loadLibraries(macprolog) :-
 	op(600,xfy,':'),
@@ -805,7 +811,7 @@ testForMacprolog(macprolog) :-
 getLibraries :-
 	testForMacprolog(_),
 	!,
-	asserta(currentProlog(macprolog)),
+	asserta_logged(currentProlog(macprolog)),
 	version('MOTEL-0.4 Tue Aug 04 15:00:00 MET 1992'),
 	loadLibraries(macprolog).
 :- if(false).
@@ -813,7 +819,7 @@ getLibraries :-
 	current_op(1190,fx,delay),
 	!,
 	sicstus,
-	asserta(currentProlog(eclipse)),
+	asserta_logged(currentProlog(eclipse)),
 	set_flag(variable_names,off),
 	loadLibraries(eclipse).
 :- endif.
@@ -821,34 +827,34 @@ getLibraries :-
 	current_op(_X,_Y,?),
 	style_check(-singleton),
 	!,
-	asserta(currentProlog(swiprolog)),
+	asserta_logged(currentProlog(swiprolog)),
 	style_check(-discontiguous),
 	loadLibraries(swiprolog).
 getLibraries :-
 	setof((X,Y),prolog_flag(X,Y),L),
 	member((single_var,_Z),L),
 	!,
-	asserta(currentProlog(quintus)),
+	asserta_logged(currentProlog(quintus)),
 	version('MOTEL-0.4 Tue Aug 04 15:00:00 MET 1992'),
 	prolog_flag(single_var,_,off),
 	loadLibraries(quintus).
 getLibraries :-
 	prolog_flag(_X,_Y),
 	!,
-	asserta(currentProlog(sicstus)),
+	asserta_logged(currentProlog(sicstus)),
 	version('MOTEL-0.4 Tue Aug 04 15:00:00 MET 1992'),
 	prolog_flag(single_var_warnings,_,off),
 	prolog_flag(compiling,_,fastcode),
 	prolog_flag(unknown,_,fail),
-%	asserta(foreign_file('int.o',[int_init])),
-%	asserta(foreign(int_init,int_init)),
+%	asserta_logged(foreign_file('int.o',[int_init])),
+%	asserta_logged(foreign(int_init,int_init)),
 %	load_foreign_files(['int.o'],[]),
 %	int_init,
 	loadLibraries(sicstus).
 getLibraries :-
 	tell('/tmp/v1'), version, told,
 	!,
-	asserta(currentProlog(poplog)),
+	asserta_logged(currentProlog(poplog)),
 	version('MOTEL-0.4 Tue Aug 04 15:00:00 MET 1992'),
 	loadLibraries(poplog).
 
@@ -867,7 +873,7 @@ getLibraries :-
 
 setOption(Option,Set) :-
 	retractall_head(motel_option(Option,_)),
-	asserta(motel_option(Option,Set)),
+	asserta_logged(motel_option(Option,Set)),
 	!.
 
 /**********************************************************************
@@ -1301,7 +1307,7 @@ generateClashGoal(CS1,Goal) :-
 		
 clashCS(CL) :-
 	retract(clashTest(possible)),
-	assertz(clashTest(impossible)),
+	assertz_logged(clashTest(impossible)),
 	generateClashGoal(CL,Goal),
 	!,
 	doClashTest(Goal).
@@ -1322,7 +1328,7 @@ doClashTest(InHead1) :-
 	print(InHead1), nl,
 	nl,
 	retract(clashTest(impossible)),
-	assertz(clashTest(possible)),
+	assertz_logged(clashTest(possible)),
 	!.
 doClashTest(Goal) :-
 	% the clash goal has failed, so there is no clash
@@ -1330,7 +1336,7 @@ doClashTest(Goal) :-
 	print(HYP), nl,
 	nl,
 	retract(clashTest(impossible)),
-	assertz(clashTest(possible)),
+	assertz_logged(clashTest(possible)),
 	!,
 	fail.
 
@@ -1501,7 +1507,7 @@ subsumes(EnvName,MS,N1,N2) :-
 subsumes(concepts,Env,MS,C,D) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	constructMLHead(Env,_RN1,W1,D,aaa,_HYPS,noAb,_CALLS,abox,InHeadD),
-	asserta((InHeadD :- call(G1))),
+	asserta_logged((InHeadD :- call(G1))),
  	getQuery(Env,W1,C,aaa,Exp,InHeadC),
 %	convertToGoal(Env,_RN2,MS,C,aaa,[or([]),rl([]),fl(_DML1)],noAb,[],
 %		      _PT2,InHeadC),
@@ -1517,7 +1523,7 @@ subsumes(roles,Env,MS,R,S) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	gensym(mskolem,SF),
 	constructEqHead(Env,_RN1,W1,bbb,SF,S,aaa,_HYPS,noAb,_CALLS,abox,InHeadS),
-	asserta((InHeadS :- call(G1))),
+	asserta_logged((InHeadS :- call(G1))),
 	constructEqHead(Env,_RN2,W1,bbb,_FF,R,aaa,[or([]),rl([]),fl(_DML1)],
 			noAb,[],_PT2,InHeadR),
 	call((G1, InHeadR)),
@@ -1698,11 +1704,11 @@ classify(roles,Env,MS,NewRole) :-
 classify(concepts,Env,MS,NewConcept) :-
 	retract(conceptHierarchy(Env,MS,OldTree)),
 	classify(concepts,Env,MS,NewConcept,OldTree,NewTree),
-	assertz(conceptHierarchy(Env,MS,NewTree)).
+	assertz_logged(conceptHierarchy(Env,MS,NewTree)).
 classify(roles,Env,MS,NewRole) :-
 	retract(roleHierarchy(Env,MS,OldTree)),
 	classify(roles,Env,MS,NewRole,OldTree,NewTree),
-	assertz(roleHierarchy(Env,MS,NewTree)).
+	assertz_logged(roleHierarchy(Env,MS,NewTree)).
 
 classify(Type,Env,MS,NewConcept,OldTree,NewTree) :-
 	testForSubsumption(Type,Env,MS,NewConcept,OldTree,NewTree,_Judgement),
@@ -1892,7 +1898,7 @@ cont5a(X,Y) :-
 	succ3(Y,Z),
 	cont5a(X,Z),!.
 
-assert2(G) :- not(G),assert(G),!.
+assert2(G) :- not(G),assert_logged(G),!.
 assert2(_G) :-!.
 
 retract2(G) :- retract(G),!.
@@ -2041,16 +2047,16 @@ init_new_daten(Env) :-
         init_succ(_),
 	init_sub(_),
 	init_nsub(_),
-	assert(conceptName1(Env,_,'top')),
-	assert(roleName1(Env,_,'top')),
-       	assertz(succ(concepts,Env,_,'top','bot')),
-	assertz(sub(concepts,Env,_,'top',_)),
-	assertz(nsub(concepts,Env,_,X,X)),	
-	assertz(succ(roles,Env,_,'top','bot')),
-	assertz(sub(roles,Env,_,'top',_)),
-	assertz(nsub(roles,Env,_,X,X)),
-	assertz(sub(roles,Env,_,_,'bot')),
-	assertz(sub(concepts,Env,_,_,'bot')).
+	assert_logged(conceptName1(Env,_,'top')),
+	assert_logged(roleName1(Env,_,'top')),
+       	assertz_logged(succ(concepts,Env,_,'top','bot')),
+	assertz_logged(sub(concepts,Env,_,'top',_)),
+	assertz_logged(nsub(concepts,Env,_,X,X)),	
+	assertz_logged(succ(roles,Env,_,'top','bot')),
+	assertz_logged(sub(roles,Env,_,'top',_)),
+	assertz_logged(nsub(roles,Env,_,X,X)),
+	assertz_logged(sub(roles,Env,_,_,'bot')),
+	assertz_logged(sub(concepts,Env,_,_,'bot')).
 
 init_new_daten1 :-
 	currentEnvironment(Env),
@@ -2190,8 +2196,8 @@ testa(Env,MS) :-
 	buildOrdering(Env,MS,CTree,RTree),
 	retractall_head(conceptHierarchy(Env,MS,_)),
 	retractall_head(roleHierarchy(Env,MS,_)),
-	assert(conceptHierarchy(Env,MS,CTree)),
-	assert(roleHierarchy(Env,MS,RTree)),
+	assert_logged(conceptHierarchy(Env,MS,CTree)),
+	assert_logged(roleHierarchy(Env,MS,RTree)),
 	ifOption(testOutput,yes,printStat),
 %	ifOption(testOutput,yes,show_dag(MS)),
 	!.	
@@ -3020,7 +3026,7 @@ union1(X,Y,Z) :-
 
 assert1(G) :- 
 	\+ (G),
-	assert(G),
+	assert_logged(G),
 	!.
 assert1(G) :-
 	!.
@@ -3227,9 +3233,9 @@ compileEnvironment(FileName,EnvName) :-
 	write((:- dynamic(modalAxiom/6))), write('.'), nl,
 %	write((:- dynamic(rel/5))), write('.'), nl,
 	write((:- dynamic(compiledPredicate/2))), write('.'), nl,
-	writeq((:- asserta(environment(EnvName,Env,Comment)))), write('.'), nl,
+	writeq((:- asserta_logged(environment(EnvName,Env,Comment)))), write('.'), nl,
 	writeq((:- retractall_head(currentEnvironment(_)))), write('.'), nl,
-	writeq((:- asserta(currentEnvironment(Env)))), write('.'), nl,
+	writeq((:- asserta_logged(currentEnvironment(Env)))), write('.'), nl,
 	writeCompiledPredicateFactsToFile(Env,CPList),
 	expand_term((in(Env,Name,modal(MS),CN,CON,hyp(HYP),
                         ab(D),call(CALL),PT) :-
@@ -3301,18 +3307,18 @@ writeCompiledPredicateFactsToFile(Env,[Pred/Arity|List]) :-
 
 assertConnectionClauses(Env) :-
 	expand_term(constraint(Env,X2,X3,X4,X5,X6,X7,X8),CompConAtom),
-	assertz((constraint(Env,X2,X3,X4,X5,X6,X7,X8) :-
+	assertz_logged((constraint(Env,X2,X3,X4,X5,X6,X7,X8) :-
 		 CompConAtom)),
 	expand_term(eq(Env,X2,X3,X4,X5,X6,X7,X8,X9),CompEqAtom),
-	assertz((eq(Env,X2,X3,X4,X5,X6,X7,X8,X9) :-
+	assertz_logged((eq(Env,X2,X3,X4,X5,X6,X7,X8,X9) :-
 		 CompEqAtom)),
 	expand_term(in(Env,X2,X3,X4,X5,X6,X7,X8,X9),CompInAtom),
-	assertz((in(Env,X2,X3,X4,X5,X6,X7,X8,X9) :-
+	assertz_logged((in(Env,X2,X3,X4,X5,X6,X7,X8,X9) :-
 		 CompInAtom)),
-%	assertz((kb_in(Env,X2,X3,X4,X5,X6,X7,X8,X9,X10) :-
+%	assertz_logged((kb_in(Env,X2,X3,X4,X5,X6,X7,X8,X9,X10) :-
 %		 comp_kb_in(Env,X2,X3,X4,X5,X6,X7,X8,X9,X10))),
 	expand_term(rel(Env,X2,X3,X4,X5),CompRelAtom),
-	assertz((rel(Env,X2,X3,X4,X5) :-
+	assertz_logged((rel(Env,X2,X3,X4,X5) :-
 		 CompRelAtom)),
 	!.
 
@@ -3352,32 +3358,32 @@ termExpansion(on,env(Id),
 	% Assert the term_expansion rules needed to translate the
 	% interpreted clauses into compiled clauses.
 	abolish(term_expansion/2),
-	assertz((term_expansion((Head :- Body),(Head1 :- Body1)) :-
+	assertz_logged((term_expansion((Head :- Body),(Head1 :- Body1)) :-
 	term_expansion(Head,Head1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion((L, Body), (L1,Body1)) :-
+	assertz_logged((term_expansion((L, Body), (L1,Body1)) :-
 	term_expansion(L,L1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion((L; Body), (L1,Body1)) :-
+	assertz_logged((term_expansion((L; Body), (L1,Body1)) :-
 	term_expansion(L,L1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion(\+Atom,\+Atom1) :-
+	assertz_logged((term_expansion(\+Atom,\+Atom1) :-
 	term_expansion(Atom,Atom1))),
-	assertz((term_expansion(constraint(X1,X2,X3,X4,X5,X6,X7,X8),
+	assertz_logged((term_expansion(constraint(X1,X2,X3,X4,X5,X6,X7,X8),
 				CompConAtom))),
-	assertz((term_expansion(eq(X1,X2,X3,X4,X5,X6,X7,X8,X9),
+	assertz_logged((term_expansion(eq(X1,X2,X3,X4,X5,X6,X7,X8,X9),
 				CompEqAtom))),
-	assertz((term_expansion(in(X1,X2,X3,X4,X5,X6,X7,X8,X9),
+	assertz_logged((term_expansion(in(X1,X2,X3,X4,X5,X6,X7,X8,X9),
 				CompInAtom))),
-	assertz((term_expansion(kb_in(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10),
+	assertz_logged((term_expansion(kb_in(X1,X2,X3,X4,X5,X6,X7,X8,X9,X10),
 				CompKb_inAtom))),
-	assertz((term_expansion(rel(X1,X2,X3,X4,X5),
+	assertz_logged((term_expansion(rel(X1,X2,X3,X4,X5),
 				CompRelAtom))),
-	assertz((term_expansion(once(Body1),once(Body2)) :-
+	assertz_logged((term_expansion(once(Body1),once(Body2)) :-
 		term_expansion(Body1,Body2))),
-	assertz((term_expansion(call(Body1),call(Body2)) :-
+	assertz_logged((term_expansion(call(Body1),call(Body2)) :-
 		 term_expansion(Body1,Body2))),
-	assertz(term_expansion(X,X)),
+	assertz_logged(term_expansion(X,X)),
 	!.
 termExpansion(off,_) :-
 	abolish(term_expansion/2),
@@ -4926,9 +4932,9 @@ makeEnvironment(Name,Comment) :-
 	Runtime   is (RT mod 10000),
 	name(Runtime,RTChars),
 	name(EnvIdentifier,[FirstChar|RTChars]),
-	asserta(environment(Name,env(EnvIdentifier),Comment)),
+	asserta_logged(environment(Name,env(EnvIdentifier),Comment)),
 	retractall_head(currentEnvironment(_)),
-	asserta(currentEnvironment(env(EnvIdentifier))),
+	asserta_logged(currentEnvironment(env(EnvIdentifier))),
 	!.
 
 /**********************************************************************
@@ -5038,7 +5044,7 @@ removeEnvironment(Name) :-
 	clearEnvironment(Name),
 	retractall_head(environment(Name,_,_)),
 	retract(currentEnvironment(Name)),
-	asserta(currentEnvironment(env(e0))),
+	asserta_logged(currentEnvironment(env(e0))),
 	!.
 removeEnvironment(_Name) :-
 	% if we get here, Name was not the current environemt
@@ -5131,7 +5137,7 @@ initEnvironment :-
 initEnvironment(EnvName) :-
 	clearEnvironment(EnvName),
 	environment(EnvName,Env,_),
-	assert(theory(Env,
+	assert_logged(theory(Env,
 	[
         (in([],P,pair(X,Y)) <== equal(X,Z), in([],P,pair(Z,Y))),
 	(in([],P,pair(X,Y)) <== equal(Y,Z), in([],P,pair(X,Z))),
@@ -5143,7 +5149,7 @@ initEnvironment(EnvName) :-
 	% Assert equality axioms
 	assertEqRule(Env,1),
 	% Assert 'top' role
-%	assertEqRule(Env,2),
+skipped	assertEqRule(Env,2),
 	assertEqRule(Env,3),
 	% Proof by hypothesis for roles (Test 14.07.92)
 	assertEqRule(Env,4),
@@ -5154,42 +5160,42 @@ initEnvironment(EnvName) :-
 	% Proof by hypothesis for concepts
 	assertInRule(Env,3),
 	% Assert X in some(r,c) => X in atleast(1,r)
-%	gensym(axiom,AN11),
-%	assertInRule(Env,3,AN11),
+skipped	gensym(axiom,AN11),
+skipped	assertInRule(Env,3,AN11),
 	% Assert X in atleast(1,r) => X in some(r,'top')
-%	assertInRule(Env,4,AN11),
+skipped	assertInRule(Env,4,AN11),
 	% Assert X in atmost(0,r) => X in all(r,c)
-%	gensym(axiom,AN10),
-%	assertInRule(Env,1,AN10),
+skipped	gensym(axiom,AN10),
+skipped	assertInRule(Env,1,AN10),
 	% Assert X in all(r,'bot') => X in atmost(0,r)
-%	assertInRule(Env,2,AN10),
+skipped	assertInRule(Env,2,AN10),
 	% Assert not('top') law
 	% necessary for inconsistent knowledge bases?
 	% bad influence on runtime!
-%	assertInRule(Env,4),
+skipped	assertInRule(Env,4),
 	% Assert double negation laws
 	gensym(axiom,AN6),
-%	assertInRule(Env,5,AN6),
-%	assertInRule(Env,6,AN6),
+skipped	assertInRule(Env,5,AN6),
+skipped	assertInRule(Env,6,AN6),
 	% Concrete domains
 	gensym(axiom,AN7),
-%	assertInRule(Env,7,AN7),
-%	assertInRule(Env,8,AN7),
-%	assertInRule(Env,9,AN7),
+skipped	assertInRule(Env,7,AN7),
+skipped	assertInRule(Env,8,AN7),
+skipped	assertInRule(Env,9,AN7),
 	%%  Abductive Reasoning
 	% Proof by abductive hypothesis
 	assertAbductionRule(Env,1),
 	% Proof by abduction
 	assertAbductionRule(Env,2),
 	% Meta Reasoning
-%	metaReasoning,
+skipped	metaReasoning,
 	% Assert concept hierarchy
-	assertz(conceptHierarchy(Env,[],node(['top'],[]))),
-	assertz(conceptName(Env,[],[],'top')),
-	assertz(conceptName(Env,[],[],'bot')),
+	assertz_logged(conceptHierarchy(Env,[],node(['top'],[]))),
+	assertz_logged(conceptName(Env,[],[],'top')),
+	assertz_logged(conceptName(Env,[],[],'bot')),
 	% Assert role hierarchy
-	assertz(roleHierarchy(Env,[],node(['top'],[]))),
-	assertz(roleName(Env,[],[],'top')),
+	assertz_logged(roleHierarchy(Env,[],node(['top'],[]))),
+	assertz_logged(roleName(Env,[],[],'top')),
 	initFuncdep,
 	!.
 
@@ -5207,37 +5213,37 @@ initEnvironment(EnvName) :-
  */
 
 assertInRules(Env) :-
-	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
 		 ifOption(traceOutput,yes,(length(CALL,Depth), format('trying ~d  in(~w,~w)~n',[Depth,CN,CON]))),
 	kb_in(Env,pr(5),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT),
 		 ifOption(traceOutput,yes,(length(CALL,Depth), format('succeeded ~d  in(~w,~w)~n',[Depth,CN,CON]))))),
 % There are no kb_in clauses with priority 4 at the moment (07.10.92)
-%	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
-%	kb_in(Env,pr(4),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
-	assertz((in(Env,Name,modal(MS),CN,CON,hyp([or(H1),rl(H2),fl(H3)]),ab(noAb),call(CALL),PT) :-
+skipped	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+skipped	kb_in(Env,pr(4),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
+	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp([or(H1),rl(H2),fl(H3)]),ab(noAb),call(CALL),PT) :-
 		 clashInHyp(H2), !, fail)),
-	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
 		 (CN \== 'top', CN \== 'bot', CN \== not('top'), CN \== not('bot'),
 	kb_in(Env,pr(3),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT)))),
 % There are no kb_in clauses with priority 2 at the moment (07.10.92)
-%	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
-%	kb_in(Env,pr(2),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
-	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+skipped	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+skipped	kb_in(Env,pr(2),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
+	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
 		 (CN \== 'top',CN \== 'bot', CN \== not('top'), CN \== not('bot'),
 	kb_in(Env,pr(1),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT)))),
 % Experimental code (07.10.92 uh)
 % It might be useful to have global information about the failure of
-% derivations. With the code below such a failure is used to assert to
+% derivations. With the code below such a failure is used to assert_logged to
 % hypothesis that the negation of the goal is true.
-%	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+%	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
 %		 (nonvar(CON), nonvar(CN), 
 %		  \+ hypothesis(in(Env,modal(MS),CN,CON,ab(D),PT)),
 %		  getNegatedConcept(CN,C1),
-%		  assertz(hypothesis(in(Env,modal(MS),C1,CON,ab(D),assume))),
+%		  assertz_logged(hypothesis(in(Env,modal(MS),C1,CON,ab(D),assume))),
 %		  fail))),
 % There are no kb_in clauses with priority 0 at the moment (07.10.92)
-%	assertz((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
-%	kb_in(Env,pr(0),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
+skipped	assertz_logged((in(Env,Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT) :-
+skipped	kb_in(Env,pr(0),Name,modal(MS),CN,CON,hyp(HYP),ab(D),call(CALL),PT))),
 	!.
 
 assertEqRule(Env,1) :-
@@ -5245,11 +5251,11 @@ assertEqRule(Env,1) :-
 	gensym(rule,RN1),
 	constructEqHead(Env,rn(AN1,RN1,user,lInR),W1,app((F:R),X),F,R,X,HYPS,AB,CALLS,PT3,EqHead1),
 	constructMLCall(Env,rn(AX,_RN4,_S4,_O4),bodyMC(W1),headMC(W1),normal(R),X,HYPS,AB,CALLS,PT3,InHead2),
-	assertz((EqHead1 :- cCS(CALLS,true),  simple_term(X))),
+	assertz_logged((EqHead1 :- cCS(CALLS,true),  simple_term(X))),
 %       The following would be correct
-%	assertz((EqHead1 :- cCS(CALLS,true),  InHead2)),
+%	assertz_logged((EqHead1 :- cCS(CALLS,true),  InHead2)),
 %       old code (uh 20.08.92)
-%	assertz((eq(Env,rn(AN1,RN1,user,lInR),modal(MS),X,X,hyp(HYPS),
+%	assertz_logged((eq(Env,rn(AN1,RN1,user,lInR),modal(MS),X,X,hyp(HYPS),
 %                   ab(_AB),call(CALLS),proved(eq(MS,X,X,hyp(HYPS),
 %                   basedOn(true)))) :- 
 %                (cCS(CALLS,true)))),
@@ -5260,13 +5266,13 @@ assertEqRule(Env,2) :-
 	gensym(rule,RN3),
 	constructMLHead(Env,rn(AN3,RN3,user,lInR),_MS,_,Role1,
 			_HYPS,_D,_CALLS,tbox,InHeadR),
-	assertz((InHeadR)),
+	assertz_logged((InHeadR)),
 	!.
 assertEqRule(Env,3) :-
 	gensym(axiom,AN20),
 	gensym(rule,RN20),
 	constructEqHead(Env,rn(AN20,RN20,user,lInR),_W1,_Y,_F,'top',_X,_HYPS,_D,_CALLS,tbox,EqHead20),
-	assertz(EqHead20),
+	assertz_logged(EqHead20),
 	!.
 assertEqRule(Env,4) :-
 	gensym(axiom,AN21),
@@ -5274,7 +5280,7 @@ assertEqRule(Env,4) :-
 	HYPS = [or(H1),rl(H2),fl(H3)],
 	constructEqHead(Env,rn(AN21,RN21,user,lInR),W1,Y,F,R,X,HYPS,D,_CALLS,tbox,EqHead20),
 	constructEqMark(rn(_AN21,_RN21,_,_),W1,Y,F,R,X,_HYPS2,D,_CALLS2,EqMark20),
-	assertz((EqHead20 :- append(H1,H2,H), member(EqMark20,H))),
+	assertz_logged((EqHead20 :- append(H1,H2,H), member(EqMark20,H))),
 	!.
 
 
@@ -5285,7 +5291,7 @@ assertInRule(Env,1) :-
 	gensym(rule,RN2),
 	constructKBHead(Env,pr(5),rn(AN2,RN2,user,lInR),_W1,'top',_X,
 			_HYPS,_D,_CALLS,tbox,InHead),
-	assertz(InHead),
+	assertz_logged(InHead),
 	!.
 assertInRule(Env,2) :-
 	% For all X: X in not('bot') 
@@ -5299,13 +5305,13 @@ assertInRule(Env,2) :-
 	% is subsumed by assertInRule(Env,4).
 	% For all X: X in not('bot') if X in 'top'.
 	% is subsumed by assertInRule(Env,2), i.e. the rule we will
-	% assert now.
+	% assert_logged now.
 	% Priority 5 (high priority)
 	gensym(axiom,AN4),
 	gensym(rule,RN4),
 	constructKBHead(Env,pr(5),rn(AN4,RN4,user,lInR),_W1,not('bot'),X,
 	                _HYPS,_D,_CALLS,tbox,InHead1),
-	assertz(InHead1),
+	assertz_logged(InHead1),
 	!.
 assertInRule(Env,3) :-
 	% For all X: X in C if (X in C) is a hypothesis
@@ -5316,9 +5322,9 @@ assertInRule(Env,3) :-
 	constructInHead(Env,rn(_AN5,_RN5,_S5,_O5),MS,C,X,_HYPS,_D1,_CALLS1,_,InHead1),
 	constructKBHead(Env,pr(5),rn(AN4,RN4,system,lInR),MS,C,X,
 	                HYPS,_D,_CALLS2,usingHyp(InHead1),InHead2),
-	assertz((InHead2 :- append(H1,H2,H), member(InHead1,H))),
+	assertz_logged((InHead2 :- append(H1,H2,H), member(InHead1,H))),
 	constructMLMark(InHead1,Mark1),
-	assertz((InHead2 :- (append(H1,H2,H), member(Mark1,H)) ; memberDML(Mark1,H3))),
+	assertz_logged((InHead2 :- (append(H1,H2,H), member(Mark1,H)) ; memberDML(Mark1,H3))),
 	!.
 assertInRule(Env,4) :-
 	% For all X: X in not('top') => X in C 
@@ -5331,7 +5337,7 @@ assertInRule(Env,4) :-
 	constructMLCall(Env,rn(AN7,_RN7,_S7,_O7),bodyMC(MS),headMC(MS),
                         not('top'),X,HYPS,D,CALLS,PT3,L3),
  	constructMLMark(InHead3,Mark3),
-	assertz((InHead3 :- cCS(CALLS,Mark3), L3)),
+	assertz_logged((InHead3 :- cCS(CALLS,Mark3), L3)),
 	!.
 
 assertInRule(Env,1,AN10) :- 
@@ -5344,7 +5350,7 @@ assertInRule(Env,1,AN10) :-
 	constructMLMark(InHead,Mark),
 	convertInAntecedent(Env,rn(AN10,system,lInR),bodyMC(W),headMC(W),
 			    atmost(0,R),X,HYPS,AB,CALLS,PT,Body),
-	asserta((InHead :- (nonvar(C), (cCS(CALLS,Mark), once((EqLiteral, Body)))))),
+	asserta_logged((InHead :- (nonvar(C), (cCS(CALLS,Mark), once((EqLiteral, Body)))))),
 	!.
 assertInRule(Env,2,AxiomName) :-
 	% Assert x in all(r,'bot') => x in atmost(0,r)
@@ -5357,7 +5363,7 @@ assertInRule(Env,2,AxiomName) :-
 	convertInConsequence(Env,pr(1),RN1,_MS,W1,
 			     atmost(0,R),X,HYPS,AB,CALLS,PT1,InHead1),
 	constructConMark(InHead1,Mark1),
-	asserta((InHead1 :- (nonvar(R),(cCS(CALLS,Mark1), once(Body))))),
+	asserta_logged((InHead1 :- (nonvar(R),(cCS(CALLS,Mark1), once(Body))))),
 	!.
 assertInRule(Env,3,AxiomName) :-
 	% Assert x in some(R,'top') => x in atleast(1,R)
@@ -5370,7 +5376,7 @@ assertInRule(Env,3,AxiomName) :-
 	convertInConsequence(Env,pr(1),RN1,_MS,W1,
 			     atleast(1,R),X,HYPS,AB,CALLS,PT1,InHead1),
 	constructConMark(InHead1,Mark1),
-	asserta((InHead1 :- (nonvar(R), cCS(CALLS,Mark1), once(Body)))),
+	asserta_logged((InHead1 :- (nonvar(R), cCS(CALLS,Mark1), once(Body)))),
 	!.
 assertInRule(Env,4,AxiomName) :-
 	% Assert x in atleast(1,R) => x in some(R,'top')
@@ -5383,7 +5389,7 @@ assertInRule(Env,4,AxiomName) :-
 	convertInAntecedent(Env,rn(AxiomName,system,lInR),
 	                    bodyMC(W1),headMC(W1),
 			    atleast(1,R),X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), once((EqLiteral, Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), once((EqLiteral, Body))))),
 	!.
 assertInRule(Env,5,AN6) :-
 	% For all X: X in C => X in not(not(C))
@@ -5394,7 +5400,7 @@ assertInRule(Env,5,AN6) :-
 	constructMLCall(Env,rn(AN6,_RN9,_S9,_O9),bodyMC(MS),headMC(MS),C,X,
 	                HYPS,D,CALLS,PT4,Antecedent4),
 	constructMLMark(Consequence3,AxiomHead3),
-	assertz((Consequence3 :- cCS(CALLS,AxiomHead3), Antecedent4)),
+	assertz_logged((Consequence3 :- cCS(CALLS,AxiomHead3), Antecedent4)),
 	!.
 assertInRule(Env,6,AN6) :-
 	% For all X: X in not(not(C)) => X in C 
@@ -5405,7 +5411,7 @@ assertInRule(Env,6,AN6) :-
 	constructMLCall(Env,rn(AN6,_RN7,_S7,_O7),bodyMC(MS),headMC(MS),
 			not(not(C)),X,HYPS,D,CALLS,PT3,Antecedent3),
 	constructMLMark(Consequence4,AxiomHead4),
-	assertz((Consequence4 :- cCS(CALLS,AxiomHead4), Antecedent3)),
+	assertz_logged((Consequence4 :- cCS(CALLS,AxiomHead4), Antecedent3)),
 	!.
 assertInRule(Env,7,AN7) :-
 	% For all X: X in set(S2) and motel_subset(S2,S1) => X in S1
@@ -5417,7 +5423,7 @@ assertInRule(Env,7,AN7) :-
 			set(S2),X,HYPS,D,CALLS,PT2,Antecedent2),
 	L1 = motel_subset(S2,S1),
 	constructMLMark(Consequence1,AxiomHead1),
-	assertz((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent2, L1))),
+	assertz_logged((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent2, L1))),
 	!.
 assertInRule(Env,8,AN7) :-
 	% For all X: X in set(S2) and X in set(S3) and 
@@ -5432,7 +5438,7 @@ assertInRule(Env,8,AN7) :-
 			set(S3),X,HYPS,D,CALLS,PT3,Antecedent3),
 	L1 = intersection_motel([S2,S3],S1),
 	constructMLMark(Consequence1,AxiomHead1),
-	assertz((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent3, (Antecedent2, L1)))),
+	assertz_logged((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent3, (Antecedent2, L1)))),
 	!.
 assertInRule(Env,9,AN7) :-
 	% For all X: X in set(S2) and X in set(S3) and 
@@ -5447,7 +5453,7 @@ assertInRule(Env,9,AN7) :-
 			set(S3),X,HYPS,D,CALLS,PT3,Antecedent3),
 	L1 = motel_subtract(S2,S3,S1),
 	constructMLMark(Consequence1,AxiomHead1),
-	assertz((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent3, (Antecedent2, L1)))),
+	assertz_logged((Consequence1 :- cCS(CALLS,AxiomHead1), (Antecedent3, (Antecedent2, L1)))),
 	!.
 
 
@@ -5458,7 +5464,7 @@ assertAbductionRule(Env,1) :-
 	constructInHead(Env,rn(_AN2,_RN2,_S2,_O2),MS,C,X,
 	                _HYPS1,_D,_CALLS1,_,InHead1),
 	constructMLHead(Env,rn(AN1,RN1,system,lInR),MS,C,X,_HYPS2,D1,_CALLS2,usingAbHyp(in(MS,C,X)),InHead2),
-	assertz((InHead2 :- memberDML(InHead1,D1))),
+	assertz_logged((InHead2 :- memberDML(InHead1,D1))),
 	!.
 assertAbductionRule(Env,2) :-
 	% Proof by abduction
@@ -5470,7 +5476,7 @@ assertAbductionRule(Env,2) :-
 	L1 = normalizeNot(C1,C),
 	L2 = not(memberDML(InHead2,D1)),
 	L3 = addDefaultML(InHead2,D1),
-	assertz((InHead1 :- L1, L2, L3)),
+	assertz_logged((InHead1 :- L1, L2, L3)),
 	!.
 
 
@@ -5485,7 +5491,7 @@ assertAbductionRule(Env,2) :-
 switchToEnvironment(Name) :-
 	environment(Name,Env,_),
 	retractall_head(currentEnvironment(_)),
-	asserta(currentEnvironment(Env)),
+	asserta_logged(currentEnvironment(Env)),
 	!.
 
 /**********************************************************************
@@ -5508,24 +5514,24 @@ saveEnvironment(EnvName,FileName) :-
 writeEnvironment(EnvName) :-
 	environment(EnvName,Env,C),
 	writeq(environment(EnvName,Env,C)), write('.'), nl,
-%	write(':- dynamic(constraint/8).'), nl,
-%	write(':- dynamic(in/9).'), nl,
-%	write(':- dynamic(kb_in/10).'), nl,
-%	write(':- dynamic(rel/5).'), nl,
-%	write(':- dynamic(eq/9).'), nl,
-%	write(':- dynamic(conceptHierarchy/3).'), nl,
-%	write(':- dynamic(roleHierarchy/3).'), nl,
-%	write(':- dynamic(conceptEqualSets/6).'), nl,
-%	write(':- dynamic(conceptSubsets/6).'), nl,
-%	write(':- dynamic(roleEqualSets/6).'), nl,
-%	write(':- dynamic(roleSubsets/6).'), nl,
-%	write(':- dynamic(conceptName/4).'), nl,
-%	write(':- dynamic(roleName/4).'), nl,
-%	write(':- dynamic(falsum/2).'), nl,
-%	write(':- dynamic(inconsistencyCheck/3).'), nl,
-%	write(':- dynamic(conceptElement/6).'), nl,
-%	write(':- dynamic(roleElement/7).'), nl,
-%	write(':- dynamic(modalAxioms/6).'), nl,
+skipped	write(':- dynamic(constraint/8).'), nl,
+skipped	write(':- dynamic(in/9).'), nl,
+skipped	write(':- dynamic(kb_in/10).'), nl,
+skipped	write(':- dynamic(rel/5).'), nl,
+skipped	write(':- dynamic(eq/9).'), nl,
+skipped	write(':- dynamic(conceptHierarchy/3).'), nl,
+skipped	write(':- dynamic(roleHierarchy/3).'), nl,
+skipped	write(':- dynamic(conceptEqualSets/6).'), nl,
+skipped	write(':- dynamic(conceptSubsets/6).'), nl,
+skipped	write(':- dynamic(roleEqualSets/6).'), nl,
+skipped	write(':- dynamic(roleSubsets/6).'), nl,
+skipped	write(':- dynamic(conceptName/4).'), nl,
+skipped	write(':- dynamic(roleName/4).'), nl,
+skipped	write(':- dynamic(falsum/2).'), nl,
+skipped	write(':- dynamic(inconsistencyCheck/3).'), nl,
+skipped	write(':- dynamic(conceptElement/6).'), nl,
+skipped	write(':- dynamic(roleElement/7).'), nl,
+skipped	write(':- dynamic(modalAxioms/6).'), nl,
 	writeall(in(Env,_A0,_B0,_C0,_D0,_E0,_F0,_G0,_H0)),
 	writeall(kb_in(Env,_A1,_B1,_C1,_D1,_E1,_F1,_G1,_H1,_I1)),
 	writeall(eq(Env,_A11,_B11,_C11,_D11,_E11,_F11,_G11,_H11)),
@@ -5591,7 +5597,7 @@ loadEnvironment(FileName) :-
 	see(FileName),
 	read(environment(EnvName,Env,C)),
 	(removeEnvironment(EnvName) ; true),
-	asserta(environment(EnvName,Env,C)),
+	asserta_logged(environment(EnvName,Env,C)),
 	repeat,
 	read(Clause),
 	assertClause(Clause),
@@ -5605,7 +5611,7 @@ loadEnvironment(FileName,EnvName) :-
 	see(FileName),
 	read(environment(_EnvName2,Env,C)),
 	(removeEnvironment(EnvName) ; true),
-	assertz(environment(EnvName,Env,C)),
+	assertz_logged(environment(EnvName,Env,C)),
 	repeat,
 	read(Clause),
 	assertClause(Clause),
@@ -5619,7 +5625,7 @@ loadEnvironment(_FileName,_EnvName) :-
 assertClause('end_of_file') :-
 	!.
 assertClause(Clause) :-
-	assertz(Clause),
+	assertz_logged(Clause),
 	fail.
 
 /**********************************************************************
@@ -5669,29 +5675,29 @@ copyEnvironment(Name1,Name2) :-
 	copyAll(Env1,Env2,roleNr/5),
 	copyAll(Env1,Env2,roleRange/4),
 	copyAll(Env1,Env2,roleSubsets/6),
-%	copyAll(Env1,Env2,sub/4),
-%	copyAll(Env1,Env2,succ/4),
-%	copyAll(Env1,Env2,motel_option/2),
-%	copyAll(Env1,Env2,nsub/4),
+skipped	copyAll(Env1,Env2,sub/4),
+skipped	copyAll(Env1,Env2,succ/4),
+skipped	copyAll(Env1,Env2,motel_option/2),
+skipped	copyAll(Env1,Env2,nsub/4),
 	term_expansion(copy,off,Env1,Env2),
 	!.
 
 term_expansion(copy,on,Env1,Env2) :-
 	abolish(term_expansion/2),
-	assertz((term_expansion((Head :- Body),(Head1 :- Body1)) :-
+	assertz_logged((term_expansion((Head :- Body),(Head1 :- Body1)) :-
 	term_expansion(Head,Head1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion((L, Body), (L1,Body1)) :-
+	assertz_logged((term_expansion((L, Body), (L1,Body1)) :-
 	term_expansion(L,L1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion((L; Body), (L1,Body1)) :-
+	assertz_logged((term_expansion((L; Body), (L1,Body1)) :-
 	term_expansion(L,L1),
 	term_expansion(Body,Body1))),
-	assertz((term_expansion(\+Atom,\+Atom1) :-
+	assertz_logged((term_expansion(\+Atom,\+Atom1) :-
 	term_expansion(Atom,Atom1))),
-	assertz((term_expansion(once(Body1),once(Body2)) :-
+	assertz_logged((term_expansion(once(Body1),once(Body2)) :-
 		term_expansion(Body1,Body2))),
-	assertz((term_expansion(call(Body1),call(Body2)) :-
+	assertz_logged((term_expansion(call(Body1),call(Body2)) :-
 		 term_expansion(Body1,Body2))),
 	assertTermExpansionClause(in/9,Env1,Env2),
 	assertTermExpansionClause(kb_in/10,Env1,Env2),
@@ -5722,11 +5728,11 @@ term_expansion(copy,on,Env1,Env2) :-
 	assertTermExpansionClause(roleSubsets/6,Env1,Env2),
 	assertTermExpansionClause(sub/4,Env1,Env2),
 	assertTermExpansionClause(succ/4,Env1,Env2),
-	assertz((term_expansion(succ(X1,Env1,X3,X4),
+	assertz_logged((term_expansion(succ(X1,Env1,X3,X4),
 				succ(X1,Env2,X3,X4)))),
-	assertz((term_expansion(sub(X1,Env1,X3,X4),
+	assertz_logged((term_expansion(sub(X1,Env1,X3,X4),
 				sub(X1,Env2,X3,X4)))),
-	assertz(term_expansion(X,X)),
+	assertz_logged(term_expansion(X,X)),
 	!.
 term_expansion(copy,off,_Env1,_Env2) :-
 	abolish(term_expansion/2),
@@ -5737,7 +5743,7 @@ assertTermExpansionClause(Pred/Arity,Env1,Env2) :-
 	constructArguments(Env,Arity,[],[Env1|Arguments]),
 	Head1 =.. [Pred|[Env1|Arguments]],
 	Head2 =.. [Pred|[Env2|Arguments]],
-	assertz((term_expansion(Head1,Head2))),
+	assertz_logged((term_expansion(Head1,Head2))),
 	!.
 
 expandTerm(A,B) :-
@@ -5748,7 +5754,7 @@ copyall(Env1,_Env2,Pred,Args) :-
 	Head1 =.. [Pred,Env1|Args],
 	clause(Head1,Body1),
 	expandTerm((Head1,Body1),(Head2,Body2)),
-	assertz((Head2 :- Body2)),
+	assertz_logged((Head2 :- Body2)),
 	fail.
 copyall(_,_,_,_) :- !.
 
@@ -5756,7 +5762,7 @@ copyAll(Env1,_Env2,Pred/Arity) :-
 	constructHead(Env1,Pred/Arity,Head1),
 	clause(Head1,Body1),
 	expandTerm((Head1,Body1),(Head2,Body2)),
-	assertz((Head2 :- Body2)),
+	assertz_logged((Head2 :- Body2)),
 	fail.
 copyAll(_,_,_) :- !.
 
@@ -5769,7 +5775,7 @@ copyAll(_,_,_) :- !.
 
 renameEnvironment(Name1,Name2) :-
 	retract(environment(Name1,Env,C)),
-	asserta(environment(Name2,Env,C)),
+	asserta_logged(environment(Name2,Env,C)),
 	% to be implemented
 	!.
 
@@ -5873,8 +5879,8 @@ default_changes([Change|Changes],[WeightedChange|WeightedChanges]) :-
  */
 
 initFuncdep :-
-	assertz((given_inflLink(_,_,_,_) :- !, fail)),
-	assertz((given_change(_,_,_,_) :- !, fail)).
+	assertz_logged((given_inflLink(_,_,_,_) :- !, fail)),
+	assertz_logged((given_change(_,_,_,_) :- !, fail)).
 	
 
 /***********************************************************************
@@ -6060,7 +6066,7 @@ def(EnvName,MS,infl(X,Y,W)) :-
 	wellDefined_InflWeight(W),
 	not(given_inflLink(Env,World,app(_,_,X),Y)),
 	gensym(sk,F),
-	asserta(given_inflLink(Env,World,app(F,W,X),Y)).
+	asserta_logged(given_inflLink(Env,World,app(F,W,X),Y)).
 
 def(EnvName,MS,change(X,W)) :-
 	get_Env_World(EnvName,MS,Env,World),
@@ -6068,7 +6074,7 @@ def(EnvName,MS,change(X,W)) :-
 	assertNames(Env,World,X,role),
 	wellDefined_ChangeWeight(W),
 	not(given_change(Env,World,X,_)),
-	asserta(given_change(Env,World,X,W)).
+	asserta_logged(given_change(Env,World,X,W)).
 
 def(EnvName,MS,posInfl(X,Y)) :-
 	def(EnvName,MS,infl(X,Y,1.0)).
@@ -7455,8 +7461,8 @@ defprimconcept(EnvName,MS,Left) :-
 	environment(EnvName,Env,_),
 	(MS = [] ; MS = [_|_]),
 	atomic(Left),
-	assertz(conceptSubsets(Env,user,MS,Left,'top',noAxiom)),
-	assertz(axiom(Env,MS,defprimconcept(MS,Left,'top'))),
+	assertz_logged(conceptSubsets(Env,user,MS,Left,'top',noAxiom)),
+	assertz_logged(axiom(Env,MS,defprimconcept(MS,Left,'top'))),
 	assertNames(Env,MS,Left,concept),
 	!.
 
@@ -7499,10 +7505,10 @@ defprimconcept(EnvName,MS,L,R) :-
 	cnf(R,Right),
 	assertNames(Env,MS,Left,concept),
 	assertNames(Env,MS,Right,concept),
-	assertz(axiom(Env,MS,defprimconcept(MS,L,R))),
+	assertz_logged(axiom(Env,MS,defprimconcept(MS,L,R))),
 	unfold(Env,[(user,concept,Left,Right)],[(_Origin,_,L1,_,R1)|DL]),
 	gensym(axiom,AxiomName1),
-	assertz(conceptSubsets(Env,user,MS,Left,Right,AxiomName1)),
+	assertz_logged(conceptSubsets(Env,user,MS,Left,Right,AxiomName1)),
 	typeOfDefinition(Env,MS,L1,Origin),
 	assertConceptLInR(Env,rn(AxiomName1,Origin,lInR),MS,L1,R1),
 	defList(Env,MS,DL,_),
@@ -7514,16 +7520,16 @@ defprimconcept(EnvName,MS,L,R) :-
 
 
 notClauseL(Env,MS,Left,Right) :-
-	% assertz that Left is included in Right
+	% assertz_logged that Left is included in Right
 	unfold(Env,[(user,concept,Left,Right)],[(_O,_,Concept1,C3,Concept2)|DL2]),
 	defPositiveList(Env,MS,DL2),
 	gensym(axiom,AxiomName2),
 	typeOfDefinition(Env,MS,Concept1,O),
-	assertz(conceptSubsets(Env,user,MS,Concept1,C3,AxiomName2)),
+	assertz_logged(conceptSubsets(Env,user,MS,Concept1,C3,AxiomName2)),
 	assertConceptLInR(Env,rn(AxiomName2,O,lInR),MS,Concept1,Concept2).
 /* 
 notClauseL(Env,MS,Left,Right) :-
-	% assertz that Left is included in Right
+	% assertz_logged that Left is included in Right
 	atomic(Left),
 	!,
 	unfold(Env,[(user,concept,Left,Right)],[(_O,_,Concept1,C3,Concept2)|DL2]),
@@ -7531,7 +7537,7 @@ notClauseL(Env,MS,Left,Right) :-
 	gensym(axiom,AxiomName2),
 	typeOfDefinition(Env,MS,Concept1,O),
 	assertConceptLInR(Env,rn(AxiomName2,O,lInR),MS,Concept1,Concept2),
-	assertz(conceptSubsets(Env,user,MS,Concept1,C3,AxiomName2)).
+	assertz_logged(conceptSubsets(Env,user,MS,Concept1,C3,AxiomName2)).
 notClauseL(Env,MS,Left,Right) :-
 	atomic(Right),
 	!,
@@ -7540,7 +7546,7 @@ notClauseL(Env,MS,Left,Right) :-
 	defPositiveList(Env,MS,DL2),
 	gensym(axiom,AxiomName2),
 	assertConceptLInR(Env,rn(AxiomName2,system,lInR)MS,Concept1,Right),
-	assertz(conceptSubsets(Env,system,MS,Concept1,Concept2,AxiomName2)).
+	assertz_logged(conceptSubsets(Env,system,MS,Concept1,Concept2,AxiomName2)).
 notClauseL(Env,MS,Left,Right) :-
 	!,
 	gensym(concept,Concept1),
@@ -7549,7 +7555,7 @@ notClauseL(Env,MS,Left,Right) :-
 	defPositiveList(Env,MS,DL2),
 	gensym(axiom,AxiomName2),
 	assertConceptLInR(Env,rn(AxiomName,system,lInR),MS,Concept1,Concept2),
-	assertz(conceptSubsets(Env,system,MS,Concept1,Concept2,AxiomName2)).
+	assertz_logged(conceptSubsets(Env,system,MS,Concept1,Concept2,AxiomName2)).
 */
 
 notClausesLR(Env,MS,Left,Right,DL2) :-
@@ -7601,14 +7607,14 @@ defconcept(EnvName,MS,CT1,CT2) :-
 	cnf(CT2,ConceptTerm2),
 	assertNames(Env,MS,ConceptTerm1,concept),
 	assertNames(Env,MS,ConceptTerm2,concept),
-	assertz(axiom(Env,MS,defconcept(MS,CT1,CT2))),
+	assertz_logged(axiom(Env,MS,defconcept(MS,CT1,CT2))),
 	unfold(Env,[(user,concept,ConceptTerm1,ConceptTerm2)],DL),
 	defList(Env,MS,DL,_).
 
 defPositiveList(_,_,[]) :- !.
 defPositiveList(Env,MS,[(Origin,concept,ConceptName,CTO,ConceptTerm)|DL]) :-
 	gensym(axiom,AxiomName),
-	assertz(conceptEqualSets(Env,Origin,MS,ConceptName,CTO,AxiomName)),
+	assertz_logged(conceptEqualSets(Env,Origin,MS,ConceptName,CTO,AxiomName)),
 	assertConceptRInL(Env,rn(AxiomName,Origin,rInL),MS,ConceptName,ConceptTerm),
 	assertConceptLInR(Env,rn(AxiomName,Origin,lInR),MS,ConceptName,ConceptTerm),
 	defPositiveList(Env,MS,DL).
@@ -7622,7 +7628,7 @@ defList(_,_,[],[]) :- !.
 defList(Env,MS,[(Origin,concept,ConceptName,CTO,ConceptTerm)|DL],
         NeededDL3) :-
 	gensym(axiom,AxiomName),
-	assertz(conceptEqualSets(Env,Origin,MS,ConceptName,CTO,AxiomName)),
+	assertz_logged(conceptEqualSets(Env,Origin,MS,ConceptName,CTO,AxiomName)),
 	assertConceptRInL(Env,rn(AxiomName,Origin,rInL),MS,ConceptName,ConceptTerm),
 	assertConceptLInR(Env,rn(AxiomName,Origin,lInR),MS,ConceptName,ConceptTerm),
 	negate(ConceptTerm,NotRight1),
@@ -7634,7 +7640,7 @@ defList(Env,MS,[(Origin,concept,ConceptName,CTO,ConceptTerm)|DL],
 	append(NeededDL1,NeededDL2,NeededDL3).
 defList(Env,MS,[(Origin,role,RN,RTO,RT)|RDL],NeededDL) :-
 	gensym(axiom,AxiomName),
-	assertz(roleEqualSets(Env,Origin,MS,RN,RTO,AxiomName)),
+	assertz_logged(roleEqualSets(Env,Origin,MS,RN,RTO,AxiomName)),
 	assertRoleLInR(Env,MS,RN,RT,AxiomName),
 	assertRoleRInL(Env,MS,RN,RT,AxiomName),
 	defList(Env,MS,RDL,NeededDL).
@@ -7685,10 +7691,10 @@ assert_ind(EnvName,MS,X,C) :-
 	gensym(rule,RuleName),
 	ruleName(AxiomName,RuleName,user,lInR,RN1),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	asserta((conceptElement(Env,MS,W1,user,X,C,AxiomName) :- call(G1))),
-	assertz(axiom(Env,MS,assert_ind(MS,X,C))),
+	asserta_logged((conceptElement(Env,MS,W1,user,X,C,AxiomName) :- call(G1))),
+	assertz_logged(axiom(Env,MS,assert_ind(MS,X,C))),
 	constructMLHead(Env,RN1,W1,C,X,_HYPS,_D,_CALLS,abox,InHead),
-	asserta((InHead :- call(G1))),
+	asserta_logged((InHead :- call(G1))),
 	assertNames(Env,MS,C,concept).
 
 /***********************************************************************
@@ -7726,17 +7732,17 @@ assert_ind(EnvName,MS,X,Y,R) :-
 	atomic(Y),
 	atomic(R),
 	Role1 =.. [R,X,Y],
-	asserta(Role1),
+	asserta_logged(Role1),
 %	Role2 =.. [R,X,Y],
 	gensymbol(mskolem,[X,Y],SF),
 	gensym(axiom,AX),
 	gensym(rule,RN),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
 	constructEqHead(Env,rn(AX,RN,user,lInR),W1,Y,SF,R,X,_,_D,CALLS,abox,EqLiteral),
-	asserta((EqLiteral :- (cCS(CALLS,true), call(G1)))),
+	asserta_logged((EqLiteral :- (cCS(CALLS,true), call(G1)))),
 	assertNames(Env,MS,R,role),
-	assertz(axiom(Env,MS,assert_ind(MS,X,Y,R))),
-	asserta((roleElement(Env,MS,W1,user,X,Y,R,AX) :- call(G1))).
+	assertz_logged(axiom(Env,MS,assert_ind(MS,X,Y,R))),
+	asserta_logged((roleElement(Env,MS,W1,user,X,Y,R,AX) :- call(G1))).
 
 
 /***********************************************************************
@@ -7751,14 +7757,14 @@ defprimrole(Role) :-
 	currentEnvironment(Env),
 	!,
 	assertNames(Env,[],Role,role),
-	asserta(roleSubsets(Env,user,[],Role,'top',noAxiom)).
+	asserta_logged(roleSubsets(Env,user,[],Role,'top',noAxiom)).
 
 defprimrole(EnvName,Role) :-
 	environment(EnvName,Env,_),
 	!,
 	assertNames(Env,[],Role,role),
-	asserta(axiom(Env,[],defprimrole([],Role,'top'))),
-	asserta(roleSubsets(Env,user,[],Role,'top',noAxiom)).
+	asserta_logged(axiom(Env,[],defprimrole([],Role,'top'))),
+	asserta_logged(roleSubsets(Env,user,[],Role,'top',noAxiom)).
 
 /***********************************************************************
  *
@@ -7775,8 +7781,8 @@ defprimrole(MS,Role) :-
 	!,
 	currentEnvironment(Env),
 	assertNames(Env,MS,Role,role),
-	asserta(axiom(Env,MS,defprimrole(MS,Role,'top'))),
-	asserta(roleSubsets(Env,user,MS,Role,'top',noAxiom)).
+	asserta_logged(axiom(Env,MS,defprimrole(MS,Role,'top'))),
+	asserta_logged(roleSubsets(Env,user,MS,Role,'top',noAxiom)).
 
 defprimrole(R1,R2) :-
 	getCurrentEnvironment(EnvName),
@@ -7823,8 +7829,8 @@ defprimrole(EnvName,MS,RN,Role) :-
 	assertNames(Env,MS,Role,role),
 	unfold(Env,[(user,role,RN,Role)],[(user,role,RN,_,RT)|RDL]),
 	gensym(axiom,AxiomName),
-	asserta(axiom(Env,MS,defprimrole(MS,RN,Role))),
-	asserta(roleSubsets(Env,user,MS,RN,Role,AxiomName)),
+	asserta_logged(axiom(Env,MS,defprimrole(MS,RN,Role))),
+	asserta_logged(roleSubsets(Env,user,MS,RN,Role,AxiomName)),
 	assertRoleLInR(Env,MS,RN,RT,AxiomName),
 	defList(Env,MS,RDL,_).
 
@@ -7869,7 +7875,7 @@ defrole(EnvName,MS,RN,Role) :-
 	unfold(Env,[(user,role,RN,Role)],RDL),
 	assertNames(Env,MS,RN,role),
 	assertNames(Env,MS,Role,role),
-	asserta(axiom(Env,MS,defrole(MS,RN,Role))),
+	asserta_logged(axiom(Env,MS,defrole(MS,RN,Role))),
 	defList(Env,MS,RDL,_).
 
 /**********************************************************************
@@ -7935,7 +7941,7 @@ defclosed(MS,X,Y,R) :-
 
 defclosed(EnvName,MS,X,Y,R) :-
 	environment(EnvName,Env,_),
-	assertz(closed(Env,MS,X,Y,R)),
+	assertz_logged(closed(Env,MS,X,Y,R)),
 	!.
 
 /***********************************************************************
@@ -7969,20 +7975,20 @@ assertName((role,CN1),alreadyAsserted,Env,MS,W1,G1) :-
 	clause(roleName(Env,MS,_,CN1),_),
 	!.
 assertName((concept,CN1),newAsserted,Env,MS,W1,G1) :-
-% Otherwise we assert the concept name
+% Otherwise we assert_logged the concept name
 % Remember: The fact that the concept name is not already asserted with
 % identical modal sequence does not mean that we are not already able to 
 % deduce that the concept name is present in the modal context corresponding
 % to the modal sequence.
-	assertz((conceptName(Env,MS,W1,CN1) :- G1)),
+	assertz_logged((conceptName(Env,MS,W1,CN1) :- G1)),
 	!.
 assertName((role,CN1),newAsserted,Env,MS,W1,G1) :-
-% Otherwise we assert the role name
+% Otherwise we assert_logged the role name
 % Remember: The fact that the role name is not already asserted with
 % identical modal sequence does not mean that we are not already able to 
 % deduce that the role name is present in the modal context corresponding
 % to the modal sequence.
-	assertz((roleName(Env,MS,W1,CN1) :- G1)),
+	assertz_logged((roleName(Env,MS,W1,CN1) :- G1)),
 	!.
 	
 /***********************************************************************
@@ -8567,16 +8573,16 @@ genclass(_,_,A,A,some,true) :-
 
 assertMA(A1,rel(Env,every,m(MOp,A1),X,Y), WG, G) :-
 	var(A1),
-	asserta((rel(Env,every,m(MOp,A1),X,Y) :- (WG, G))),
+	asserta_logged((rel(Env,every,m(MOp,A1),X,Y) :- (WG, G))),
 	!.
 assertMA(all,rel(Env,all,m(MOp,A),X,Y), _WG, G) :-
-	asserta((rel(Env,all,m(MOp,A),X,Y) :- G)),
+	asserta_logged((rel(Env,all,m(MOp,A),X,Y) :- G)),
 	!.
 assertMA(A,rel(Env,some,m(MOp,A),X,Y), WG, G) :-
-	asserta((rel(Env,some,m(MOp,A),X,Y) :- (WG, G))),
+	asserta_logged((rel(Env,some,m(MOp,A),X,Y) :- (WG, G))),
 	!.
 assertMA(concept(_),rel(Env,D,m(MOp,A),X,Y), WG, G) :-
-	asserta((rel(Env,D,m(MOp,A),X,Y) :- (WG, G))),
+	asserta_logged((rel(Env,D,m(MOp,A),X,Y) :- (WG, G))),
 	!.
 
 
@@ -8606,7 +8612,7 @@ modalAxioms(EnvName,MS,k,MOp,A1) :-
                  rel(Env,C,m(MOp,A),U,app(_FF:m(MOp,A),U)), 
 		 (not(not(world(Env,m(MOp,A),U,V)))), 
 		 (normal(Env,U), Goal)),
-	asserta(modalAxioms(Env,MS,user,k,A1,MOp,A)),
+	asserta_logged(modalAxioms(Env,MS,user,k,A1,MOp,A)),
 	!.
 modalAxioms(EnvName,MS,kd45,MOp,A1) :-
 	environment(EnvName,Env,_),
@@ -8622,7 +8628,7 @@ modalAxioms(EnvName,MS,kd45,MOp,A1) :-
 %                 rel(Env,C,m(MOp,A),U,app(_FF:m(MOp,A),U)), 
 %		 (not(not(world(Env,m(MOp,A),U,V)))), 
 %		 (normal(Env,U), Goal)),
-	asserta(modalAxioms(Env,MS,user,kd45,A1,MOp,A)),
+	asserta_logged(modalAxioms(Env,MS,user,kd45,A1,MOp,A)),
 	!.
 modalAxioms(EnvName,MS,kd4e,MOp,A) :-
 	modalAxioms(EnvName,kd45,MOp,A).
@@ -8640,7 +8646,7 @@ modalAxioms(EnvName,MS,kd5,MOp,A1) :-
 	         rel(Env,C,m(MOp,A),U,app(_F2:m(MOp,A),U)), 
 		 true, 
 		 Goal),
-	asserta(modalAxioms(Env,MS,user,kd5,A1,MOp,A)),
+	asserta_logged(modalAxioms(Env,MS,user,kd5,A1,MOp,A)),
 	!.
 modalAxioms(EnvName,MS,kd4,MOp,A1) :-
 	environment(EnvName,Env,_),
@@ -8650,7 +8656,7 @@ modalAxioms(EnvName,MS,kd4,MOp,A1) :-
 	retractall_head(modalAxioms(Env,MS,user,_,A1,MOp,A)),
 	assertMA(A1, rel(Env,C,m(MOp,A),U,app(_F1:m(MOp,A),U)), Goal),
 	assertMA(A1,rel(Env,C,m(MOp,A),U,app(_F1:m(MOp,A),V)), (world(Env,m(MOp,A),U,V), (rel(Env,_,m(MOp,A),U,V), Goal))),
-	asserta(modalAxioms(Env,MS,user,k4,A1,MOp,A)),
+	asserta_logged(modalAxioms(Env,MS,user,k4,A1,MOp,A)),
 	!.
 modalAxioms(EnvName,MS,kt,MOp,A1) :-
 	environment(EnvName,Env,_),
@@ -8660,7 +8666,7 @@ modalAxioms(EnvName,MS,kt,MOp,A1) :-
 	retractall_head(modalAxioms(Env,MS,user,_,A1,MOp,A)),
 	assertMA(A1,rel(Env,C,m(MOp,A),U,app(_F1:m(MOp,A),U)), Goal),
 	assertMA(A1,rel(Env,C,m(MOp,A),U,U), Goal),
-	asserta(modalAxioms(Env,MS,user,kt,A1,MOp,A)),
+	asserta_logged(modalAxioms(Env,MS,user,kt,A1,MOp,A)),
 	!.
 
 /**********************************************************************
@@ -9542,10 +9548,10 @@ make_primconcept(EnvName,MS,CName1,restrict_inh(RTerm1, restricts(RTerm2 ,
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %				       naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
-	assertz((roleRange(Env,W1,RName1,CName2) :- G1)),
-	assertz((roleDefault(Env,W1,RName1,CNameDef) :- G1)),
-	assertz((roleTripel(Env,W1,RName1,CNameDom,CName2,CNameDef))).
+	assertz_logged((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
+	assertz_logged((roleRange(Env,W1,RName1,CName2) :- G1)),
+	assertz_logged((roleDefault(Env,W1,RName1,CNameDef) :- G1)),
+	assertz_logged((roleTripel(Env,W1,RName1,CNameDom,CName2,CNameDef))).
    
 /*----------------------------------------------------------------------------
  * make_primconcept(EnvName,MS,CName1, nr(RName1,MinNr,MaxNr,DefNr))
@@ -9568,9 +9574,9 @@ make_primconcept(EnvName,MS,CName1 , nr(RTerm1, MinNr,MaxNr,DefNr)):-
 %	defconcept(EnvName,MS,CNameDef, and([atleast(DefNr,RName1),atmost(DefNr,RName1)])),
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1)),naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleNr(Env,W1,RName1,MinNr,MaxNr) :- G1)),
-	assertz((roleDefNr(Env,W1,RName1,DefNr) :- G1)),
-	assertz((roleAll(Env,W1,Rname1,CNameDomT,CName2T,CNameDefT,MinNr,MaxNr,DefNr))).
+	assertz_logged((roleNr(Env,W1,RName1,MinNr,MaxNr) :- G1)),
+	assertz_logged((roleDefNr(Env,W1,RName1,DefNr) :- G1)),
+	assertz_logged((roleAll(Env,W1,Rname1,CNameDomT,CName2T,CNameDefT,MinNr,MaxNr,DefNr))).
 
 
 
@@ -9699,10 +9705,10 @@ make_defconcept(EnvName,MS,CName1,'restr-inh'(RName1, restricts(RName2 ,
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %				       naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleDomain(Env,MS,RName1,CNameDom) :- G1)),
-	assertz((roleRange(Env,MS,RName1,CName2) :- G1)),
-	assertz((roleDefault(Env,MS,RName1,CNameDef) :- G1)),
-	assertz((roleTripel(Env,MS,RName1,CNameDom,CName2,CNameDef))).
+	assertz_logged((roleDomain(Env,MS,RName1,CNameDom) :- G1)),
+	assertz_logged((roleRange(Env,MS,RName1,CName2) :- G1)),
+	assertz_logged((roleDefault(Env,MS,RName1,CNameDef) :- G1)),
+	assertz_logged((roleTripel(Env,MS,RName1,CNameDom,CName2,CNameDef))).
     
 /*----------------------------------------------------------------------------
  * make_defconcept(EnvName,MS,CName1, nr(RName1,MinNr,MaxNr,DefNr),CNameDom)
@@ -9723,9 +9729,9 @@ make_defconcept(EnvName,MS,CName1 , nr(RTerm, MinNr,MaxNr,DefNr),CNameDom):-
 %	defconcept(EnvName,MS,CNameDef, and([atleast(DefNr,RName1),atmost(DefNr,RName1)])),
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1)),naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleNr(Env,W1,RName1,MinNr,MaxNr) :- G1)),
-	assertz((roleDefNr(Env,W1,RName1,DefNr) :- G1)),
-	assertz((roleAll(Env,W1,RName1,CNameDomT,CNameT,CNameDefT,MinNr,MaxNr,DefNr) :- G1)).
+	assertz_logged((roleNr(Env,W1,RName1,MinNr,MaxNr) :- G1)),
+	assertz_logged((roleDefNr(Env,W1,RName1,DefNr) :- G1)),
+	assertz_logged((roleAll(Env,W1,RName1,CNameDomT,CNameT,CNameDefT,MinNr,MaxNr,DefNr) :- G1)).
 
 make_defconcept(EnvName,MS,CName1 , necres(RTerm, nec),CNameDom):-
 	!,
@@ -9734,14 +9740,14 @@ make_defconcept(EnvName,MS,CName1 , necres(RTerm, nec),CNameDom):-
 	gensym(concept,CNameDom),
 	defconcept(EnvName,MS,CNameDom,atleast(1,RName1)),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
+	assertz_logged((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
 	!.
 make_defconcept(EnvName,MS,CName1 , necres(RTerm, _),CNameDom):-
 	!,
 	environment(EnvName,Env,_),
 	expand_role(EnvName,MS,RTerm,RName1,_,_,_),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
+	assertz_logged((roleDomain(Env,W1,RName1,CNameDom) :- G1)),
 	!.
 
 
@@ -9873,10 +9879,10 @@ sb_primelemrole(EnvName,MS,RName1, 'domain-range'(CName1,CName2,CNameDef)):-
 	defprimconcept(EnvName,MS,some(inverse(RName1),'top'),CName2),
 %	defprimconcept(ENvName,MS,and([CName2,naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleDomain(Env,W1,RName1,CName1) :- G1)),
-	assertz((roleRange(Env,W1,RName1,CName2) :- G1)),
-	assertz((roleDefault(Env,W1,RName1,CNameDef) :- G1)),
-	assertz((roleTripel(Env,W1,RName1,CName1,CName2,CNameDef) :- G1)),
+	assertz_logged((roleDomain(Env,W1,RName1,CName1) :- G1)),
+	assertz_logged((roleRange(Env,W1,RName1,CName2) :- G1)),
+	assertz_logged((roleDefault(Env,W1,RName1,CNameDef) :- G1)),
+	assertz_logged((roleTripel(Env,W1,RName1,CName1,CName2,CNameDef) :- G1)),
 	!.
 
 /*----------------------------------------------------------------------------
@@ -9922,8 +9928,8 @@ sb_defelemrole(EnvName,MS,RName1, restricts(RName2, range(CName1,CNameDef))):-
 %	defprimconcept(EnvName,MS,and([some(inverse(RName1),'top'),
 %                                      naf(not(CNameDef))]),CNameDef),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleRange(Env,MS,RName1,CName1) :- G1)),
-	assertz((roleDefault(Env,MS,RName1,CNameDef) :- G1)),
+	assertz_logged((roleRange(Env,MS,RName1,CName1) :- G1)),
+	assertz_logged((roleDefault(Env,MS,RName1,CNameDef) :- G1)),
 	!.
 
 
@@ -9976,8 +9982,8 @@ make_irole(EnvName,MS,ICName1,irole(RName,iname(IRName),
 %			  		    atmost(MaxNr,RName),
 %					    some(inverse(RName),'top')]))),
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
-	assertz((roleNr(Env,W1,IRName,MinNr,MaxNr) :- G1)),
-	assertz((roleDefNr(Env,W1,IRName,DefNr) :- G1)).
+	assertz_logged((roleNr(Env,W1,IRName,MinNr,MaxNr) :- G1)),
+	assertz_logged((roleDefNr(Env,W1,IRName,DefNr) :- G1)).
                            
 
 
@@ -10413,7 +10419,7 @@ sb_attributes(EnvName,MS,CN,RN,AList) :-
 sb_assert_attributes(Type,EnvName,MS,Spec,[]) :-
 	!.
 sb_assert_attributes(Type,EnvName,MS,Spec,[Pair|AList]) :-
-	assertz(attribute(Type,EnvName,MS,Spec,Pair)),
+	assertz_logged(attribute(Type,EnvName,MS,Spec,Pair)),
 	sb_assert_attributes(Type,EnvName,MS,Spec,AList).
 
 /*------------------------------------------------------------------------------
@@ -11003,8 +11009,8 @@ assertConceptLInR(Env,rn(AxiomName,O2,Orientation2),MS,CN1,and([CN2|CTs])) :-
 	ruleName(AxiomName,RuleName,O2,Orientation2,RN2),
 	convertInConsequence(Env,pr(3),RN2,MS,W1,CN2,X,HYPS,AB,CALLS,PT1,InHead2),
 	constructMLMark(InHead2,Mark2),
-%	asserta((InHead2 :- (cCS(CALLS,Mark2), (call(G1), once(Body))))),
-	asserta((InHead2 :- (cCS(CALLS,Mark2), (call(G1), Body)))),
+%	asserta_logged((InHead2 :- (cCS(CALLS,Mark2), (call(G1), once(Body))))),
+	asserta_logged((InHead2 :- (cCS(CALLS,Mark2), (call(G1), Body)))),
 	assertConceptLInR(Env,rn(AxiomName,O2,Orientation2),MS,CN1,and(CTs)),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,set(Set1)) :-
@@ -11016,7 +11022,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,set(Set1)) :-
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
 			    bodyMC(W1),headMC(W1),
 	                    CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,not(set(Set1))) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11027,7 +11033,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,not(set(Set1))) :-
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
 			    bodyMC(W1),headMC(W1),
 	                    CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,not(D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11038,7 +11044,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,not(D)) :-
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
 			    bodyMC(W1),headMC(W1),
 	                    CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,naf(D)) :-
 	% in the consequence not and naf have the same meaning
@@ -11050,7 +11056,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,naf(D)) :-
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
 			    bodyMC(W1),headMC(W1),
 	                    CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,all(R,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11061,7 +11067,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,all(R,D)) :-
 	constructMLMark(InHead1,Mark1),
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
                             bodyMC(W1),headMC(W1),CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (EqLiteral, Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (EqLiteral, Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,some(R,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11072,13 +11078,13 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,some(R,D)) :-
 	constructMLMark(InHead1,Mark1),
 	convertInAntecedent(Env,rn(AxiomName,_AnySource1,Orientation),
 	                    bodyMC(W1),headMC(W1),CN,X,HYPS,AB,CALLS,PT1,Body),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (EqLiteral, Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (EqLiteral, Body))))),
 	gensym(rule,RuleName2),
 	ruleName(AxiomName,RuleName2,system,Orientation,RN2),
 	convertInConsequence(Env,pr(3),RN2,MS,W1,normal(R),X,
 			     HYPS,AB,CALLS,PT2,InHead2),
 	constructMLMark(InHead2,Mark2),
-	asserta((InHead2 :- cCS(CALLS,Mark2), (call(G1), Body))),
+	asserta_logged((InHead2 :- cCS(CALLS,Mark2), (call(G1), Body))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,_S,Orientation),MS,CN,atleast(N,R)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11090,7 +11096,7 @@ assertConceptLInR(Env,rn(AxiomName,_S,Orientation),MS,CN,atleast(N,R)) :-
 	convertInConsequence(Env,pr(3),RN1,MS,W1,atleast(N,R),X,
 			     HYPS,AB,CALLS,PT1,InHead1),
 	constructConMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), once(Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,atmost(N,R)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11102,7 +11108,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,atmost(N,R)) :-
 	convertInConsequence(Env,pr(3),RN1,MS,W1,atmost(N,R),X,
 			     HYPS,AB,CALLS,PT1,InHead1),
 	constructConMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), once((call(G1), Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), once((call(G1), Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,b(MOp,P1,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11114,7 +11120,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,b(MOp,P1,D)) :-
 	                    bodyMC(W1),headMC(W2),CN,X,HYPS,AB,CALLS,PT1,Body),
 	constructMLHead(Env,RN1,W2,D,X,HYPS,AB,CALLS,and([C1,PT1]),InHead1),
 	constructMLMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (C1, Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (C1, Body))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,bc(MOp,C,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],_),
@@ -11128,7 +11134,7 @@ assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,bc(MOp,C,D)) :-
 			    bodyMC(W1),headMC(W2),C,P,HYPS,AB,CALLS,PT2,Body2),
 	constructMLHead(Env,RN1,W2,D,X,HYPS,AB,CALLS,and([C1,PT1,PT2]),InHead1),
 	constructMLMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (C1, (Body1, Body2)))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (C1, (Body1, Body2)))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,_S1,Orientation),MS,CN,d(MOp,P1,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],WVL),
@@ -11144,7 +11150,7 @@ assertConceptLInR(Env,rn(AxiomName,_S1,Orientation),MS,CN,d(MOp,P1,D)) :-
 	constructMLHead(Env,RN1,W2,D,X,HYPS,AB,CALLS,
 			PT1,InHead1),
 	constructMLMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), Body)))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), Body)))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,_S1,Orientation),MS,CN,dc(MOp,C,D)) :-
 	convertMS(positive,Env,[[],true],MS,[],[W1,G1],WVL),
@@ -11162,7 +11168,7 @@ assertConceptLInR(Env,rn(AxiomName,_S1,Orientation),MS,CN,dc(MOp,C,D)) :-
 	constructMLHead(Env,RN1,W2,D,X,HYPS,AB,CALLS,
 			and([PT1,PT2]),InHead1),
 	constructMLMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (Body1, Body2))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), (call(G1), (Body1, Body2))))),
 	!.
 assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,ConceptTerm) :-
 	assertConceptLInR(Env,rn(AxiomName,O,Orientation),MS,CN,and([ConceptTerm])).
@@ -11188,7 +11194,7 @@ assertOrConceptLInR(Env,rn(AxiomName,O,Orientation),
 	ruleName(AxiomName,RuleName,S1,Orientation,RN1),
 	constructMLHead(Env,RN1,W1,CT1,X,HYPS,AB,CALLS,and(PTL),InHead1),
 	constructMLMark(InHead1,Mark1),
-	asserta((InHead1 :- (cCS(CALLS,Mark1), once((call(G1), Body))))),
+	asserta_logged((InHead1 :- (cCS(CALLS,Mark1), once((call(G1), Body))))),
 	append(First,[INCT1],L2),
 	append(FPTL,[PT1],FPTL2),
 	!,
@@ -11306,7 +11312,7 @@ convertInAntecedent(Env,rn(AX,S1,_O1),bodyMC(MS1),MC2,
 			HYPS,AB,_CALLS,_,DefaultMLTerm),
 	constructMLMark(DefaultMLTerm,DefaultTerm),
 	L1 = addDefaultML(DefaultTerm,H3),
-%	L1 = asserta(hypothesis(in(Env,modal(MS1),not(D),X,hyp(HYPS),ab(AB),PT1))),
+%	L1 = asserta_logged(hypothesis(in(Env,modal(MS1),not(D),X,hyp(HYPS),ab(AB),PT1))),
 	constructMLMark(BodyD,MarkD),
 	Body = (member(MarkD,HYPS) ; (nongeneric(X), (not(BodyD), nongeneric(X), L1))),
 	!.
@@ -11325,7 +11331,7 @@ convertInAntecedent(Env,rn(AX,S1,_O1),bodyMC(MS1),MC2,
 			HYPS,AB,_CALLS,_,DefaultMLTerm),
 	constructMLMark(DefaultMLTerm,DefaultTerm),
 	L1 = addDefaultML(DefaultTerm,H3),
-%	L1 = asserta(hypothesis(in(Env,modal(MS1),D1,X,hyp(HYPS),ab(AB),PT1))),
+%	L1 = asserta_logged(hypothesis(in(Env,modal(MS1),D1,X,hyp(HYPS),ab(AB),PT1))),
 	Body = (nongeneric(X), (not(BodyD), nongeneric(X), L1)),
 	!.
 convertInAntecedent(Env,rn(AX,S1,_O1),MC1,MC2,
@@ -11570,21 +11576,21 @@ assertRoleLInR(Env,MS,R1,inverse(R2),AN) :-
 	gensym(rule,RN),
 	ruleName(AN,RN,user,lInR,Name),
 	constructEqHead(Env,Name,W1,X,inverse(F),R2,app((F:R1),X),HYPS,AB,CALLS,true,EqLiteral1), 
-%	asserta((EqLiteral1 :- G1)),
+%	asserta_logged((EqLiteral1 :- G1)),
 	constructEqHead(Env,Name,W1,X,F,R2,app((inverse(F):R1),X),HYPS,AB,CALLS,true,EqLiteral2), 
-%	asserta((EqLiteral2 :- G1)),
+%	asserta_logged((EqLiteral2 :- G1)),
 	gensym(rule,RN3),
 	constructEqHead(Env,rn(AN,RN3,user,rInL),W1,X,inverse(F),inverse(R2),
 			Y,HYPS,AB,CALLS,PT1,EqLiteral3),
 	constructEqCall(Env,rn(AN,RN3,_S3,_O3),bodyMC(W1),headMC(W1),X,F,R1,Y,
 	                HYPS,AB,CALLS,PT1,EqLiteral4),
-%	asserta((EqLiteral3 :- cCS(CALLS,true), (call(G1), EqLiteral4))),
+%	asserta_logged((EqLiteral3 :- cCS(CALLS,true), (call(G1), EqLiteral4))),
 	gensym(rule,RN4),
 	constructEqHead(Env,rn(AN,RN4,user,rInL),W1,Y,inverse(F1),R2,X,HYPS,AB,CALLS,
 			PT2,EqLiteral5),
 	constructEqCall(Env,rn(AN,RN4,_S3,_O3),bodyMC(W1),headMC(W1),
 			X,F1,R1,Y,HYPS,AB,CALLS,PT2,EqLiteral6),
-	asserta((EqLiteral5 :- cCS(CALLS,true), (call(G1), EqLiteral6))),
+	asserta_logged((EqLiteral5 :- cCS(CALLS,true), (call(G1), EqLiteral6))),
 	true.
 assertRoleLInR(Env,MS,R1,and(RL),AN) :-
 	!,
@@ -11605,7 +11611,7 @@ assertRoleLInR(Env,MS,R1,R2,AN) :-
 	constructEqHead(Env,Name1,W1,Y,SF1,R2,X,HYPS,AB,CALLS,PT1,EqLiteral2),
 	constructEqMark(rn(AN,RN1,_S2,_O2),W1,Y,SF1,R2,X,HYPS,AB,CALLS,EqMark2),
 	constructEqCall(Env,rn(AN,RN1,_S3,_O3),bodyMC(W1),headMC(W1),Y,_FF,R1,X,HYPS,AB,CALLS,PT1,EqLiteral1),
-	asserta((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral1)))),
+	asserta_logged((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral1)))),
 	gensymbol(mskolem,[X,Y],SF2),
 	gensym(rule,RN2),
 	constructConHead(Env,rn(AN,RN2,user,lInR),W1,SF2,R2,X,'>=',N,
@@ -11613,7 +11619,7 @@ assertRoleLInR(Env,MS,R1,R2,AN) :-
 	constructConMark(C2,Mark2),
 	constructSolveConMark(rn(AN,RN2,_S4,_O4),W1,_FF3,R1,X,'>=',N,HYPS,AB,CALLS,Mark1),
 	C1 = solveConstraint(Env,W1,(card,app((_FF:R1),X),'>=',N),_,hyp(HYPS),ab(AB),call([Mark1|CALLS]),PT1),
-	asserta((C2 :- (cCS(CALLS,Mark2), (call(G1), C1)))),
+	asserta_logged((C2 :- (cCS(CALLS,Mark2), (call(G1), C1)))),
 	gensym(rule,RN5),
 	gensym(mskolem,SF3),
 	constructConHead(Env,rn(AN,RN5,user,lInR),W1,SF3,R1,X,'=<',N,
@@ -11621,7 +11627,7 @@ assertRoleLInR(Env,MS,R1,R2,AN) :-
 	constructConMark(C4,Mark4),
 	constructSolveConMark(rn(AN,RN5,_S6,_O6),W1,_FF4,R2,X,'=<',N,HYPS,AB,CALLS,Mark5),
 	C5 = solveConstraint(Env,MS,(card,app((_FF2:R2),X),'=<',N),_,hyp(HYPS),ab(AB),call([Mark5|CALLS]),PT1),
-	asserta((C4 :- (cCS(CALLS,Mark4), (call(G1), C5)))).
+	asserta_logged((C4 :- (cCS(CALLS,Mark4), (call(G1), C5)))).
 	
 /**********************************************************************
  *
@@ -11640,7 +11646,7 @@ assertRoleLInRRestr1(Env,MS,R1,restr(R2,C),AN) :-
 	constructMLMark(InHead,InMark),
 	constructEqCall(Env,rn(AN,RN1,_S2,_O2),bodyMC(W1),headMC(W1),
 	                Y,F,R1,X,HYPS,AB,[InMark|CALLS],PT1,EqLiteral11),
-	asserta((InHead :- (cCS(CALLS,InMark), (call(G1), (EqLiteral11, ground(Y,true)))))),
+	asserta_logged((InHead :- (cCS(CALLS,InMark), (call(G1), (EqLiteral11, ground(Y,true)))))),
 	gensym(mskolem,SF),
 	gensym(rule,RN2),
 	typeOfDefinition(Env,MS,C,S2),
@@ -11649,7 +11655,7 @@ assertRoleLInRRestr1(Env,MS,R1,restr(R2,C),AN) :-
 	constructEqMark(rn(AN,RN2,_S3,_O3),W1,Y,SF,R2,X,HYPS,AB,CALLS,EqMark2),
 	constructEqCall(Env,rn(AN,RN2,_S4,_O4),bodyMC(W1),headMC(W1),
                         Y,F,R1,X,HYPS,AB,[EqMark2|CALLS],PT2,EqLiteral21),
-	asserta((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral21)))),
+	asserta_logged((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral21)))),
 	!.
 
 
@@ -11663,7 +11669,7 @@ assertRoleLInRRestr3(Env,MS,R1,restr(R2,C),AN) :-
 	constructSolveConMark(rn(AN,_RN2,_S2,_O2),
                          W1,_FF1,R1,X,'>=',N,HYPS,AB,CALLS,Mark2),
 	C2 = solveConstraint(Env,W1,(card,app((F:R1),X),'>=',N),_,hyp(HYPS),ab(AB),call([Mark2|CALLS]),PT2),
-	asserta((C1 :- (cCS(CALLS,Mark1), (call(G1), C2)))),
+	asserta_logged((C1 :- (cCS(CALLS,Mark1), (call(G1), C2)))),
 	gensym(rule,RN3),
 	constructConHead(Env,rn(AN,RN3,S1,lInR),W1,G,R1,X,'=<',N,
                          HYPS,AB,CALLS,PT4,C3),
@@ -11671,7 +11677,7 @@ assertRoleLInRRestr3(Env,MS,R1,restr(R2,C),AN) :-
 	constructSolveConMark(rn(AN,RN3,_S4,_O4),
                          W1,_FF3,R2,X,'=<',N,HYPS,AB,CALLS,Mark4),
 	C4 = solveConstraint(Env,W1,(card,app((F:R2),X),'=<',N),_,hyp(HYPS),ab(AB),call([Mark4|CALLS]),PT4),
-	asserta((C3 :- (cCS(CALLS,Mark3), (call(G1), C4)))).
+	asserta_logged((C3 :- (cCS(CALLS,Mark3), (call(G1), C4)))).
 
 
 /**********************************************************************
@@ -11694,7 +11700,7 @@ assertRoleLInRRestr4(Env,MS,R1,restr(R2,_C),R3,restr(R2,_CNF),AN1) :-
 	C2 = solveConstraint(Env,W1,(card,app((FF1:R2),X),'=<',N2),_,hyp(HYPS),ab(AB),call([Mark2|CALLS]),PT2),
 	constructSolveConMark(rn(AN1,RN,_S3,_O3),W1,FF2,R3,X,'>=',N3,HYPS,AB,CALLS,Mark3),
 	C3 = solveConstraint(Env,W1,(card,app((FF2:R3),X),'>=',N3),_,hyp(HYPS),ab(AB),call([Mark3|CALLS]),PT3),
-	asserta((C1 :- (cCS(CALLS,Mark1), (call(G1), (C2, (C3, (M is N2 - N3, comparison('=<',M,N1)))))))),
+	asserta_logged((C1 :- (cCS(CALLS,Mark1), (call(G1), (C2, (C3, (M is N2 - N3, comparison('=<',M,N1)))))))),
 	!.
 
 
@@ -11717,7 +11723,7 @@ assertAndRoleLInR(Env,MS,R1,and([R2|RL]),AN) :-
 	constructEqMark(rn(AN,RN,_S1,_O1),W1,Y,SF,R2,X,HYPS,AB,CALLS,EqMark2),
 	constructEqCall(Env,rn(AN,RN,_S2,_O2),bodyMC(W1),headMC(W1),Y,_F,R1,X,
 	                HYPS,AB,[EqMark2|CALLS],PT1,EqLiteral1),
-	asserta((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral1)))),
+	asserta_logged((EqLiteral2 :- (cCS(CALLS,EqMark2), (call(G1), EqLiteral1)))),
 	assertAndRoleLInR(Env,MS,R1,and(RL),AN).
 
 /***********************************************************************
@@ -11737,7 +11743,7 @@ assertAndConstraintLInR(Env,MS,R1,and([R2|RL]),AN) :-
 	constructSolveConMark(rn(AN,RN,_S1,_O1),W1,_FF2,R2,X,Rel,N,HYPS,AB,CALLS,Mark2),	
 	gensymbol(mskolem,[X],SF),
 	C2 = solveConstraint(Env,W1,(card,app((SF:R2),X),Rel,N),_,hyp(HYPS),ab(AB),call([Mark2|CALLS]),PT2),
-	asserta((C1 :- cCS(CALLS,Mark1), (call(G1), C2))),
+	asserta_logged((C1 :- cCS(CALLS,Mark1), (call(G1), C2))),
 	assertAndConstraintLInR(Env,MS,R1,and(RL),AN).
 
 /***********************************************************************
@@ -11757,7 +11763,7 @@ assertAndConstraintRInL(Env,MS,R1,and([R2|RL]),AN) :-
 	constructSolveConMark(rn(AN,RN,_S1,_O1),W1,_FF1,R1,X,'>=',N,HYPS,AB,CALLS,Mark2),
 	gensymbol(mskolem,[X],SF),
 	C2 = solveConstraint(Env,W1,(card,app((SF:R1),X),'>=',N),_,hyp(HYPS),ab(AB),call([Mark2|CALLS]),PT2),
-	asserta((C1 :- cCS(CALLS,Mark1), (call(G1), C2))),
+	asserta_logged((C1 :- cCS(CALLS,Mark1), (call(G1), C2))),
 	assertAndConstraintRInL(Env,MS,R1,and(RL),AN).
 
 
@@ -11774,24 +11780,24 @@ assertRoleRInL(Env,MS,R1,inverse(R2),_AN) :-
 	constructEqHead(Env,rn(AN,RN1,user,rInL),W1,X,F,R1,
                         app((inverse(F):R2),X),HYPS,AB,CALLS,
 			true,EqLiteral1),
-%	asserta((EqLiteral1 :- call(G1))),
+%	asserta_logged((EqLiteral1 :- call(G1))),
 	gensym(rule,RN2),
 	constructEqHead(Env,rn(AN,RN2,user,rInL),
                         W1,X,inverse(F),R1,app((F:R2),X),HYPS,AB,CALLS,
 			true,EqLiteral2),
-%	asserta((EqLiteral2 :- call(G1))),
+%	asserta_logged((EqLiteral2 :- call(G1))),
 	gensym(rule,RN3),
 	constructEqHead(Env,rn(AN,RN3,user,rInL),W1,Y,inverse(F),inverse(R2),
 			X,HYPS,AB,CALLS,PT1,EqLiteral3),
 	constructEqCall(Env,rn(AN,RN3,_S3,_O3),bodyMC(W1),headMC(W1),X,F,R1,Y,
 	                HYPS,AB,CALLS,PT1,EqLiteral4),
-%	asserta((EqLiteral3 :- cCS(CALLS,true), (call(G1), EqLiteral4))),
+%	asserta_logged((EqLiteral3 :- cCS(CALLS,true), (call(G1), EqLiteral4))),
 	gensym(rule,RN4),
 	constructEqHead(Env,rn(AN,RN4,user,rInL),W1,Y,inverse(F1),R1,X,HYPS,AB,CALLS,
 			PT2,EqLiteral5),
 	constructEqCall(Env,rn(AN,RN4,_S3,_O3),bodyMC(W1),headMC(W1),
 			X,F1,R2,Y,HYPS,AB,CALLS,PT2,EqLiteral6),
-	asserta((EqLiteral5 :- cCS(CALLS,true), (call(G1), EqLiteral6))).
+	asserta_logged((EqLiteral5 :- cCS(CALLS,true), (call(G1), EqLiteral6))).
 assertRoleRInL(Env,MS,R1,restr(R2,C), AN) :-
 	!,
 	assertRoleRInLRestr1(Env,MS,R1,restr(R2,C),AN),
@@ -11808,7 +11814,7 @@ assertRoleRInL(Env,MS,R1,and(RL),AN) :-
 	constructEqHead(Env,rn(AN,RN1,user,rInL),
                         W1,Y,SF,R1,X,HYPS,AB,CALLS,and([PTL]),EqLiteral1),
 	constructEqMark(rn(AN,RN1,_S2,_O2),W1,Y,SF,R1,X,HYPS,AB,CALLS,EqMark1),
-	asserta((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), Body)))),
+	asserta_logged((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), Body)))),
 	assertAndConstraintRInL(Env,MS,R1,and(RL),AN).
 assertRoleRInL(Env,MS,R1,R2,AN) :-
 	!,
@@ -11820,14 +11826,14 @@ assertRoleRInL(Env,MS,R1,R2,AN) :-
 	constructEqMark(rn(AN,RN1,_S2,_O2),W1,X,SF,R1,Y,HYPS,AB,CALLS,EqMark1),
 	constructEqCall(Env,rn(AN,RN1,_S3,_O3),bodyMC(W1),headMC(W1),X,_F,R2,Y,
 	                HYPS,AB,CALLS,PT1,EqLiteral2),
-	asserta((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), EqLiteral2)))),
+	asserta_logged((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), EqLiteral2)))),
 	gensym(rule,RN2),
 	constructConHead(Env,rn(AN,RN2,user,rInL),W1,_FF5,R1,X,'>=',N,
 	                 HYPS,AB,CALLS,PT1,C2),
 	constructConMark(C2,Mark2),
 	constructSolveConMark(rn(AN,RN2,_S4,_O4),W1,_FF3,R2,X,'>=',N,HYPS,AB,CALLS,Mark1),
 	C1 = solveConstraint(Env,W1,(card,app((_FF:R2),X),'>=',N),_,hyp(HYPS),ab(AB),call([Mark1|CALLS]),PT1),
-	asserta((C2 :- (cCS(CALLS,Mark2), (call(G1), C1)))),
+	asserta_logged((C2 :- (cCS(CALLS,Mark2), (call(G1), C1)))),
 	gensym(rule,RN5),
 	gensym(mskolem,SF3),
 	constructConHead(Env,rn(AN,RN5,user,rInL),W1,SF3,R2,X,'=<',N,
@@ -11835,7 +11841,7 @@ assertRoleRInL(Env,MS,R1,R2,AN) :-
 	constructConMark(C4,Mark4),
 	constructSolveConMark(rn(AN,RN5,_S6,_O6),W1,_FF4,R1,X,'=<',N,HYPS,AB,CALLS,Mark5),
 	C5 = solveConstraint(Env,W1,(card,app((_FF2:R1),X),'=<',N),_,hyp(HYPS),ab(AB),call([Mark5|CALLS]),PT5),
-	asserta((C4 :- (cCS(CALLS,Mark4), (call(G1), C5)))).
+	asserta_logged((C4 :- (cCS(CALLS,Mark4), (call(G1), C5)))).
 
 /**********************************************************************
  *
@@ -11859,7 +11865,7 @@ getComplementRole(Env,MS,_R1,restr(R2,C),R3,restr(R2,CNF)) :-
 	negate(C,CN),
 	cnf(CN,CNF),
 	gensym(axiom,AN),
-	asserta(roleEqualSets(Env,system,MS,R3,restr(R2,CNF),AN)),
+	asserta_logged(roleEqualSets(Env,system,MS,R3,restr(R2,CNF),AN)),
 	assertRoleLInRRestr1(Env,MS,R3,restr(R2,CNF),AN),
 	assertRoleLInRRestr3(Env,MS,R3,restr(R2,CNF),AN),
 	assertRoleRInLRestr1(Env,MS,R3,restr(R2,CNF),AN),
@@ -11889,7 +11895,7 @@ assertRoleRInLRestr1(Env,MS,R1,restr(R2,C),AN) :-
                         bodyMC(W1),headMC(W1),Y,_FF,R2,X,HYPS,AB,CALLS,PTEq2,EqLiteral2),
 	constructMLCall(Env,rn(AN,RN,_S3,_O3),
                         bodyMC(W1),headMC(W1),C,Y,HYPS,AB,CALLS,PTIn,InHead),
-	asserta((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), (EqLiteral2, (ground(Y,true), once(InHead))))))).
+	asserta_logged((EqLiteral1 :- (cCS(CALLS,EqMark1), (call(G1), (EqLiteral2, (ground(Y,true), once(InHead))))))).
 
 
 assertRoleRInLRestr2(Env,MS,R1,restr(R2,_C),R3,restr(R2,_CNF),AN) :-
@@ -11902,7 +11908,7 @@ assertRoleRInLRestr2(Env,MS,R1,restr(R2,_C),R3,restr(R2,_CNF),AN) :-
 	D2 = solveConstraint(Env,W1,(card,app((_FF3:R2),X),'>=',N2),_,hyp(HYPS),ab(AB),call([Mark2|CALLS]),PT2),
 	constructSolveConMark(rn(AN,RN,_S3,_O3),W1,_FF4,R3,X,'=<',_N3,HYPS,AB,CALLS,Mark3),
 	D3 = solveConstraint(Env,W1,(card,app((_FF5:R3),X),'=<',N3),_,hyp(HYPS),ab(AB),call([Mark3|CALLS]),PT3),
-	asserta((D1 :- (cCS(CALLS,Mark1), (call(G1), (D2, (D3, (M is N2 - N3, comparison('>=',M,N1)))))))),
+	asserta_logged((D1 :- (cCS(CALLS,Mark1), (call(G1), (D2, (D3, (M is N2 - N3, comparison('>=',M,N1)))))))),
 	!.
 	
 	
@@ -11927,7 +11933,7 @@ assertRoleRInLRestr3(Env,MS,R1,restr(R2,C),AN) :-
                         Y,_FF,R2,X,HYPS,AB,CALLS,PT1,EqLiteral2),
 % Removed this rule for test purposes
 % uh 03.10.92
-%	asserta((InHead :- (cCS(CALLS,Mark), (call(G1), (EqLiteral2, (ground(Y,true), (D1, (not(member((Y,_),L1)), N1 = M1)))))))),
+%	asserta_logged((InHead :- (cCS(CALLS,Mark), (call(G1), (EqLiteral2, (ground(Y,true), (D1, (not(member((Y,_),L1)), N1 = M1)))))))),
 	!.
 
 assertRoleRInLRestr4(Env,MS,R1,restr(R2,_C),R3,restr(R2,_CNF),AN) :-
@@ -11944,7 +11950,7 @@ assertRoleRInLRestr4(Env,MS,R1,restr(R2,_C),R3,restr(R2,_CNF),AN) :-
 	                 HYPS,AB,CALLS,Mark3),
 	D3 = solveConstraint(Env,W1,(card,app((_FF5:R3),X),Rel,N3),_,
 	                     hyp(HYPS),ab(AB),call([Mark3|CALLS]),PT3),
-	asserta((D2 :- (cCS(CALLS,Mark2), (call(G1), (D1, (D3, (M is N1 + N3, comparison(Rel,M,N2)))))))),
+	asserta_logged((D2 :- (cCS(CALLS,Mark2), (call(G1), (D1, (D3, (M is N1 + N3, comparison(Rel,M,N2)))))))),
 	!.
 	
 
@@ -12278,8 +12284,8 @@ initializeMotel :-
 	retractallEnv(_,succ3/2),
         retractallEnv(_,query/6),
         % retractallEnv(_,value/2),
-	asserta(environment(initial,env(e0),'Initial Environment')),
-	asserta(currentEnvironment(env(e0))),
+	asserta_logged(environment(initial,env(e0),'Initial Environment')),
+	asserta_logged(currentEnvironment(env(e0))),
 	initEnvironment(initial),
 	!.
 
@@ -12408,17 +12414,17 @@ saveKB(EnvName,FileName) :-
 	transformAndWrite(modalAxioms(Env,user,A71,_A72,A73,A74),
                           modalAxioms(Env,A71,A73,A74)),
 	transformAndWrite(roleAttributes(Env,A71,B71,C71),
-			  (environment(EnvName,NewEnv,_), assert(roleAttributes(NewEnv,A71,B71,C71)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleAttributes(NewEnv,A71,B71,C71)))),
 	transformAndWrite(roleDefault(Env,A81,B81,C81),
-			  (environment(EnvName,NewEnv,_), assert(roleDefault(NewEnv,A81,B81,C81)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleDefault(NewEnv,A81,B81,C81)))),
 	transformAndWrite(roleDefNr(Env,A91,B91,C91),
-			  (environment(EnvName,NewEnv,_), assert(roleDefNr(NewEnv,A91,B91,C91)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleDefNr(NewEnv,A91,B91,C91)))),
 	transformAndWrite(roleDomain(Env,A82,B82,C82),
-			  (environment(EnvName,NewEnv,_), assert(roleDomain(NewEnv,A82,B82,C82)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleDomain(NewEnv,A82,B82,C82)))),
 	transformAndWrite(roleNr(Env,A83,B83,C83),
-			  (environment(EnvName,NewEnv,_), assert(roleNr(NewEnv,A83,B83,C83)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleNr(NewEnv,A83,B83,C83)))),
 	transformAndWrite(roleRange(Env,A84,B84,C84),
-			  (environment(EnvName,NewEnv,_), assert(roleRange(NewEnv,A84,B84,C84)))),
+			  (environment(EnvName,NewEnv,_), assert_logged(roleRange(NewEnv,A84,B84,C84)))),
         told,
         !.
 saveKB(_,_) :-
@@ -12503,7 +12509,7 @@ deduceSetheo(EnvName,MS,elementOf(X,C),Exp) :-
 
 
 setQuery(Env,W1,C,X,Exp,Goal) :-
-	assert(query(Env,W1,C,X,Exp,Goal)),
+	assert_logged(query(Env,W1,C,X,Exp,Goal)),
 	!.
 setQuery(Env,W1,C,X,Exp,Goal) :-
 	!.
@@ -13061,14 +13067,14 @@ metaReasoning :-
 	constructMLHead(Env,rn(ti,ti,system,lInR),W1,not(C),X,
 			_HYPS,_D,_CALLS,inconsistency,InHead2),
 	Lit11 = not(inconsistencyCheck(_,_,_)),
-	Lit13 = asserta(InHead2),
-	Lit14 = asserta(inconsistencyCheck(MS,C,X)),
+	Lit13 = asserta_logged(InHead2),
+	Lit14 = asserta_logged(inconsistencyCheck(MS,C,X)),
 	Lit15 = tryInconsistency(MS,C,X,InHead2),
-	assertz((InHead1 :- atomic(C), atomic(X), Lit11, Lit13, Lit14, Lit15)),
-	Lit23 = asserta(InHead1),
-	Lit24 = asserta(inconsistencyCheck(MS,C,X)),
+	assertz_logged((InHead1 :- atomic(C), atomic(X), Lit11, Lit13, Lit14, Lit15)),
+	Lit23 = asserta_logged(InHead1),
+	Lit24 = asserta_logged(inconsistencyCheck(MS,C,X)),
 	Lit25 = tryInconsistency(MS,C,X,InHead1),
-	assertz((InHead2 :- atomic(C), atomic(X), Lit11, Lit23, Lit24, Lit25)).
+	assertz_logged((InHead2 :- atomic(C), atomic(X), Lit11, Lit23, Lit24, Lit25)).
 
 
 tryInconsistency(MS,C,X,InHead) :-

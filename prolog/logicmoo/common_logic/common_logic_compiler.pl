@@ -1786,7 +1786,7 @@ demodal_body(_KB, _Head, (pos(A), ~B), pos(B)):- A==B,!.
 demodal_body(_KB, _Head, (~B, pos(A)), pos(B)):- A==B,!.
 demodal_body(_KB,_Head, poss([infer_by(_)],G), poss(G)).
 demodal_body(_KB,_Head, nesc([infer_by(_)],G), nsec(G)).
-demodal_body(_KB,_Head, nesc(G), proven(G)):- nonvar(G),!.
+demodal_body(_KB,_Head, nesc(G), (G)):- nonvar(G),!.
 
 demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
 demodal_body(_KB, _Head, (A , B , C), (A , B)):- A==C,!.
@@ -1821,14 +1821,14 @@ demodal_body(_KB, Head, G, true):- G==Head, unusual_body,!.
 % demodal_body(_KB,_Head, poss(isa(I,C)), isa(I,C)):- !.
 
 demodal_body(_KB,_Head, naf(~ G), poss(G)):- nonvar(G),!.
-demodal_body(_KB,_Head, ~ (~ G), proven(G)):- nonvar(G), unusual_body,!.
+demodal_body(_KB,_Head, ~ (~ G), (G)):- nonvar(G), unusual_body,!.
 
 
 
 demodal_body(KB,Head, v(~A, B), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
 %demodal_body(KB,Head, v(~B, A), BB):- demodal_body(KB,Head,A,AA),AA==Head,!,demodal_body(KB,Head,B,BB).
 demodal_body(KB,Head, v(~A, B), (AA *-> BB)):- nonvar(A),!,demodal_body(KB,Head,A,AA),demodal_body(KB,Head,B,BB).
-demodal_body(_KB,_Head, \+ (~ G), proven(G)):- nonvar(G),!.
+%demodal_body(_KB,_Head, \+ (~ G), proven(G)):- nonvar(G),!.
 demodal_body(_KB,_Head, \+ (~ G), poss(G)):- nonvar(G),!.
 
 demodal_body(_KB, _Head, ( H, poss(G) ) , poss(G)):- H==G , unusual_body.

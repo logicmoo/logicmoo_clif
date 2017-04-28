@@ -194,7 +194,7 @@ add_history_ideas:-
         add_history(ensure_loaded(library(logicmoo_repl))),
         add_history(ensure_loaded(library(logicmoo_engine))),
         add_history(ensure_loaded(library(logicmoo_user))),
-        add_history(ensure_loaded(library(logicmoo_planner))),
+        add_history(user:load_library_system(library(logicmoo_planner))),
         add_history([user:init_mud_server]),
         add_history([user:run_mud_server]),
         add_history(consult(library(prologmud_sample_games/run_mud_server))).

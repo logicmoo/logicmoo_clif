@@ -26,7 +26,6 @@
 
 :- kif_compile.
 
-
 % =================================================================================
 % Define a couple predicates
 % =================================================================================
@@ -53,36 +52,48 @@
 
 ==> poss(livesAt(fred,green_house)).
 
-:- must(isa(fred,human)).
-:- must(isa(green_house,dwelling)).
+:- mpred_test(isa(fred,human)).
+:- mpred_test(isa(green_house,dwelling)).
 
 % =================================================================================
 % Test 2
 % =================================================================================
 
+:- mpred_trace_exec.
+
+==> livesAt(fran,green_house).
+==> livesAt(sue,green_house).
+
+proven(G) :- call_u(G).
+
 ==> all(X, if(livesAt(X, green_house),drinks(X, coffee))).
 
-failed:- must(poss(isa(fred,drinker))).
-:- must(isa(coffee,beverage_class)).
+:- mpred_test(isa(fran,drinker)).
 
+:- mpred_test((isa(fran,X),X==drinker)).
+
+:- mpred_test(poss(isa(fred,drinker))).
+
+:- mpred_test(isa(coffee,beverage_class)).
 
 % =================================================================================
 % Test 3
 % =================================================================================
 
 ==> livesAt(sue,green_house).
-
-:- must(isa(sue,drinker)).
+:- repropagate(all(X, if(livesAt(X, green_house),drinks(X, coffee)))).
+:- mpred_test(isa(sue,drinker)).
 
 :- mpred_why(isa(sue,drinker)).
 
+:- break.
 
 % =================================================================================
-% Test 4
+% Test 4 
 % =================================================================================
 
 % ==> livesAt(sue,red_house).
 
-failed:- must(\+ isa(sue,drinker)).
+failed:- mpred_test(\+ isa(sue,drinker)).
 
 
