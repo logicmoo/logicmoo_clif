@@ -95,7 +95,7 @@ convert_1_kif_string(I,Wff):- input_to_forms(I,Wff,Vs)->must(put_variable_names(
 from_kif_string(Wff,Wff):- \+ atomic(Wff), \+ is_list(Wff),!.
 from_kif_string(I,Wff) :- string(I),convert_1_kif_string(string(I),Wff),!.
 from_kif_string(I,Wff) :- atom(I),atom_contains(I,' '),convert_1_kif_string(atom(I),Wff),!.
-from_kif_string([C|String],Wff) :- is_list(String),text_to_string([C|String],Text),one_must(convert_1_kif_string(string(Text),Wff),codelist_to_forms(string(Text),Wff)),!.
+from_kif_string([C|String],Wff) :- is_list(String),text_to_string_safe([C|String],Text),one_must(convert_1_kif_string(string(Text),Wff),codelist_to_forms(string(Text),Wff)),!.
 from_kif_string(Wff,Wff).
 
 
