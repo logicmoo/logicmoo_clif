@@ -24,7 +24,7 @@
 
 
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
-:- set_prolog_flag(readline,editline).
+% :- set_prolog_flag(readline,editline).
 % :- set_prolog_flag(readline,true).
 
 :- if(current_prolog_flag(readline,editline)).
@@ -32,7 +32,9 @@
 :- listing(prolog:history/2).
 :- abolish(prolog:history/2).
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- if(exists_source(library(editline))).
 :- reconsult(library(editline)).
+:- endif.
 :- else.
 :- if(exists_source(library(editline))).
 :- use_module(library(editline)).
