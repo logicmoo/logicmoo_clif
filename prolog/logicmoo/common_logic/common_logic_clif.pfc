@@ -81,11 +81,6 @@ compile_pfclog ==>
 % when sometnhing begins to be possible remove the negation and remove the impossibility
 poss(P) ==> \+ ~ P, \+ ~poss(P).
 
-% when something begins to be definately false remove it and remove the possibility of it
-% ~P/(nonvar(P),mpred_positive_literal(P)) ==> \+ P, \+ poss(P).
-
-~P/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P)) ==>  \+ poss(P), {mpred_fwc(~poss(P))}.
-
 % when something begins to be impossibile, make sure it is false, remove it and remove the possibility of it 
 ~poss(P) ==> (~P, \+ P, \+ poss(P)).
 
@@ -96,3 +91,11 @@ poss(P) ==> \+ ~ P, \+ ~poss(P).
 
 % something is impossible when it is false
 :- ain(~poss(G) :-  {nonvar(G), call_u(~G)}).
+
+% when something begins to be definately false, remove it.
+~P/(nonvar(P),mpred_positive_literal(P)) ==>  \+ P.
+
+:- rtrace.
+% when something begins to be definately false remove it and remove the possibility of it
+((~P/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
+:- nortrace.
