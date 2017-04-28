@@ -90,10 +90,6 @@
             type_of_var/3,
             use_was_isa_h/3,
             var_count_num/4,
-            wdmsgl/1,
-            wdmsgl_2/2,
-            wdmsgl_3/3,
-            wdmsgl_4/3,
             why_to_id/3,
             write_list/1,
             (is_entailed_u)/1,
@@ -918,38 +914,6 @@ get_1_var_name(Var,[N=V|_NamedVars],Name=V):-
      (Var == V -> Name = N ; (Var==Name -> Name=Var ; fail )),!.
 get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
-
-
-
-:- meta_predicate wdmsgl0(2,*).
-:- meta_predicate wdmsgl(2,*).
-
-%% wdmsgl( ?CNF) is det.
-%
-% Wdmsgl.
-%
-wdmsgl(X):-notrace(wdmsgl0(=,X)),!.
-wdmsgl(Pred2,X):-notrace(wdmsgl0(Pred2,X)),!.
-
-wdmsgl0(PreOP,CNF):- is_list(CNF),!,maplist(wdmsgl0(PreOP),CNF).
-wdmsgl0(PreOP,CNF):- (is_ftVar(CNF) ; \+ compound(CNF))-> 
-  (call(PreOP,CNF,NEW)-> wdmsg(NEW);  wdmsg(CNF)),!.
-
-wdmsgl0(PreOP,(C:-NF)):- call(PreOP,(C:-NF),NEW),!,wdmsg(NEW).
-wdmsgl0(PreOP,CNF):- CNF=..[NAME,NF],call(PreOP,(NAME:-NF),NEW),!,wdmsg(NEW).
-wdmsgl0(PreOP,CNF):- call(PreOP,CNF,NEW)->wdmsg(NEW);wdmsg(CNF).
-
-wdmsg20(CNF):- pp_item('',CNF),!.
-wdmsg20(NF):- must((get_functor(NF,NAME),!,must(wdmsgl_2(NAME,NF)))).
-wdmsgl_2(NAME,NF):- functor(NF,_,_),wdmsgl_3(NAME,&,NF).
-wdmsgl_3(NAME,F,NF):-
-   unnumbervars_with_names(vv(NAME,F,NF),vv(NAME2,F2,NF2)),
-   wdmsgl_4(NAME2,F2,NF2).
-
-%wdmsgl_4(NAME,F,NF):- is_list(NF),!,list_to_set(NF,NS),must_maplist(wdmsgl_4(NAME,F),NS).
-%wdmsgl_4(NAME,F,NF):- compound(NF),NF=..[FF,A,B],FF=F,is_ftNonvar(A),is_ftNonvar(B),!,must_maplist(wdmsgl_4(NAME,F),[A,B]).
-% wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(KB,NAME:-NF2)).
-wdmsgl_4(NAME,_,NF):- as_symlog(NF,NF2), with_all_dmsg(display_form(_KB,(NAME:-NF2))).
 
 
 %% kif_to_boxlog( ?Wff, ?Out) is det.
