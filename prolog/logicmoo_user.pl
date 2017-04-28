@@ -34,9 +34,11 @@
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
 :- reconsult(library(editline)).
 :- else.
+:- if(exists_source(library(editline))).
 :- use_module(library(editline)).
 :- listing(prolog:history/2).
 :- abolish(prolog:history/2).
+:- endif.
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
 :- set_prolog_flag(readline,readline).
 :- reconsult(library(readline)).

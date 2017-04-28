@@ -380,7 +380,9 @@ end_of_file.
 :- user:use_module(library(toolbar)).
 :- user:use_module(library(plot/plotter)).
 
-:- user:use_module(library(jpl)).
+% echo export LD_LIBRARY_PATH=`find /usr/lib/jvm \( -name "libjvm.so" -or -name "libjava.so" \) -printf "%h:"`.
+
+% :- user:use_module(library(jpl)).
 
 :- user:use_module(library(imageops)).
 :- user:use_module(library(pce_float_item)).
