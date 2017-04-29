@@ -70,7 +70,8 @@ compile_pfclog ==>
 
 
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
+({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF ==> clif(CLIF))).
+:-ain((CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
 
 % Remove negations probably
 (clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
