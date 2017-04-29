@@ -25,7 +25,7 @@
 assert_logged(A):-assert(A).
 asserta_logged(A):-asserta(A).
 assertz_logged(A):-assertz(A).
-:- op(950,fy,skipped).
+:- op(700,fy,skipped).
 skipped(G):- nop(G).
 /*
 :- discontiguous testAllMotelExamples/1. 
