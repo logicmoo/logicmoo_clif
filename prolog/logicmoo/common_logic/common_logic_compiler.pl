@@ -1780,10 +1780,9 @@ demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO)
 
 % demodal_body(_KB,~ _Head,(skolem(_,B), \+ G), \+ G ):- nonvar(B),nonvar(G),!.
 demodal_body(_KB,_Head,Var, Var):- var(Var),!.  
-demodal_body(_KB, ~ _Head, (pos(A), ~B), ~B):- A==B,!.
-demodal_body(_KB, ~ _Head, (~B, pos(A)), ~B):- A==B,!.
-demodal_body(_KB, _Head, (pos(A), ~B), pos(B)):- A==B,!.
-demodal_body(_KB, _Head, (~B, pos(A)), pos(B)):- A==B,!.
+demodal_body(_KB, _Head, (~B, poss(A)), (poss(A), ~B)):- A==B,!.
+demodal_body(_KB, ~ _Head, (poss(A), ~B), ~B):- A==B,!.
+demodal_body(_KB,   _Head, (poss(A), ~B), poss(B)):- A==B,!.
 demodal_body(_KB,_Head, poss([infer_by(_)],G), poss(G)).
 demodal_body(_KB,_Head, nesc([infer_by(_)],G), nsec(G)).
 demodal_body(_KB,_Head, nesc(G), (G)):- nonvar(G),!.
@@ -2443,7 +2442,7 @@ correct_cls0(KB,cl(H,B),O):- list_to_set(H,HH),HH\=@=H,!,correct_cls(KB,cl(HH,B)
 correct_cls0(KB,cl(H,B),O):- list_to_set(B,BB),BB\=@=B,!,correct_cls(KB,cl(H,BB),O).
 
 /*
-correct_cls0(_,cl([ ~( poss(H))],B),cl([z_unused(~pos(H:-B))],[])):-member( ~( H),B),!.
+correct_cls0(_,cl([ ~( poss(H))],B),cl([z_unused(~poss(H:-B))],[])):-member( ~( H),B),!.
 correct_cls0(KB,cl([ ~( poss(H))],B),O):- correct_cls0(KB,cl([ ~( (H))],B),O).
 correct_cls0(KB,cl([ ~( H)],B),O):- delete_sublits(B,poss(H),BB),BB\=@=B,!,correct_cls(KB,cl([ ~( H)],BB),O).
 correct_cls0(KB,cl([ ~( H)],B),O):- delete_sublits(B,(H),BB),BB\=@=B,!,correct_cls(KB,cl([ ~( H)],BB),O).
