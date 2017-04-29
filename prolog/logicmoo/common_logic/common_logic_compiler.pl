@@ -1563,7 +1563,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   list_to_set(Flattened,FlattenedM),!,
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
   demodal_clauses3(KB,FlattenedOOO,FlattenedO),  
-  maplist(defunctionalize,FlattenedO,FlattenedOUT),
+  must_maplist(defunctionalize,FlattenedO,FlattenedOUT),
   nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
   maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),
   pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
