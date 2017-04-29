@@ -17,7 +17,7 @@
 */
 
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/common_logic_sanity.pl
-:- module(common_logic_sanity,[kif_test/1]).
+:- module(common_logic_sanity,[kif_test/1,test_boxlog/1,test_boxlog/2,test_defunctionalize/1]).
 
 
 :-
@@ -100,7 +100,29 @@ pfclog_compile:-  ain(==> compile_pfclog),pfclog_show.
 pfclog_show:-  baseKB:listing(pfclog/1).
 
 
-show_kif_to_boxlog(P):- ain(P), nl,wdmsg(:- (show_kif_to_boxlog(P))),kif_to_boxlog(P,O),wdmsgl(O),nl.
+show_kif_to_boxlog(P):- test_boxlog(P).
+
+ % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
+test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
+
+test_defunctionalize(I):-defunctionalize(I,O),wdmsgl(O).
+
+
+/*
+test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(P,O),nl,nl,
+   % b_implode_varnames(O),
+  (is_list(O)->maplist(portray_one_line,O);dmsg(O)),flush_output.
+*/
+
+:- export(test_boxlog/1).
+test_boxlog(P):- must_det(\+ \+ test_boxlog0(P)),!,ain(P).
+test_boxlog0(P):-
+ must_det_l((
+  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
+  b_implode_varnames(P),
+  flush_output,dmsg(:- test_boxlog(P)), 
+  test_boxlog(P,O),wdmsgl(O),flush_output)).
+
 
 %% tsn is det.
 %

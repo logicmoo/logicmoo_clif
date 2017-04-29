@@ -35,7 +35,6 @@
             is_skolem_setting/1,
             demodal_sents/3,
             diaRule/3,
-            display_form/2,
             dnf/3,
             dnf1/3,
             expand_cl/3,
@@ -1563,7 +1562,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   list_to_set(Flattened,FlattenedM),!,
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
   demodal_clauses3(KB,FlattenedOOO,FlattenedO),  
-  must_maplist(defunctionalize,FlattenedO,FlattenedOUT),
+  defunctionalize_each(FlattenedO,FlattenedOUT),
   nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
   maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),
   pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
@@ -1691,14 +1690,6 @@ removeQ(KB, F,Vars,OUT ):- nnf(KB,F,Vars,F0,_),(F0 =@=F -> F0=OUT; removeQ(KB, F
 nowrap_one(_,[One],One).
 nowrap_one(Wrap,MORE,OUT):- OUT=..[Wrap,MORE].
 
-
-%= 	 	 
-
-%% display_form( ?KB, ?Form) is det.
-%
-% Display Form.
-%
-display_form(KB,Form):- demodal_sents(KB,Form,OutM),local_pterm_to_sterm(OutM,Out),portray_clause(current_output,Out,[max_depth(0),portrayed(true)]).
 
 
 %= 	 	 

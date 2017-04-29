@@ -100,10 +100,8 @@
    op(400,yfx,'&'),
    op(500,yfx,'v')*/
    % if/2,iif/2,   
-            is_not_entailed/1,
-            test_boxlog/1,test_boxlog/2,test_defunctionalize/1
-                    
-          ]).
+            is_not_entailed/1]).
+
 /** <module> common_logic_snark
 % Provides a specific compilation API for KIF axioms
 %
@@ -1267,29 +1265,6 @@ clauses_to_boxlog_5(_KB,_Why,(H:-B),(H:-B)):-!.
 clauses_to_boxlog_5(_KB,_Why,cl([HeadIn],[]),HeadIn):-!.
 clauses_to_boxlog_5(_KB,_Why,In,Prolog):-dtrace,In=Prolog.
 
-
-
- % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
-test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
-
-test_defunctionalize(I):-defunctionalize(I,O),wdmsg(O).
-
-
-/*
-test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(P,O),nl,nl,
-   % b_implode_varnames(O),
-  (is_list(O)->maplist(portray_one_line,O);dmsg(O)),flush_output.
-*/
-
-:- export(test_boxlog/1).
-test_boxlog(P):- must_det(test_boxlog0(P)),!.
-test_boxlog0(P):-
- must_det_l((
-  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  b_implode_varnames(P),
-  flush_output,dmsg(:- test_boxlog(P)), 
-  nl,nl,test_boxlog(P,O),nl,nl,
- (is_list(O)->maplist(portray_one_line,O);wdmsgl(O)),flush_output)).
 
 
 

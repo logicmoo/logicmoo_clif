@@ -22,6 +22,7 @@
  op(300,fx,'~'),
  op(300,fx,'-')*/  ]).
 
+/*
 
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
 :- if(exists_source(library(editline))).
@@ -45,8 +46,8 @@
 :- consult(library(readline)).
 :- endif.
 :- endif.
-
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
+*/
 
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
