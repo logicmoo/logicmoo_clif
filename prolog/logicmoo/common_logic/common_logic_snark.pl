@@ -116,6 +116,8 @@
 :- user:reexport(library('logicmoo_pttp')).
 
 
+
+
 :- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
 
@@ -770,8 +772,8 @@ adjust_kif5(      _,_,'&',ARGS,Conj):-list_to_conjuncts('&',ARGS,Conj).
 %
 % Local Pterm Converted To Sterm.
 %
-local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:svar(P,S)),!.
-local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:lvar(P,S)),!.
+local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:svar(P,S),fail),!.
+local_pterm_to_sterm(P,['$VAR'(S)]):- if_defined(mpred_sexp_reader:lvar(P,S),fail),!.
 local_pterm_to_sterm(P,[P]):- leave_as_is_logically(P),!.
 local_pterm_to_sterm((H:-P),(H:-S)):-!,local_pterm_to_sterm(P,S),!.
 local_pterm_to_sterm((P=>Q),[implies,PP,=>,QQ]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ).
@@ -986,7 +988,7 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    conjuncts_to_list(BODY,BODYL),
    correct_boxlog([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
-kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
+kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUT):-
   must_det_l((
    must(unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why)),
    ensure_quantifiers(WffIn,Wff),
@@ -994,25 +996,88 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedO):-
     check_is_kb(KB),
     must(dif(KB,Why)),
    %locally(t_l:dont_use_mudEquals,defunctionalize('=>',WffQ,Wff)),
-   %(WffQ\==Wff-> dmsg(defunctionalize('=>',WffQ,Wff));wdmsgl(kif(Wff))),
+   %(WffQ\==Wff-> dmsg(defunctionalize('=>',WffQ,Wff));sdmsg(kif=(Wff))),
    as_dlog(Wff,Wff665),!,
    % kb_nlit(KB,Neg),   
    to_modal1(KB,Wff665,Wff666),
    qualify_nesc(Wff666,Wff6667),
-   ignore((Wff666\==Wff6667, wdmsgl(kif(Wff666)),!,wdmsgl(qualify_nesc(Wff6667)))),
+   ignore((Wff666\==Wff6667, sdmsg(kif=(Wff666)),!,sdmsg(qualify_nesc=(Wff6667)))),
    % add_preconds(Wff6667,Wff6668),
    adjust_kif(KB,Wff6667,Wff6669),
-   nop(Wff\==Wff6669-> wdmsgl(kif(Wff));true),!,
-   nop(wdmsgl(pkif(Wff6669))),
-   must(nnf(KB,Wff6669,NNF)),   
-   pnf(KB,NNF,PNF),!,
-   %wdmsgl(pnf(PNF)),
+   nop(Wff\==Wff6669-> sdmsg(kif=(Wff));true),!,
+   nop(sdmsg(pkif=(Wff6669))),
+   nnf(KB,Wff6669,NNF),   
+%   pnf(KB,NNF,PNF),!,
+   sdmsg(nnf=(NNF)),
    %save_wid(Why,kif,Wff),
    %save_wid(Why,pkif,Wff6669),
-   cf(Why,KB,Wff6669,PNF,FlattenedO))),!.
+     
+    
+ % check_kif_varnames(PNF),
+  removeQ(KB,NNF,[], UnQ),
+  
+  to_tlog(t,KB,UnQ,UnQ666), 
+ % cnf(KB,UnQ,CNF0),!,
+ % nnf(KB,CNF0,[],CNF,_),
+  as_prolog_hook(UnQ666,THIN),
+  sdmsg(th_nnf_in=THIN),
+  th_nnf(THIN,even,RULIFY),
+  sdmsg(th_nnf_out=RULIFY),
+  with_assert_buffer(rulify(constraint,RULIFY),SideEffectsList),
+  list_to_set(SideEffectsList,FlattenedM),!,
+  correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
+  demodal_clauses3(KB,FlattenedOOO,FlattenedO),  
+  defunctionalize_each(FlattenedO,FlattenedOUT))),!.
+
+  % cf(Why,KB,Wff6669,PNF666,FlattenedO),!.
+
+% to_modal1(KB,In,Prolog):- call_last_is_var(to_modal1(KB,In,Prolog)),!.
+to_tlog(_,_KB,Var, Var):- quietly(var_or_atomic(Var)),!.
+to_tlog(HLD,KB,[H|T],[HH|TT]):- !, to_tlog(HLD,KB,H,HH),to_tlog(HLD,KB,T,TT).
+
+to_tlog(HLD,KB, nesc(b_d(KB2,X,_),F), HH):- atom(X),KB\=KB2,XF =..[X,KB2,F],!,to_tlog(HLD,KB2,XF, HH).
+to_tlog(HLD,KB, poss(b_d(KB2,_,X),F), HH):- atom(X),KB\=KB2,XF =..[X,KB2,F],!,to_tlog(HLD,KB2,XF, HH).
+to_tlog(HLD,KB, nesc(b_d(KB,X,_),F),   HH):- atom(X), XF =..[X,F], !,to_tlog(HLD,KB,XF, HH).
+to_tlog(HLD,KB, poss(b_d(KB,_,X),F),   HH):- atom(X), XF =..[X,F], !,to_tlog(HLD,KB,XF, HH).
+to_tlog(HLD,KB, nesc(_,F),   HH):- XF =..[nesc,F], !,to_tlog(HLD,KB,XF, HH).
+to_tlog(HLD,KB, poss(_,F),   HH):- XF =..[poss,F], !,to_tlog(HLD,KB,XF, HH).
+
+to_tlog(HLD,KB,(X v Y),(Xp v Yp)) :- to_tlog(HLD,KB,X,Xp), to_tlog(HLD,KB,Y,Yp).
+
+to_tlog(HLD,KB,H,HH ):- H=..[F|ARGS],upcase_atom(F,F),!,must_maplist(to_tlog(HLD,KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
+
+to_tlog(HLD,KB, nesc(XF),   HH):- !,to_tlog(HLD,KB,XF, HH).
+%to_tlog(HLD,KB, poss(X & F),   HH):- !,to_tlog(HLD,KB, poss(X) & pos(F),   HH).
+%to_tlog(HLD,KB, poss(X v F),   HH):- !,to_tlog(HLD,KB, poss(X) v pos(F),   HH).
+
+to_tlog(_,KB,H,HH ):- H=..[F,ARG],is_holdss_functor(F),!,(is_ftVar(ARG)->HH=H;to_tlog(F,KB,ARG,HH)).
+
+to_tlog(_,_ ,H,quotedIsa(ARG,F )):- H=..[F,ARG],(call_u(ttExpressionType(F));atom_concat(ft,_,F)),!.
+to_tlog(_,_ ,H,    isa(ARG,F )):- H=..[F,ARG],(call_u(tSet(F));(atom_concat(t,_,F), \+ atom_concat(_,'_t',F))),!.
+to_tlog(poss_t,_ , isa(X,Y), poss_isa(X,Y)):- !.
+to_tlog(_ ,_ ,     isa(X,Y), isa(X,Y)):- !.
 
 
+to_tlog(HLD,KB,H,HH ):- H=..[F|ARGS],is_holdss_functor(F),!,
+  must_maplist(to_tlog(HLD,KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
 
+to_tlog(_,KB, poss(XF),  HH):- !, to_tlog(poss_t,KB, XF,  HH).
+
+to_tlog(HLD,KB,H,HH ):- H=..[F|ARGS],no_wrap_holds(F),!,
+  must_maplist(to_tlog(HLD,KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
+
+to_tlog(HLD,_ , XF, HH):- !,into_functor_form(HLD,XF,HH).
+
+%
+
+is_holdss_functor(t):-!.
+is_holdss_functor(F):- atom_concat(_,'_t',F).
+
+
+no_wrap_holds(genls).
+no_wrap_holds(admittedArgument).
+no_wrap_holds(argIsa).
+no_wrap_holds(disjointWith).
 
 
 %% no_rewrites is det.
@@ -1081,6 +1146,7 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 %  Q = (pos(P)=>P).
 %
 
+% qualify_nesc(Wff666,Wff666):- !.
 qualify_nesc(Wff666,Wff666):- var(Wff666),!.
 qualify_nesc(IN,OUT):-is_list(IN),must_maplist(qualify_nesc,IN,OUT),!.
 qualify_nesc(Wff666,Wff666):- leave_as_is(Wff666),!.
@@ -1091,12 +1157,12 @@ qualify_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),qualify_nes
 % been caught above 
 % qualify_nesc(P=>Q,P=>Q):- (contains_modal(P);contains_modal(Q)),!.
 
-qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
-qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
+%qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
+%qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
 
 % qualify_nesc( ~(IN), nesc(~(IN))):-!.
 qualify_nesc( ~(IN), ~(poss(IN))):-!.
-qualify_nesc(IN, poss(IN) & nesc(IN)):-!.
+qualify_nesc(IN,  nesc(IN)):-!.
 
 % never seen
 qualify_nesc(nesc(Wff666),(poss(Wff666)=>nesc(Wff666))):-!.
@@ -1107,7 +1173,7 @@ qualify_nesc(P=>Q,(PP => (NP & QP =>NQ))):-!, weaken_to_poss(P,PP),weaken_to_pos
 
 /*
 qualify_nesc(IN,poss(IN)):- IN=..[F|_],should_be_poss(F),!.
-qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- var_or_atomic(Wff),!.
+qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- quietly(var_or_atomic(Var)),!.
 qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- leave_as_is_logically(Wff),!.
 qualify_nesc((P & Q),(PQ & (P & Q))):-  weaken_to_poss(P & Q,PQ),!.
 qualify_nesc(Q,(PQ & Q)):-  weaken_to_poss(Q,PQ),!.
@@ -1115,7 +1181,6 @@ qualify_nesc(Wff666,Wff666):-!.
 % qualify_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(qualify_nesc,INL,OUTL),OUT=..[F|OUTL].
 */
 
-contains_modal(G):- is_modal(G,_).
 
 %% add_nesc( ?X, ?X) is semidet.
 %
@@ -1123,19 +1188,18 @@ contains_modal(G):- is_modal(G,_).
 %
 
 add_nesc(IN,OUT):-is_list(IN),must_maplist(add_nesc,IN,OUT),!.
-add_nesc(Wff666,Wff666):- var(Wff666),!.
+add_nesc(Wff666,Wff666):- is_ftVar(Wff666),!.
 add_nesc(Wff666,Wff666):-leave_as_is(Wff666),!.
 add_nesc(Wff666,Wff666):-contains_modal(Wff666),!.
-add_nesc(nesc(Wff666),nesc(Wff666)):-!.
-add_nesc(poss(Wff666),poss(Wff666)):-!.
 add_nesc( ~(IN), nesc(~(IN))).
 add_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_nesc,INL,OUTL),OUT=..[F|OUTL].
 add_nesc(IN,nesc(IN)).
 /*
+add_nesc(nesc(Wff666),nesc(Wff666)):-!.
+add_nesc(poss(Wff666),poss(Wff666)):-!.
 add_nesc(P<=>Q,O):-!,add_nesc(((P=>Q) & (Q=>P)),O).
 add_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),add_nesc(RQ,RQQ),append(LQ,[RQQ],QQ),PQO=..[F|QQ],!.
 add_nesc(IN,poss(IN)):-IN=..[F|_],should_be_poss(F),!.
-add_nesc(Wff666,Wff666):-is_modal(Wff666,_),!.
 add_nesc(P=>Q,((PP & P & QP) =>Q)):-  weaken_to_poss(P,PP),weaken_to_poss(Q,QP).
 
 add_nesc(Q,(PQ & Q)):-  weaken_to_poss(Q,PQ),!.
@@ -1210,7 +1274,7 @@ should_be_poss(argInst).
 %
 % Clauses Converted To Datalog.
 %
-clauses_to_boxlog(KB,Why,In,Prolog):- clauses_to_boxlog_0(KB,Why,In,Prolog).
+clauses_to_boxlog(KB,Why,In,Prolog):- clauses_to_boxlog_0(KB,Why,In,Prolog),!.
 
 
 
@@ -1711,6 +1775,7 @@ get_constraints(ListA,Isas):-
 
 
 :- source_location(S,_),forall((source_file(H,S),once((clause(H,B),B\=true))),(functor(H,F,A),module_transparent(F/A))).
+
 
 :- fixup_exports.
 
