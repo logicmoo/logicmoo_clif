@@ -3,13 +3,19 @@
 % =================================================================================
 % Load the system
 % =================================================================================
+:- set_prolog_flag(gc,false).
 
 :- ensure_loaded(library(logicmoo_user)).
 
+:- set_prolog_flag(gc,false).
+
 :- make.
+
+:- set_prolog_flag(gc,false).
 
 :- set_lang(clif).
 :- begin_pfc.
+
 
 % =================================================================================
 % Set our engine up
@@ -17,6 +23,7 @@
 
 % deduce instances from usages in args having the effect of deducing human,dwelling,beverage_class are classes
 ==> feature_setting(make_wff,true).
+==> feature_setting(add_admitted_arguments,true).
 % set truth maintainance system to remove previous assertions that new assertions disagree with 
 ==> feature_setting(tms_mode,remove_conflicting).
 
@@ -35,7 +42,8 @@
 :- multifile arity/2.
 
 % maximum cardinality of livesAt/2 is 1
-==> isa(livesAt,'FunctionalBinaryPredicate').
+%==> isa(livesAt,'FunctionalBinaryPredicate').
+==> singleValuedInArg(livesAt,2).
 % thus implies
 ==> arity(livesAt,2).
 ==> argIsa(livesAt,1,human).
@@ -68,6 +76,8 @@ proven(G) :- call_u(G).
 
 ==> all(X, if(livesAt(X, green_house),drinks(X, coffee))).
 
+:- kif_add(isa(joe,drinker)).
+
 :- mpred_test(isa(fran,drinker)).
 
 :- mpred_test((isa(fran,X),X==drinker)).
@@ -81,19 +91,22 @@ proven(G) :- call_u(G).
 % =================================================================================
 
 ==> livesAt(sue,green_house).
-:- repropagate(all(X, if(livesAt(X, green_house),drinks(X, coffee)))).
+% :- repropagate(all(X, if(livesAt(X, green_house),drinks(X, coffee)))).
 :- mpred_test(isa(sue,drinker)).
 
 :- mpred_why(isa(sue,drinker)).
-
-:- break.
 
 % =================================================================================
 % Test 4 
 % =================================================================================
 
-% ==> livesAt(sue,red_house).
+==> livesAt(sue,red_house).
 
-failed:- mpred_test(\+ isa(sue,drinker)).
+==> livesAt(ralf,red_house).
+
+:- mpred_test(\+ isa(ralf,drinker)).
+
+:- mpred_why(isa(sue,drinker)).
+failure:- mpred_test(\+ isa(sue,drinker)).
 
 

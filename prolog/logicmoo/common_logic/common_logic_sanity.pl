@@ -137,6 +137,28 @@ test_boxlog0(P):-
   sdmsgf(pfc=PFC),flush_output)).
 
 
+test_boxlog_88(P):-
+ \+ \+
+ must_det_l((
+  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
+  b_implode_varnames(P),flush_output,
+  wdmsg(:- test_boxlog(P)), 
+  with_assert_buffer(with_chaining(ain(P)),Buffer),
+  undo_buffer(Buffer),
+  sdmsgf(Buffer),flush_output)).
+
+invert_op_call(OP,What,dmsg(undo(OP,What))).
+
+undo_tell(call(OP,What)):-!, invert_op_call(OP,What,Invert),call(Invert).
+undo_tell(Tell):- ignore(show_call(mpred_retract(Tell))).
+
+undo_buffer(Buffer):- must_maplist(undo_tell,Buffer),!.
+
+
+% invert_op_call(OP,What,Invert):-!.
+
+
+
 %% tsn is det.
 %
 % Tsn.
@@ -191,6 +213,12 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 
 :- fixup_exports.
 
+:- set_prolog_flag(gc,true).
+:- garbage_collect.
+:- set_prolog_flag(gc,false).
+
+
+
 
 :- test_boxlog(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
 :- test_boxlog(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
@@ -217,6 +245,41 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 :- test_boxlog(( unknown_t(PROP) => ~true_t(PROP) & attemptable_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
 %:- test_boxlog(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
 % :- test_boxlog(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
+
+
+
+e7:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
+   (kif_to_boxlog(all([Human],exists([Heart],isa(Human,tHuman) 
+     => (isa(Heart,tHeart) 
+      & hasOrgan(Human,Heart)))),O)),wdmsgl(test_defunctionalize,O).
+
+e6:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
+  (test_boxlog(all([Human],exists([Heart],isa(Human,tHuman) => (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
+
+e0 :- any_to_pfc((((tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)) 
+ :- tHuman(Human))),(hasOrgan(Human, skIsHeartInArg2ofHasorgan_Fn(Human)) :- tHuman(Human))),O),wdmsg(O).
+% O = tHuman(Heart)==> if_missing(hasOrgan(Human,_),hasOrgan(Human,skIsHeartInArg2ofHasorgan_Fn(Human)))  & tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)).
+
+
+e1:- % ['$VAR'('Room'),'$VAR'('Door')]= [Room,Door],
+   test_boxlog(exists([[Door, tDoor]], isa(Room,tRoom) => hasExit(Room,Door))).
+
+e2:- % ['$VAR'('Room'),'$VAR'('Door')]= [Room,Door],
+   test_boxlog((all([[Room, tRoom]],exists([[Door, tDoor]], hasExit(Room,Door))))).
+
+e3:- % ['$VAR'('Room'),'$VAR'('Door')]= [Room,Door],
+   test_boxlog(exists([[Door, tDoor]], isa(Room,tRoom) => hasExit3(Room,Door))).
+
+e4:-  ['$VAR'('Room'),'$VAR'('Door')]= [Room,Door],
+   make,(test_boxlog((isa(Room,tRoom) => exists(Door, isa(Door,tDoor) & hasExit4(Room,Door))))).
+
+
+e5:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
+   (test_boxlog(
+     all([[Human,tHuman]],
+        exists([Heart],
+         % isa(Human,tHuman) => 
+             (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
 
 
 

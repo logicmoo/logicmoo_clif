@@ -38,6 +38,7 @@
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
+:- kif_compile.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS

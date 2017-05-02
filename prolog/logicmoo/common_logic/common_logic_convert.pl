@@ -55,7 +55,14 @@ sumo_to_pdkb_const('Function','tFunction').
 sumo_to_pdkb_const(forall,all).
 sumo_to_pdkb_const(subrelation,genlPreds).
 sumo_to_pdkb_const('Class','tSet').
+sumo_to_pdkb_const('baseKB','baseKB').
 sumo_to_pdkb_const('SetOrClass', 'tCol').
+sumo_to_pdkb_const(v,v).
+sumo_to_pdkb_const(&,&).
+sumo_to_pdkb_const(~,~).
+sumo_to_pdkb_const(=>,=>).
+sumo_to_pdkb_const(U,U):- upcase_atom(U,U).
+sumo_to_pdkb_const(U,U):- downcase_atom(U,U).
 sumo_to_pdkb_const(I,O):- if_defined(builtin_rn_or_rn_new(I,O)),!.
 
 
@@ -116,32 +123,34 @@ sumo_to_pdkb(D,CycLOut):-
          must_det_l((must_map_preds([
            from_kif_string,
            sexpr_sterm_to_pterm,
-           sumo_to_pdkb_p5,
+           sumo_to_pdkb_extra(sumo_to_pdkb_p5),
            cyc_to_pdkb_maybe,
            fully_expand_always,
            unnumbervars_with_names,
-           sumo_to_pdkb_p9],D,CycLOut))).
+           sumo_to_pdkb_p9,
+           =],D,CycLOut))).
 
 cyc_to_pdkb_maybe(I,O):- if_defined(cyc_to_pdkb(I,O),I=O),!.
 
-sumo_to_pdkb_p5(O,O):-is_ftVar(O),!.
-sumo_to_pdkb_p5(documentation(C,'vEnglishLanguage',S),comment(C,S)):-!.
-sumo_to_pdkb_p5(Const,NConst):-atom(Const),sumo_to_pdkb_const(Const,NConst),!.
-sumo_to_pdkb_p5(Const,NConst):-string(Const),string_to_mws(Const,NConst),!.
-sumo_to_pdkb_p5(O,O):- \+ compound(O),!.
-sumo_to_pdkb_p5(I,O):-clause_b(ruleRewrite(I,O))->I\==O,!.
-% sumo_to_pdkb_p5((tPred(_),I),O):-!,sumo_to_pdkb_p5(I,O).
-sumo_to_pdkb_p5(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_to_pdkb_p5,SENT,SENTO).
-sumo_to_pdkb_p5(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_to_pdkb_p5,[CONNECTIVE|ARGS],ARGSO),SENTO=..ARGSO,!.
-sumo_to_pdkb_p5(IO,IO).
+sumo_to_pdkb_p9(I,O):-sumo_to_pdkb_extra(sumo_to_pdkb_p9_e,I,O).
 
-sumo_to_pdkb_p9(O,O):- \+ compound(O),!.
-% sumo_to_pdkb_p9((tPred(A),IO),IO):-atom(A),!.
-sumo_to_pdkb_p9(SENT,SENTO):- is_list(SENT),!,must_maplist(sumo_to_pdkb_p9,SENT,SENTO).
-sumo_to_pdkb_p9([P|List],OUT):- atom(P), op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
-sumo_to_pdkb_p9([P|List],[P|List]):-!.
-sumo_to_pdkb_p9(SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],must_maplist(sumo_to_pdkb_p9,ARGS,ARGSO),SENTO=..[CONNECTIVE|ARGSO],!.
-sumo_to_pdkb_p9(IO,IO).
+:- meta_predicate(sumo_to_pdkb_extra(2,?,?)).
+
+sumo_to_pdkb_extra(_ ,O,O):- is_ftVar(O),!.
+sumo_to_pdkb_extra(Ex,I,O):- call(Ex,I,O),!.
+sumo_to_pdkb_extra(_ ,O,O):- \+ compound(O),!.
+sumo_to_pdkb_extra(Ex,(H,T),(HH,TT)):- !,sumo_to_pdkb_extra(Ex,H,HH),sumo_to_pdkb_extra(Ex,T,TT).
+sumo_to_pdkb_extra(Ex,[H|T],[HH|TT]):- !,sumo_to_pdkb_extra(Ex,H,HH),sumo_to_pdkb_extra(Ex,T,TT).
+sumo_to_pdkb_extra(Ex,SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],sumo_to_pdkb_extra(Ex,[CONNECTIVE|ARGS],ARGSO),
+  (is_list(ARGSO)->SENTO=..ARGSO;SENTO=ARGSO),!.
+sumo_to_pdkb_extra(_ ,IO,IO).
+
+sumo_to_pdkb_p5(documentation(C,'vEnglishLanguage',S),comment(C,S)):-!.
+sumo_to_pdkb_p5(Const,NConst):-atom(Const),(sumo_to_pdkb_const(Const,NConst)->true;Const=NConst),!.
+sumo_to_pdkb_p5(Const,NConst):-string(Const),string_to_mws(Const,NConst),!.
+sumo_to_pdkb_p5(I,O):-clause_b(ruleRewrite(I,O))->I\==O,!.
+
+sumo_to_pdkb_p9_e([P|List],OUT):- atom(P),\+ is_list(List),op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
 
 op_type_head(P,uN):-atom(P), atom_concat(_,'Fn',P).
 op_type_head(P,tN):-atom(P).
@@ -161,3 +170,4 @@ make_var_arg(TYPE,P,[A0|List],OUT):- sumo_to_pdkb_p9(A0,A),!,
 :- use_module(library(logicmoo_motel)).
 
 
+:- fixup_exports.

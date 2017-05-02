@@ -1183,18 +1183,20 @@ boxRule(KB,nesc(BDT,(A & B)), (BA & BB)):- nonvar(A),!, boxRule(KB,nesc(BDT,A),B
 % boxRule(KB,nesc(BDT, IN), BOX):- \+ is_lit_atom(IN), share_scopes(KB,BDT), nnf(KB, ~( nesc(BDT,  ~( IN))),BOX).
 boxRule(_KB,BOX, BOX).
  
+leave_as_is_logically(F):-quietly(leave_as_is_logically0(F)).
 
-leave_as_is_logically(Box):- \+ compound(Box),!.
-leave_as_is_logically('$VAR'(_)):-!.
-leave_as_is_logically(poss(_,Var)):- is_ftVar(Var),!.
-leave_as_is_logically(nesc(_,Var)):- is_ftVar(Var),!.
-leave_as_is_logically([]):-!.
-leave_as_is_logically([]):-!.
-leave_as_is_logically(NART):-functor(NART,nartR,_),!,ground(NART).
-% leave_as_is_logically(~LIST):-!,leave_as_is_logically(LIST).
-leave_as_is_logically(LIST):- is_list(LIST),!, maplist(leave_as_is_logically,LIST).
+leave_as_is_logically0(Box):- var_or_atomic(Box),!.
+leave_as_is_logically0(_:P):-!,leave_as_is_logically0(P).
+leave_as_is_logically0((P:-TRUE)):-!,is_true(TRUE),leave_as_is_logically0(P).
+leave_as_is_logically0(DB):-functor(DB,F,A),leave_as_is_logically_fa(F,A),!.
+leave_as_is_logically0(NART):-functor(NART,nartR,_),!,ground(NART).
+leave_as_is_logically0(meta_argtypes(_)).
+leave_as_is_logically0(LIST):- is_list(LIST),!, maplist(leave_as_is_logically0,LIST).
+% leave_as_is_logically0(~Box):- leave_as_is_logically0(Box).
 
-% leave_as_is_logically(~Box):- leave_as_is_logically(Box).
+:- kb_shared(workflow_holder_queue/1).
+leave_as_is_logically_fa(F,1):-clause_b(workflow_holder_queue(F)),!.
+leave_as_is_logically_fa(F,A):-mpred_database_term(F,A,Type),Type\=fact(_),Type\=rule,!.
 
 %= 	 	 
 
@@ -1555,15 +1557,13 @@ pnf(_KB,          PNF, _,       PNF ).
 %
 
 cf(_Why,KB,_Original,PNF, FlattenedOUT):-   
-  set((asserting,off)),
   check_kif_varnames(PNF),
   removeQ(KB,PNF,[], UnQ),
   cnf(KB,UnQ,CNF0),!,
   nnf(KB,CNF0,[],CNF,_),
   as_prolog_hook(CNF,PROLOG),
-  th_nnf(PROLOG,even,RULIFY),
-  % set((asserting,off)),
-  rulify(constraint,RULIFY),!, FlattenedOUT=[].
+  th_nnf(PROLOG,even,RULIFY),  
+  rulify(constraint,RULIFY,FlattenedOUT),!.
 
 cf(Why,KB,_Original,PNF, FlattenedOUT):- 
  must_det_l((

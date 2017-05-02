@@ -52,12 +52,27 @@ workflow_holder_queue(Atom) ==>
   %(t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
-compile_clif ==> 
-(clif(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+
+((boxlog(P)/(P==prove_not_t)) ==> {break}).
+((poss(_,NT)/(NT == ~t)) ==> {break}).
+
+% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
+({kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
+% Remove negations probably
+    ( (~CLIF/is_kif_clause(CLIF) ==> clif(~CLIF)),
+      ( CLIF/is_kif_clause(CLIF) ==> clif( CLIF)))).
+% Remove negations probably
+% %% compile_clif==> 
+  
+
+% %% compile_clif ==> 
+(clif(CLIF)/ (\+ is_kif_clause(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+(clif(CLIF)/is_kif_clause(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+(clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 % {sanity(is_entailed_u(CLIF))}
 
 compile_boxlog ==> 
-(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG)} ==> pfclog(PROLOG)).
+(boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG),must_be_unqualified(PROLOG)} ==> pfclog(PROLOG)).
 % {sanity(are_clauses_entailed(BOXLOG))}
 
 compile_pfclog ==> 
@@ -66,15 +81,6 @@ compile_pfclog ==>
 % or maybe
 % pfclog(PROLOG) ==> {without_running(ain(PROLOG,(pfclog(PROLOG),ax)))}.
 % {all_different_head_vals(PROLOG)},
-
-
-
-% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-({kif_hook_skel(CLIF),kb_shared(CLIF)} ==> (CLIF ==> clif(CLIF))).
-:-ain((CLIF/is_kif_clause(CLIF) ==> clif(CLIF))).
-
-% Remove negations probably
-(clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 
 % LATER maybe case
 % P/(mpred_non_neg_literal(P),\+ contains_modal(P)) ==> poss(P).
@@ -99,3 +105,5 @@ poss(P) ==> \+ ~ P, \+ ~poss(P).
 % also when something begins to be definately false remove it and remove the possibility of it
 (((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
 
+
+prove_holds_t(F, A, B):- atom(F),current_predicate(F/2),call(F,A,B).

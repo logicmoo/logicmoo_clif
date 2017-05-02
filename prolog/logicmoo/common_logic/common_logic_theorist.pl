@@ -992,6 +992,17 @@ atom in $N$ being the head of some rule) should be declared as such.
 \index{rulify}
 \begin{verbatim} */
 
+
+rulify(H,A,OUT):-
+  set((th_asserts,on)),
+  set((features,on)),
+  b_setval(th_asserts,[]),
+  rulify(H,A),
+  reset((th_asserts)),
+  reset((features)),!,
+  b_getval(th_asserts,OUT).
+  
+
 rulify(H,A) :- quietly(var_or_atomic(A)),!,
    rule(H,n(A)).
 
@@ -1982,14 +1993,20 @@ print_clause(C) :-
      write('.'),
      nl).
 */
-prolog_cl(proven,C):-!,prolog_cl(boxlog(C)).
-prolog_cl(thr,C):-!,prolog_cl(pfclog(C)).
 
-prolog_cl(boxlog(C)):- !, prolog_cl((C)).
+prolog_cl(proven,C):-!,prolog_cl(C).
+prolog_cl(thr,C):-!,prolog_cl(C).
+prolog_cl(_,C):-!,prolog_cl(C).
+
 prolog_cl(C) :- 
-   print_clause(C),flag((asserting,off)),!.
-prolog_cl(C) :-
-   ainz(C).
+  %  flag((th_asserts,on)),!,
+   b_getval(th_asserts,List),
+   b_setval(th_asserts,[C|List]),!.
+
+prolog_cl(C) :-  
+   print_clause(C),flag((asserting,off)), \+ flag((th_asserts,on)),!.
+prolog_cl(C) :- 
+   mpred_ain(C).
 prolog_cl(C) :-
    mpred_retract(C),
    fail.

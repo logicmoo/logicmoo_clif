@@ -15,6 +15,10 @@ ttBarrierStr(A),{atomic_list_concat([A,"Type"],AType0),
   if_defined(do_renames(AType0,TypeType),true)} ==> barrierSpindle(TypeType,Type).
 
 
+:- set_prolog_flag(gc,true).
+:- garbage_collect.
+:- set_prolog_flag(gc,false).
+
 
 barrierSpindle(TypeType,Type)==> 
    generatesAsFirstOrder(Type), isa(TypeType,ttBarrierType),isa(Type,ttBarrier),typeGenls(TypeType,Type).
