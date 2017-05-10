@@ -166,6 +166,18 @@
 %:- meta_predicate '__aux_maplist/2_map_each_clause+1'(*,1).
 %:- meta_predicate '__aux_maplist/3_map_each_clause+1'(*,*,2).
 
+%% delistify_last_arg( ?Arg, :PredMiddleArgs, ?Last) is det.
+%
+% Delistify Last Argument.
+%
+
+delistify_last_arg(Arg,Pred,Last):- no_repeats(Last,must(delistify_last_arg0(Arg,Pred,Last))).
+
+delistify_last_arg0(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),must(delistify_last_arg0(E,Pred,Last)).
+delistify_last_arg0(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
+delistify_last_arg0(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
+
+
 /*
 :- was_dynamic
         baseKB:as_prolog_hook/2,
@@ -305,18 +317,6 @@ member_ele((H,T),E):- nonvar(H),nonvar(T),!, (member_ele(H,E);member_ele(T,E)).
 member_ele(E,E).
 
 
-
-
-%% delistify_last_arg( ?Arg, :PredMiddleArgs, ?Last) is det.
-%
-% Delistify Last Argument.
-%
-
-delistify_last_arg(Arg,Pred,Last):- no_repeats(Last,must(delistify_last_arg0(Arg,Pred,Last))).
-
-delistify_last_arg0(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),must(delistify_last_arg0(E,Pred,Last)).
-delistify_last_arg0(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
-delistify_last_arg0(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
 
 % sanity that mpreds (manage prolog prodicate) are abily to transform
 
@@ -989,7 +989,7 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    conjuncts_to_list(BODY,BODYL),
    correct_flattened([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
-kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTReal):- 
+kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):- 
  flag(skolem_count,_,1),
   maplist(must_det,[
    must_be_unqualified(WffIn0),
@@ -1026,7 +1026,8 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTReal):-
    list_to_set(SideEffectsList,FlattenedM),
    correct_flattened(KB,Why,FlattenedM,FlattenedO),
    defunctionalize_each(FlattenedO,FlattenedOUT),
-   reverse(FlattenedOUT,FlattenedOUTReal)]),!.
+   reverse(FlattenedOUT,FlattenedOUTReal),
+   maplist(from_tlog,FlattenedOUTReal,FlattenedOUTRealOUT)]),!.
    
    % cf(Why,KB,Wff6669,PNF666,FlattenedO),!.
 
@@ -1073,11 +1074,7 @@ to_tlog_lit(MD,_ ,F,ARGSO,HHH):- XF=..[F|ARGSO],into_ff(MD,XF,HHH).
 
 into_ff(MD,XF,HHH):-into_functor_form(MD,XF,HHH).
 
-
-
-
-
-current_outer_modal_t(holds_t).
+current_outer_modal_t(t).
 
 maybe_wrap_modal(MD,HH,HH):- current_outer_modal_t(H_T),MD==H_T,!.
 maybe_wrap_modal(MD,HH,HHH):- var_or_atomic(HH),HHH=..[MD,HH],!.
@@ -1117,6 +1114,41 @@ baseKB:no_rewrites :- fail.
 
 
 
+
+from_tlog(Var, Var):- quietly(leave_as_is_logically(Var)),!.
+from_tlog(M:H,M:HH):- !, from_tlog(H,HH).
+from_tlog([H|T],[HH|TT]):- !, from_tlog(H,HH),from_tlog(T,TT).
+from_tlog(H,HH ):- H=..[F|ARGS],tlog_is_sentence_functor(F),!,must_maplist(from_tlog,ARGS,ARGSO),!,HH=..[F|ARGSO].
+from_tlog( prove_not_holds_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
+from_tlog( prove_not_holds_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
+from_tlog( prove_not_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
+from_tlog( prove_not_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
+from_tlog( prove_t(XF),  (HH)):- !,from_tlog(XF, HH).
+from_tlog( prove_t(F,A,B),  (t(F,A,B))):- var(F),!.
+from_tlog(H,HH):- H=..[F,ARG],is_holds_functor(F),is_ftVar(ARG)->HH=H,!.
+from_tlog(H,HH):- H=..[F|ARGS],must_maplist(from_tlog,ARGS,ARGSO),from_tlog_lit(F,ARGSO,HH).
+
+add_modal(t,HH,HH).
+add_modal(MD,HH,HHH):- HHH=..[MD,HH].
+
+from_tlog_lit(F,ARGSO,HHH):- \+ is_holds_functor(F),!,HHH=..[F|ARGSO],!.
+from_tlog_lit(F,ARGSO,HHH):- get_holds_unwrapper(F,MD,W),!,XF=..[W|ARGSO],into_mpred_form(XF,HH),from_tlog(HH,HHHH),add_modal(MD,HHHH,HHH).
+from_tlog_lit(F,ARGSO,HHH):- XF=..[F|ARGSO],into_mpred_form(XF,HHH).
+
+get_holds_unwrapper(F,t,t):- current_outer_modal_t(F).
+get_holds_unwrapper(FIn,MD,F):- modal_prefix(MDF,MD),atom_concat(MDF,F,FIn).
+
+
+modal_prefix(prove_,t).
+modal_prefix(holds_,t).
+modal_prefix(not_,~).
+modal_prefix(possible_,poss).
+modal_prefix(poss_,poss).
+modal_prefix(unknown_,unknown).
+modal_prefix(false_,~).
+
+% PrologMUD is created to correct the mistakes we made in the projects i worked on that we forgot the funding was to create the platform/OS to run Roger Schank''s outlined software and not Doug Lenat''s software. 
+% Additionally to allow it to be taken for granted by current scientists whom were unaware of the breakthroughs we made in those projects due to the fact we where affaid competetors would take our future grant money.
 
 
 %% check_is_kb( ?KB) is det.

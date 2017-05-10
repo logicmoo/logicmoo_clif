@@ -159,6 +159,7 @@ reallyLoadTiny:- mpred_notrace.
 
 isa_db(I,C):-clause(isa(I,C),true).
 
+:- asserta(elmt:elmt_is_a_module).
 :- set_module(elmt:class(development)).
 :- kb_shared(arity/2).
 :- forall(between(4,9,N),kb_shared(elmt:exactlyAssertedELMT/N)).

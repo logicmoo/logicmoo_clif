@@ -36,8 +36,15 @@
 
 :- mpred_trace_exec.
 
+prove_holds_t(F,A,B)==>t(F,A,B).
+
+prove_not_holds_t(F,A,B)==> ~t(F,A,B).
+
+
 ==> livesAt(fran,green_house).
 ==> livesAt(sue,green_house).
+
+
 
 proven(G) :- call_u(G).
 

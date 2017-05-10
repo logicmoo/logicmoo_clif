@@ -52,11 +52,15 @@ workflow_holder_queue(Atom) ==>
   (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
+% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
+% {kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
+(CLIF/is_kif_clause(CLIF) ==> clif( CLIF)).
 % %% compile_clif ==> 
 (clif(CLIF)/ (\+ is_kif_clause(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % %% compile_clif==> 
 (clif(CLIF)/is_kif_clause(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % %% compile_clif==> 
+% Remove negations probably
 (clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 % {sanity(is_entailed_u(CLIF))}
 
@@ -64,7 +68,7 @@ workflow_holder_queue(Atom) ==>
 (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG),must_be_unqualified(PROLOG)} ==> pfclog(PROLOG)).
 % {sanity(are_clauses_entailed(BOXLOG))}
 
-% %% compile_pfclog ==> 
+compile_pfclog ==> 
 (pfclog(PROLOG) ==> PROLOG).
 % {(sanity(is_pfc_entailed(PROLOG)))}
 % or maybe
@@ -93,17 +97,7 @@ poss(P) ==>     \+ ~ P, \+ ~poss(P).
 
 % also when something begins to be definately false remove it and remove the possibility of it
 % feature_setting(delete_neg_poss,true)==> (((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
-
-
-% we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
-% {kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
-% Remove negations probably
-    ( % (~CLIF/is_kif_clause(CLIF) ==> clif(~CLIF)),
-      ( CLIF/is_kif_clause(CLIF) ==> clif( CLIF))).
-% Remove negations probably
   
-
-
 :- meta_predicate prove_holds_t(*,?,?).
 prove_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
 :- meta_predicate prove_holds_t(*,?,?,?).
