@@ -254,14 +254,6 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 
 
 
-e7:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
-   (kif_to_boxlog(all([Human],exists([Heart],isa(Human,tHuman) 
-     => (isa(Heart,tHeart) 
-      & hasOrgan(Human,Heart)))),O)),wdmsgl(test_defunctionalize,O).
-
-e6:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
-  (test_boxlog(all([Human],exists([Heart],isa(Human,tHuman) => (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
-
 e0 :- any_to_pfc((((tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)) 
  :- tHuman(Human))),(hasOrgan(Human, skIsHeartInArg2ofHasorgan_Fn(Human)) :- tHuman(Human))),O),wdmsg(O).
 % O = tHuman(Heart)==> if_missing(hasOrgan(Human,_),hasOrgan(Human,skIsHeartInArg2ofHasorgan_Fn(Human)))  & tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)).
@@ -287,8 +279,14 @@ e5:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
          % isa(Human,tHuman) => 
              (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
 
+e6:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
+  (test_boxlog(all([Human],exists([Heart],isa(Human,tHuman) => (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
 
 
+e7:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
+   (kif_to_boxlog(all([Human],exists([Heart],isa(Human,tHuman) 
+     => (isa(Heart,tHeart) 
+      & hasOrgan(Human,Heart)))),O)),wdmsgl(test_defunctionalize,O).
 
 end_of_file.
 
