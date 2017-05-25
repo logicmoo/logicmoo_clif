@@ -235,20 +235,20 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 :- test_boxlog(( askable_t(PROP) => true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
 :- test_boxlog(( askable_t(PROP) v fallacy_t(PROP) )).
 :- test_boxlog(( asserted_t(PROP) => true_t(PROP) )).
-:- test_boxlog(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~attemptable_t(PROP) )).   
+:- test_boxlog(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~possible_t(PROP) )).   
 :- test_boxlog(( true_t(PROP) & false_t(PROP) => fallacy_t(PROP) )).
 :- test_boxlog(( true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
 
-:- test_boxlog(( true_t(PROP) => attemptable_t(PROP) )).
-:- test_boxlog(( attemptable_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
+:- test_boxlog(( true_t(PROP) => possible_t(PROP) )).
+:- test_boxlog(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
 
-:- test_boxlog(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v attemptable_t(PROP) )).
-:- test_boxlog(( false_t(PROP) <=> ~true_t(PROP) & ~attemptable_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog(( true_t(PROP) => ~false_t(PROP) & attemptable_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog(( ~asserted_t(PROP) => attemptable_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog(( ~attemptable_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog(( attemptable_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
-:- test_boxlog(( unknown_t(PROP) => ~true_t(PROP) & attemptable_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
+:- test_boxlog(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v possible_t(PROP) )).
+:- test_boxlog(( false_t(PROP) <=> ~true_t(PROP) & ~possible_t(PROP) & ~unknown_t(PROP) )).
+:- test_boxlog(( true_t(PROP) => ~false_t(PROP) & possible_t(PROP) & ~unknown_t(PROP) )).
+:- test_boxlog(( ~asserted_t(PROP) => possible_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
+:- test_boxlog(( ~possible_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
+:- test_boxlog(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
+:- test_boxlog(( unknown_t(PROP) => ~true_t(PROP) & possible_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
 %:- test_boxlog(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
 % :- test_boxlog(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
 
@@ -293,19 +293,19 @@ end_of_file.
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:181
 % \+ if_startup_script(sanity:reexport(kif_sanity_tests)).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:193
-% :- test_boxlog(=>(~asserted_t(PROP_VAR), v(v(attemptable_t(PROP_VAR), false_t(PROP_VAR)), fallacy_t(PROP_VAR)))).
-prove_attemptable_t(A, B, anc(C, D)) :-
+% :- test_boxlog(=>(~asserted_t(PROP_VAR), v(v(possible_t(PROP_VAR), false_t(PROP_VAR)), fallacy_t(PROP_VAR)))).
+prove_possible_t(A, B, anc(C, D)) :-
         prove_not_false_t(A,
                           B,
-                          anc([attemptable_t(A)|C], D)),
+                          anc([possible_t(A)|C], D)),
         prove_not_fallacy_t(A,
                             B,
-                            anc([attemptable_t(A)|C], D)),
+                            anc([possible_t(A)|C], D)),
         prove_not_asserted_t(A,
                              B,
-                             anc([attemptable_t(A)|C], D)).
+                             anc([possible_t(A)|C], D)).
 prove_false_t(A, B, anc(C, D)) :-
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([false_t(A)|C], D)),
         prove_not_fallacy_t(A,
@@ -315,7 +315,7 @@ prove_false_t(A, B, anc(C, D)) :-
                              B,
                              anc([false_t(A)|C], D)).
 prove_fallacy_t(A, B, anc(C, D)) :-
-        ( prove_not_attemptable_t(A,
+        ( prove_not_possible_t(A,
                                B,
                                anc([fallacy_t(A)|C], D)),
           prove_not_false_t(A,
@@ -326,7 +326,7 @@ prove_fallacy_t(A, B, anc(C, D)) :-
                              B,
                              anc([fallacy_t(A)|C], D)).
 prove_asserted_t(A, B, anc(C, D)) :-
-        ( prove_not_attemptable_t(A,
+        ( prove_not_possible_t(A,
                                B,
                                anc([asserted_t(A)|C], D)),
           prove_not_false_t(A,
@@ -425,35 +425,35 @@ prove_false_t(A, B, anc(C, D)) :-
                          B,
                          anc([false_t(A)|C], D)).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:196
-% :- test_boxlog(=>(~attemptable_t(PROP_VAR), v(false_t(PROP_VAR), fallacy_t(PROP_VAR)))).
+% :- test_boxlog(=>(~possible_t(PROP_VAR), v(false_t(PROP_VAR), fallacy_t(PROP_VAR)))).
 prove_false_t(A, B, anc(C, D)) :-
         prove_not_fallacy_t(A,
                             B,
                             anc([false_t(A)|C], D)),
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([false_t(A)|C], D)).
 prove_fallacy_t(A, B, anc(C, D)) :-
         prove_not_false_t(A,
                           B,
                           anc([fallacy_t(A)|C], D)),
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([fallacy_t(A)|C], D)).
-prove_attemptable_t(A, B, anc(C, D)) :-
+prove_possible_t(A, B, anc(C, D)) :-
         prove_not_false_t(A,
                           B,
-                          anc([attemptable_t(A)|C], D)),
+                          anc([possible_t(A)|C], D)),
         prove_not_fallacy_t(A,
                             B,
-                            anc([attemptable_t(A)|C], D)).
+                            anc([possible_t(A)|C], D)).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:197
-% :- test_boxlog(=>(~true_t(PROP_VAR), v(v(false_t(PROP_VAR), fallacy_t(PROP_VAR)), attemptable_t(PROP_VAR)))).
+% :- test_boxlog(=>(~true_t(PROP_VAR), v(v(false_t(PROP_VAR), fallacy_t(PROP_VAR)), possible_t(PROP_VAR)))).
 prove_false_t(A, B, anc(C, D)) :-
         prove_not_fallacy_t(A,
                             B,
                             anc([false_t(A)|C], D)),
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([false_t(A)|C], D)),
         prove_not_true_t(A,
@@ -463,23 +463,23 @@ prove_fallacy_t(A, B, anc(C, D)) :-
         prove_not_false_t(A,
                           B,
                           anc([fallacy_t(A)|C], D)),
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([fallacy_t(A)|C], D)),
         prove_not_true_t(A,
                          B,
                          anc([fallacy_t(A)|C], D)).
-prove_attemptable_t(A, B, anc(C, D)) :-
+prove_possible_t(A, B, anc(C, D)) :-
         ( prove_not_false_t(A,
                             B,
-                            anc([attemptable_t(A)|C], D)),
+                            anc([possible_t(A)|C], D)),
           prove_not_fallacy_t(A,
                               B,
-                              anc([attemptable_t(A)|C], D))
+                              anc([possible_t(A)|C], D))
         ),
         prove_not_true_t(A,
                          B,
-                         anc([attemptable_t(A)|C], D)).
+                         anc([possible_t(A)|C], D)).
 prove_true_t(A, B, anc(C, D)) :-
         ( prove_not_false_t(A,
                             B,
@@ -488,7 +488,7 @@ prove_true_t(A, B, anc(C, D)) :-
                               B,
                               anc([true_t(A)|C], D))
         ),
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                              B,
                              anc([true_t(A)|C], D)).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:198
@@ -606,25 +606,25 @@ prove_not_asserted_t(A, B, anc(C, D)) :-
                          B,
                          anc(C, [asserted_t(A)|D])).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:205
-% :- test_boxlog(=>(attemptable_t(PROP_VAR), &(~false_t(PROP_VAR), ~fallacy_t(PROP_VAR)))).
+% :- test_boxlog(=>(possible_t(PROP_VAR), &(~false_t(PROP_VAR), ~fallacy_t(PROP_VAR)))).
 prove_not_false_t(A, B, anc(C, D)) :-
-        prove_attemptable_t(A,
+        prove_possible_t(A,
                         B,
                         anc(C, [false_t(A)|D])).
 prove_not_fallacy_t(A, B, anc(C, D)) :-
-        prove_attemptable_t(A,
+        prove_possible_t(A,
                         B,
                         anc(C, [fallacy_t(A)|D])).
-prove_not_attemptable_t(A, B, anc(C, D)) :-
+prove_not_possible_t(A, B, anc(C, D)) :-
         (   prove_false_t(A,
                           B,
-                          anc(C, [attemptable_t(A)|D]))
+                          anc(C, [possible_t(A)|D]))
         ;   prove_fallacy_t(A,
                             B,
-                            anc(C, [attemptable_t(A)|D]))
+                            anc(C, [possible_t(A)|D]))
         ).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:206
-% :- test_boxlog(=>(fallacy_t(PROP_VAR), &(&(&(false_t(PROP_VAR), true_t(PROP_VAR)), ~unknown_t(PROP_VAR)), ~attemptable_t(PROP_VAR)))).
+% :- test_boxlog(=>(fallacy_t(PROP_VAR), &(&(&(false_t(PROP_VAR), true_t(PROP_VAR)), ~unknown_t(PROP_VAR)), ~possible_t(PROP_VAR)))).
 prove_false_t(A, B, anc(C, D)) :-
         prove_fallacy_t(A,
                         B,
@@ -637,10 +637,10 @@ prove_not_unknown_t(A, B, anc(C, D)) :-
         prove_fallacy_t(A,
                         B,
                         anc(C, [unknown_t(A)|D])).
-prove_not_attemptable_t(A, B, anc(C, D)) :-
+prove_not_possible_t(A, B, anc(C, D)) :-
         prove_fallacy_t(A,
                         B,
-                        anc(C, [attemptable_t(A)|D])).
+                        anc(C, [possible_t(A)|D])).
 prove_not_fallacy_t(A, B, anc(C, D)) :-
         (   (   (   prove_not_false_t(A,
                                       B,
@@ -654,29 +654,29 @@ prove_not_fallacy_t(A, B, anc(C, D)) :-
                                 B,
                                 anc(C, [fallacy_t(A)|D]))
             )
-        ;   prove_attemptable_t(A,
+        ;   prove_possible_t(A,
                              B,
                              anc(C, [fallacy_t(A)|D]))
         ).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:207
-% :- test_boxlog(<=>(false_t(PROP_VAR), &(&(~true_t(PROP_VAR), ~attemptable_t(PROP_VAR)), ~unknown_t(PROP_VAR)))).
+% :- test_boxlog(<=>(false_t(PROP_VAR), &(&(~true_t(PROP_VAR), ~possible_t(PROP_VAR)), ~unknown_t(PROP_VAR)))).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:208
-% :- test_boxlog(=>(attemptable_t(PROP_VAR), &(~false_t(PROP_VAR), ~fallacy_t(PROP_VAR)))).
+% :- test_boxlog(=>(possible_t(PROP_VAR), &(~false_t(PROP_VAR), ~fallacy_t(PROP_VAR)))).
 prove_not_false_t(A, B, anc(C, D)) :-
-        prove_attemptable_t(A,
+        prove_possible_t(A,
                          B,
                          anc(C, [false_t(A)|D])).
 prove_not_fallacy_t(A, B, anc(C, D)) :-
-        prove_attemptable_t(A,
+        prove_possible_t(A,
                          B,
                          anc(C, [fallacy_t(A)|D])).
-prove_not_attemptable_t(A, B, anc(C, D)) :-
+prove_not_possible_t(A, B, anc(C, D)) :-
         (   prove_false_t(A,
                           B,
-                          anc(C, [attemptable_t(A)|D]))
+                          anc(C, [possible_t(A)|D]))
         ;   prove_fallacy_t(A,
                             B,
-                            anc(C, [attemptable_t(A)|D]))
+                            anc(C, [possible_t(A)|D]))
         ).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:209
 % :- test_boxlog(=>(&(true_t(PROP_VAR), false_t(PROP_VAR)), fallacy_t(PROP_VAR))).
@@ -698,13 +698,13 @@ prove_not_false_t(A, B, anc(C, D)) :-
                             B,
                             anc(C, [false_t(A)|D])).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:210
-% :- test_boxlog(=>(true_t(PROP_VAR), &(&(~false_t(PROP_VAR), attemptable_t(PROP_VAR)), ~unknown_t(PROP_VAR)))).
+% :- test_boxlog(=>(true_t(PROP_VAR), &(&(~false_t(PROP_VAR), possible_t(PROP_VAR)), ~unknown_t(PROP_VAR)))).
 prove_not_false_t(A, B, anc(C, D)) :-
         prove_true_t(A, B, anc(C, [false_t(A)|D])).
-prove_attemptable_t(A, B, anc(C, D)) :-
+prove_possible_t(A, B, anc(C, D)) :-
         prove_true_t(A,
                      B,
-                     anc([attemptable_t(A)|C], D)).
+                     anc([possible_t(A)|C], D)).
 prove_not_unknown_t(A, B, anc(C, D)) :-
         prove_true_t(A,
                      B,
@@ -713,7 +713,7 @@ prove_not_true_t(A, B, anc(C, D)) :-
         (   (   prove_false_t(A,
                               B,
                               anc(C, [true_t(A)|D]))
-            ;   prove_not_attemptable_t(A,
+            ;   prove_not_possible_t(A,
                                      B,
                                      anc(C, [true_t(A)|D]))
             )
@@ -722,13 +722,13 @@ prove_not_true_t(A, B, anc(C, D)) :-
                             anc(C, [true_t(A)|D]))
         ).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:211
-% :- test_boxlog(=>(true_t(PROP_VAR), attemptable_t(PROP_VAR))).
-prove_attemptable_t(A, B, anc(C, D)) :-
+% :- test_boxlog(=>(true_t(PROP_VAR), possible_t(PROP_VAR))).
+prove_possible_t(A, B, anc(C, D)) :-
         prove_true_t(A,
                      B,
-                     anc([attemptable_t(A)|C], D)).
+                     anc([possible_t(A)|C], D)).
 prove_not_true_t(A, B, anc(C, D)) :-
-        prove_not_attemptable_t(A,
+        prove_not_possible_t(A,
                             B,
                             anc(C, [true_t(A)|D])).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:212
@@ -755,15 +755,15 @@ prove_false_t(A, B, anc(C, D)) :-
                             B,
                             anc([false_t(A)|C], D)).
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:213
-% :- test_boxlog(=>(unknown_t(PROP_VAR), &(&(&(~true_t(PROP_VAR), attemptable_t(PROP_VAR)), ~asserted_t(PROP_VAR)), ~false_t(PROP_VAR)))).
+% :- test_boxlog(=>(unknown_t(PROP_VAR), &(&(&(~true_t(PROP_VAR), possible_t(PROP_VAR)), ~asserted_t(PROP_VAR)), ~false_t(PROP_VAR)))).
 prove_not_true_t(A, B, anc(C, D)) :-
         prove_unknown_t(A,
                         B,
                         anc(C, [true_t(A)|D])).
-prove_attemptable_t(A, B, anc(C, D)) :-
+prove_possible_t(A, B, anc(C, D)) :-
         prove_unknown_t(A,
                         B,
-                        anc([attemptable_t(A)|C], D)).
+                        anc([possible_t(A)|C], D)).
 prove_not_asserted_t(A, B, anc(C, D)) :-
         prove_unknown_t(A,
                         B,
@@ -776,7 +776,7 @@ prove_not_unknown_t(A, B, anc(C, D)) :-
         (   (   (   prove_true_t(A,
                                  B,
                                  anc(C, [unknown_t(A)|D]))
-                ;   prove_not_attemptable_t(A,
+                ;   prove_not_possible_t(A,
                                          B,
                                          anc(C,
                                              [unknown_t(A)|D]))

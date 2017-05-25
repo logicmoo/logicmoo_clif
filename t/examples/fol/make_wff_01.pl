@@ -29,20 +29,13 @@
 ==> feature_setting(tms_mode,remove_conflicting).
 
 
-:- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
+:- set_prolog_flag_until_eof(runtime_debug,3). % mention it when we remove previous assertions
+:- set_prolog_flag_until_eof(runtime_speed,0). % but dont gripe about speed
 
 :- set_prolog_flag_until_eof(do_renames,mpred_expansion).
 
 
 :- kif_compile.
-
-
-
-% =================================================================================
-% run the tests
-% =================================================================================
-        
-
 
 
 % =================================================================================
@@ -67,23 +60,25 @@
 ==> argIsa(drinks,2,beverage_class).
 
 % =================================================================================
-% Test 1
+% Test 1  Possible Fact
 % =================================================================================
 
 ==> poss(livesAt(fred,green_house)).
 
 :- mpred_test(poss(isa(fred,human))).
 
-:- mpred_test(naf(isa(fred,human))).
+:- mpred_test(\+ is_user_fact(isa(fred,human))).
+
+:- mpred_test(isa(fred,human)).
 
 :- mpred_test(poss(isa(green_house,dwelling))).
 
-:- mpred_test(naf(isa(green_house,dwelling))).
+:- mpred_test(isa(green_house,dwelling)).
 
 :- mpred_test(naf(~isa(green_house,dwelling))).
 
 % =================================================================================
-% Test 2
+% Test 2  Absolute Facts
 % =================================================================================
 
 :- mpred_trace_exec.
