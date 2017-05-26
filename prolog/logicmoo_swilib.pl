@@ -69,7 +69,7 @@
 :- user:use_module(library(statistics),[time/1]).
 :- user:use_module(library(statistics)).
 :- baseKB:use_module(library(statistics),[time/1]).
-:- autoload([verbose(false)]).
+%:- autoload([verbose(false)]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

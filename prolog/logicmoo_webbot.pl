@@ -96,8 +96,10 @@
 :- if(exists_source(library(pce_emacs))).
 :- user:use_module(library(pce_emacs)).
 :- endif.
+
 :- multifile(swish_trace:installed/1).
-:- volatile(swish_trace:installed/1).
+:-   dynamic(swish_trace:installed/1).
+:-  volatile(swish_trace:installed/1).
 
 :- if(exists_source(library(semweb/rdf_db))).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
@@ -143,10 +145,10 @@ add_relative_search_path(Alias, Rel) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- if_file_exists(user:use_module(library(pce_emacs))).
+
 :- multifile(swish_trace:installed/1).
-:- dynamic(swish_trace:installed/1).
-:- volatile(swish_trace:installed/1).
-:- use_module(pengine_sandbox:library(semweb/rdf_db)).
+:-   dynamic(swish_trace:installed/1).
+:-  volatile(swish_trace:installed/1).
 
 
 :- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
@@ -234,7 +236,7 @@ user:send_message(A, C) :-
 :- endif. % clio exists?
 
 
-:- autoload([verbose(false)]).
+%:- autoload([verbose(false)]).
 
 :-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
    asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
@@ -260,7 +262,7 @@ ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
 
 :- during_boot(ensure_webserver_3020).
 
-:- autoload([verbose(false)]).
+%:- autoload([verbose(false)]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DUMPST ON WARNINGS
@@ -483,8 +485,8 @@ rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
 
 :- during_boot(rescan_pack_autoload_packages).
 
-:- reload_library_index.
-:- autoload([verbose(true)]).
+%:- reload_library_index.
+%:- autoload([verbose(true)]).
 :- reload_library_index.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
