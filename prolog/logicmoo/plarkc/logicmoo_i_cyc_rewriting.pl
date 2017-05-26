@@ -1369,7 +1369,7 @@ builtin_rn('UniversalVocabularyMt',iUniversalVocabularyMt).
 
 
 tinykb_assertion_recipe(C,P):- tinykb_assertion_recipe_w(C,C1),unnumbervars(C1,P),!.
-tinykb_assertion_recipe_w(C,P):- cycl_to_mpred(C,C0),fully_expand_always(C0,P).
+tinykb_assertion_recipe_w(C,P):- must((cycl_to_mpred(C,C0),fully_expand_always(C0,P))).
 
 
 notFormatType(tThing).

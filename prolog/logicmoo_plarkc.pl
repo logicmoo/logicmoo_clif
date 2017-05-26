@@ -30,9 +30,9 @@ loadNewTiny:-  \+ exists_file(tiny_kb_cache),
   format('~q.~n',[:-   dynamic(tiny_kb/3)]),
   format('~q.~n',[:- style_check(-singleton)]),
   forall(tinyKB(C,MT,STR),
-         (tinykb_assertion_recipe_w(C,CycLOut),
+        must(( (tinykb_assertion_recipe_w(C,CycLOut),
          format('~q.~n',[tiny_kb(CycLOut,MT,STR)]),
-         ignore((C\=@=CycLOut,dmsg(tiny_kb(CycLOut,MT,STR)))))),
+         ignore((C\=@=CycLOut,dmsg(tiny_kb(CycLOut,MT,STR)))))))),
   told,
   consult(tiny_kb_cache).
 loadNewTiny:- consult(tiny_kb_cache).
