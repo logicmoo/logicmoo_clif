@@ -5,6 +5,9 @@
 :- add_file_search_path_safe(plweb,pack('plweb')).
 
 
+:- user:use_module(logicmoo_cliop).
+
+
 :- multifile http:location/3.
 :- dynamic http:location/3.
 
@@ -112,10 +115,6 @@ swish_config:authenticate(Request, User) :- \+ http_session:http_in_session(_),
 		    [ port(3050),
 		      workers(16)
 		    ]).
-
-:- break.
-
-:- user:use_module(logicmoo_cliop).
 
 
 :- multifile

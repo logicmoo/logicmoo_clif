@@ -352,4 +352,4 @@ rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
 :- listing(qsave_lm/1).
 :- endif.
 
-
+:- break.

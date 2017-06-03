@@ -1,34 +1,40 @@
 :- module(logicmoo_cliop,[]).
 
+:- current_prolog_flag(os_argv,List),dmsg((os_argv=List)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USE CLIOPATRIA ?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ;
+   (current_prolog_flag(os_argv,List), member('--all',List)) ).
+
+
 :- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% USE CLIOPATRIA ?
+% CLIOPATRIA ARGV
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- dynamic(saved_os_argv/1).
 
 :- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ).
-
 :- current_prolog_flag(os_argv,List),append(Before,['--clio'|After],List),
    asserta(saved_os_argv(Before)),
    set_prolog_flag(os_argv,[ swipl | After]).
 :- else.
-:- current_prolog_flag(os_argv,List),asserta(saved_os_argv(List)).
-% :- set_prolog_flag(os_argv,[swipl,cpack,install,swish]).
+:- current_prolog_flag(os_argv,List),
+   asserta(saved_os_argv(List)).
+:- set_prolog_flag(os_argv,[swipl]).
 :- endif.
 
 
-:- current_prolog_flag(os_argv,List),dmsg(current_prolog_flag(os_argv,List)).
+:- if(current_prolog_flag(os_argv,[_])).
+:- set_prolog_flag(os_argv,[swipl,cpack,install,cpack_repository]).
+:- endif.
 
-
-:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ;
-   (current_prolog_flag(os_argv,List), member('--all',List)) ).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% USE CLIOPATRIA ?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+:- saved_os_argv(List),dmsg((next_os_argv=List)).
+:- current_prolog_flag(os_argv,List),dmsg((clio_argv=List)).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This file provides a skeleton startup file.  It can be localized by running
@@ -91,6 +97,10 @@ user:send_message(A, C) :-
    ;   true
    ).
 
+:- dmsg(load_conf_d([ 'config-enabled' ], [])).
+:- load_conf_d([ 'config-enabled' ], []).
+
+:- dmsg(cp_server).
 :- during_net_boot(cp_server:cp_server).
 
 :- endif. % clio exists?
