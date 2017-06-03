@@ -3,8 +3,6 @@
 :- module(logicmoo_webbot,[
   prolog_tn_server/0,
   maybe_save_lm/0,
-  ensure_webserver_3020/0,
-  ensure_webserver_p/1,
   rescan_pack_autoload_packages/0]).
 
 :- if(\+ current_module(baseKB)).
@@ -105,164 +103,12 @@
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 :- endif.
 
-% Setup search path for cliopatria. We add  both a relative and absolute
-% path. The absolute path allow us to  start in any directory, while the
-% relative one ensures that the system remains working when installed on
-% a device that may be mounted on a different location.
-
-add_relative_search_path(Alias, Abs) :-
-	is_absolute_file_name(Abs), !,
-	prolog_load_context(file, Here),
-	relative_file_name(Abs, Here, Rel),
-	assertz(user:file_search_path(Alias, Rel)).
-add_relative_search_path(Alias, Rel) :-
-	assertz(user:file_search_path(Alias, Rel)).
-
-
-:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ;
-   (current_prolog_flag(os_argv,List), member('--all',List)) ).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% USE CLIOPATRIA ?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- dynamic(saved_os_argv/1).
-
-:- if( (current_prolog_flag(os_argv,List), member('--clio',List)) ).
-
-:- current_prolog_flag(os_argv,List),append(Before,['--clio'|After],List),
-   asserta(saved_os_argv(Before)),
-   set_prolog_flag(os_argv,[ swipl | After]).
-:- else.
-:- current_prolog_flag(os_argv,List),asserta(saved_os_argv(List)).
-:- set_prolog_flag(os_argv,[swipl,cpack,install,swish]).
-:- endif.
-
-
-:- current_prolog_flag(os_argv,List),dmsg(current_prolog_flag(os_argv,List)).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% MAKE SURE CLIOPATRIA RUNS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- if_file_exists(user:use_module(library(pce_emacs))).
-
-:- multifile(swish_trace:installed/1).
-:-   dynamic(swish_trace:installed/1).
-:-  volatile(swish_trace:installed/1).
-
-
-:- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
-% :- add_file_search_path_safe(cliopatria,'/mnt/gggg/logicmoo_workspace/pack/ClioPatria').
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-This file provides a skeleton startup file.  It can be localized by running
-
-    % ./configure			(Unix)
-    % Double-clicking win-config.exe	(Windows)
-
-After  that,  the  system  may  be  customized  by  copying  or  linking
-customization  files  from  config-available    to  config-enabled.  See
-config-enabled/README.txt for details.
-
-To run the system, do one of the following:
-
-    * Running for development
-      Run ./run.pl (Unix) or open run.pl by double clicking it (Windows)
-
-    * Running as Unix daemon (service)
-      See daemon.pl
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-% absolute_file_name(cliopatria,X,[type(directory),solutions(all),access(read),file_errors(fail),case_sensitive(false),relative_path('/mnt/gggg/logicmoo_workspace/pack')]).
-% absolute_file_name(pack(cliopatria),X,[type(directory),solutions(all),access(read),file_errors(fail),case_sensitive(false),relative_path('/mnt/gggg/logicmoo_workspace/pack')]).
-
-/*
-:- if(exists_directory('../../ClioPatria/')).
-:- add_relative_search_path(cliopatria, '../../ClioPatria').
-:- endif.
-:- if(exists_directory('../../../ClioPatria/')).
-:- add_relative_search_path(cliopatria, '../../../ClioPatria').
-:- endif.
-:- if(exists_directory('../../../../ClioPatria/')).
-:- add_relative_search_path(cliopatria, '../../../../ClioPatria').
-:- endif.
-:- if(exists_directory('../../../../../ClioPatria/')).
-:- add_relative_search_path(cliopatria, '../../../../../ClioPatria').
-:- endif.
-*/
-
-
-% Make loading files silent. Comment if you want verbose loading.
-
-:- current_prolog_flag(verbose, Verbose),
-   asserta(saved_verbose(Verbose)),
-   set_prolog_flag(verbose, silent).
-
-:- if(exists_source(cliopatria('applications/help/load'))).
-
-:- multifile(user:send_message/2).
-:- dynamic(user:send_message/2).
-user:send_message(A, C) :-
-    cp_messages:
-    (    current_prolog_flag(html_messages, true),
-        level_css_class(A, B),
-        html(pre(class(B), \html_message_lines(C)), D, []),
-        with_mutex(html_messages, print_html(D))),
-        flush_output,
-        fail.
-
-		 /*******************************
-		 *	      LOAD CODE		*
-		 *******************************/
-
-% Use the ClioPatria help system.  May   be  commented to disable online
-% help on the source-code.
-
-:- user:use_module(cliopatria('applications/help/load')).
-
-% Load ClioPatria itself.  Better keep this line.
-
-:- user:use_module(cliopatria(cliopatria)).
-
-% Get back normal verbosity of the toplevel.
-
-:- (   retract(saved_verbose(Verbose))
-   ->  set_prolog_flag(verbose, Verbose)
-   ;   true
-   ).
-
-:- during_net_boot(cp_server:cp_server).
-
-:- endif. % clio exists?
-
-
-%:- autoload([verbose(false)]).
-
-:-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
-   asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
-
-:- retract(saved_os_argv(List)),set_prolog_flag(os_argv,List).
-:- endif.  % --noclio
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % START WEBSERVER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-kill_3020:- !. %  whenever(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
-
-
-ensure_webserver_p(Port):- format(atom(A),'httpd@~w',[Port]),thread_property(N,status(V)),V=running,atom(N),atom_concat(A,_,N),!.
-ensure_webserver_p(Port):- whenever(run_network,
- (kill_3020,catch((thread_httpd:http_server(http_dispatch,[ port(Port), workers(16) ])),E,(writeln(E),fail)))),!.
-
-ensure_webserver_3020:- (getenv('LOGICMOO_PORT',Was);Was=3000),
-   WebPort is Was + 20, ensure_webserver_p(WebPort).
-
-:- during_boot(ensure_webserver_3020).
-
-%:- autoload([verbose(false)]).
+:- user:use_module(logicmoo_plweb).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DUMPST ON WARNINGS
@@ -398,7 +244,7 @@ unsafe_preds_init(M,F,A):-M=process,current_predicate(M:F/A),member(X,[kill]),at
 unsafe_preds_init(M,F,A):-M=system,member(F,[shell,halt]),current_predicate(M:F/A).
 
 
-system:kill_unsafe_preds:- whenever(run_network,system:kill_unsafe_preds0).
+system:kill_unsafe_preds:- whenever_flag_permits(run_network,system:kill_unsafe_preds0).
 system:kill_unsafe_preds0:- \+ if_defined(getuid(0),true),!.
 system:kill_unsafe_preds0:- app_argv('--unsafe'),!.
 system:kill_unsafe_preds0:-   

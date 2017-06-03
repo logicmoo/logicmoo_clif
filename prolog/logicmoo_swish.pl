@@ -1,5 +1,16 @@
 :- module(logicmoo_swish,[]).
 
+:- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
+:- add_file_search_path_safe(swish,pack('swish-with-filesystem-interaction')).
+:- add_file_search_path_safe(plweb,pack('plweb')).
+
+
+:- multifile http:location/3.
+:- dynamic http:location/3.
+
+http:location(root, '/', [priority(1100)]).
+http:location(swish, root('ish'), [priority(-100)]).
+http:location(swish, root('swish'), [priority(500)]).
 
 :- multifile(swish_trace:installed/1).
 :-   dynamic(swish_trace:installed/1).
@@ -9,8 +20,6 @@
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 :- endif.
 
-
-:- use_module(logicmoo_cliop).
 
                  /*******************************
 		 *	       CONFIG		*
@@ -24,16 +33,9 @@
 	pengines:not_sandboxed/2,		% User, Application
 	user:file_search_path/2.		% Alias, Path
 
-user:file_search_path(swish, '/home/prologmud_server/lib/swipl/pack/swish-with-filesystem-interaction').
+
 user:file_search_path(project, '.').
 
-:- dynamic http:location/3.
-:- multifile http:location/3.
-http:location(root, '/', [priority(1100)]).
-http:location(swish, root('ish'), [priority(-100)]).
-http:location(swish, root('swish'), [priority(500)]).
-
-:- add_file_search_path_safe(swish,pack('swish-with-filesystem-interaction')).
 
 :- multifile pengines:allowed/2.
 :- dynamic pengines:allowed/2.
@@ -111,6 +113,9 @@ swish_config:authenticate(Request, User) :- \+ http_session:http_in_session(_),
 		      workers(16)
 		    ]).
 
+:- break.
+
+:- user:use_module(logicmoo_cliop).
 
 
 :- multifile
