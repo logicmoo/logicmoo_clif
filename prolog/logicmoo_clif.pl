@@ -1,4 +1,4 @@
-:- module(logicmoo_snark,[]).
+:- module(logicmoo_clif,[]).
 
 /** <module> logicmoo_plarkc - special module hooks into the logicmoo engine allow
    clif syntax to be recocogized via our CycL/KIF handlers 
@@ -7,7 +7,7 @@
  Maintainer: Douglas Miles
  Dec 13, 2035
 
- ?- ensure_loaded(library(logicmoo_snark)).
+ ?- ensure_loaded(library(logicmoo_clif)).
 */
 
 :- user:use_module(library(logicmoo_util_common)).
@@ -36,62 +36,8 @@
 
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
-:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
 :- kif_compile.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SETUP SUMO KB EXTENSIONS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- set_prolog_flag(do_renames,term_expansion).
-
-:- during_boot(set_prolog_flag(do_renames,restore)).
-
-sumo_ain2(documentation(_, xtChineseLanguage,_)).
-sumo_ain2(CycLOut):-
-    delay_rule_eval(CycLOut,sumo_rule,NewAsserts),
-    dmsg(NewAsserts),
-    ain(NewAsserts).
-
-loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
-loadSumo(File):- with_lisp_translation_cached(File,sumo_to_pdkb,nop).
-
-skip_sumo:- app_argv('--nosumo'),!.
-skip_sumo:- app_argv(List), \+ member('--sumo',List), \+ member('--snark',List), \+ member('--all',List),!.
-
-clone_ontologyportal_sumo:- skip_sumo,!.
-clone_ontologyportal_sumo:- exists_directory('./ontologyportal_sumo'),!.
-clone_ontologyportal_sumo:- shell('git clone https://github.com/ontologyportal/sumo.git ./ontologyportal_sumo'),shell('touch _*.tmp').
-
-:- during_boot(clone_ontologyportal_sumo).
-
-loadSumo1:- skip_sumo,!.
-loadSumo1:- 
-   loadSumo('./ontologyportal_sumo/Merge.kif'),
-   loadSumo('./ontologyportal_sumo/Mid-level-ontology.kif'),
-   !.
-
-loadSumo2:- skip_sumo,!.
-loadSumo2:- 
-   loadSumo('./ontologyportal_sumo/Translations/relations-en.txt'),
-   loadSumo('./ontologyportal_sumo/english_format.kif'),
-   loadSumo('./ontologyportal_sumo/domainEnglishFormat.kif'),
-   !.
-
-loadSumo3:- skip_sumo,!.
-loadSumo3:- 
-   % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
-   !.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SAVE SUMO KB EXTENSIONS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- after_boot(loadSumo1).
-
-:- after_boot(loadSumo2).
-
-:- after_boot(loadSumo3).
 
 :- fixup_exports.
 

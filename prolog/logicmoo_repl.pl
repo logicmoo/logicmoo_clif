@@ -166,7 +166,7 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- check_clause_counts.
 
-% :- load_library_system(library(logicmoo_engine)).
+% :- load_library_system(library(logicmoo_user)).
 % :- load_library_system(logicmoo(logicmoo_plarkc)).
 
 :- after_boot((set_prolog_flag(pfc_booted,true),flag_call(runtime_debug=true),set_prolog_flag(read_attvars,false))).
@@ -177,6 +177,8 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 
 % :- after_boot_call.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % QSAVE LM_REPL

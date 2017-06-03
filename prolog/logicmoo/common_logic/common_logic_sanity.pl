@@ -36,7 +36,7 @@
  op(300,fx,'~'),
  op(300,fx,'-').
 
-:- ensure_loaded(library(logicmoo_snark)).
+:- ensure_loaded(library(logicmoo_clif)).
 
 :- use_module(library(script_files)).
 

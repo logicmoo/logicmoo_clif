@@ -75,9 +75,9 @@ xlisting_web]).
 % Save a directory of *this* file into logicmoo(..)
 % And adds the local directories to file search path of logicmoo(..)
 % ======================================================
-:- if( \+ exists_source(library(logicmoo_engine))).
+:- if( \+ exists_source(library(logicmoo_user))).
 :- add_file_search_path_safe(library,'./').
-:- sanity(exists_source(library(logicmoo_engine))).
+:- sanity(exists_source(library(logicmoo_user))).
 :- endif.
 
 
