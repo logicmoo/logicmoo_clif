@@ -7,7 +7,6 @@
 kill_3020:- threads,wdmsg(kill_3020),!.
 kill_3020:- whenever_flag_permits(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
 
-:- use_module(logicmoo_swish).
 
 :- add_file_search_path_safe(plweb,pack(plweb)).
 

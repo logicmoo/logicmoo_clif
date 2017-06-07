@@ -2,8 +2,7 @@
 
 :- module(logicmoo_webbot,[
   prolog_tn_server/0,
-  maybe_save_lm/0,
-  rescan_pack_autoload_packages/0]).
+  maybe_save_lm/0]).
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
@@ -16,69 +15,19 @@
 :- multifile user:file_search_path/2.
 :- dynamic   user:file_search_path/2.
 
-:- include(library(pldoc/hooks)).
+:- user:use_module(library(logicmoo_util_common)).
 
-:- if(exists_source(library(pldoc))).
-% Must be loaded before doc_process
-:- user:use_module(library(pldoc), []).
-	
-:- user:use_module(library(pldoc/doc_process)).
-:- endif.
-
-%:- user:use_module(library(pldoc/doc_library)).
-%:- doc_load_library.
-
-:- user:use_module(library(pldoc/doc_access)).
-:- user:use_module(library(pldoc/doc_pack)).
-
-:- user:use_module(library(doc_http)).
-:- reexport(library(pldoc/doc_html)).
-:- user:use_module(library(pldoc/doc_wiki)).
-:- user:use_module(library(pldoc/doc_search)).
-:- user:use_module(library(pldoc/doc_util)).
-:- user:use_module(library(pldoc/doc_library)).
-
-:- user:use_module(library(http/thread_httpd)).
-:- user:use_module(library(http/http_error)).
-:- user:use_module(library(http/http_client)).
-
-% http_reply_from_files is here
-:- user:use_module(library(http/http_files)).
-% http_404 is in here
-:- user:use_module(library(http/http_dispatch)).
-
-:- user:use_module(library(http/http_dispatch)).
-:- user:use_module(library(http/html_write),except([op(_,_,_)])).
-:- user:use_module(library(http/html_head)).
-:- multifile(http_session:urandom_handle/1).
-:- dynamic(http_session:urandom_handle/1).
-:- volatile(http_session:urandom_handle/1).
-:- user:use_module(library(http/http_session)).
-:- user:use_module(library(http/http_parameters)).
-:- user:use_module(library(http/http_server_files)).
-:- user:use_module(library(http/http_wrapper)).
-:- multifile(http_log:log_stream/2).
-:- dynamic(http_log:log_stream/2).
-:- volatile(http_log:log_stream/2).
 
 :- if(exists_source(library(yall))).
 :- user:use_module(library(yall), []).
 :- endif.
 
+% :- ['/home/prologmud_server/lib/swipl/pack/prologmud_samples/prolog/prologmud_sample_games/run_clio'].
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PACK LOADER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- use_module(library(prolog_pack)).
-:- if( \+ prolog_pack:current_pack(logicmoo_base)).
-:- multifile(user:file_search_path/2).
-:-   dynamic(user:file_search_path/2).
-:- prolog_load_context(directory,Dir),
-   absolute_file_name('../../',Y,[relative_to(Dir),file_type(directory)]),
-   (( \+ user:file_search_path(pack,Y)) ->asserta(user:file_search_path(pack,Y));true).
-:- initialization(attach_packs,now).
-:- pack_list_installed.
-:- endif.
-
+:- load_library_system(logicmoo_packs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,8 +36,7 @@
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
-:- user:ensure_loaded(logicmoo_swilib).
-:- user:use_module(library(logicmoo_util_common)).
+:- load_library_system(logicmoo_swilib).
 
 
 :- if(exists_source(library(pce_emacs))).
@@ -102,13 +50,6 @@
 :- if(exists_source(library(semweb/rdf_db))).
 :- use_module(pengine_sandbox:library(semweb/rdf_db)).
 :- endif.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% START WEBSERVER
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- user:use_module(logicmoo_plweb).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DUMPST ON WARNINGS
@@ -164,6 +105,19 @@ prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),maybe_save_lm,fai
 maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
 maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
 maybe_save_lm:- qsave_lm(lm_repl4),!.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% START WEBSERVER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- load_library_system(logicmoo_cliop).
+
+:- load_library_system(logicmoo_swish).
+
+:- load_library_system(logicmoo_pldoc).
+
+:- load_library_system(logicmoo_plweb).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP LOGICMOO OPERATORS
@@ -310,25 +264,6 @@ system:kill_unsafe_preds0:-
 :- dmsg("AUTOLOAD PACKAGES").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/*
-pack_autoload_packages(NeedExistingIndex):- 
- forall(user:expand_file_search_path(library(''),Dir),
-  ignore(( (\+ NeedExistingIndex ; absolute_file_name('INDEX',_Absolute,[relative_to(Dir),access(read),file_type(prolog),file_errors(fail)]))->
-   make_library_index(Dir, ['*.pl']) -> 
-  (user:library_directory(Dir) -> true ; (asserta(user:library_directory(Dir)) , reload_library_index))))).
-
-:- during_boot(pack_autoload_packages(true)).
-*/
-
-
-rescan_pack_autoload_packages:- \+ access_file('.',write),dmsg("READONLY PACKAGES"),!.
-rescan_pack_autoload_packages:- \+ app_argv('--all'),!.
-rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
- forall('$pack':pack(Pack, _),
-  forall(((pack_property(Pack, directory(PackDir)),prolog_pack:pack_info_term(PackDir,autoload(true)))),
-  (access_file(PackDir,write) -> prolog_pack:post_install_autoload(PackDir, [autoload(true)]) ; true))),
- dmsg(".. AUTOLOADING COMPLETE"),!.
-
 :- during_boot(rescan_pack_autoload_packages).
 
 %:- reload_library_index.
@@ -352,4 +287,3 @@ rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
 :- listing(qsave_lm/1).
 :- endif.
 
-:- break.
