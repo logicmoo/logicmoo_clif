@@ -33,6 +33,19 @@ Remote SWISH as an IDE for developing a Remote application.
 	pengines:not_sandboxed/2,		% User, Application
 	user:file_search_path/2.		% Alias, Path
 
+
+
+:- multifile
+	user:file_search_path/2,
+	swish_config:config/2,
+	swish_config:source_alias/2.
+
+% make example(File) find the example data
+user:file_search_path(example, swish(examples/trill)).
+%user:file_search_path(example, pack(pfc/t/sanity_base)).
+%user:file_search_path(example, pack(logicmoo_base/t/examples)).
+
+
 :- prolog_load_context(directory,Dir),asserta(user:file_search_path(swish, Dir)).
 user:file_search_path(project, '.').
 
@@ -52,8 +65,8 @@ http:location(swish, root('swish'), [priority(500)]).
 %prolog:prolog_load_file(swish(lib/swish/X),How):- prolog:load_files([swish(lib/X)],How),!.
 */
 
-swish_config:config(show_beware,        false).
-swish_config:config(community_examples, true).
+%swish_config:config(show_beware,        false).
+%swish_config:config(community_examples, true).
 
 swish_config:source_alias(project, [access(both), search('*.pl')]).
 swish_config:source_alias(library, []).

@@ -66,12 +66,16 @@
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
 :- user:use_module(library(gvar_syntax)).
 :- user:use_module(library(dictoo)).
-:- user:use_module(library(xlisting)).
-:- ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
 :- user:use_module(library(pfc)).
+:- user:use_module(library(xlisting)).
+:- user:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
 :- user:use_module(logicmoo_swilib).
 :- user:use_module(logicmoo_clif).
 :- user:use_module(logicmoo_plarkc).
+:- multifile(baseKB:cycBetween/3).
+:- dynamic(baseKB:cycBetween/3).
+:- baseKB:export(baseKB:cycBetween/3).
+:- system:import(baseKB:cycBetween/3).
 :- set_prolog_flag(pfc_booted,false).
 
 

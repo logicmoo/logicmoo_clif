@@ -110,9 +110,9 @@ maybe_save_lm:- qsave_lm(lm_repl4),!.
 % START WEBSERVER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- load_library_system(logicmoo_cliop).
+% :- load_library_system(logicmoo_cliop).
 
-:- load_library_system(logicmoo_swish).
+% :- load_library_system(logicmoo_swish).
 
 :- load_library_system(logicmoo_pldoc).
 
@@ -254,9 +254,9 @@ system:kill_unsafe_preds0:-
 % :- set_prolog_flag(toplevel_print_factorized,true). % default false
 :- set_prolog_flag(toplevel_print_anon,true).
 :- set_prolog_flag(toplevel_mode,backtracking). % OR recursive 
-:- after_boot(dmsg(qconsult_kb7166)).
+%:- after_boot(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
-:- set_prolog_flag(write_attributes,portray).
+% :- set_prolog_flag(write_attributes,portray).
 % :- debug.
 
 
@@ -286,4 +286,6 @@ system:kill_unsafe_preds0:-
 :- statistics.
 :- listing(qsave_lm/1).
 :- endif.
+
+
 
