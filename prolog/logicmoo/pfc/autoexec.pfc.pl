@@ -106,7 +106,7 @@
 
 %:- ensure_loaded(('pfclib/system_base.pfc')).
 
-:- ensure_loaded('system_base.pfc').
+:- ensure_loaded('system_basic.pfc').
 :- ensure_loaded('system_common.pfc').
 :- ensure_loaded('system_constraints.pfc').
 :- ensure_loaded('system_domains.pfc').
