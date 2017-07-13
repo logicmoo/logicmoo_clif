@@ -104,6 +104,14 @@
 
 %:- set_fileAssertMt(baseKB).
 
+%:- ensure_loaded(('pfclib/system_base.pfc')).
+
+:- ensure_loaded('system_base.pfc').
+:- ensure_loaded('system_common.pfc').
+:- ensure_loaded('system_constraints.pfc').
+:- ensure_loaded('system_domains.pfc').
+:- ensure_loaded('system_genls.pfc').
+
 :- ensure_loaded(('user_relationAllExists.pfc')).
 
 :- ensure_loaded(('user_transitiveViaArg.pfc')).

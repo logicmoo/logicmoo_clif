@@ -32,7 +32,7 @@
 % INIT BASIC FORWARD CHAINING SUPPORT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- baseKB:use_module(library(pfc)).
+:- baseKB:ensure_loaded(library(pfc_lib)).
 
 init_mud_server:- ensure_loaded(library(prologmud_sample_games/run_mud_server)).
 
@@ -88,7 +88,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 % INIT LOGICMOO (AUTOEXEC)  Load the infernce engine
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- set_prolog_flag(do_renames,restore).
-:- baseKB:ensure_loaded(library(pfc)).
+:- baseKB:ensure_loaded(library(pfc_lib)).
 :- set_prolog_flag(do_renames,restore).
 
 % :- ls.
@@ -169,7 +169,7 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 % :- load_library_system(library(logicmoo_user)).
 % :- load_library_system(logicmoo(logicmoo_plarkc)).
 
-:- after_boot((set_prolog_flag(pfc_booted,true),flag_call(runtime_debug=true),set_prolog_flag(read_attvars,false))).
+:- after_boot((set_prolog_flag(pfc_booted,true))).
 
 :- nb_setval('$oo_stack',[]).
 :- b_setval('$oo_stack',[]).

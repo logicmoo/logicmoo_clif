@@ -31,9 +31,6 @@
          
          print_assertion/3,
          sent_to_conseq/2,
-         mtDressedMt/1,
-         
-         mtUndressedMt/1,
          tinyAssertion/3,
          tinyAssertion0/3,
          tinyKB/1,
@@ -77,6 +74,8 @@
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'))).
+
+:- baseKB:kb_shared((baseKB:mtDressedMt/1,baseKB:mtUndressedMt/1)).
 
 :- dynamic(tinyKB9/1).
 :- multifile(tinyKB9/1).
@@ -178,8 +177,8 @@ isa_db(I,C):-clause(isa(I,C),true).
 :- dynamic(tinyKB0/1).
 
 
-tinyKB_wstr(P):-mtUndressedMt(MT),tinyKB(P,MT,_).
-tinyKB_wstr(ist(MT,P)):-mtDressedMt(MT),tinyKB(P,MT,_).
+tinyKB_wstr(P):-baseKB:mtUndressedMt(MT),tinyKB(P,MT,_).
+tinyKB_wstr(ist(MT,P)):-baseKB:mtDressedMt(MT),tinyKB(P,MT,_).
 
 
 /*
@@ -196,10 +195,10 @@ argIsa(P,N,C):-elmt:exactlyAssertedELMT(argIsa,P,N,C,_,_).
 argGenl(P,N,C):-elmt:exactlyAssertedELMT(argGenl,P,N,C,_,_).
 argQuotedIsa(P,N,C):-elmt:exactlyAssertedELMT(argQuotedIsa,P,N,C,_,_).
 */
-% queuedTinyKB(CycL,MT):- (mtUndressedMt(MT);mtDressedMt(MT)),(STR=vStrMon;STR=vStrDef),  tinyKB_All(CycL,MT,STR),
+% queuedTinyKB(CycL,MT):- (baseKB:mtUndressedMt(MT);baseKB:mtDressedMt(MT)),(STR=vStrMon;STR=vStrDef),  tinyKB_All(CycL,MT,STR),
 % \+ clause(elmt:exactlyAssertedELMT(CycL,_,_,_),true).
-% queuedTinyKB(CycL):-mtUndressedMt(MT),queuedTinyKB(CycL,MT).
-% queuedTinyKB(ist(MT,CycL)):-mtDressedMt(MT),queuedTinyKB(CycL,MT).
+% queuedTinyKB(CycL):-baseKB:mtUndressedMt(MT),queuedTinyKB(CycL,MT).
+% queuedTinyKB(ist(MT,CycL)):-baseKB:mtDressedMt(MT),queuedTinyKB(CycL,MT).
 
 tinyKBA(P):-tinyKB_All(P,_MT,_)*->true;find_and_call(tinyKB0(P)).
 
@@ -209,7 +208,7 @@ ist_tiny(MT,P):-tinyKB(P,MT,vStrDef).
 %TODO ADD BACK AFTER OPTIZING
 tinyKB(P):- current_prolog_flag(logicmoo_load_state,making_renames),!,tinyKBA(P).
 tinyKB(P):- tinyKBA(P).
-tinyKB(ist(MT,P)):- (nonvar(MT)->true;mtDressedMt(MT)),!,tinyKB_All(P,MT,_).
+tinyKB(ist(MT,P)):- (nonvar(MT)->true;baseKB:mtDressedMt(MT)),!,tinyKB_All(P,MT,_).
 
 
 tinyKB1(P):- current_prolog_flag(logicmoo_load_state,making_renames),!,tinyKBA(P).
@@ -226,7 +225,7 @@ tinyKB2(genls(C1,C5)):-nonvar(C1),tinyKB0(genls(C1,C2)),tinyKB0(genls(C2,C3)),ti
 %TODO ADD BACK AFTER OPTIZING tinyKB(P):-nonvar(P),if_defined(P).
 
 tinyKB(PO,MT,STR):-
-  (nonvar(MT)->true;(mtUndressedMt(MT);mtDressedMt(MT))),
+  (nonvar(MT)->true;(baseKB:mtUndressedMt(MT);baseKB:mtDressedMt(MT))),
   (nonvar(STR)->true;(STR=vStrMon;STR=vStrDef)),
   tinyKB_All(PO,MT,STR).
 
@@ -245,20 +244,20 @@ print_assertion(P,MT,STR):- P=..PL,append([exactlyAssertedELMT|PL],[MT,STR],PPL)
  portray_clause(current_output,elmt:PP,[numbervars(false)]).
 
 
-mtUndressedMt('iUniversalVocabularyImplementationMt').
-mtUndressedMt('iLogicalTruthImplementationMt').
-mtUndressedMt('iCoreCycLImplementationMt').
-mtUndressedMt('iUniversalVocabularyMt').
-mtUndressedMt('iLogicalTruthMt').
-mtUndressedMt('iCoreCycLMt').
-mtUndressedMt('iBaseKB').
+baseKB:mtUndressedMt('iUniversalVocabularyImplementationMt').
+baseKB:mtUndressedMt('iLogicalTruthImplementationMt').
+baseKB:mtUndressedMt('iCoreCycLImplementationMt').
+baseKB:mtUndressedMt('iUniversalVocabularyMt').
+baseKB:mtUndressedMt('iLogicalTruthMt').
+baseKB:mtUndressedMt('iCoreCycLMt').
+baseKB:mtUndressedMt('iBaseKB').
 
-mtDressedMt('iBookkeepingMt').
-mtDressedMt('iEnglishParaphraseMt').
-mtDressedMt('iGeneralEnglishMt').
-mtDressedMt('iTemporaryEnglishParaphraseMt').
-mtDressedMt('iAct_GeneralCycKE').
-mtDressedMt('iTechnicalEnglishLexicalMt').
+baseKB:mtDressedMt('iBookkeepingMt').
+baseKB:mtDressedMt('iEnglishParaphraseMt').
+baseKB:mtDressedMt('iGeneralEnglishMt').
+baseKB:mtDressedMt('iTemporaryEnglishParaphraseMt').
+baseKB:mtDressedMt('iAct_GeneralCycKE').
+baseKB:mtDressedMt('iTechnicalEnglishLexicalMt').
 
 into_mpred_form_tiny(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_tiny(V,R):- into_mpred_form(V,R),!. 

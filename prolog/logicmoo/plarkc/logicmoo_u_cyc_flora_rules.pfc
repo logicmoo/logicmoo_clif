@@ -39,14 +39,17 @@ forwardSentence(isa(NART, COL)) :- mtVisible(iBaseKB) & removalSentence(natFunct
 
 
 impPred(destructureFormula) .
-destructureFormula(TERM, R, ARGS) :- TERM =.. [R | ARGS].
-destructureFormula(TERM, R, ARGS) :- TERM =.. [t,(R|Rest)], ARGS = [].
-destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1), ARGS = [A1].
+destructureFormula(t(TERM), R, ARGS) :- nonvar(TERM),!,destructureFormula(TERM, R, ARGS)
+destructureFormula(TERM, R, ARGS) :- TERM =.. [t, R | ARGS],!.
+destructureFormula([R|ARGS], R, ARGS) :- !.
+destructureFormula(TERM, R, [A|RGS]) :- TERM =.. [R | [A|RGS]].
+/*
 destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1,A2), ARGS = [A1,A2].
 destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1,A2,A3), ARGS = [A1,A2,A3].
 destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1,A2,A3,A4), ARGS = [A1,A2,A3,A4].
 destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1,A2,A3,A4,A5), ARGS = [A1,A2,A3,A4,A5].
 destructureFormula(TERM, R, ARGS) :- TERM = t(R,A1,A2,A3,A4,A5,A6), ARGS = [A1,A2,A3,A4,A5,A6].
+*/
 
 impPred(ftNonAtomic) .
 ftNonAtomic(X) :- destructureFormula(X, _R, _ARGS) .

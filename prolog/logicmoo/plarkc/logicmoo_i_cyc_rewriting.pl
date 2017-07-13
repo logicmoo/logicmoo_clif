@@ -217,7 +217,7 @@ builtin_rn('PhysicalPartOfObject',tPartTypePhysicalPartOfObject).
 builtin_rn("PhysicalPartOfObject",tPartTypePhysicalPartOfObject).
 builtin_rn('SpecifiedPartTypeCollection',ttSpecifiedPartTypeCollection).
 builtin_rn("SpecifiedPartTypeCollection",ttSpecifiedPartTypeCollection).
-builtin_rn('SiblingDisjointCollectionType',tSet).
+builtin_rn('SiblingDisjointCollectionType',ttTypeType).
 builtin_rn('forAll', 'all').
 builtin_rn('thereExists', 'exists').
 builtin_rn('Relation', tRelation).
@@ -228,9 +228,7 @@ builtin_rn('UnitOfMeasure', 'ttUnitOfMeasure').
 builtin_rn('CharacterString', ftString).
 builtin_rn('Collection',tCol).
 builtin_rn('CollectionType',ttTypeType).
-builtin_rn('SiblingDisjointCollectionType',tSet).
 builtin_rn('ObjectType',ttValueType).
-builtin_rn('ObjectType',tSet).
 builtin_rn('AspatialThing',vtValue).
 builtin_rn('RelationshipType',ttRelationType).
 builtin_rn('Predicate',tPred).

@@ -2,7 +2,7 @@
 :- module(mpred_pttp_static,[]).
 %:- endif.
 
-:- ensure_loaded(library(pfc)).
+:- ensure_loaded(library(pfc_lib)).
 :- ensure_loaded(library('pfc2.0'/'mpred_header.pi')).
 :- '$set_source_module'(baseKB).
 

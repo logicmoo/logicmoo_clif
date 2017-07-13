@@ -154,10 +154,16 @@ connective_arity0(not,1):-!.
 
 inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
 
-tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
-tAsserted(P):- 
+%:- break.
+:- kb_shared(baseKB:tAsserted/1).
+%:- kb_local(baseKB:tAsserted/1).
+
+baseKB:tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
+baseKB:tAsserted(P):- 
    asserted_id(P,_).
 
+% :- break.
+%:- kb_shared(baseKB:ist/2).
 ist(MT,P):- istAsserted(MT,P).
 
 istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail).
@@ -239,16 +245,19 @@ badz:- asserted_id(t(P,A,zzzz),ID),dmsg(badz(asserted_id(t(P,A,zzzz),ID))),fail.
 badz:- asserted_id(t(P,zzzz,B),ID),dmsg(asserted_id(t(P,zzzz,B),ID)),fail.
 badz:- asserted_id(t(zzzz,A,B),ID),dmsg(asserted_id(t(zzzz,A,B),ID)),fail.
 
-
 test_kb_boxlog:- asserted_id(P,ID),nl,nl,compound(ID),wdmsg(asserted_id(P,ID)),test_boxlog(P).
 
-:- ain(tAsserted(isa(F,rtLogicalConnective))==>rtLogicalConnective(F)).
+:- multifile(kb7166:assertion_content/3).
+:- dynamic(kb7166:assertion_content/3).
+:- multifile(kb7166:assertion_content/4).
+:- dynamic(kb7166:assertion_content/4).
+:- baseKB:ain(tAsserted(isa(F,rtLogicalConnective))==>rtLogicalConnective(F)).
 
-:- ain(rtArgsVerbatum(tAsserted)).
+:- baseKB:ain(rtArgsVerbatum(tAsserted)).
 
-:- ain((tAsserted(isa(MT,mtCycInternalAnthropacity))==> mtUndressedMt(MT))).
+:- baseKB:ain((tAsserted(isa(MT,mtCycInternalAnthropacity))==> mtUndressedMt(MT))).
 
-:- ain((mtUndressedMt(iEnglishParaphraseMt))).
+:- ain((baseKB:mtUndressedMt(iEnglishParaphraseMt))).
 
 cyc_ain(P):- mpred_ainz(P,(kb7166,ax)),writeq(P),nl.
 

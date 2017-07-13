@@ -53,7 +53,7 @@
 :- use_module(library(http/http_server_files)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/html_head)).
-:- use_module(library(http/html_write)).
+%:- use_module(library(http/html_write)).
 :- use_module(library(threadutil)).
 :- user:use_module(library(shell)).
 :- use_module(library(console_input)).

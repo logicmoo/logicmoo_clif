@@ -1493,7 +1493,7 @@ local_sterm_to_pterm(Wff,WffO):- sexpr_sterm_to_pterm(Wff,WffO),!.
 %
 % Knowledge Interchange Format Add.
 %
-kif_add(InS):- 
+kif_add(InS):-
  sanity( \+ is_ftVar(InS)),
  string(InS),!,
  must_det_l((
@@ -1513,7 +1513,8 @@ kif_add(WffIn):- show_call(ain(WffIn)),!.
 % unnumbervars_with_names(WffIn,Wff),
 %kif_add(WffIn):- show_call(ain(clif(WffIn))),!.
 
-
+kif_ain(InS):-kif_add(InS).
+kif_assert(InS):-kif_add(InS).
 
 /*
 :- public((kif_add)/2).
