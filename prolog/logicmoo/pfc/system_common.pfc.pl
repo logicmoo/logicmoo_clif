@@ -169,20 +169,12 @@ pfcControlled(argIsa).
 %underkill - Though it is making bad things happen 
 ttExpressionType(C)==> \+ completelyAssertedCollection(C).
 
-%:- install_constant_renamer_until_eof.
-
- % :- mpred_trace_exec.
-
-==>ttModuleType(tSourceCode,mudToCyc('tComputerCode'),comment("Source code files containing callable features")).
-==>ttModuleType(tSourceData,mudToCyc('iboPropositionalInformationThing'),comment("Source data files containing world state information")).
-:- mpred_notrace_exec.
+   % :- mpred_trace_exec.
+  ==> prologHybrid(isLoaded(tMicrotheory),pfcControlled).
+  tSet(isLoaded).
+  :- mpred_notrace_exec.
 
 ==> prologHybrid(isLoadedType(ttModuleType),pfcControlled).
-
- % :- mpred_trace_exec.
-==> prologHybrid(isLoaded(tMicrotheory),pfcControlled).
-tSet(isLoaded).
-:- mpred_notrace_exec.
 
 
 :- kb_shared((onSpawn)/1).
@@ -212,7 +204,6 @@ pfcControlled(isa(ftTerm,tCol)).
 
 tSet(tSet).
 tSet(tCol).
-tSet(ttModuleType).
 tFixedArityRelation(tSet).
 tFixedArityRelation(tCol).
 ttRelationType(prologHybrid).

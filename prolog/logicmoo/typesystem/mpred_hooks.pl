@@ -143,7 +143,7 @@ list_update_op/3,
 mpred_fact_arity/2,
 %mpred_module_ready/0,
 mpred_fa_call/3,
-mpred_plist_t/2,
+%mpred_plist_t/2,
 never_mpred_tcall/1,
 prologHybridFact/1,
 replace_arg/4,
@@ -446,24 +446,6 @@ update_value/3,
 % ================================================================================
 % begin holds_t
 % ================================================================================
-
-
-%= 	 	 
-
-%% mpred_plist_t( ?P, :TermLIST) is semidet.
-%
-% Managed Predicate Plist True Stucture.
-%
-mpred_plist_t(P,[]):-!,t(P).
-mpred_plist_t(P,LIST):-var(P),!,is_list(LIST),CALL=..[t,P|LIST],on_x_debug((CALL)).
-mpred_plist_t(t,[P|LIST]):-!, mpred_plist_t(P,LIST).
-%mpred_plist_t(mpred_isa,[C,_A,I]):-!,ground(I:C),local_qh_mpred_isa(C,I).
-mpred_plist_t(isa,[I,C]):-!,t(C,I).
-mpred_plist_t(P,_):-never_mpred_tcall(P),!,fail.
-mpred_plist_t(P,[L|IST]):-is_holds_true(P),!,mpred_plist_t(L,IST).
-mpred_plist_t(P,LIST):-is_holds_false(P),!,mpred_f(LIST).
-mpred_plist_t(P,LIST):- CALL=..[t,P|LIST],on_x_debug(CALL).
-
 
 %= 	 	 
 

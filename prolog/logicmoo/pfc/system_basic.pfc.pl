@@ -491,8 +491,6 @@ disjointPartition([
 
 
 
-:- kb_shared(do_and_undo/2).
-
 
 isa(iExplorer2,C):- cwc, C==rtArgsVerbatum,!,fail.
 isa(I,C):- cwc, no_repeats(loop_check(isa_backchaing(I,C))), \+ isa(C,ttExpressionType).

@@ -23,7 +23,8 @@
 :- asserta(use_logicmoo_mod).
 :- endif.
 
-:- reexport(logicmoo_lib).     
+:- baseKB:reexport(library(pfc_lib)). 
+:- baseKB:reexport(logicmoo_lib).     
 
 :- baseKB:'using_pfc'(_,SM,logicmoo_mod),!, 
   /* op(1199,fx,SM:('==>')),

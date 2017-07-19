@@ -549,10 +549,12 @@ kb_shared(CM:Imp,M,PI,F,A):-M==CM,
 
 
 kb_shared(CM:baseKB,M,PI,F,A):- defaultAssertMt(Mt)-> M\==Mt,!,must(kb_shared(CM:baseKB,Mt,PI,F,A)).
+
 kb_shared(_:CM,    M,PI,F,A):- atom(PI),A==0,get_arity(PI,F,A),
    \+(is_static_predicate(F/A)),!,
    must((forall((arity_no_bc(F,AA),AA\=0),
    (functor(PIA,F,AA),kb_shared(CM,M,PIA,F,AA))))).
+
 kb_shared(_:CM,M,PI,F,A):-
    must_det_l((
       ((var(CM),nonvar(M))->CM=M;true),
@@ -562,7 +564,7 @@ kb_shared(_:CM,M,PI,F,A):-
 
 define_maybe_exact(M,PI):- M==system, !,must((defaultAssertMt(Mt),define_maybe_exact(Mt,PI))),!.
 
-define_maybe_exact(M,PI):- get_def_modules
+% define_maybe_exact(M,PI):- get_def_modules
 
 define_maybe_exact(M,PI):- current_predicate(_,C:PI), \+ predicate_property(C:PI,imported_from(_)),
       M\==C,define_maybe_exact(C,PI),
@@ -588,15 +590,15 @@ define_maybe_exact(_,PI):-
 
 maybe_define_if_not_static(M,PI):-
   must_det_l((
-              functor_h(PI,F,A),
-              asserta_if_new(baseKB:safe_wrap(F,A,ereq)),
-              M:multifile(M:F/A),
-              M:public(M:F/A),
-            %   on_f_throw( (M:F/A)\== (baseKB:loaded_external_kbs/1)),
-              M:discontiguous(M:F/A),
-              M:module_transparent(M:F/A),
+      functor_h(PI,F,A),
+      asserta_if_new(baseKB:safe_wrap(F,A,ereq)),
+      M:multifile(M:F/A),
+      M:public(M:F/A),
+      %   on_f_throw( (M:F/A)\== (baseKB:loaded_external_kbs/1)),
+      M:discontiguous(M:F/A),
+      M:module_transparent(M:F/A),
       (is_static_predicate(M:PI) -> true ;
-       (predicate_property(M:PI,dynamic) -> true ; on_xf_cont(M:dynamic(M:PI)))))),!.
+      (predicate_property(M:PI,dynamic) -> true ; on_xf_cont(M:dynamic(M:PI)))))),!.
 
 
 %prologHybrid(X,Y):-dtrace(prologHybrid(X,Y)).

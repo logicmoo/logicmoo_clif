@@ -70,14 +70,12 @@
 :- user:use_module(library(xlisting)).
 :- user:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
 :- user:use_module(logicmoo_swilib).
+
 %:- kb_shared(col_as_isa/1). % members are used thru  isa(ELEM,COL).
 %:- kb_shared(col_as_static/1). % hard coded like: compound/1
 %:- kb_shared(col_as_unary/1). % written as COL(ELEM)
-:- kb_shared(disjointWith/2).
-:- kb_shared(isa/2).
-:- kb_shared(genlsFwd/2).
-:- kb_shared(genls/2).
-:- kb_shared(meta_argtypes/1).
+
+:- '$set_source_module'(baseKB).
 :- kb_shared(mpred_prop/3).
 :- kb_shared(mudToCyc/2).
 :- kb_shared(quotedIsa/2).
@@ -86,7 +84,12 @@
 :- kb_shared(tSet/1).
 :- kb_shared(ttRelationType/1).
 :- kb_shared(type_checking/0).
-:- reexport(library('logicmoo/typesystem/mpred_type_wff.pl')).
+:- kb_shared(disjointWith/2).
+:- kb_shared(isa/2).
+:- kb_shared(genlsFwd/2).
+:- kb_shared(genls/2).
+:- kb_shared(meta_argtypes/1).
+
 :- reexport(library('logicmoo/typesystem/mpred_agenda.pl')).
 :- reexport(library('logicmoo/typesystem/mpred_hooks.pl')).
 :- reexport(library('logicmoo/typesystem/mpred_storage.pl')).
@@ -94,6 +97,7 @@
 :- reexport(library('logicmoo/typesystem/mpred_type_isa.pl')).
 :- reexport(library('logicmoo/typesystem/mpred_type_constraints.pl')).
 :- reexport(library('logicmoo/typesystem/mpred_type_args.pl')).
+:- reexport(library('logicmoo/typesystem/mpred_type_wff.pl')).
 :- reexport(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
 :- user:use_module(logicmoo_clif).
