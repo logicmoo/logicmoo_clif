@@ -238,7 +238,7 @@ define_maybe_prolog(M,PI,F,A):-
 
 define_maybe_prolog(M,PI,F,A):-
       assert_arity(F,A),
-   %sanity(\+ mtCycL(M)),
+   %sanity(\+ mtHybrid(M)),
    %sanity(\+ M == baseKB),
       ain(predicateConventionMt(F,M)),
       ain(~prologHybrid(F)),
@@ -382,7 +382,7 @@ decl_mpred_2(F,Prop):-ain_expanded(mpred_prop(F,A,Prop)).
 % Declare Managed Predicate.
 %
 decl_mpred(Mt,F,A):-decl_mpred(F,A),ignore((nonvar(Mt),
-      (\+ baseKB:mtCycL(Mt)),
+      (\+ baseKB:mtHybrid(Mt)),
       (\+ Mt == baseKB),
       decl_mpred(F,predicateConventionMt(Mt)))).
 

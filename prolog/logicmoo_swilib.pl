@@ -15,6 +15,8 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
+end_of_file.
+
 :- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0,
   ensure_LOGTALKUSER/0,load_logtalk/0]).
 

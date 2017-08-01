@@ -679,7 +679,7 @@ callable_tf(F,A):- functor_safe(P,F,A),predicate_property(P,_),!.
 %
 % Call Whichlist True Stucture.
 %
-call_whichlist_t(dac(d,_,_,_),CALL,_):- t(CALL).
+call_whichlist_t(dac(d,_,_,_),CALL,_):- call_u(t(CALL)).
 call_whichlist_t(dac(_,a,_,_),_,List):- assertion_t(List).
 call_whichlist_t(dac(_,_,c,_),CALL,_):- xcall_t(CALL).
 call_whichlist_t(dac(_,_,_,holds_t),CALL,_):- holds_t(CALL).
@@ -761,7 +761,7 @@ call_which_t(dac(_,_,_,holds_t),P,A1,A2):- holds_t(P,A1,A2).
 %
 % Call Which True Stucture.
 %
-call_which_t(dac(d,_,_,_),P,A1):- t(P,A1).
+call_which_t(dac(d,_,_,_),P,A1):- call_u(t(P,A1)).
 call_which_t(dac(_,a,_,_),P,A1):- assertion_t([P,A1]).
 call_which_t(dac(_,_,c,_),P,A1):- callable_tf(P,1),xcall_t(P,A1).
 call_which_t(dac(_,_,_,holds_t),P,A1):- holds_t(P,A1).

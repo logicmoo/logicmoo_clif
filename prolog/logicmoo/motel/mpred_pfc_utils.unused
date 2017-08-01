@@ -287,7 +287,7 @@ mpred_aina(G,S):-ain(G,S).
 % Prolog Forward Chaining Add.
 %
 pfc_add(P) :- 
-  ain_fast(P),mpred_run.
+  ain_fast(P),pfc_run.
 
 
 %% ain(+P, ?S) is semidet.
@@ -295,7 +295,7 @@ pfc_add(P) :-
 % Assert If New.
 %
 ain(P,S) :- 
-  ain_fast(P,S),mpred_run.
+  ain_fast(P,S),pfc_run.
 
 
 
@@ -509,8 +509,8 @@ with_no_mpred_trace_exec(P):- get_user_abox(M),
 % PFC Test.
 %
 mpred_test(_):- (compiling; current_prolog_flag(xref,true)),!.
-mpred_test(P):- mpred_is_silient,!,sanity(call_u(P)),!.
-mpred_test(P):- (show_call(with_mpred_trace_exec(call_u(P))) -> why_was_true(P) ; ((why_was_true( \+( P )),!,fail))).
+mpred_test(P):- mpred_is_silient,!,mpred_must(call_u(P)),!.
+mpred_test(P):- (show_call(with_mpred_trace_exec(mpred_must(P))) -> why_was_true(P) ; ((why_was_true( \+( P )),!,fail))).
 
 why_was_true(P):- mpred_why(P),!.
 why_was_true(P):- dmsg(justfied_true(P)),!.
@@ -686,16 +686,16 @@ mpred_run_resume:- retractall(t_l:mpred_run_paused).
 
 without_running(G):- (t_l:mpred_run_paused->G;locally(t_l:mpred_run_pause,G)).
 
-%% mpred_run is det.
+%% pfc_run is det.
 %
-% mpred_run computes the deductive closure of the current database.
+% pfc_run computes the deductive closure of the current database.
 % How this is done depends on the searching mode:
 %    direct -  fc has already done the job.
 %    depth or breadth - use the que mechanism.
 %
-mpred_run :- repeat, \+ mpred_step, !.
+pfc_run :- repeat, \+ mpred_step, !.
 
-%mpred_run_queued:- repeat,sleep(1.0),mpred_run,fail.
+%mpred_run_queued:- repeat,sleep(1.0),pfc_run,fail.
 %:-thread_property(_,alias(mpred_running_queue))-> true ; thread_create(mpred_run_queued,_,[alias(mpred_running_queue)]).
 
 
@@ -1197,8 +1197,8 @@ mpred_unfwc(UnFact) :-
 %
 mpred_unfwc1(F) :-
   mpred_unfwc_check_triggers(_Sup,F),
-  % is this really the right place for mpred_run<?
-  mpred_run.
+  % is this really the right place for pfc_run<?
+  pfc_run.
 
 
 %% mpred_unfwc_check_triggers(+Sup, ?Clause) is semidet.
@@ -1242,7 +1242,7 @@ mpred_retract_support_relations(_,_).
 remove_if_unsupported_verbose(Why,TMS,P) :- is_ftVar(P),!,trace_or_throw(warn(var_remove_if_unsupported_verbose(Why,TMS,P))).
 remove_if_unsupported_verbose(Why,TMS,P) :- 
    (((mpred_tms_supported(TMS,P,How),How\=unknown(_)) -> mpred_trace_msg(v_still_supported(How,Why,TMS,P)) ; ( mpred_undo(Why,P)))).
-   % mpred_run.
+   % pfc_run.
 
 
 mpred_remove_file_support(File):- 

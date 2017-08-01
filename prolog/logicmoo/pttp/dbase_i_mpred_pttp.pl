@@ -17,7 +17,7 @@
 
 :- thread_local(t_l:disable_px/0).
 
-:- ensure_loaded(library(pfc)).
+%:- ensure_loaded(library(pfc)).
 :- include(logicmoo('pfc2.0'/'mpred_header.pi')).
 % :- ensure_loaded(library(logicmoo_utils)).
 

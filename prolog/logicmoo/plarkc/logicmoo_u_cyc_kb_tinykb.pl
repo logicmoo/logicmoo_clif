@@ -49,6 +49,10 @@
 
 :- set_module(class(development)).
 
+:- multifile(baseKB:arity/2).
+:- import(baseKB:arity/2).
+:- kb_shared(baseKB:arity/2).
+
 :- use_module(library('filestreams')).
 % ===================================================================
 % OPERATOR PRECEDANCE
@@ -126,7 +130,7 @@ reallyLoadTiny:- mpred_notrace.
 
 %TODO FIX :-ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))).
 
-:- ain((((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
+:- ain(baseKB:(((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
 % ?-listing(cycl).
 
 %TODO FIX :- must(isa(iExplorer2,tHominid)).

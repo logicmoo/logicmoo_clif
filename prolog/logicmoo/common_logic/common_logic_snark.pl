@@ -390,7 +390,7 @@ pfc_for_print_right(Prolog,PrintPFC):- =(Prolog,PrintPFC).
 %   
 %
 is_entailed_u(CLIF):- 
- mpred_run,
+ pfc_run,
  mpred_nochaining((
    must_det(any_to_pfc(CLIF,Prolog)),!, 
    \+ \+ are_clauses_entailed(Prolog))),!.

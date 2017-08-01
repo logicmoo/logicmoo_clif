@@ -938,7 +938,7 @@ cmp_memberchk0(Item, [X1]) :-
 %
 % Type Size.
 %
-type_size(C,S):-a(completeExtentEnumerable,C),!,setof(E,t(C,E),L),length(L,S).
+type_size(C,S):-a(completeExtentEnumerable,C),!,setof(E,call_u(t(C,E)),L),length(L,S).
 type_size(C,1000000):-a(ttExpressionType,C),!.
 type_size(_,1000).
 

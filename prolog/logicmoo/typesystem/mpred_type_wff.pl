@@ -345,7 +345,7 @@ isQualifiedAndVarAndUnifiable(Denotation,BaseType,NValue):-
 
 % ===============================================================================================
 % ===============================================================================================
-
+/*
 :- dynamic(isBodyConnective/1).
 
 
@@ -358,7 +358,7 @@ isBodyConnective(Funct):-atom_concat(_,'_',Funct),!.
 isBodyConnective(Funct):-atom_concat('t~',_,Funct),!.
 isBodyConnective(Funct):-atom_concat('f~',_,Funct),!.
 isBodyConnective(Funct):-member(Funct,[and,or,until,',',';',':-',unless,xor,holdsDuring]). % Other Propositional Wrhtml_appers
-
+*/
 
 
 

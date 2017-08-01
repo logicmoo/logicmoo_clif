@@ -207,9 +207,6 @@ logicmoo_utils_test_msg:- locally((
 % %:- reexport(library('supp')).
 */
 /*
-:- multifile baseKB:prologBuiltin/1.
-:- discontiguous baseKB:prologBuiltin/1.
-:- dynamic baseKB:prologBuiltin/1.
 :- listing(locally/2).
 */
 % :- rtrace.

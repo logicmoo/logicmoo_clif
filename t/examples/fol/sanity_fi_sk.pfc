@@ -2,8 +2,8 @@
 
 :- module(sanity_fi_sk,[]).
 
-:- kb_shared(system:(<-)/2).
-:- kb_shared(system:(<==)/2).
+%:- kb_shared(system:(<-)/2).
+%:- kb_shared(system:(<==)/2).
 
 :- make.
 /*

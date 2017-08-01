@@ -381,7 +381,7 @@ argIsa(completeExtentAsserted,1,tPred).
 
 meta_argtypes(argIsa(tRelation,ftInt,tCol)).
 
-:- mpred_run.
+:- pfc_run.
 :- mpred_notrace_exec.
 
 /* 

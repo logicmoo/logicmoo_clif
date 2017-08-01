@@ -311,7 +311,7 @@ was_isa0(G,I,C):-G=..[C,I],!,is_typef(C),!,\+ (is_never_type(C)).
 
 
 
-%==>baseKB:prologBuiltin(to_isa_out/2).
+baseKB:prologBuiltin(to_isa_out/2).
 
 %% to_isa_out( ?I, ?C, ?OUT) is nondet.
 %
@@ -338,7 +338,7 @@ to_isa_out(I,C,OUT):- atom(C)->OUT=..[C,I].
 isa_from_morphology(Inst,Type):-atom(Inst),type_suffix(Suffix,Type),atom_concat(Base,Suffix,Inst),!,atom_length(Base,BL),BL>2.
 isa_from_morphology(Inst,Type):-atom(Inst),type_prefix(Prefix,Type),atom_concat(Prefix,Other,Inst),capitalized(Other),!.
 
-:- add_import_module(mpred_type_isa,baseKB,start).
+%:- add_import_module(mpred_type_isa,baseKB,start).
 
 :- multifile(baseKB:type_suffix/2).
 :- mpred_type_isa:import(baseKB:type_suffix/2).

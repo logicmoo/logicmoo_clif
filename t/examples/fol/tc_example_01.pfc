@@ -1,0 +1,10 @@
+
+:- use_module(library(logicmoo_user)).
+
+all([X,Y,R],
+  exists(RPlus, 
+   holds(RPlus,X,Y) & holds(Ri,Y,Z) => 
+           ( holds(RPlus,X,Z) & ~holds(Ri,X,Z)))).
+
+
+

@@ -62,20 +62,22 @@
 :- debug.
 */
 
+:- '$set_source_module'(baseKB).
+use_shared_module(USM):-baseKB:ensure_loaded(USM).
+
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
-:- user:use_module(library(gvar_syntax)).
-:- user:use_module(library(dictoo)).
-:- baseKB:ensure_loaded(library(pfc_lib)).
-:- user:use_module(library(xlisting)).
-:- user:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
-:- user:use_module(logicmoo_swilib).
+:- use_shared_module(library(gvar_syntax)).
+:- use_shared_module(library(dictoo)).
+:- use_shared_module(library(pfc_lib)).
+:- use_shared_module(library(xlisting)).
+:- use_shared_module(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
+:- use_shared_module(logicmoo_swilib).
 
 %:- kb_shared(col_as_isa/1). % members are used thru  isa(ELEM,COL).
 %:- kb_shared(col_as_static/1). % hard coded like: compound/1
 %:- kb_shared(col_as_unary/1). % written as COL(ELEM)
 
-:- '$set_source_module'(baseKB).
 :- kb_shared(mpred_prop/3).
 :- kb_shared(mudToCyc/2).
 :- kb_shared(quotedIsa/2).
@@ -90,18 +92,18 @@
 :- kb_shared(genls/2).
 :- kb_shared(meta_argtypes/1).
 
-:- reexport(library('logicmoo/typesystem/mpred_agenda.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_hooks.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_storage.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_stubs.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_type_isa.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_type_constraints.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_type_args.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_type_wff.pl')).
-:- reexport(library('logicmoo/typesystem/mpred_type_naming.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_agenda.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_hooks.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_storage.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_stubs.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_type_isa.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_type_constraints.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_type_args.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_type_wff.pl')).
+:- use_shared_module(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
-:- user:use_module(logicmoo_clif).
-:- user:use_module(logicmoo_plarkc).
+:- use_module(logicmoo_clif).
+:- use_module(logicmoo_plarkc).
 :- multifile(baseKB:cycBetween/3).
 :- dynamic(baseKB:cycBetween/3).
 :- baseKB:export(baseKB:cycBetween/3).
@@ -122,14 +124,13 @@
 
 
 
-:- must( \+ is_pfc_file ).
+:- must_not_be_pfc_file.
 
 
-:-  prolog_statistics:time((baseKB:ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc')))).
+:-  call(prolog_statistics:time,((baseKB:use_shared_module(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
 
 
-
-:- must( \+ is_pfc_file ).
+:- must_not_be_pfc_file.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

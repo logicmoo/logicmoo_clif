@@ -470,7 +470,7 @@ pfcRem(P,S) :-
 
 %%
 %% mpred_remove is like pfcRem, but if P is still in the DB after removing the
-%%  'lmcode''s support, it is retracted by more forceful means (e.g. remove).
+%%  'lmcode''s support, it is retracted by more forceful means (e.g. mpred_blast).
 %%
 
 mpred_remove(P) :- 
@@ -480,14 +480,14 @@ mpred_remove(P) :-
 mpred_remove(P,S) :-
   pfcRem(P,S),
   pfc(P)
-     -> remove(P) 
+     -> mpred_blast(P) 
       ; true.
 
 %%
-%% remove(+F) retracts fact F from the DB and removes any dependent facts */
+%% mpred_blast(+F) retracts fact F from the DB and removes any dependent facts */
 %%
 
-remove(F) :- 
+mpred_blast(F) :- 
   pfcRemoveSupports(F),
   fcUndo(F).
 
@@ -1296,7 +1296,7 @@ pfcRetractOrWarn(X) :-
 :- dynamic pfcTraced/1.
 :- dynamic mpred_spied/2.
 :- dynamic mpred_trace_exec/0.
-:- dynamic mpred_warnings/1.
+:- dynamic(mpred_warnings/1).
 
 :- mpred_default(mpred_warnings(_), mpred_warnings(true)).
 

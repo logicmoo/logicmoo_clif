@@ -682,8 +682,8 @@ baseKB:mpred_provide_storage_clauses(H,B,Proof):-mpred_t_mpred_storage_clauses_f
 %
 % Managed Predicate True Structure Managed Predicate Storage Clauses Facts.
 %
-mpred_t_mpred_storage_clauses_facts(H,true,t(H)):-is_list(H),!,length(H,A),A>2,loop_check(t(H)).
-mpred_t_mpred_storage_clauses_facts(H,true,t(H)):-compound(H),!,current_predicate(into_plist_arities/4),functor(H,_,A),A>1,loop_check(t(H)).
+mpred_t_mpred_storage_clauses_facts(H,true,t(H)):-is_list(H),!,length(H,A),A>2,loop_check(call_u(t(H))).
+mpred_t_mpred_storage_clauses_facts(H,true,t(H)):-compound(H),!,current_predicate(into_plist_arities/4),functor(H,_,A),A>1,loop_check(call_u(t(H))).
 % mpred_t_mpred_storage_clauses_facts(H,B,W):-mpred_t_mpred_storage_clauses_rules(H,B,W),H\=isa(_,_).
 
 % TODO USE PFC FOR FOREWARD RULES

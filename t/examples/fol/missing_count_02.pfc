@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+(th#!/usr/bin/env swipl
 
 % :- module(missing_count,[]).
 

@@ -140,13 +140,13 @@ end_of_file.
 tCol(tCol).
 tCol(tSet).
 tCol(C)/( \+ ttExpressionType(C))==>tSet(C).
-tCol(mtCycL).
+tCol(mtHybrid).
 tCol(col_as_isa).
 tCol(col_as_unary).
 col_as_unary(col_as_unary).
 col_as_unary(col_as_isa).
 tCol(C)/( \+ col_as_unary(C))==>col_as_isa(C).
-mtCycL(baseKB).
+mtHybrid(baseKB).
 tSet(tCol).
 tSet(tSet).
 genls(tSet,tCol).
@@ -174,7 +174,7 @@ ttTypeType(col_as_unary).
 genl(ttTypeType,tCol).
 
 tCol(col_as_unary).
-col_as_unary(mtCycL).
+col_as_unary(mtHybrid).
 col_as_unary(completelyAssertedCollection).
 
 tCol(C) ==> {atom(C),not_undoable((CI=..[C,I],assertz_if_new((CI:- (cwc,   loop_check(isa(I,C)))))))}.

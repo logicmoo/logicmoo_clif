@@ -13,8 +13,8 @@
 %%% 
 %%% 
 
-:- ensure_loaded(library(pfc)).
-:- include(logicmoo('pfc2.0'/'mpred_header.pi')).
+%:- ensure_loaded(library(pfc)).
+%:- include(logicmoo('pfc2.0'/'mpred_header.pi')).
 :- ensure_loaded(dbase_i_mpred_pttp).
 
 :- kb_shared(pttp_test/2).

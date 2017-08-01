@@ -314,7 +314,7 @@ resolveConflict0(C) :-  forall(must(mpred_negation_w_neg(C,N)),ignore(show_failu
 % Resolver Conflict Robot.
 %
 resolverConflict_robot(N) :-  forall(must(mpred_negation_w_neg(N,C)),forall(compute_resolve(C,N,TODO),on_x_debug(show_if_debug(TODO)))).
-resolverConflict_robot(C) :-  must((mpred_remove(C),wdmsg("Rem-3 with conflict ~p", [C]),mpred_run,sanity(\+C))).
+resolverConflict_robot(C) :-  must((mpred_remove(C),wdmsg("Rem-3 with conflict ~p", [C]),pfc_run,sanity(\+C))).
 
 
 %% never_declare( :TermRule, ?Rule) is semidet.
@@ -359,7 +359,7 @@ never_assert_u(pt(_,
 
 on_modules_changed:-!.
 on_modules_changed :-
-  forall((current_module(M),M\=user,M\=system,M\=baseKB,M\=abox,\+ baseKB:mtCycL(M)),
+  forall((current_module(M),M\=user,M\=system,M\=baseKB,M\=abox,\+ baseKB:mtHybrid(M)),
       (default_module(abox,M)->true;catch(add_import_module(M,abox,start),E1,dmsg(E1:add_import_module(M,abox,start))))),
   forall((current_module(M),M\=user,M\=system,M\=baseKB),
      (default_module(baseKB,M)->true;catch(add_import_module(M,baseKB,end),E2,dmsg(E2:add_import_module(M,baseKB,end))))).

@@ -26,6 +26,7 @@
 
 loadNewTiny:-  \+ exists_file(tiny_kb_cache),
   tell(tiny_kb_cache),
+  format('~q.~n',[:- asserta(baseKB:ignore_file_mpreds(tiny_kb_cache))]),
   format('~q.~n',[:- multifile(tiny_kb/3)]),
   format('~q.~n',[:-   dynamic(tiny_kb/3)]),
   format('~q.~n',[:- style_check(-singleton)]),
