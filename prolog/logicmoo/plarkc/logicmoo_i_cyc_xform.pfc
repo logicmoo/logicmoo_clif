@@ -42,6 +42,21 @@ genls(Sub, _Super) ==> tCol(Sub).
 
 */
 
+
+genls(vtAssertion,ftAssertable).
+tSet(vtAssertion).
+ftSpec(ftAssertable).
+
+:- kb_global(baseKB:ist/2).
+
+prologHybrid(ist(tMicrotheory,ftAssertable)).
+prologHybrid(istAsserted(ftAssertable)).
+
+resultIsa(aAssertionFn(tMicrotheory,ftAssertable),vtAssertion).
+
+:-asserta((mudEquals(aAssertionFn(MT,Sent),ist(MT,Sent)):-must(assert_if_new(MT:Sent)))).
+
+
 :-ain((isa(X,'SecondOrderCollection')<==>isa(X,'ttTypeType'))).
 isa(X,'FirstOrderCollection')==>isa(X,'tCol').
 isa(X,'LinguisticObjectType')==>isa(X,tCol).

@@ -8,7 +8,7 @@
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- user:ensure_loaded(logicmoo_webbot).
+:- with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot)).
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
 
@@ -93,18 +93,18 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 
 % :- ls.
 
-:- load_library_system(logicmoo_user).
+:- load_library_system(logicmoo_lib).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SANITY TEST EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 decl_kb_shared_tests:-
- % sanity(listing((kb_shared)/1)),
- kb_shared(baseKB:sanity_test/0),
- kb_shared(baseKB:regression_test/0),
- kb_shared(baseKB:feature_test/0),
- kb_shared((
+ % sanity(listing((kb_global)/1)),
+ kb_global(baseKB:sanity_test/0),
+ kb_global(baseKB:regression_test/0),
+ kb_global(baseKB:feature_test/0),
+ kb_global(baseKB:(
         baseKB:feature_test/0,
         baseKB:mud_test/2,
         baseKB:regression_test/0,
@@ -166,7 +166,7 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- check_clause_counts.
 
-% :- load_library_system(library(logicmoo_user)).
+% :- load_library_system(library(logicmoo_lib)).
 % :- load_library_system(logicmoo(logicmoo_plarkc)).
 
 :- after_boot((set_prolog_flag(pfc_booted,true))).
@@ -174,7 +174,7 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 :- nb_setval('$oo_stack',[]).
 :- b_setval('$oo_stack',[]).
 
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
+%
 
 
 

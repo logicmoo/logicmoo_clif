@@ -591,7 +591,7 @@ define_maybe_exact(_,PI):-
 maybe_define_if_not_static(M,PI):-
   must_det_l((
       functor_h(PI,F,A),
-      asserta_if_new(baseKB:safe_wrap(F,A,ereq)),
+      asserta_if_new(baseKB:safe_wrap(M,F,A,ereq)),
       M:multifile(M:F/A),
       M:public(M:F/A),
       %   on_f_throw( (M:F/A)\== (baseKB:loaded_external_kbs/1)),

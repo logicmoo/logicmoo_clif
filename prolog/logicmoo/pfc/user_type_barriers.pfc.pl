@@ -1,5 +1,6 @@
 
-:- ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
+%:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
+
 
 :- mpred_unload_file.
 

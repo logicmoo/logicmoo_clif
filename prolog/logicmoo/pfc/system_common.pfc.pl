@@ -381,7 +381,7 @@ argIsa(completeExtentAsserted,1,tPred).
 
 meta_argtypes(argIsa(tRelation,ftInt,tCol)).
 
-:- pfc_run.
+:- mpred_run.
 :- mpred_notrace_exec.
 
 /* 
@@ -693,6 +693,7 @@ isa(Spec,tCol)/col_arity(Spec,A) ==> arity(Spec,A).
 tSet(tPred).
 
 :- sanity(assert_argIsa(tPred,1,tPred)).
+:- sanity(ain(argIsa(tPred,1,tPred))).
 
 
 /*
@@ -1119,7 +1120,7 @@ quotedDefnIff(ftListFn(Type),is_list_of(Type)):- cwc, is_ftNonvar(Type).
 quotedDefnIff(ftCodeIs(SomeCode),SomeCode):- cwc, is_ftNonvar(SomeCode).
 % :- listing(quotedDefnIff).
 
-:- kb_shared(ftText/1).
+:- kb_global(baseKB:ftText/1).
 
 ((ttExpressionType(FT)/append_term(FT,Arg,Head)) ==> 
     ({OO = (Head:- !, term_is_ft(Arg,FT))},OO)).

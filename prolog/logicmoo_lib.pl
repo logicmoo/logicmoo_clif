@@ -31,19 +31,19 @@
 % :- set_prolog_flag(readline,true).
 
 :- if(current_prolog_flag(readline,editline)).
-:- ensure_loaded(library(readline)).
+:- system:ensure_loaded(library(readline)).
 :- listing(prolog:history/2).
 :- abolish(prolog:history/2).
-:- reconsult(library(editline)).
+:- system:reconsult(library(editline)).
 :- else.
 :- if(exists_source(library(readline))).
 :- if(exists_source(library(editline))).
-:- ensure_loaded(library(editline)).
+:- system:ensure_loaded(library(editline)).
 :- listing(prolog:history/2).
 :- abolish(prolog:history/2).
 :- endif.
 :- unload_file(library(readline)).
-:- consult(library(readline)).
+:- system:consult(library(readline)).
 :- endif.
 :- endif.
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
@@ -63,7 +63,7 @@
 */
 
 :- '$set_source_module'(baseKB).
-use_shared_module(USM):-baseKB:ensure_loaded(USM).
+use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
@@ -72,13 +72,14 @@ use_shared_module(USM):-baseKB:ensure_loaded(USM).
 :- use_shared_module(library(pfc_lib)).
 :- use_shared_module(library(xlisting)).
 :- use_shared_module(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
-:- use_shared_module(logicmoo_swilib).
+:- with_no_mpred_expansions(use_shared_module(logicmoo_swilib)).
 
 %:- kb_shared(col_as_isa/1). % members are used thru  isa(ELEM,COL).
 %:- kb_shared(col_as_static/1). % hard coded like: compound/1
 %:- kb_shared(col_as_unary/1). % written as COL(ELEM)
 
-:- kb_shared(mpred_prop/3).
+
+:- kb_shared(mpred_prop/4).
 :- kb_shared(mudToCyc/2).
 :- kb_shared(quotedIsa/2).
 :- kb_shared(rtReformulatorDirectivePredicate/1).
@@ -92,15 +93,19 @@ use_shared_module(USM):-baseKB:ensure_loaded(USM).
 :- kb_shared(genls/2).
 :- kb_shared(meta_argtypes/1).
 
-:- use_shared_module(library('logicmoo/typesystem/mpred_agenda.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_hooks.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_storage.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_stubs.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_type_isa.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_type_constraints.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_type_args.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_type_wff.pl')).
-:- use_shared_module(library('logicmoo/typesystem/mpred_type_naming.pl')).
+
+:- create_prolog_flag(mpred_te,true,[type(term),keep(false)]).
+
+wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))).
+:- wsce(library('logicmoo/typesystem/mpred_agenda.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_hooks.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_storage.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_stubs.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_type_isa.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_type_constraints.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_type_args.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_type_wff.pl')).
+:- wsce(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
 :- use_module(logicmoo_clif).
 :- use_module(logicmoo_plarkc).
@@ -112,8 +117,6 @@ use_shared_module(USM):-baseKB:ensure_loaded(USM).
 
 
 :- set_prolog_flag(pfc_booted,true).
-:- create_prolog_flag(retry_undefined,default,[type(term),keep(true)]).
-:- set_prolog_flag(retry_undefined,true).
 :- set_prolog_flag(read_attvars,false).
 
 :- ((hook_database:call(asserta_if_new,(ereq(G):- !, baseKB:call_u(G))))).
@@ -127,7 +130,14 @@ use_shared_module(USM):-baseKB:ensure_loaded(USM).
 :- must_not_be_pfc_file.
 
 
-:-  call(prolog_statistics:time,((baseKB:use_shared_module(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
+:- multifile prolog:message//1, user:message_hook/3.
+% user:message_hook(import_private(pfc_lib,_:_/_),warning,_):- source_location(_,_),!.
+user:message_hook(io_warning(_,'Illegal UTF-8 start'),warning,_):- source_location(_,_),!.
+user:message_hook(T,Type,Warn):- source_location(_,_),
+  memberchk(Type,[error,warning]),once(maybe_message_hook(T,Type,Warn)),fail.
+
+
+:-  call(prolog_statistics:time,((ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
 
 
 :- must_not_be_pfc_file.
@@ -151,13 +161,13 @@ use_shared_module(USM):-baseKB:ensure_loaded(USM).
 % Module Secondary Helper.
 %
 %:- add_library_search_path('./mpred_online/',[ '*.pl']).
-checkKB:m1:- gripe_time(40,ensure_loaded(logicmoo(mpred_online/xlisting_web))),if_defined(ensure_webserver), make,list_undefined.
+checkKB:m1:- gripe_time(40,wsce(logicmoo(mpred_online/xlisting_web))),if_defined(ensure_webserver), make,list_undefined.
 
 % :- hook_message_hook.
 % :- set_prolog_flag(verbose_autoload,false).
 % :- set_prolog_flag(verbose_load,true).
 % m9   :-asserta_if_new((user:term_expansion(I,O):- lmbase_expansion(term,user,I,O))).
-%m31 :-   (F = mpred/_),foreach(must(baseKB:mpred_is_impl_file(F)),must_det_l((dmsg(list_file_preds(F)),ensure_loaded(F),export_file_preds(F),list_file_preds(F)))).
+%m31 :-   (F = mpred/_),foreach(must(baseKB:mpred_is_impl_file(F)),must_det_l((dmsg(list_file_preds(F)),wsce(F),export_file_preds(F),list_file_preds(F)))).
 %m32:- rtrace(ensure_mpred_system).
 % m33:- must(filematch_ext(['',mpred,ocl,moo,plmoo,pl,plt,pro,p,'pl.in',pfc,pfct],logicmoo_user:pfc/mpred,W)),dmsg(W),!.
 
@@ -195,7 +205,7 @@ mpred_load_restore_file(File):-
   must_det_l((
   time_file(File,Time),
   qcompile(File),
-  ensure_loaded(File),
+  wsce(File),
    ((\+ (baseKB:loaded_file_world_time(N,_,NewTime),NewTime>=Time)) ->true ;
     (
     ignore((baseKB:loaded_file_world_time(N,_,NewTime),NewTime>Time,

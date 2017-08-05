@@ -9,8 +9,6 @@
 */
 % =======================================================
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/mpred/mpred_type_args.pl
-:- if(current_prolog_flag(lm_pfc_lean,false)).
-:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(mpred_type_args,
           [ any_to_relation/2,
             argIsa_op_call/4,
@@ -75,9 +73,9 @@
 
 %:- include('mpred_header.pi').
 
-:- endif.
 % autoloading user:portray_clause_pi/2 from /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/util/logicmoo_util_first
 
+:- virtualize_source_file.
 
 
 
@@ -846,7 +844,5 @@ roll_dice(Rolls,Sided,Bonus,Result):- LessRolls is Rolls-1, roll_dice(LessRolls,
 :- fixup_exports.
 
 mpred_type_args_file.
-
-:- endif.
 
 

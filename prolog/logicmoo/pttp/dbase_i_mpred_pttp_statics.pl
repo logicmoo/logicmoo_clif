@@ -429,8 +429,8 @@ process_proof([[[X,Head,PosAncestors,NegAncestors]|Y]|PrfEnd],LineNum,Result) :-
 	(is_query_lit(Head) ->
 		Depth is 0;
 	%true ->
-		list_length(PosAncestors,N1),	% compute indentation to show
-		list_length(NegAncestors,N2),	% level of goal nesting from
+		list_length_pttp(PosAncestors,N1),	% compute indentation to show
+		list_length_pttp(NegAncestors,N2),	% level of goal nesting from
 		Depth is N1 + N2 + 1),		% lengths of ancestor lists
 	Depth1 is Depth + 1,
 	collect_proof_subgoals(Depth1,P,Subgoals),
@@ -824,8 +824,8 @@ proof_depth([Prf|PrfEnd],N) :-
 	N = 0.
 proof_depth([[[_,_,PosAnc,NegAnc]|L]|PrfEnd],N) :-
 	proof_depth([L|PrfEnd],N1),
-	list_length(PosAnc,N2),
-	list_length(NegAnc,N3),
+	list_length_pttp(PosAnc,N2),
+	list_length_pttp(NegAnc,N3),
 	N4 is N2 + N3,
 	max(N1,N4,N).
 %%% ***
@@ -883,13 +883,13 @@ list_union([X|L1],L2,[X|L3]) :-
 	list_union(L1,L2,L3).
 list_union([],L,L).
 %%% ***
-%%% ****if* PTTP/list_length
+%%% ****if* PTTP/list_length_pttp
 %%% SOURCE
 
-list_length([_X|L],N) :-
-	list_length(L,N1),
+list_length_pttp([_X|L],N) :-
+	list_length_pttp(L,N1),
 	N is N1 + 1.
-list_length([],0).
+list_length_pttp([],0).
 %%% ***
 %%% ****if* PTTP/min
 %%% SOURCE

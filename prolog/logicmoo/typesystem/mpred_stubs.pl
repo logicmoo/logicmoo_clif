@@ -153,6 +153,8 @@ wff_check_failed/3,
 wff_check_mpred_t_throw/1.
 
 
+:- virtualize_source_file.
+
 %= 	 	 
 
 %% hybrid_tPredStubImpl( ?VALUE1) is semidet.

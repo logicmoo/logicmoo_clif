@@ -19,15 +19,18 @@
 :- asserta(use_logicmoo_mod).
 :- endif.
 
+:- create_prolog_flag(mpred_te,true,[type(term),keep(false)]).
+:- reexport(logicmoo_lib).
+:- reexport(library(pfc_lib)).
+
 :- retract(baseKB:'wusing_pfc'(M,CM,SM,logicmoo_mod)),
    assert(baseKB:'using_pfc'(M,CM,SM,logicmoo_mod)),
    assert(baseKB:'using_pfc'(M,CM,SM,pfc_mod)),
-   M:reexport(logicmoo_lib),
-   M:reexport(library(pfc_lib)),
-   (M==SM -> 
-     (ensure_abox(SM),ain(genlMt(SM,baseKB)));     
-  (module_property(SM,class(user))->ain(genlMt(SM,baseKB));
-          wdmsg(baseKB:'lusing_pfc'(M,CM,SM,logicmoo_mod)))),!.
+  (M==SM -> 
+     ((maybe_ensure_abox(SM),nop((M:ain(genlMt(SM,baseKB)))));
+     wdmsg(baseKB:'lusing_pfc'(M,CM,SM,pfc_mod)))).
 
 
+
+:- set_prolog_flag(gc,true).
 

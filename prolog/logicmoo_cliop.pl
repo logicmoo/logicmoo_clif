@@ -1,81 +1,117 @@
 #!/usr/local/bin/swipl 
 
-:- module(logicmoo_cliop,[cliop_server/0]).
+:- module(logicmoo_cliop,
+          [ run_clio_now/0
+          ]).
 
-cliop_server:- ['./run_clio'].
+:- use_module(library(http/thread_httpd)).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_path)).
+:- use_module(library(www_browser)).
+:- if(exists_source(library(uid))).
+:- use_module(library(uid)).
+:- endif.
 
-end_of_file.
+/** <module>
 
+  Isolated startup module for ClioPatria
 
-:- ['./run'].
-:- [cpack/trill_on_swish/src/lib/authenticate].
-
-
-end_of_file.
-
-
-:- 
-   forall(retract(user:file_search_path(cpack, _)),true),forall(retract(user:file_search_path(cpacks, _)),true),
-   add_file_search_path_safe(cpack,'./cpack'), % add_file_search_path_safe(cpacks,'./cpack'),
-
-   forall(retract(user:file_search_path(cp_application, _)),true),
-   absolute_file_name(.,O), add_file_search_path_safe(cp_application,O), 
-    listing(user:file_search_path('config_enabled',_)),
-    add_file_search_path_safe(user,O),
-    listing(user:file_search_path/2),
-    forall(user:file_search_path(library, E),writeln(user:file_search_path(library, E))),!.
-
-:- ['./run_clio'].
-
-end_of_file.
-
+*/
 
 :- use_module(library(must_trace)).
 
-:- current_prolog_flag(os_argv,List),dmsg((app_argv=List)).
+:- multifile(owl2_model:datatype/1).
+:- dynamic(owl2_model:datatype/1).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% USE CLIOPATRIA ?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- if(true;((( (app_argv('--clio') ; app_argv('--all')) , \+ app_argv('--noclio'))))).
+:- if(false).
 
 
-:- add_file_search_path_safe(cliopatria,pack('ClioPatria')).
 
-:- add_file_search_path_safe(data,'./data').
-:- add_file_search_path_safe(config_enabled,'./config-enabled').
-
-:- forall(retract(user:file_search_path(cp_application, '/home/prologmud_server/lib/swipl/pack/logicmoo_base/prolog')),true).
-:- absolute_file_name(.,O), add_file_search_path_safe(cp_application,O).
+:- multifile(owl2_model:datatype/2).
+:- dynamic(owl2_model:datatype/2).
 
 
-:- dynamic(saved_os_argv/1).
 
-:- if( (app_argv('--clio')) ).
-:- current_prolog_flag(os_argv,List),append(Before,['--clio'|After],List),
-   asserta(saved_os_argv(Before)),
-   set_prolog_flag(os_argv,[ swipl | After]).
-:- else.
-:- current_prolog_flag(os_argv,List),
-   asserta(saved_os_argv(List)).
-:- set_prolog_flag(os_argv,[swipl]).
+from_http(G):- with_output_to(main_error,G).
+
+:- meta_predicate(from_http(0)).
+
+
+reexport_from(ReExporter,From:P):-
+    From:export(From:P),
+    ReExporter:import(From:P),
+    ReExporter:export(From:P).
+
+
+
+:- if(exists_source(library(trill))).
+
+:- system:use_module(library(trill)).
+
+:- reexport_from(system,trill:end_bdd/1),
+   reexport_from(system,trill:add_var/5),
+   reexport_from(system,trill:and/4),
+   reexport_from(system,trill:em/8),
+   reexport_from(system,trill:randomize/1),
+   reexport_from(system,trill:rand_seed/1),
+   reexport_from(system,trill:or/4),
+   reexport_from(system,trill:ret_prob/3),
+   reexport_from(system,trill:init_test/2),
+   reexport_from(system,trill:end/1),
+   reexport_from(system,trill:end_test/1),
+   reexport_from(system,trill:bdd_not/3),
+   reexport_from(system,trill:zero/2),
+   reexport_from(system,trill:one/2),
+   reexport_from(system,trill:equality/4),
+   reexport_from(system,trill:init_bdd/2),
+   reexport_from(system,trill:init/3).
+
+:- dynamic(user:db/1).
+:- thread_local(user:db/1).
+
+:- use_module(library(pita),[]).
+
+
+% :- [pack(trill_on_swish/src/lib/authenticate)].
+% :- use_module(library(r/r_sandbox)).
+
+
+
+:- use_module(library(aleph),[]).
+:- add_search_path_safe(swish, '/home/prologmud_server/lib/swipl/pack/swish').
+:- use_module(library(cplint_r),[]).
+:- use_module(library(mcintyre)).
+:- use_module(library(slipcover)).
+:- use_module(library(lemur),[]).
+:- use_module(library(auc)).
+:- use_module(library(matrix)).
+
+:- use_module(library(clpr)).
+
 :- endif.
 
+:- multifile sandbox:safe_primitive/1.
 
-:- if(current_prolog_flag(os_argv,[_])).
-% :- set_prolog_flag(os_argv,[swipl,cpack,install,cpack_repository]).
+
+sandbox:safe_primitive(nf_r:{_}).
+:- dynamic http:location/3.
+:- multifile http:location/3.
+http:location(root, '/', [priority(1100)]).
+http:location(swish, root('swish'), [priority(500)]).
+% http:location(root, '/swish', []).
+
+
 :- endif.
 
-:- saved_os_argv(List),dmsg((next_os_argv=List)).
-:- current_prolog_flag(os_argv,List),dmsg((clio_argv=List)).
+run_clio_now :- cp_server.
 
-:- export(cliop_server/0).
+:- initialization(run_clio_now).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This file provides a skeleton startup file.  It can be localized by running
 
-    % ./configure			(Unix)
-    % Double-clicking win-config.exe	(Windows)
+    % ./configure                       (Unix)
+    % Double-clicking win-config.exe    (Windows)
 
 After  that,  the  system  may  be  customized  by  copying  or  linking
 customization  files  from  config-available    to  config-enabled.  See
@@ -95,75 +131,39 @@ To run the system, do one of the following:
 % relative one ensures that the system remains working when installed on
 % a device that may be mounted on a different location.
 
-/*
 add_relative_search_path(Alias, Abs) :-
-	is_absolute_file_name(Abs), !,
-	prolog_load_context(file, Here),
-	relative_file_name(Abs, Here, Rel),
-	assertz(user:file_search_path(Alias, Rel)).
+        is_absolute_file_name(Abs), !,
+        prolog_load_context(file, Here),
+        relative_file_name(Abs, Here, Rel),
+        assertz(user:file_search_path(Alias, Rel)).
 add_relative_search_path(Alias, Rel) :-
-	assertz(user:file_search_path(Alias, Rel)).
+        assertz(user:file_search_path(Alias, Rel)).
 
-% file_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
-% :- add_relative_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
+file_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
+:- add_relative_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
 
 % Make loading files silent. Comment if you want verbose loading.
-*/
 
 :- current_prolog_flag(verbose, Verbose),
    asserta(saved_verbose(Verbose)),
-   set_prolog_flag(verbose, true).
+   set_prolog_flag(verbose, silent).
 
 
-		 /*******************************
-		 *	      LOAD CODE		*
-		 *******************************/
+% :- use_module(library(cplint_r)).
+
+
+                 /*******************************
+                 *            LOAD CODE         *
+                 *******************************/
 
 % Use the ClioPatria help system.  May   be  commented to disable online
 % help on the source-code.
 
-:- user:use_module(cliopatria('applications/help/load')).
+:- use_module(cliopatria('applications/help/load')).
 
 % Load ClioPatria itself.  Better keep this line.
 
-:- user:use_module(cliopatria(cliopatria)).
-
-
-:- multifile user:file_search_path/2.
-:- dynamic   user:file_search_path/2.
-
-:- forall(source_file(M:add_relative_search_path(_,_), _), abolish(M:add_relative_search_path/2)).
-
-user:file_search_path(library, E) :-
-         clause(user:file_search_path(library, Exp),true),
-         ( \+ atom(Exp) -> true ; \+ is_absolute_file_name(Exp)),
-         absolute_file_name(Exp,E,[solutions(all)]).
-         
-
-
-:- user:import(cp_server:cp_server/1).
-
-
-
-cliop_server0 :- 
-   forall(retract(user:file_search_path(cpack, _)),true),forall(retract(user:file_search_path(cpacks, _)),true),
-   add_file_search_path_safe(cpack,'./cpack'), % add_file_search_path_safe(cpacks,'./cpack'),
-
-   forall(retract(user:file_search_path(cp_application, _)),true),
-   absolute_file_name(.,O), add_file_search_path_safe(cp_application,O), 
-    listing(user:file_search_path('config_enabled',_)),
-    add_file_search_path_safe(user,O),
-    listing(user:file_search_path/2),
-    forall(user:file_search_path(library, E),writeln(user:file_search_path(library, E))),!.
-
-cliop_server:-
-  cliop_server0,
-  baseKB:call( '@'(cp_server([]),user)).
-
-:- system:import(cliop_server/0).  
-
-% :- initialization cliop_server.
-:- cliop_server.
+:- use_module(cliopatria(cliopatria)).
 
 % Get back normal verbosity of the toplevel.
 
@@ -172,13 +172,16 @@ cliop_server:-
    ;   true
    ).
 
-:- break.
 
-:-  abolish(rdf_rewrite:arity,2),  % clause(rdf_rewrite:arity(A, B),functor(A, _, B),R),erase(R),
-   asserta((rdf_rewrite:arity(A, B) :- (compound(A),functor(A, _, B)))). % AND DOES NOT BREAK LOGICMOO
 
-:- retract(saved_os_argv(List)),set_prolog_flag(os_argv,List).
+:- if(exists_source(rdfql(sparql_csv_result))).
+:- use_module(rdfql(sparql_csv_result)).
+:- endif.
 
-:- endif.  % --noclio
+
+/*
+:- ['./cpack/trill_on_swish/lib/trill_on_swish/storage_trill_on_swish'].
+:- ['./cpack/trill_on_swish/lib/trill_on_swish/gitty_trill_on_swish'].
+*/
 
 

@@ -42,6 +42,7 @@
 %:- include('mpred_header.pi').
 :- endif.
 
+:- virtualize_source_file.
 
 :- thread_local(baseKB:current_source_suffix/1).
 :- dynamic(baseKB:current_source_suffix/1).

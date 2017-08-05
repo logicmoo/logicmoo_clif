@@ -15,7 +15,6 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
-end_of_file.
 
 :- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0,
   ensure_LOGTALKUSER/0,load_logtalk/0]).
@@ -48,13 +47,13 @@ end_of_file.
 
 :- user:use_module(library(base32)).
 
-:- user:use_module(library(http/http_dispatch)).
+% :- user:use_module(library(http/http_dispatch)).
 :- use_module(library(http/thread_httpd)).
 :- use_module(thread_httpd:library(http/http_dispatch)).
 :- use_module(library(http/http_path)).
 :- use_module(library(http/http_server_files)).
 :- use_module(library(http/http_parameters)).
-:- use_module(library(http/html_head)).
+%:- use_module(library(http/html_head)).
 %:- use_module(library(http/html_write)).
 :- use_module(library(threadutil)).
 :- user:use_module(library(shell)).
@@ -68,7 +67,7 @@ end_of_file.
 :- abolish(system:time/1).
 :- use_module(library(dialect/hprolog)).
 :- abolish(hprolog:time/1).
-:- user:use_module(library(statistics),[time/1]).
+:- system:use_module(library(statistics),[time/1]).
 :- user:use_module(library(statistics)).
 :- baseKB:use_module(library(statistics),[time/1]).
 %:- autoload([verbose(false)]).
@@ -610,16 +609,23 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
 % http_404 is in here
 :- user:use_module(library(http/http_dispatch)).
 
-:- user:use_module(library(http/http_dispatch)).
-:- user:use_module(library(http/html_write),except([op(_,_,_)])).
-:- user:use_module(library(http/html_head)).
+%:- user:use_module(library(http/html_write),except([op(_,_,_)])).
+%:- user:use_module(library(http/html_head)).
 :- user:use_module(library(http/http_session)).
 :- user:use_module(library(http/http_parameters)).
 :- user:use_module(library(http/http_server_files)).
 :- user:use_module(library(http/http_wrapper)).
 
+:- user:use_module(library(plunit)).
+
+
+:- user:use_module(library(http/http_wrapper)).
+
 :- if(exists_source(library(yall))).
-:- user:use_module(library(yall), []).
+:-  multifile(yall:lambda_functor/1),
+   dynamic(yall:lambda_functor/1),
+   with_no_mpred_expansions(use_module(yall:library(yall),[])),
+   retractall(yall:lambda_functor('/')).
 :- endif.
 
 /*

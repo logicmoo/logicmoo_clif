@@ -67,9 +67,9 @@ is_simple_arg(A):-not(compound(A)),!.
 is_simple_arg(A):-functor(A,Simple,_),rtEscapeFunction(Simple).
 
 % :- dynamic(vtUnreifiableFunction/1).
-'rtEscapeFunction'('TINYKB-ASSERTION').
-'rtEscapeFunction'('uQuoteFn').
-'rtEscapeFunction'(X):- clause_b('rtUnreifiableFunction'(X)).
+rtEscapeFunction('TINYKB-ASSERTION').
+rtEscapeFunction('uQuoteFn').
+rtEscapeFunction(X):- clause_b('rtUnreifiableFunction'(X)).
 
 needs_canoncalization(CycL):-is_ftVar(CycL),!,fail.
 needs_canoncalization(CycL):-functor(CycL,F,_),isa_db(F,'rtSentenceOperator').
@@ -84,7 +84,7 @@ as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists
 
 kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(M,O)).
 
-:- kb_shared(baseKB:and/7).
+:- kb_global(baseKB:and/7).
 
 tiny_to_kif:- 
   forall(load_order(C),forall(tinyKB(C,MT,STR),with_current_why(tinyKB(C,MT,STR),addCycL(C)))).
@@ -138,7 +138,7 @@ into_mpred_form_locally(V,R):- maybe_notrace((into_mpred_form(V,R), R\= isa(_,no
 
 freeze_u(V,G):- freeze(V,call_u(G)).
 
-:- kb_shared(rtLogicalConnective/1).
+:- kb_global(baseKB:rtLogicalConnective/1).
 
 get_LogicalConnective(F):- call_u(rtLogicalConnective(F)).
 
@@ -154,21 +154,20 @@ connective_arity0(not,1):-!.
 
 inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
 
-%:- break.
-:- kb_shared(baseKB:tAsserted/1).
-%:- kb_local(baseKB:tAsserted/1).
+:- multifile(baseKB:istAsserted/2).
+:- kb_global(baseKB:istAsserted/2).
+
+istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail).
+%istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
+istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT)).
 
 baseKB:tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
 baseKB:tAsserted(P):- 
    asserted_id(P,_).
 
-% :- break.
-%:- kb_shared(baseKB:ist/2).
+:- multifile(baseKB:ist/2).
 ist(MT,P):- istAsserted(MT,P).
 
-istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail).
-%istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
-istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT)).
 
 % Y=verbSemTrans(xIndicateTheWord,X,xTransitiveThatClauseFrame,and(isa('ACTION',eventInformationTransferEvent),informationOrigin('ACTION','SUBJECT'),infoTransferred('ACTION','CLAUSE'))),rtrace(kif_to_boxlog(Y,BL)).
 

@@ -146,7 +146,7 @@ end_of_file.
 end_of_file.
 
 
-:- system:reexport(library(logicmoo_user)).
+:- system:reexport(library(logicmoo_lib)).
 
 :- include(logicmoo(mpred/'mpred_header.pi')).
 

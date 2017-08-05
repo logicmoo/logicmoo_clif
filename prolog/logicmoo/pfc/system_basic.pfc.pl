@@ -106,8 +106,8 @@ rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleto
                                                                 % (~P1 ==>{loop_check(mpred_fwc1(~P2),true)}),
                                                                   ( P1/ (X @< Y) ==>{mpred_fwc1( P2)}),
                                                                   (~P1/ (X @< Y) ==>{mpred_fwc1(~P2)}),
-                                                                  (~P1:- loop_check(~P2)),
-                                                                  ( P1:- loop_check( P2)).
+                                                                  (~P1:- (cwc, loop_check(~P2))),
+                                                                  ( P1:- (cwc, loop_check( P2))).
 
 
 %:- meta_predicate(mp_test_agr(?,+,-,*,^,:,0,1,5,9)).
@@ -119,6 +119,7 @@ rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleto
 %((prop_mpred(pfcWatches,F,A)/is_ftNameArity(F,A),prologHybrid(F)))==>prop_mpred(pfcVisible,F,A).
 
 
+:- set_prolog_flag(gc,true).
 
 
 
@@ -129,7 +130,7 @@ rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleto
 
 completeExtentAsserted(functorIsMacro).
 completelyAssertedCollection(completeExtentAsserted).
-mpred_database_term(F,_,_)==>completeExtentAsserted(F).
+:- on_f_rtrace(ain(mpred_database_term(F,_,_)==>completeExtentAsserted(F))).
 prologNegByFailure(prologNegByFailure).
 
 completelyAssertedCollection(functorIsMacro).  % Items read from a file might be a special Macro Head
@@ -191,6 +192,7 @@ meta_argtypes(support_hilog(tRelation,ftInt)).
 ((t(T,I):- cwc, I==T,completeExtentAsserted==I,!)).
 ((t(T,I):- ((cwc, I==T,ttExpressionType==I,!,fail)))).
 
+
 % ===================================================================
 % Type checker system / Never Assert / Retraction checks
 % ===================================================================
@@ -212,7 +214,7 @@ never_assert_u(meta_argtypes(tSet(ftAssertable)),badRules).
 
 
 :- asserta(elmt:elmt_is_a_module).
-:- forall(between(4,9,N),kb_shared(elmt:exactlyAssertedELMT/N)).
+:- forall(between(4,9,N),kb_global(elmt:exactlyAssertedELMT/N)).
 :- kb_shared(genls/2).
 
 :- kb_shared(tAtemporalNecessarilyEssentialCollectionType/1).
@@ -546,7 +548,7 @@ mudEquals(X,Y):-equals_call(X,Y).
 :- system:import(agent_call_command/2).
 
 
-:- kb_local(decided_not_was_isa/2).
+:- kb_global(baseKB:decided_not_was_isa/2).
 
 
 
@@ -777,8 +779,11 @@ tSet(tFoo).
 isa(iBar,tFoo).
 
 
-:- (set_prolog_flag(never_pfc,false),locally(set_prolog_flag(never_pfc,true),autoload([verbose(true)]))).
+/*
+:- (set_prolog_flag(never_pfc,false),
+   locally(set_prolog_flag(never_pfc,true),autoload([verbose(true)]))).
 :- xlisting(tFoo).
+*/
 /*
 :- call(break).
 :- call(break).

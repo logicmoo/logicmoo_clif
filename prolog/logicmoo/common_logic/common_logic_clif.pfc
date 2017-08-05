@@ -16,7 +16,7 @@ vim: set filetype=md:
 %  <a href="https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md">https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md</a>
 */
 
-% :- set_fileAssertMt(baseKB).
+:- set_fileAssertMt(baseKB).
 % :- set_defaultAssertMt(baseKB).
 
 :- kb_shared((if/2,iif/2)).
@@ -68,7 +68,10 @@ workflow_holder_queue(Atom) ==>
 (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG),must_be_unqualified(PROLOG)} ==> pfclog(PROLOG)).
 % {sanity(are_clauses_entailed(BOXLOG))}
 
-compile_pfclog ==> 
+%compilerDirective(compile_pfclog).
+% :- listing(compile_pfclog/0).
+%:- break.
+%compile_pfclog ==> 
 (pfclog(PROLOG) ==> PROLOG).
 % {(sanity(is_pfc_entailed(PROLOG)))}
 % or maybe

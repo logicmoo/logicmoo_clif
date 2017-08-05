@@ -32,7 +32,7 @@ genlsUpTo(ttRelationType).
 genlsUpTo(ttTypeType).
 
 
-genls(C,S):- cwc, (ground(C);ground(S)), loop_check(tran_by_trans(genls,C,S)),C\=S.
+% genls(C,S):- cwc, (ground(C);ground(S)),C\==tCol, loop_check(tran_by_trans(genls,C,S)),C\=S.
 
 
 % to load this files use  ?- ensure_mpred_file_loaded('logicmoo/pfc/system_genls.pfc').

@@ -1220,7 +1220,7 @@ leave_as_is_logically0(NART):-functor(NART,nartR,_),!,ground(NART).
 leave_as_is_logically0(LIST):- is_list(LIST),!, maplist(leave_as_is_logically0,LIST).
 % leave_as_is_logically0(~Box):- leave_as_is_logically0(Box).
 
-:- kb_shared(workflow_holder_queue/1).
+:- kb_global(baseKB:workflow_holder_queue/1).
 leave_as_is_logically_fa(meta_argtypes,1).
 leave_as_is_logically_fa({},1).
 leave_as_is_logically_fa(onSpawn,1).

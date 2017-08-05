@@ -72,6 +72,7 @@
           ]).
 
 %:- include('mpred_header.pi').
+:- virtualize_source_file.
 
 %:- endif.
 

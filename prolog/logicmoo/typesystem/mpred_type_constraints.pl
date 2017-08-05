@@ -15,7 +15,6 @@
 % Dec 13, 2035
 % Douglas Miles
 */
-:- if(current_prolog_flag(lm_pfc_lean,false)).
 
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/mpred/mpred_type_constraints.pl
 %:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
@@ -989,5 +988,4 @@ mpred_type_constraints_file.
 %
 % system:goal_expansion(G,O):- \+ current_prolog_flag(xref,true),\+ pldoc_loading, nonvar(G),boxlog_goal_expansion(G,O).
 
-:- endif.
 

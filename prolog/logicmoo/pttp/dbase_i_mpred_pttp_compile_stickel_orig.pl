@@ -393,7 +393,7 @@ make_wrapper0(DefinedPreds,[P,N],Result) :-
 	list_append(Args,ExtraArgs,Args1),
 	Head =.. [P|Args1],
 	internal_functor(P,IntP),
-	list_length(ExtraArgs,NExtraArgs),
+	list_length_pttp(ExtraArgs,NExtraArgs),
 	NN is N + NExtraArgs + 1,
 	(identical_member_special([IntP,NN],DefinedPreds) ->
 	        list_append(ExtraArgs,[GoalAtom],ExtraArgs2),

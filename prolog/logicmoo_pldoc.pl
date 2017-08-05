@@ -44,11 +44,11 @@ end_of_file.
 % http_reply_from_files is here
 :- user:use_module(library(http/http_files)).
 % http_404 is in here
-:- user:use_module(library(http/http_dispatch)).
+%:- user:use_module(library(http/http_dispatch)).
 
-:- user:use_module(library(http/http_dispatch)).
-:- user:use_module(library(http/html_write),except([op(_,_,_)])).
-:- user:use_module(library(http/html_head)).
+%:- user:use_module(library(http/http_dispatch)).
+%:- user:use_module(library(http/html_write),except([op(_,_,_)])).
+%:- user:use_module(library(http/html_head)).
 :- user:use_module(library(http/http_parameters)).
 :- user:use_module(library(http/http_server_files)).
 :- user:use_module(library(http/http_wrapper)).

@@ -104,7 +104,7 @@
 %:- include('mpred_header.pi').
 
 :- endif.
-
+/*
 :- meta_predicate 
         % ain(-),
         clr(-),
@@ -139,6 +139,7 @@
    with_kb_assertions(*,0),
    % mpred_storage
    with_logical_functor(*,*,1).
+*/
 
 % ========================================
 % Shared Preds
@@ -158,6 +159,8 @@
 :- meta_predicate is_asserted(?).
 :- meta_predicate is_asserted_eq(?).
 :- meta_predicate not_asserted(?).
+
+:- virtualize_source_file.
 
 
 %% not_asserted( ?X) is semidet.

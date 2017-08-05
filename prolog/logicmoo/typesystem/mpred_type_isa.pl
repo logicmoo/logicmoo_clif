@@ -116,8 +116,8 @@
           mpred_type_isa_file/0
           ]).
 
-:- kb_shared(baseKB:type_prefix/2).
-:- kb_shared(baseKB:type_suffix/2).
+:- kb_global(baseKB:type_prefix/2).
+:- kb_global(baseKB:type_suffix/2).
  
 %:- include('mpred_header.pi').
 
@@ -153,8 +153,9 @@ transitive_P_r_l(3,?,?,?),
             guess_types_0/2,
             guess_typetypes/1,
             guess_typetypes_0/1)).
-            
 
+:- set_prolog_flag(mpred_te,true).
+:- virtualize_source_file.
 
 :- multifile(baseKB:use_cyc_database/0).
 :- thread_local(baseKB:use_cyc_database/0).
@@ -268,7 +269,7 @@ never_type_why(M:C,Why):-atomic(M),!,never_type_why(C,Why).
 % ========================================
 % was_isa(Goal,I,C) recognises isa/2 and its many alternative forms
 % ========================================
-:- kb_shared(decided_not_was_isa/2).
+:- kb_global(baseKB:decided_not_was_isa/2).
 
 %= 	 	 
 
@@ -341,6 +342,8 @@ isa_from_morphology(Inst,Type):-atom(Inst),type_prefix(Prefix,Type),atom_concat(
 %:- add_import_module(mpred_type_isa,baseKB,start).
 
 :- multifile(baseKB:type_suffix/2).
+:- export(baseKB:type_suffix/2).
+:- dynamic(baseKB:type_suffix/2).
 :- mpred_type_isa:import(baseKB:type_suffix/2).
 
 %% type_suffix( ?VALUE1, ?VALUE2) is nondet.
@@ -353,7 +356,10 @@ baseKB:type_suffix('Able',ttTypeByAction).
 
 
 
-:- import(baseKB:type_prefix/2).	 	 
+:- multifile(baseKB:type_prefix/2).
+:- export(baseKB:type_prefix/2).
+:- dynamic(baseKB:type_prefix/2).
+:- mpred_type_isa:import(baseKB:type_prefix/2).
 
 %% type_prefix( ?VALUE1, ?VALUE2) is nondet.
 %
@@ -403,7 +409,7 @@ typ_prfx(macro,ttMacroType).
 % ========================================
 % was_isa(Goal,I,C) recognises isa/2 and its many alternative forms
 % ========================================
-:- was_dynamic decided_not_was_isa/2.
+:- kb_global(baseKB:decided_not_was_isa/2).
 baseKB:prologBuiltin(was_isa/3).
 
 %= 	 	 
@@ -483,6 +489,7 @@ genls_upward(C,S):-clause_b(genls(C,C0)),clause_b(genls(C0,SP)),(SP=S;clause_b(g
 genls_downward(C,S):-clause_b(genls(S0,S)),clause_b(genls(SP,S0)),(SP=C;clause_b(genls(C,SP))).
 genls_inward(C,S):- genls_upward(C,M),(M=S ; genls_downward(M,S)).
 
+:- kb_shared(disjointWith/2).
 
 tran_by_trans(_,C,S):- C==S,!.
 tran_by_trans(genls,C,S):- !,genls_by_trans(C,S), \+ disjointWith(C,S).
@@ -982,10 +989,18 @@ isa_asserted_1(I,C):- isa_asserted_compound(I,C).
 isa_asserted_2(I,C):- atom(I),isa_from_morphology(I,C).
 
 
+% :- kb_local(genls/2).
+
 % isa_asserted_3(I,tCol,C):- (atom(I);atom(C)),type_isa(I,C).
 isa_asserted_3(_,C,C).
-isa_asserted_3(I,SType,C):- var(C),genls(C,SType),nonvar(C),SType\==C,isa_asserted_0(I,C).
-
+:- on_f_rtrace(could_safe_virtualize).
+%:- rtrace.
+isa_asserted_3(I,SType,C):- vwc, var(C),genls(C,SType),nonvar(C),SType\==C,isa_asserted_0(I,C).
+/*
+:- listing(isa_asserted_3).
+:- rtrace(virtualize_source(ge,genls(_A,_B),_O)).
+:- break.
+*/
 
 % isa_asserted_3(I,SType,C):- var(C),!,col_gen(SType,C),nonvar(C),SType\==C,isa_asserted_0(I,C).
 % isa_asserted_3(_,C,_):- clause_b(ttExpressionType(C)),!,fail.
@@ -993,8 +1008,6 @@ isa_asserted_3(I,SType,C):- var(C),genls(C,SType),nonvar(C),SType\==C,isa_assert
 % isa_asserted_0(I,C):- I == ttTypeByAction, C=ttTypeByAction,!,fail.
 % isa_asserted_0(I,C):- HEAD= isa(I, C),ruleBackward(HEAD,BODY),dtrace,call_mpred_body(HEAD,BODY).
 % isa_asserted_0(I,C):- ( ((is_ftVar(C);chk_ft(C)),if_defined(term_is_ft(I,C)))*->true;type_deduced(I,C) ).
-
-
 
 
 
@@ -1010,8 +1023,6 @@ isa_asserted_compound(I,T):- \+ compound(T),!, isa_w_type_atom(I,T).
 isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),is_ftVar(T2),!,dif:dif(T1,T2),isa_backchaing(I,T1),call_u(genls(T1,T2)),isa_backchaing(I,T2).
 isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing(I,T1),isa_backchaing(I,T2).
 isa_asserted_compound(I,(T1 ; T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing(I,T1),isa_backchaing(I,T2).
-
-:- create_prolog_flag(retry_undefined,default,[type(term),keep(true)]).
 
 
 %= 	 	 
@@ -1377,11 +1388,10 @@ call_u_t(DB,P,L,A1):-call_u(call(DB,P,L,A1)).
 call_u_t(DB,P,L):-call_u(call(DB,P,L)).
 call_u_t(DB,P):-call_u(call(DB,P)).
 
-:- fixup_exports.
 
 mpred_type_isa_file.
 
-
+:- fixup_exports.
 
 
 
@@ -1514,7 +1524,7 @@ all_source_file_predicates_are_shared:-
 :- module_transparent(all_source_file_predicates_are_shared/2).
 all_source_file_predicates_are_shared(S,LC):-
  forall(source_file(M:H,S),
- ignore((functor(H,F,A), \+ atom_concat('$',_,F), kb_shared(M:F/A)))).
+ ignore((functor(H,F,A), \+ atom_concat('$',_,F), kb_global(M:F/A)))).
 
 % :- all_source_file_predicates_are_shared.
 
@@ -1547,10 +1557,10 @@ assert_isa_hooked(I,T):- assert_hasInstance(T,I),fail.
 assert_isa_hooked(T,tCol):-!,decl_type(T),!.
 assert_isa_hooked(T,ttExpressionType):-!,define_ft(T),!.
 assert_isa_hooked(Term,tPred):-!,decl_mpred(Term).
-assert_isa_hooked(Term,prologHybrid):-!,kb_shared(Term).
+assert_isa_hooked(Term,prologHybrid):-!,kb_global(Term).
 % assert_isa_hooked(Term,prologDynamic):-!,export(Term).
-assert_isa_hooked(Term,prologPTTP):-!,kb_shared(Term,prologPTTP).
-assert_isa_hooked(Term,prologKIF):-!,kb_shared(Term,prologKIF).
+assert_isa_hooked(Term,prologPTTP):-!,kb_global(Term,prologPTTP).
+assert_isa_hooked(Term,prologKIF):-!,kb_global(Term,prologKIF).
 assert_isa_hooked(I,_):- I\=prologHybrid(_),glean_pred_props_maybe(I),fail.
 assert_isa_hooked(food5,tWeapon):-trace_or_throw(assert_isa(food5,tWeapon)).
 

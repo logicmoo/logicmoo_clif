@@ -49,9 +49,18 @@
 
 :- set_module(class(development)).
 
+:- use_module(library(pfc)).
+:- set_fileAssertMt(baseKB).
+
+:- if(current_predicate(rdf_rewrite:arity/2)).
+:- import(rdf_rewrite:arity/2).
+
+:- else.
 :- multifile(baseKB:arity/2).
+:- kb_local(baseKB:arity/2).
 :- import(baseKB:arity/2).
-:- kb_shared(baseKB:arity/2).
+
+:- endif.
 
 :- use_module(library('filestreams')).
 % ===================================================================
@@ -164,8 +173,8 @@ isa_db(I,C):-clause(isa(I,C),true).
 
 :- asserta(elmt:elmt_is_a_module).
 :- set_module(elmt:class(development)).
-:- kb_shared(arity/2).
-:- forall(between(4,9,N),kb_shared(elmt:exactlyAssertedELMT/N)).
+
+:- forall(between(4,9,N),kb_global(elmt:exactlyAssertedELMT/N)).
 
 /*
 :- kb_shared((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
@@ -307,7 +316,6 @@ logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
 % :- logicmoo_i_cyc_xform.
 
 :- set_module(elmt:class(development)).
-:- kb_shared(arity/2).
 
 %:- dynamic((elmt:exactlyAssertedELMT/4,elmt:exactlyAssertedELMT/5,elmt:exactlyAssertedELMT/6,elmt:exactlyAssertedELMT/7)).
 :- dynamic((exactlyAssertedEL_next/4,exactlyAssertedEL_next/5,exactlyAssertedEL_next/6,exactlyAssertedEL_next/7)).

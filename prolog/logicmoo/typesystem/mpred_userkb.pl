@@ -15,7 +15,7 @@
 % Dec 13, 2035
 % Douglas Miles
 */
-:- if(current_prolog_flag(lm_pfc_lean,false)).
+end_of_file.
 
 % DWhitten> ... but is there a reason why "Absurdity" is the word used for something that doesn't exist?  
 % SOWA> It's stronger than that.  The absurd type is defined by axioms that are contradictory. 
@@ -62,7 +62,7 @@ argIsa/3,
 argQuotedIsa/3,
 %lmcache:loaded_external_kbs/1,
 rtArgsVerbatum/1,
-arity/2,
+%arity/2,
 asserted_mpred_f/2,
 asserted_mpred_f/3,
 asserted_mpred_f/4,
@@ -194,8 +194,8 @@ prologEquality/1,pfcBcTrigger/1,
 :- dynamic(baseKB:use_kif/2).
 
 % :- kb_shared(baseKB:use_kif/2).
-:- multifile(baseKB:safe_wrap/3).
-:- dynamic(baseKB:safe_wrap/3).
+:- multifile(baseKB:safe_wrap/4).
+:- dynamic(baseKB:safe_wrap/4).
 
 :- call_u(true).
 
@@ -416,5 +416,4 @@ bad_thing_to_do:- doall((clause(baseKB:safe_wrap(F,A,ereq),Body),
 */
 
 :- fixup_exports.
-:- endif.
 

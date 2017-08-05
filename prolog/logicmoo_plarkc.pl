@@ -15,7 +15,7 @@
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
+%:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb'))).
 % :- add_library_search_path('./logicmoo/plarkc/',[ 'logicmoo_i_*.pl']).
 
@@ -157,7 +157,7 @@ end_of_file.
 
 %:- set_prolog_stack(local, limit(32*10**9)).
 %:- set_prolog_stack(global, limit(32*10**9)).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
+%:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 
 
 

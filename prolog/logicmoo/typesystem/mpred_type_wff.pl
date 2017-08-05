@@ -103,6 +103,8 @@
         call_last_is_var(0).
 
 
+:- virtualize_source_file.
+
 :- kb_shared(functionCorrespondingPredicate/3).
 
 

@@ -19,8 +19,12 @@
 
 
 :- if(exists_source(library(yall))).
-:- user:use_module(library(yall), []).
+:-  multifile(yall:lambda_functor/1),
+   dynamic(yall:lambda_functor/1),
+   with_no_mpred_expansions(use_module(yall:library(yall),[])),
+   retractall(yall:lambda_functor('/')).
 :- endif.
+
 
 % :- ['/home/prologmud_server/lib/swipl/pack/prologmud_samples/prolog/prologmud_sample_games/run_clio'].
 
@@ -76,6 +80,7 @@ base_message(T,Type,Warn):- dmsg(message_hook(T,Type,Warn)),dumpST,dmsg(message_
 user:message_hook(T,Type,Warn):- ( \+ current_prolog_flag(runtime_debug,0)),
    catch(once(base_message(T,Type,Warn)),_,fail),fail.
 :- endif.
+
 
 
 
@@ -227,7 +232,7 @@ system:kill_unsafe_preds0:-
 :- dmsg("IRC EGGDROP").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- if(exists_source(library(eggdrop))).
-:- ensure_loaded(library(eggdrop)).
+:- with_no_mpred_expansions(ensure_loaded(library(eggdrop))).
 % :- during_boot((egg_go_fg)).
 :- during_net_boot(egg_go_maybe).
 :- endif.
@@ -236,7 +241,7 @@ system:kill_unsafe_preds0:-
 :- dmsg("CYC Alignment util").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- set_prolog_flag(do_renames,restore).
-:- baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting')).
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SETUP CYC KB EXTENSIONS").
