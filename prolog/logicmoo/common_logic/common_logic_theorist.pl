@@ -43,7 +43,7 @@ The verbatim code is the actual running code.
 This should not be seen as {\em The Theorist System}, but rather
 as one implementation of the Theorist framework. Theorist should be
 seen as the idea that much reasoning can be done by theory formation
-from a fixed set of possible hypotheses.
+from a fixed th_set of possible hypotheses.
 This implementation is based on a complete linear resolution theorem prover
 which does not multiply out subterms. It also carries out incremental
 consistency checking.
@@ -108,25 +108,25 @@ strategies, so we can have the best of expressibility and efficiency.
 
 Theorist \cite{poole:lf,pga} is a logical reasoning system for default reasoning
 and diagnosis. It is based on the idea of theory formation from a fixed
-set of possible hypotheses.
+th_set of possible hypotheses.
 
 This implementation is of the version of Theorist described in \cite{poole:lf}.
 The user provides three sets of first order formulae
 \begin{itemize}
-\item[${\cal F}$] is a set of closed formulae called the {\em facts\/}.
+\item[${\cal F}$] is a th_set of closed formulae called the {\em facts\/}.
 These are intended to be true in the world being modelled.
-\item[$\Delta$] is a set of formulae which
+\item[$\Delta$] is a th_set of formulae which
 act as {\em possible hypotheses}, any ground instance of which
 can be used in an explanation if consistent.
-\item[$\cal C$] is a set of closed formulae taken as constraints.
+\item[$\cal C$] is a th_set of closed formulae taken as constraints.
 The constraints restrict what can be hypothesised.
 \end{itemize}
 
 We assume that ${\cal F}\cup C$ is consistent.
 
 \begin{definition} \em
-a {\bf  scenario} of ${\cal F},\Delta$ is a set $D \cup {\cal F}$ where
-$D$ is a set of ground instances of elements
+a {\bf  scenario} of ${\cal F},\Delta$ is a th_set $D \cup {\cal F}$ where
+$D$ is a th_set of ground instances of elements
 of $\Delta$ such that $D\cup {\cal F} \cup C$ is consistent.
 \end{definition}
 
@@ -134,7 +134,7 @@ of $\Delta$ such that $D\cup {\cal F} \cup C$ is consistent.
 If $g$ is a closed formula then an {\bf explanation} of $g$ from ${\cal F},\Delta$
 is a  scenario of ${\cal F},\Delta$ which implies $g$.
 \end{definition}
-That is, $g$ is explainable from ${\cal F},\Delta$ if there is a set
+That is, $g$ is explainable from ${\cal F},\Delta$ if there is a th_set
 $D$ of ground instances of elements of $\Delta$ such that
 \begin{quote}
 ${\cal F} \cup D \models g$ and\\
@@ -204,7 +204,7 @@ $w.$\\
 where $w$ is a arbitrary ground wff,
 returns ``yes'' if $w$ is in every extension of the defaults
 and ``no'' otherwise.
-If it returns ``yes'', a set of explanations is returned, if
+If it returns ``yes'', a th_set of explanations is returned, if
 it returns ``no'' then a scenario from which $g$ cannot be explained is
 returned (this follows the framework of \cite{poole:dc}).
 
@@ -232,7 +232,7 @@ is allowed to be asked or added to. This should appear before any
 use of the atom. This corresponds to the ``dynamic'' declaration of
 Quintus Prolog. This is ignored except when compiling a file.
 \end{description}
-There are some other commands which allow one to set flags. See section
+There are some other commands which allow one to th_set flags. See section
 \ref{flags} for more detail on setting checking and resetting flags.
 
 \section{Overview of Implementation}
@@ -243,7 +243,7 @@ next section):
 \begin{enumerate}
 \item It is sound (i.e., if $A\vdash g$ then $A\models g$).
 \item It is complete in the sense that if $g$ follows from a consistent
-set of formulae, then $g$ can be proven. I.e., if $A$ is consistent and
+th_set of formulae, then $g$ can be proven. I.e., if $A$ is consistent and
 $A\models g$ then $A\vdash g$.
 \item If $A\vdash g$ then $A\cup B\vdash g$; i.e., adding in extra facts will
 not prevent the system from finding a proof which previously existed.
@@ -255,7 +255,7 @@ The basic idea of the implementation follows the definition on explainability:
 to explain $g$
 \begin{enumerate}
 \item try to prove $g$ from ${\cal F}\cup \Delta$. If no proof exists, then
-$g$ is not explainable. If there is a proof, let $D$ be the set of instances of
+$g$ is not explainable. If there is a proof, let $D$ be the th_set of instances of
 elements of $\Delta$ used in the proof. We then know
 \[{\cal F}\cup D \models g\]
 by the soundness of our proof procedure.
@@ -268,8 +268,8 @@ by failing to prove it is inconsistent.
 The following two theorems are important for implementing the consistency
 check:
 \begin{lemma} \label{incremantal}
-If $A$ is a consistent set of formulae and
-$D$ is a finite set of ground instances of possible hypotheses, then
+If $A$ is a consistent th_set of formulae and
+$D$ is a finite th_set of ground instances of possible hypotheses, then
 if we impose arbitrary ordering on the elements of $D=\{d_1,...,d_n\}$
 \begin{center}
 $A\cup D$ is inconsistent\\if and only if\\
@@ -301,13 +301,13 @@ The following theorem expands on how explainability can be computed:
 If ${\cal F} \cup C$ is consistent,
 $g$ is explainable from ${\cal F},\Delta$ if and only if there is a ground
 proof of $g$ from ${\cal F}\cup D$ where $D=\{d_1,...,d_n\}$
-is a set of ground instances
+is a th_set of ground instances
 of elements of $\Delta$ such that
 ${\cal F} \wedge C \wedge \{d_1,...,d_{i-1}\}\not\vdash \neg d_i$
 for all $i,1\leq i \leq n$.
 \end{theorem}
 \begin{proof}
-If $g$ is explainable from ${\cal F},\Delta$, there is a set $D$ of ground instances
+If $g$ is explainable from ${\cal F},\Delta$, there is a th_set $D$ of ground instances
 of elements of $\Delta$ such that ${\cal F}\cup D \models g$ and ${\cal F} \cup D \cup C$
 is consistent. So there is a ground proof of $g$ from ${\cal F} \cup D$.
 By the preceding lemma
@@ -321,7 +321,7 @@ This leads us to the refinement of algorithm \ref{basic-alg}:
 to explain $g$ from ${\cal F},\Delta$
 \begin{enumerate}
 \item Build a ground proof of $g$ from ${\cal F}\cup \Delta$. Make $D$ 
-the set of instances of elements of $\Delta$ used in the proof.
+the th_set of instances of elements of $\Delta$ used in the proof.
 \item For each $i$, try to prove $\neg d_i$ from ${\cal F} \wedge C
 \wedge \{d_1,...,d_{i-1}\}$. If all
 such proofs fail, $D$ is an explanation for $g$.
@@ -370,7 +370,7 @@ Herbrand universe of ${\cal F}\cup \Delta \cup C$ to determine explainability.
 \end{theorem}
 \begin{proof}
 consider the example above; the Herbrand universe is just
-the set $\{a\}$. Within this domain there is no consistent 
+the th_set $\{a\}$. Within this domain there is no consistent 
 explanation to explain $g$.
 \end{proof}
 
@@ -383,7 +383,7 @@ So we need to generate a ground proof of $g$. This leads us to:
 To determine if $g$ is explainable from ${\cal F},\Delta$
 \begin{enumerate}
 \item generate a proof of $g$ using elements of ${\cal F}$ and $ \Delta$ as axioms.
-Make $D_0$ the set of instances of $ \Delta$ used in the proof;
+Make $D_0$ the th_set of instances of $ \Delta$ used in the proof;
 \item form $D_1$ by replacing free variables in $D_0$ with unique constants;
 \item add $D_1$ to ${\cal F}$ and try to prove an inconsistency (as in the
 previous case). If a
@@ -413,13 +413,13 @@ where we can check consistency at the time the hypothesis is generated.
 
 Theorem \ref{incremantal} shows that we can check consistency incrementally
 in whatever order we like. The problem is to determine whether we have
-generated the final version of a set of hypotheses.
-If there are no variables in our set of hypotheses, then we can check
+generated the final version of a th_set of hypotheses.
+If there are no variables in our th_set of hypotheses, then we can check
 consistency as soon as they are generated.
 If there are variables in a hypothesis, then we cannot guarantee that the
 form generated will be the final form of the hypothesis.
 \begin{example}\em
-Consider the two alternate set of facts:
+Consider the two alternate th_set of facts:
 \begin{eqnarray*}
 \Delta&=\{&p(X)\ \}\\
 {\cal F}_1&=\{&\forall X \ p(X) \wedge q(X) \Rightarrow g,\\
@@ -456,7 +456,7 @@ at the time they are generated.
 
 This implementation is based on linear resolution \cite{chang,loveland78}.
 This is complete in the
-sense that if $g$ logically follows from some {\em consistent} set of
+sense that if $g$ logically follows from some {\em consistent} th_set of
 clauses $A$, then there is a linear resolution proof of $g$ from $A$.
 
 SLD resolution of Prolog \cite{lloyd} can be seen as linear resolution with
@@ -521,7 +521,7 @@ alternate answers that we are assuming are not true in order to have
 the disjunctive answer.
 
 This is implemented by being able to assume the negation of the top level
-goal as long as we add it to the set of answers. To do this we carry a list
+goal as long as we add it to the th_set of answers. To do this we carry a list
 of the alternate disjuncts that we are assuming in proving the top level goal.
 \subsection{Conversion to Clausal Form}
 It is desirable that we can convert an
@@ -541,7 +541,7 @@ The alternate \cite{poole:clausal} is to create a new relation $p$ parameterised
 with the variables in common with $\alpha$ and $\beta \wedge \gamma$.
 We can then replace $\beta \wedge \gamma$ by $p$ and then add
 \[(\neg p \vee \beta)\wedge (\neg p \vee \gamma)\]
-to the set of formulae.
+to the th_set of formulae.
 
 This can be embedded into the compiler by using
 Prolog ``or'' instead of actually building the $p$. 
@@ -562,7 +562,7 @@ target code for the compiler is Prolog code (in particular Horn
 clauses with negation as failure). There are no ``cuts'' or other
 non-logical ``features'' of Prolog which depend on Prolog's
 search strategy in the compiled code.
-Each Theorist wff gets locally translated into a set of
+Each Theorist wff gets locally translated into a th_set of
 Prolog clauses.
 \subsection{Target Atoms}
 For each Theorist predicate symbol $r$ there are 4 target predicate
@@ -581,7 +581,7 @@ predicates.
 \subsubsection{Proving}
 For relation $r(-args-)$ in the source code we want to produce object
 code which says that $r(-args-)$ (or its negation)
-can be proven from the facts and constraints and the current set
+can be proven from the facts and constraints and the current th_set
 of assumed hypotheses.
 
 For the source relation
@@ -685,7 +685,7 @@ I assume that the reader is familiar with such notation.}:
 
 
 new_lit(Prefix, Reln, _, NewReln) :-
-   flag((features,off)),!,
+   th_flag((features,off)),!,
    Reln =.. [Pred | Args],
    add_prefix(Prefix,Pred,NewPred),
    NewReln =.. [NewPred | Args].
@@ -853,7 +853,7 @@ and $ExB$ a body of the forms $ex\_b_i$.
 make_bodies(A0, T, [Ths,Anc,Ans], ProveA, ExA) :- quietly(var_or_atomic(A0)),!,
    A = true_t(A0),
    !,
-   new_lit("prove_", A, [T,Anc], ProveA),
+   new_lit("proven_", A, [T,Anc], ProveA),
    new_lit("ex_", A, [Ths,Anc,Ans], ExA).
 
 make_bodies((H,B), T, [ths(T1,T3,D1,D3), Anc, ans(A1,A3)],
@@ -869,7 +869,7 @@ make_bodies((H;B),T,Ths,(ProveH;ProveB),(ExH;ExB)) :-
 
 make_bodies(n(A), T, [Ths,Anc,Ans], ProveA, ExA) :-
    !,
-   new_lit("prove_not_", A, [T,Anc], ProveA),
+   new_lit("proven_not_", A, [T,Anc], ProveA),
    new_lit("ex_not_", A, [Ths,Anc,Ans], ExA).
 
 make_bodies(true,_,[ths(T,T,D,D),_,ans(A,A)],true,true) :- !.
@@ -877,7 +877,7 @@ make_bodies(unif(X,Y),_,[ths(T,T,D,D),_,ans(A,A)],
    unif(X,Y),unif(X,Y)) :-!.
 make_bodies(A, T, [Ths,Anc,Ans], ProveA, ExA) :-
    !,
-   new_lit("prove_", A, [T,Anc], ProveA),
+   new_lit("proven_", A, [T,Anc], ProveA),
    new_lit("ex_", A, [Ths,Anc,Ans], ExA).
 
 
@@ -898,7 +898,7 @@ This can either be asserted or written to a file to be consulted
 or compiled. The simplest form is to just assert $C$.
 
 $make\_anc(H)$ is a procedure which ensures that the ancestor search
-is set up properly for $H$. It is described in section \ref{anc-section},
+is th_set up properly for $H$. It is described in section \ref{anc-section},
 and can be ignored on first reading.
 
 \index{rule}
@@ -907,7 +907,7 @@ and can be ignored on first reading.
 
 
 rule(F,R) :-
-   flag((sound_unification,on)),!,
+   th_flag((sound_unification,on)),!,
    make_sound(R,S),
    drule(F,S).
 rule(F,R) :-
@@ -994,12 +994,12 @@ atom in $N$ being the head of some rule) should be declared as such.
 
 
 rulify(H,A,OUT):-
-  set((th_asserts,on)),
-  set((features,on)),
+  th_set((th_asserts,on)),
+  th_set((features,on)),
   b_setval(th_asserts,[]),
   rulify(H,A),
-  reset((th_asserts)),
-  reset((features)),!,
+  th_reset((th_asserts)),
+  th_reset((features)),!,
   b_getval(th_asserts,OUT).
   
 
@@ -1189,12 +1189,12 @@ The following compiles directly into such code:
 
 declare_default(D) :-
    make_anc(D),
-   new_lit("prove_",D,[T,_],Pr_D),
+   new_lit("proven_",D,[T,_],Pr_D),
    prolog_cl(thr,(Pr_D :- member(D,T))),
    new_lit("ex_",D, [ths(T,T,Defer,Defer), _, ans(A,A)], ExD),
    prolog_cl(thr,(ExD :- member(D, T))),
    new_lit("ex_",D, [ths(T,[D|T],Defer,Defer), _, ans(A,A)], ExDass),
-   new_lit("prove_not_",D, [[D|T],anc([],[])],Pr_not_D),
+   new_lit("proven_not_",D, [[D|T],anc([],[])],Pr_not_D),
    prolog_cl(thr,(ExDass :- variable_free(D), \+member(D,T), \+Pr_not_D)),
    new_lit("ex_",D, [ths(T,T,Defer,[D|Defer]), _, ans(A,A)], ExDefer),
    prolog_cl(thr,(ExDefer :- \+ variable_free(D))).
@@ -1232,7 +1232,7 @@ the appropriate Prolog definition.
 declare_prolog(G) :-
    new_lit("ex_",G, [ths(T,T,D,D), _, ans(A,A)], ExG),
    prolog_cl(thr,(ExG :- G)),
-   new_lit("prove_",G,[_,_],PrG),
+   new_lit("proven_",G,[_,_],PrG),
    prolog_cl(proven,(PrG :- G)).
 
 
@@ -1262,7 +1262,7 @@ expl(G,T0,T1,Ans) :-
 
 check_consis([],T,T).
 check_consis([H|D],T1,T) :-
-   new_lit("prove_not_",H, [T1,anc([],[])], Pr_n_H),
+   new_lit("proven_not_",H, [T1,anc([],[])], Pr_n_H),
    \+ Pr_n_H,
    check_consis(D,[H|T1],T).
 
@@ -1283,7 +1283,7 @@ answer, but only adding redundant information).
 
 :- dynamic ex_not_newans/5.
 :- dynamic ex_newans/5.
-:- dynamic prove_not_newans/4.
+:- dynamic proven_not_newans/4.
 ex_not_newans(N,G,ths(T,T,D,D),anc(Pos,Neg),ans(A,[G|A])) :-
    member(newans(N,_),Pos),
    \+ id_anc(G,anc(Pos,Neg)).
@@ -1304,16 +1304,16 @@ When the ancestor search rules for predicate $p$ are defined, we assert
 {\em ancestor\_recorded(p)}, so that we do not attempt to redefine the
 ancestor search rules.
 \index{make\_ex\_anc}
-\index{flag,ancestor\_search}
-\index{flag,loop\_check}
+\index{th_flag,ancestor\_search}
+\index{th_flag,loop\_check}
 \begin{verbatim} */
 
 
 :- dynamic ancestor_recorded/1.
 make_anc(_) :-
-   flag((ancestor_search,off)),
-   flag((loop_check,off)),
-   flag((depth_bound,off)),
+   th_flag((ancestor_search,off)),
+   th_flag((loop_check,off)),
+   th_flag((depth_bound,off)),
    !.
 make_anc(Name) :-
    call_u(ancestor_recorded(Name)),
@@ -1327,29 +1327,29 @@ make_anc(Goal) :-
    NG =.. [Pred|Nargs],
    make_bodies(NG,_,[ths(T,T,D,D),anc(P,N),ans(A,A)],ProveG,ExG),
    make_bodies(n(NG),_,[ths(T,T,D,D),anc(P,N),ans(A,A)],ProvenG,ExnG),
-   ( flag((loop_check,off))
+   ( th_flag((loop_check,off))
    ;
      prolog_cl(proven,(ProveG :- id_member(NG,P),!,fail)),
      prolog_cl(proven,(ProvenG :- id_member(NG,N),!,fail)),
      prolog_cl(thr,(ExG :- id_member(NG,P),!,fail)),
      prolog_cl(thr,(ExnG :- id_member(NG,N),!,fail))
    ),
-   ( flag((ancestor_search,off))
+   ( th_flag((ancestor_search,off))
    ;
      prolog_cl(proven,(ProveG :- member(NG,N))),
      prolog_cl(proven,(ProvenG :- member(NG,P))),
      prolog_cl(thr,(ExG :- member(NG,N))),
      prolog_cl(thr,(ExnG :- member(NG,P)))
    ),
-   ( flag((depth_bound,off)), !
+   ( th_flag((depth_bound,off)), !
    ;
-     prolog_cl(thr,(ProveG :- (flag((depth_bound,MD))),
+     prolog_cl(thr,(ProveG :- (th_flag((depth_bound,MD))),
             number(MD),length(P,LP),length(N,LN),LP+LN>MD,!,fail)),
-     prolog_cl(thr,(ProvenG :- (flag((depth_bound,MD))),
+     prolog_cl(thr,(ProvenG :- (th_flag((depth_bound,MD))),
             number(MD),length(P,LP),length(N,LN),LP+LN>MD,!,fail)),
-     prolog_cl(thr,(ExG :- (flag((depth_bound,MD))),
+     prolog_cl(thr,(ExG :- (th_flag((depth_bound,MD))),
             number(MD),length(P,LP),length(N,LN),LP+LN>MD,!,fail)),
-      prolog_cl(thr,(ExnG :- (flag((depth_bound,MD))),
+      prolog_cl(thr,(ExnG :- (th_flag((depth_bound,MD))),
             number(MD),length(P,LP),length(N,LN),LP+LN>MD,!,fail))
    ),
    ain(ancestor_recorded(NG)),
@@ -1392,7 +1392,7 @@ self contained.
 \begin{verbatim} */
 
      
-:- dynamic((flag)/1).
+:- dynamic((th_flag)/1).
 :- op(1150,fx,'default').
 :- op(1150,fx,'fact').
 :- op(1150,fx,constraint).
@@ -1400,9 +1400,9 @@ self contained.
 :- op(1150,fx,explain).
 :- op(1150,fx,predict).
 :- op(1150,fx,define).
-:- op(1150,fx,set).
-:- op(1150,fx,flag).
-:- op(1150,fx,reset).
+:- op(1150,fx,th_set).
+:- op(1150,fx,th_flag).
+:- op(1150,fx,th_reset).
 :- op(1150,fy,h).
 :- op(1150,fx,thconsult).
 :- op(1150,fx,thtrans).
@@ -1599,7 +1599,7 @@ an appropriate state at the end of the computation.
 % :- dynamic statistics/2.
 
 'explain'(G) :-
-   (flag((timing,on))),
+   (th_flag((timing,on))),
     statistics(runtime,_),
     expl(G,[],D,A),
     statistics(runtime,[_,Time]),
@@ -1799,7 +1799,7 @@ thconsult(( File )):-
 read_all(end_of_file) :- !.
 
 read_all(T) :-
-   ((flag(( asserting,on))),!; format('~n% ~p.~n',[T])),
+   ((th_flag(( asserting,on))),!; format('~n% ~p.~n',[T])),
    (call(T) *-> true ; format('% Warning: ~p failed~n',[T])),
    th_read(T2),
    read_all(T2).
@@ -1832,11 +1832,11 @@ thtrans2out(File):-
    format(':- dynamic contrapos_recorded/1.~n',[]),
    format(':- style_check(- singleton).~n',[]),
    format(':- style_check(- discontiguous).~n',[]),
-   (set((asserting,off))),
+   (th_set((asserting,off))),
    th_read(T),
    read_all(T),
    set_input(Oldinput),
-   reset(( asserting)),!.
+   th_reset(( asserting)),!.
 
 /* \end{verbatim}
 To compile a Theorist file, you should do a,
@@ -1862,19 +1862,19 @@ thcompile(( File )):-
 
 
 \subsection{Flag Setting} \label{flags}
-There are a number of Theorist options which can be set by flag declarations.
+There are a number of Theorist options which can be th_set by th_flag declarations.
 Flags, by default, are {\tt on}.
-To set the flag $f$ to value $v$ you can issue the command
+To th_set the th_flag $f$ to value $v$ you can issue the command
 \begin{verse}
-\bf set $f,v.$
+\bf th_set $f,v.$
 \end{verse}
-To find out the value of the flag $f$ issue the command
+To find out the value of the th_flag $f$ issue the command
 \begin{verse}
-\bf flag $f,V.$
+\bf th_flag $f,V.$
 \end{verse}
-You can reset the value of flag $f$ to its old value by
+You can th_reset the value of th_flag $f$ to its old value by
 \begin{verse}
-\bf reset $f.$
+\bf th_reset $f.$
 \end{verse}
 The list of all flags is given by the command
 \begin{verse}
@@ -1882,29 +1882,29 @@ The list of all flags is given by the command
 \end{verse}
 
 The following is the definition of these
-\index{set}
+\index{th_set}
 \begin{verbatim} */
 
 
-set((F,V)):-
-   assert((flag((F,V1)):- !,V=V1)),!.
+th_set((F,V)):-
+   assert((th_flag((F,V1)):- !,V=V1)),!.
 
 
 /* \end{verbatim}
-\index{flag}
+\index{th_flag}
 \begin{verbatim} */
 
 
-flag((_,off)).
+th_flag((_,off)).
 
 
 /* \end{verbatim}
-\index{reset}
+\index{th_reset}
 \begin{verbatim} */
 
 
-reset(F) :-
-   ignore(retract(pfclog(flag((F,_)) :- !,_=_))).
+th_reset(F) :-
+   ignore(retract(pfclog(th_flag((F,_)) :- !,_=_))).
 
 
 /* \end{verbatim}
@@ -1916,8 +1916,8 @@ flags :- list_flags([asserting,ancestor_search,loop_check,
                      depth_bound,sound_unification,timing]).
 list_flags([]).
 list_flags([H|T]) :-
-   (flag((H,V))),
-   format('flag((~w,~w)).~n',[H,V]),
+   (th_flag((H,V))),
+   format('th_flag((~w,~w)).~n',[H,V]),
    list_flags(T).
                           
 
@@ -1944,7 +1944,7 @@ Essentially we then must say that the appropriate Prolog code is dynamic.
 
 :- op(1150,fx,(dyn)).
 dyn(_) :-
-   (flag((asserting, on))),
+   (th_flag((asserting, on))),
    !.
 dyn(n(G)) :-
    !,
@@ -1957,8 +1957,8 @@ dyn(G):-
    ExL is NA + 3,
    format(':- dynamic ~a/~d.~n',[ExNR,ExL]),
    format(':- dynamic ~a/~d.~n',[ExR,ExL]),
-   add_prefix("prove_not_",R,PrNR),
-   add_prefix("prove_",R,PrR),
+   add_prefix("proven_not_",R,PrNR),
+   add_prefix("proven_",R,PrR),
    PrL is NA + 2,
    format(':- dynamic ~a/~d.~n',[PrNR,PrL]),
    format(':- dynamic ~a/~d.~n',[PrR,PrL]).
@@ -1971,7 +1971,7 @@ The use of conditional asserting (prolog\_cl) is twofold.
 The first is to write the condition to a file if that is desired.
 The second is to be a backtrackable assert otherwise.
 \index{prolog\_cl}
-\index{flag,asserting}
+\index{th_flag,asserting}
 \begin{verbatim} */
 
 contains_prove(Body):- \+ compound(Body),!,fail.
@@ -1999,12 +1999,12 @@ prolog_cl(thr,C):-!,prolog_cl(C).
 prolog_cl(_,C):-!,prolog_cl(C).
 
 prolog_cl(C) :- 
-  %  flag((th_asserts,on)),!,
+  %  th_flag((th_asserts,on)),!,
    b_getval(th_asserts,List),
    b_setval(th_asserts,[C|List]),!.
 
 prolog_cl(C) :-  
-   print_clause(C),flag((asserting,off)), \+ flag((th_asserts,on)),!.
+   print_clause(C),th_flag((asserting,off)), \+ th_flag((th_asserts,on)),!.
 prolog_cl(C) :- 
    mpred_ain(C).
 prolog_cl(C) :-
@@ -2022,7 +2022,7 @@ written to the file and asserted.
 prolog_decl(proven,C):-!,prolog_decl(boxlog(C)).
 prolog_decl(thr,C):-!,prolog_decl(pfclog(C)).
 prolog_decl(C) :-
-   flag((asserting,off)),
+   th_flag((asserting,off)),
    trace,print_clause(C),
    fail.
 prolog_decl(C) :-
@@ -2424,8 +2424,8 @@ numberargs([X|L], N, M) :-
   numberargs(L, N1, M).      
 */
 
-:- set((asserting,off)).
-:- set((_,off)).
+:- th_set((asserting,off)).
+:- th_set((_,off)).
 :- fixup_exports.
 
 

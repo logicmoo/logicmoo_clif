@@ -222,6 +222,8 @@ prologHybrid(mudToCyc(ftTerm,ftTerm)).
 % col_as_isa(X)==>tFixedArityRelation(X),arity(X,1).
 col_as_unary(X)==>tFixedArityRelation(X),arity(X,1).
 
+:- kb_shared(ttExpressionType/1).
+
 tSet(ttExpressionType).
 tSet(completelyAssertedCollection).
 
@@ -610,10 +612,10 @@ completelyAssertedCollection(tCol).
 
 % ttRelationType(Prop)==>tCol(Prop).
 
-:- forall(between(1,12,N),kb_shared(prove_holds_t/N)).
-:- forall(between(1,12,N),kb_shared(prove_not_holds_t/N)).
-:- forall(between(1,12,N),kb_shared(prove_poss_t/N)).
-:- forall(between(1,12,N),kb_shared(prove_not_poss_t/N)).
+:- forall(between(1,12,N),kb_shared(proven_holds_t/N)).
+:- forall(between(1,12,N),kb_shared(proven_not_holds_t/N)).
+:- forall(between(1,12,N),kb_shared(proven_poss_t/N)).
+:- forall(between(1,12,N),kb_shared(proven_not_poss_t/N)).
 
 %:-baseKB:agenda_slow_op_enqueue(ain(((arity(Pred,2),argIsa(Pred,1,Col)/(is_ftNonvar(Pred),Col\=ftTerm,tCol(Col)), \+prologSideEffects(Pred), t(Pred,Arg,_)/is_ftNonvar(Arg)) ==> t(Col,Arg)))).
 %:-baseKB:agenda_slow_op_enqueue(ain(((arity(Pred,2),argIsa(Pred,2,Col)/(is_ftNonvar(Pred),Col\=ftTerm,tCol(Col)), \+prologSideEffects(Pred), t(Pred,_,Arg)/is_ftNonvar(Arg)) ==> t(Col,Arg)))).

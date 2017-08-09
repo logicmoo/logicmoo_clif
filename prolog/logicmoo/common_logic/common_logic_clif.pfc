@@ -101,8 +101,8 @@ poss(P) ==>     \+ ~ P, \+ ~poss(P).
 % also when something begins to be definately false remove it and remove the possibility of it
 % feature_setting(delete_neg_poss,true)==> (((~P)/(nonvar(P),mpred_positive_literal(P),\+ contains_modal(P))) ==> \+ poss(P),  {mpred_fwc(~poss(P))}).
   
-:- meta_predicate prove_holds_t(*,?,?).
-prove_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
-:- meta_predicate prove_holds_t(*,?,?,?).
-prove_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
+:- meta_predicate proven_holds_t(*,?,?).
+proven_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
+:- meta_predicate proven_holds_t(*,?,?,?).
+proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
 

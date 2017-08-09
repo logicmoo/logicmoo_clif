@@ -87,6 +87,8 @@ swish_home0(Dir):- is_symlink_to('./remote_ide.pl',To),file_directory_name(To,Di
 :- discontiguous(user:file_search_path/2).
 user:file_search_path('swish', Dir):-  swish_home(Dir),!.
 
+:- nodebug.
+
 :- dynamic(non_swish_file_search_path/2).
 :- forall(retract(user:file_search_path(config_enabled, Was)),
           assert(non_swish_file_search_path(config_enabled, Was))).
@@ -266,14 +268,14 @@ swish :-
         swish('0.0.0.0':3050).
 
 swish(Port) :-
-        http_server_property(Port, goal(swish_ide:http_dispatch)), !,
+        http_server_property(Port, goal(logicmoo_swish:http_dispatch)), !,
         open_browser(Port).
 swish(_:Port) :-
         integer(Port),
-        http_server_property(Port, goal(swish_ide:http_dispatch)), !,
+        http_server_property(Port, goal(_)), !,
         open_browser(Port).
 swish(Port) :-
-        http_server(http_dispatch,
+        http_server(logicmoo_swish:http_dispatch,
                     [ port(Port),
                       workers(16)
                     ]),

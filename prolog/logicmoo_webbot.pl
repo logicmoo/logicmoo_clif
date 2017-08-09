@@ -31,7 +31,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PACK LOADER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- load_library_system(logicmoo_packs).
+:- user:load_library_system(logicmoo_packs).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +40,7 @@
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
-:- load_library_system(logicmoo_swilib).
+:- user:load_library_system(logicmoo_swilib).
 
 
 :- if(exists_source(library(pce_emacs))).
@@ -115,13 +115,24 @@ maybe_save_lm:- qsave_lm(lm_repl4),!.
 % START WEBSERVER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% :- load_library_system(logicmoo_cliop).
+:- system:reexport(library(http/js_write)).
 
-% :- load_library_system(logicmoo_swish).
+:- nodebug.
 
-:- load_library_system(logicmoo_pldoc).
+:- user:load_library_system(logicmoo_plweb).
 
-:- load_library_system(logicmoo_plweb).
+:- nodebug.
+
+:- user:load_library_system(logicmoo_swish).
+
+:- nodebug.
+
+:- user:load_library_system(logicmoo_cliop).
+
+:- nodebug.
+
+:- user:load_library_system(logicmoo_pldoc).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -237,18 +248,6 @@ system:kill_unsafe_preds0:-
 :- during_net_boot(egg_go_maybe).
 :- endif.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("CYC Alignment util").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- set_prolog_flag(do_renames,restore).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("SETUP CYC KB EXTENSIONS").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- during_boot(set_prolog_flag(do_renames,restore)).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb.pl'))).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SET TOPLEVEL OPTIONS").
@@ -261,7 +260,7 @@ system:kill_unsafe_preds0:-
 :- set_prolog_flag(toplevel_mode,backtracking). % OR recursive 
 %:- after_boot(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
-% :- set_prolog_flag(write_attributes,portray).
+:- set_prolog_flag(write_attributes,portray).
 % :- debug.
 
 

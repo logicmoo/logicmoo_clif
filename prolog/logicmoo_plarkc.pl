@@ -8,6 +8,8 @@
 */
 :- module(logicmoo_plarkc,[]).
 
+
+
 :- system:reexport(library(logicmoo_clif)).
 :- '$set_source_module'(baseKB).
 
@@ -15,10 +17,43 @@
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
-%:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb'))).
+:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
 % :- add_library_search_path('./logicmoo/plarkc/',[ 'logicmoo_i_*.pl']).
 
+/*
+Before I continue I rather ensure I am using the same terminolgy as the rest
+First I need to understand what you see as the difference between FOL and 2-Sorted FOL
+Are both Henkin?
+Also is FOL,  1-Sorted FOL or non-Sorted FOL?
+Between 2-Sorted FOL and a 1-Sorted FOL
+Between 3-Sorted FOL and a 2-Sorted FOL
+well what i meant is that Full SOL *should* be more expressive than basic FOL 
+in fact i have no doubts SOL *is* more expressive if it is extending basic FOL  
+but make basic FOL extremely expressive by allowing to exist a: 2-Sorted FOL 
+I would like to belive there could be a possiblity of add SOL to 2-Sorted FOL  the same way as SOL can be added to non sorted-FOL 
+
+I refer the "expressivness", I mean the ablity thru syntactical expression to:
+1) say anything desired and predict exactly how a reasoner will understand the new expression
+2) the ability to change the default supertype ("Class") that unqualified foralls assume to be selecting from
+3) say things the reasoner will be able to interpret subsumption to apply this new expression to other expressions: refered to as "Class"
+4) Extend [dis]equality
+5) quantify over bags of axioms and other exisiting content: John McCarthy 1982(?) named "Microtheory"s
+
+Next Inside each "Microtheory"
+
+6) Visiblity between Microtheories
+6a) When visibility may happen at all..  
+6b) How the Classes may change when one Microtheory sees into another
+7) create and destroy hypothetical Microtheoies per single logical expression
+8) Ability to manipulate each proof by treating it as we do our "bag of assertions/axioms"
+9) Do 2-5 locally to each MT
+   
+   
+
+MLTT = is an extension to control the u ability to
+
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP CYC KB EXTENSIONS

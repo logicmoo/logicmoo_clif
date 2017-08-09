@@ -157,9 +157,9 @@ inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
 :- multifile(baseKB:istAsserted/2).
 :- kb_global(baseKB:istAsserted/2).
 
-istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail).
+:- assert(((istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail)))).
 %istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
-istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT)).
+:- assert(((istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT))))).
 
 baseKB:tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
 baseKB:tAsserted(P):- 

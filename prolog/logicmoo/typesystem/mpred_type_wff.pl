@@ -982,6 +982,7 @@ is_function(F):- atom_concat(_Was,'Fn',F),!.
 
 is_function_expr(OP,Function):- compound(Function),!,compound_name_arity(Function,F,A),is_function_pfa(OP,Function,F,A).
 
+is_function_expr(Function):- is_function_expr(assert,Function).
 
 
 has_ftVar(Body):-is_ftVar(Body),!.

@@ -131,22 +131,31 @@ To run the system, do one of the following:
 % relative one ensures that the system remains working when installed on
 % a device that may be mounted on a different location.
 
-add_relative_search_path(Alias, Abs) :-
-        is_absolute_file_name(Abs), !,
+add_relative_search_path(Alias, Rel):- 
+    absolute_file_name(Rel, Real,[file_type(directory),access(read),file_errors(fail)]),
+    add_relative_search_path0(Alias, Real),!.
+
+add_relative_search_path0(Alias, Abs) :-
+        is_absolute_file_name(Abs), 
+        exists_directory(Abs),
+        assertz(user:file_search_path(Alias, Abs)),fail.
+add_relative_search_path0(Alias, Abs) :-
+        is_absolute_file_name(Abs), 
         prolog_load_context(file, Here),
         relative_file_name(Abs, Here, Rel),
-        assertz(user:file_search_path(Alias, Rel)).
-add_relative_search_path(Alias, Rel) :-
+        assertz(user:file_search_path(Alias, Rel)),fail.
+add_relative_search_path0(Alias, Rel) :-
         assertz(user:file_search_path(Alias, Rel)).
 
-file_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
-:- add_relative_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria').
 
 % Make loading files silent. Comment if you want verbose loading.
 
 :- current_prolog_flag(verbose, Verbose),
    asserta(saved_verbose(Verbose)),
    set_prolog_flag(verbose, silent).
+
+:- add_relative_search_path(cliopatria, pack('ClioPatria')).
+% :- add_relative_search_path(cpacks, 'cpack').
 
 
 % :- use_module(library(cplint_r)).
@@ -159,11 +168,16 @@ file_search_path(cliopatria, '/home/prologmud_server/lib/swipl/pack/ClioPatria')
 % Use the ClioPatria help system.  May   be  commented to disable online
 % help on the source-code.
 
+
+
 :- use_module(cliopatria('applications/help/load')).
+
 
 % Load ClioPatria itself.  Better keep this line.
 
 :- use_module(cliopatria(cliopatria)).
+
+:- listing(user:file_search_path/2).
 
 % Get back normal verbosity of the toplevel.
 

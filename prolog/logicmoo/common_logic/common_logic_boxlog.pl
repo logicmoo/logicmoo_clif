@@ -522,15 +522,15 @@ body_for_mpred_2(_Mode,Head,Head,A,A).
 % Reduce Literal.
 %
 reduce_literal(A,A):-is_ftVar(A),!.
-reduce_literal(~A,~A):-is_ftVar(A),!.
+reduce_literal(~(A),~(A)):-is_ftVar(A),!.
 reduce_literal(~(different(P3, R3)),not_different(P3, R3)).
 reduce_literal(~(mudEquals(P3, R3)),different(P3, R3)).
 reduce_literal(~(skolem(P3, R3)),different(P3, R3)).
 reduce_literal(~(termOfUnit(P3, R3)),different(P3, R3)).
 reduce_literal(~(equals(P3, R3)),different(P3, R3)).
 reduce_literal(termOfUnit(P3, R3),skolem(P3, R3)).
-reduce_literal(~({A}),AA):- reduce_literal(~A,AA), AA \=@= ~A,!.
-reduce_literal(~(A),~ A):-!.
+reduce_literal(~({A}),AA):- reduce_literal(~(A),AA), AA \=@= ~(A),!.
+reduce_literal(~(A),~(A)):-!.
 reduce_literal(A,A).
 
 
@@ -572,15 +572,6 @@ boxlog_to_pfc_pass_4((H v B),(HH ; BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to
 boxlog_to_pfc_pass_4((H , B),(HH , BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to_pfc_pass_4(B,BB).
 boxlog_to_pfc_pass_4((H ; B),(HH ; BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to_pfc_pass_4(B,BB).
 boxlog_to_pfc_pass_4(H,O):- H=..[N,nesc(F)],kb_nlit(_,N),nonvar(F),!,HH=..[N,F],boxlog_to_pfc_pass_4(HH,O).
-
-/*
-boxlog_to_pfc_pass_4(nesc( ~(F)),O):- nonvar(F),!,boxlog_to_pfc_pass_4(~(F),O).
-boxlog_to_pfc_pass_4(nesc(F),O):- nonvar(F),!,boxlog_to_pfc_pass_4(F,O).
-boxlog_to_pfc_pass_4( ~(nesc(F)),O):- nonvar(F),!,boxlog_to_pfc_pass_4(naf(F),O).
-boxlog_to_pfc_pass_4(~poss(F),O):-nonvar(F),!,boxlog_to_pfc_pass_4(not_poss(F),O).
-boxlog_to_pfc_pass_4( ~(H), ~(HH)):- !,boxlog_to_pfc_pass_4(H,HH).
-boxlog_to_pfc_pass_4( ~(F),~(O)):- nonvar(F),!,boxlog_to_pfc_pass_4(F,O).
-*/
 
 boxlog_to_pfc_pass_4(IN,OUT):-demodal_sents(_KB,IN,M),IN\=@=M,!,boxlog_to_pfc_pass_4(M,OUT).
 

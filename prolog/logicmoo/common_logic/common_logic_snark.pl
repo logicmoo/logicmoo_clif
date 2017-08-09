@@ -781,7 +781,7 @@ local_pterm_to_sterm((P<=>Q),[equiv,PP,QQ]):-local_pterm_to_sterm(P,PP),local_pt
 local_pterm_to_sterm(all(P,Q),[all(PP),QQ]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ).
 local_pterm_to_sterm(exists(P,Q),[ex(PP),QQ]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ).
 local_pterm_to_sterm( ~(Q),[not,QQ]):-local_pterm_to_sterm(Q,QQ).
-local_pterm_to_sterm(poss(Q),[pos(QQ)]):-local_pterm_to_sterm(Q,QQ).
+local_pterm_to_sterm(poss(Q),[poss(QQ)]):-local_pterm_to_sterm(Q,QQ).
 local_pterm_to_sterm('&'(P,Q),PPQQ):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ),flatten([PP,QQ],PPQQ0),list_to_set(PPQQ0,PPQQ).
 local_pterm_to_sterm(','(P,Q),PPQQ):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ),flatten([PP,QQ],PPQQ0),list_to_set(PPQQ0,PPQQ).
 local_pterm_to_sterm('v'(P,Q),[or,[PP],[QQ]]):-local_pterm_to_sterm(P,PP),local_pterm_to_sterm(Q,QQ),!.
@@ -1003,33 +1003,43 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    to_modal1(KB,Wff665,Wff666),
    must_be_unqualified(Wff666),
    qualify_nesc(Wff666,Wff6667),   
-   ignore((Wff666\==Wff6667, sdmsg(kif=(Wff666)),!,sdmsg(qualify_nesc=(Wff6667)))),
+   ignore((Wff666\==Wff6667, sdmsg(kif=(Wff666)),sdmsg(qualify_nesc=(Wff6667)))),
    % add_preconds(Wff6667,Wff6668),
    adjust_kif(KB,Wff6667,Wff6669),
    must_be_unqualified(Wff6669),
-   nnf(KB,Wff6669,NNF),
+   show_call(nnf(KB,Wff6669,NNF)),
    (NNF \== poss(~t)),
-   must_be_unqualified(NNF),
+   %must_be_unqualified(NNF),
    sdmsg(nnf=(NNF)),
    %save_wid(Why,kif,Wff),
    %save_wid(Why,pkif,Wff6669),
    removeQ(KB,NNF,[], UnQ), 
-   current_outer_modal_t(HOLDS_T),
    ignore_unless(NNF\==UnQ, sdmsg(unq=UnQ)),
+   must(kif_to_boxlog_theorist(Wff666,UnQ,KB,Why,FlattenedOUTRealOUT))]).
+
+
+kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
+   current_outer_modal_t(HOLDS_T),
    to_tlog(HOLDS_T,KB,UnQ,UnQ666),
-   as_prolog_hook(UnQ666,THIN),
+   % UnQ=UnQ666,
+   as_prolog_hook(UnQ666,THIN0),
+   to_tnot(THIN0,THIN),
    must_be_unqualified(THIN),
    ignore_unless(THIN\==UnQ, sdmsg(th_nnf_in=THIN)),
    th_nnf(THIN,even,RULIFY),
-   ignore_unless(THIN\== ~ RULIFY, sdmsg(th_nnf_out= ~ RULIFY)),
+   ignore_unless(THIN\== ~ RULIFY, sdmsg(th_nnf_out= ~ RULIFY)),   
    once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,FlattenedM),
    correct_flattened(KB,Why,FlattenedM,FlattenedO),
    defunctionalize_each(FlattenedO,FlattenedOUT),
    reverse(FlattenedOUT,FlattenedOUTReal),
-   maplist(from_tlog,FlattenedOUTReal,FlattenedOUTRealOUT)]),!.
+   maplist(from_tlog,FlattenedOUTReal,FlattenedOUTRealOUT),!.
    
-   % cf(Why,KB,Wff6669,PNF666,FlattenedO),!.
+kif_to_boxlog_theorist2(Original,THIN,KB,Why,FlattenedOUTRealOUT):-
+   demodal_clauses3(KB,THIN,THIN2),
+   as_prolog_hook(THIN2,THIN3),
+     
+    must(cf(Why,KB,Original,THIN3,FlattenedOUTRealOUT)),!.
 
 correct_flattened(KB,_Why,Flattened,FlattenedO):-
   demodal_clauses3(KB,Flattened,FlattenedO),!.
@@ -1053,9 +1063,12 @@ to_tlog(MD,KB, poss(b_d(KB,_,X),F),   HH):- atom(X), XF =..[X,F], !,to_tlog(MD,K
 to_tlog(MD,KB, nesc(_,F),   HH):- XF =..[nesc,F], !,to_tlog(MD,KB,XF, HH).
 to_tlog(MD,KB, poss(_,F),   HH):- XF =..[poss,F], !,to_tlog(MD,KB,XF, HH).
 
+to_tlog(MD,KB,(X ; Y),(Xp v Yp)) :- to_tlog(MD,KB,X,Xp), to_tlog(MD,KB,Y,Yp).
 to_tlog(MD,KB,(X v Y),(Xp v Yp)) :- to_tlog(MD,KB,X,Xp), to_tlog(MD,KB,Y,Yp).
 to_tlog(MD,KB,H,HH ):- H=..[F|ARGS],tlog_is_sentence_functor(F),!,must_maplist(to_tlog(MD,KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
+to_tlog(MD,KB, ~(XF),  n(HH)):- !,to_tlog(MD,KB,XF, HH).
 to_tlog(MD,KB, n(XF),  n(HH)):- !,to_tlog(MD,KB,XF, HH).
+to_tlog(MD,KB, nesc(_,XF),(HH)):- !,to_tlog(MD,KB,XF, HH).
 to_tlog(MD,KB, nesc(XF),(HH)):- !,to_tlog(MD,KB,XF, HH).
 to_tlog(_,KB,H,HH ):- H=..[F,ARG],is_holds_functor(F),!,(is_ftVar(ARG)->HH=H;to_tlog(F,KB,ARG,HH)).
 to_tlog(_,KB, poss(XF),  HH):- !, to_tlog(poss_t,KB, XF,  HH).
@@ -1089,7 +1102,7 @@ maybe_wrap_modal(MD,HH,HHH):-HHH=..[MD,HH].
 % get_holds_wrapper(isa,c).
 get_holds_wrapper(isa,c).
 get_holds_wrapper(arity,c).
-get_holds_wrapper(need,c).
+get_holds_wrapper(reify,c).
 get_holds_wrapper(skolem,c).
 get_holds_wrapper(quotedIsa,c).
 get_holds_wrapper(resultIsa,c).
@@ -1103,6 +1116,26 @@ get_holds_wrapper(disjointWith,c).
 %get_holds_wrapper(_,_):-!,fail.
 %get_holds_wrapper(_P,t).
 
+to_tnot(THIN,THIN):- \+ compound(THIN),!.
+to_tnot(~ THIN0,NTHIN):- to_tnot( THIN0, THIN),!,to_neg(THIN,NTHIN).
+to_tnot(poss_t(C,I),POSCI):- atom(C),CI=..[C,I],!,to_poss(CI,POSCI).
+to_tnot(poss(THIN0),NTHIN):- to_poss( THIN0, NTHIN),!.
+to_tnot(nesc(THIN0),(NTHIN)):- to_tnot( THIN0, NTHIN),!.
+to_tnot((X ; Y),(Xp ; Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
+to_tnot((X :- Y),(Xp :- Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
+to_tnot((X , Y),(Xp , Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
+to_tnot(THIN0,tru(THIN)):- into_mpred_form(THIN0,THIN).
+
+to_neg(THIN,THIN):- \+ compound(THIN),!.
+to_neg(neg(THIN),THIN).
+to_neg(tru(THIN),neg(THIN)).
+to_neg(THIN,neg(THIN)).
+
+to_poss(THIN,poss(THIN)):- \+ compound(THIN),!.
+to_poss(poss(THIN),poss(THIN)).
+to_poss(tru(THIN),poss(THIN)).
+to_poss(neg(THIN),poss(neg(THIN))).
+to_poss(THIN,poss(THIN)).
 
 %% no_rewrites is det.
 %
@@ -1115,22 +1148,26 @@ baseKB:no_rewrites :- fail.
 
 
 
+from_tlog(Var, NVar):- \+ compound(Var),!,Var=NVar.
 from_tlog(Var, Var):- quietly(leave_as_is_logically(Var)),!.
 from_tlog(M:H,M:HH):- !, from_tlog(H,HH).
 from_tlog([H|T],[HH|TT]):- !, from_tlog(H,HH),from_tlog(T,TT).
-from_tlog(H,HH ):- H=..[F|ARGS],tlog_is_sentence_functor(F),!,must_maplist(from_tlog,ARGS,ARGSO),!,HH=..[F|ARGSO].
-from_tlog( prove_not_holds_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
-from_tlog( prove_not_holds_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
-from_tlog( prove_not_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
-from_tlog( prove_not_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
-from_tlog( prove_t(XF),  (HH)):- !,from_tlog(XF, HH).
-from_tlog( prove_t(F,A,B),  (t(F,A,B))):- var(F),!.
+from_tlog( t(XF),  (HH)):- !,from_tlog(XF, HH).
+from_tlog( proven_not_holds_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
+from_tlog( proven_not_holds_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
+from_tlog( proven_not_t(XF),  ~(HH)):- !,from_tlog(XF, HH).
+from_tlog( proven_not_t(F,A,B),  ~(t(F,A,B))):- var(F),!.
+from_tlog( proven_t(XF),  (HH)):- !,from_tlog(XF, HH).
+from_tlog( proven_t(F,A,B),  (t(F,A,B))):- var(F),!.
 from_tlog(H,HH):- H=..[F,ARG],is_holds_functor(F),is_ftVar(ARG)->HH=H,!.
-from_tlog(H,HH):- H=..[F|ARGS],must_maplist(from_tlog,ARGS,ARGSO),from_tlog_lit(F,ARGSO,HH).
+% from_tlog(H,HH):- H=..[F|ARGS],tlog_is_sentence_functor(F),!,must_maplist(from_tlog,ARGS,ARGSO),!,HH=..[F|ARGSO].
+% from_tlog(H,HH):- H=..[F|ARGS],must_maplist(from_tlog,ARGS,ARGSO),must(from_tlog_lit(F,ARGSO,HH)).
+from_tlog(H,HH):- H=..[F|ARGS],from_tlog_lit(F,ARGS,HH),!.
 
 add_modal(t,HH,HH).
 add_modal(MD,HH,HHH):- HHH=..[MD,HH].
 
+from_tlog_lit(F,ARGSO,HHH):- F==u,HHH=..[F|ARGSO],!.
 from_tlog_lit(F,ARGSO,HHH):- \+ is_holds_functor(F),!,HHH=..[F|ARGSO],!.
 from_tlog_lit(F,ARGSO,HHH):- get_holds_unwrapper(F,MD,W),!,XF=..[W|ARGSO],into_mpred_form(XF,HH),from_tlog(HH,HHHH),add_modal(MD,HHHH,HHH).
 from_tlog_lit(F,ARGSO,HHH):- XF=..[F|ARGSO],into_mpred_form(XF,HHH).
@@ -1139,7 +1176,7 @@ get_holds_unwrapper(F,t,t):- current_outer_modal_t(F).
 get_holds_unwrapper(FIn,MD,F):- modal_prefix(MDF,MD),atom_concat(MDF,F,FIn).
 
 
-modal_prefix(prove_,t).
+modal_prefix(proven_,t).
 modal_prefix(holds_,t).
 modal_prefix(not_,~).
 modal_prefix(possible_,poss).
@@ -1202,10 +1239,11 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
 %% qualify_nesc( ?P, ?Q) is semidet.
 %
-%  Q = (pos(P)=>P).
+%  Q = (poss(P)=>P).
 %
+:- thread_local(t_l:qualify_modally/0).
 
-% qualify_nesc(Wff666,Wff666):- !.
+% qualify_nesc(Wff666,Wff666):- \+ t_l:qualify_modally,!.
 qualify_nesc(Wff666,Wff666):- var(Wff666),!.
 qualify_nesc(IN,OUT):-is_list(IN),must_maplist(qualify_nesc,IN,OUT),!.
 qualify_nesc(Wff666,Wff666):- leave_as_is(Wff666),!.
@@ -1213,19 +1251,29 @@ qualify_nesc(Wff666,Wff666):- contains_modal(Wff666),!.
 % been caught above 
 % qualify_nesc(poss(Wff666),poss(Wff666)):-!.
 qualify_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),qualify_nesc(RQ,RQQ),append(LQ,[RQQ],QQ),PQO=..[F|QQ],!.
+
 % been caught above 
 % qualify_nesc(P=>Q,P=>Q):- (contains_modal(P);contains_modal(Q)),!.
 
 %qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
 %qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
 
-% qualify_nesc( ~(IN), nesc(~(IN))):-!.
-qualify_nesc( ~(IN), ~(poss(IN))):-!.
-qualify_nesc(IN,  nesc(IN)):-!.
+qualify_nesc( ~(IN), nesc(~(IN))):-!.
+% qualify_nesc( ~(IN), ~(poss(IN))):-!.
+
+% qualify_nesc(P=>Q,(poss(Q)&P)=>Q):-!.
+% qualify_nesc(P,(poss(P)=>(P))):-!.
+
+qualify_nesc(P,(~nesc(P)=>nesc(P))):- \+ \+ (P = (_ & _) ; P = (_ v _)).
+
+%qualify_nesc(P=>Q,nesc(P=>Q)):-!.
+%qualify_nesc(P<=>Q,nesc(P<=>Q)):-!.
+qualify_nesc(P,nesc(P)):-!.
+
 
 % never seen
+qualify_nesc(IN,  nesc(IN)):-!.
 qualify_nesc(nesc(Wff666),(poss(Wff666)=>nesc(Wff666))):-!.
-qualify_nesc(P=>Q,nesc(P=>Q)):-!.
 qualify_nesc(   IN,  nesc(IN)).
 qualify_nesc(P<=>Q,PQ & QP):- !,qualify_nesc(P=>Q,PQ),qualify_nesc(Q=>P,QP).
 qualify_nesc(P=>Q,(PP => (NP & QP =>NQ))):-!, weaken_to_poss(P,PP),weaken_to_poss(Q,QP),add_nesc(P,NP),add_nesc(Q,NQ).
