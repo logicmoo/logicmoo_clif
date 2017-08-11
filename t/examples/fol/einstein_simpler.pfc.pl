@@ -1,3 +1,4 @@
+:- include(test_header).
 /* 
 % =============================================
 % File 'mpred_builtin.pfc'

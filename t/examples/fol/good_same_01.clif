@@ -1,3 +1,4 @@
+:- include(test_header).
 
 (instance superset BinaryPredicate)
 (domain superset 1 DependantSet)

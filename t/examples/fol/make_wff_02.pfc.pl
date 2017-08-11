@@ -1,3 +1,4 @@
+:- include(test_header).
 #!/usr/bin/env swipl
 
 

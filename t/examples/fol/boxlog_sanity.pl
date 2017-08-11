@@ -1,3 +1,4 @@
+:- include(test_header).
 
 :- ensure_loaded(library(script_files)).
 

@@ -1,3 +1,4 @@
+:- include(test_header).
 ;; Module - Test Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
 ;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif'))
