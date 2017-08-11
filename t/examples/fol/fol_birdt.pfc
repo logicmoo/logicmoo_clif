@@ -1,3 +1,4 @@
+:- include(test_header).
 %
 %  PFC is a language extension for prolog.. there is so much that can be done in this language extension to Prolog
 %

@@ -1,5 +1,3 @@
-:- include(test_header).
-#LGPL License
 
 
 % runtype: default = pfc

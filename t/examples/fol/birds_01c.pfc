@@ -1,3 +1,4 @@
+:- include(test_header).
 
 %  was_module(adb_pfc,[]).
 
