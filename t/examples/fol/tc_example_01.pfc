@@ -1,6 +1,7 @@
 :- include(test_header).
 
-:- use_module(library(logicmoo_user)).
+
+ 
 
 all([X,Y,R],
   exists(RPlus, 

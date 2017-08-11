@@ -1,4 +1,5 @@
-%#!/usr/bin/swipl             
+#!/usr/bin/env swipl
+
 :- module(logicmoo_plweb,[
           ensure_webserver_3040/0,
           recursive_directory_files/2,
@@ -33,7 +34,7 @@ ensure_webserver_p(WebPort):- whenever_flag_permits(run_network, really_ensure_w
 ensure_webserver_3040:- (getenv('LOGICMOO_PORT',Was);Was=3000),
    WebPort is Was + 40, ensure_webserver_p('0.0.0.0':WebPort).
 
-:- during_boot(ensure_webserver_3040).
+:- during_net_boot(ensure_webserver_3040).
 
 %:- autoload([verbose(false)]).
 

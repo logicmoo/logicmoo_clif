@@ -1,5 +1,6 @@
 :- include(test_header).
 
+
 :- discontiguous kif_sanity_test_0/0.
 
 

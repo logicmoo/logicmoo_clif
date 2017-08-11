@@ -1,9 +1,9 @@
 :- include(test_header).
-#!/usr/bin/env swipl
 
-:- module(missing_count,[]).
 
-:- use_module(library(logicmoo_user)).
+
+
+ %  
 
 user:existing_count(X,G,EC):- findall(X,G,List),length(List,EC).
 

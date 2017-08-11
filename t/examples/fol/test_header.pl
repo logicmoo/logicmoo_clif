@@ -1,5 +1,4 @@
 
-
 % runtype: default = pfc
 :- if(current_prolog_flag(runtime_testing_module,_)->true;
   set_prolog_flag(runtime_testing_module,test_header)).
@@ -10,8 +9,15 @@
 
 :- if((prolog_load_context(module,user), \+ current_module(pfc_lib))).
 :- module(header_sane,[test_header_include/0]).
+
 test_header_include.
+
 :- endif.
+
+:- set_prolog_flag(nonet,true).
+:- set_prolog_flag(run_network,false).
+:- set_prolog_flag(load_network,false).
+
 
 
 %:- set_prolog_flag(runtime_speed,0). % 0 = dont care
@@ -25,6 +31,11 @@ test_header_include.
 
 :- if(( \+ current_module(pfc_lib) )).
 :- use_module(library(pfc)).
+
+:- set_prolog_flag(runtime_debug, 0). 
+:- use_module(library(logicmoo_clif)).
+:- set_prolog_flag(runtime_debug, 3). 
+
 :- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
 :- endif.
 
@@ -54,4 +65,19 @@ user:message_hook(T,Type,Warn):- source_location(_,_),
 :- set_prolog_flag(gc, false).
 
 :- sanity((defaultAssertMt(Mt1),fileAssertMt(Mt2),source_module(Mt3),Mt1==Mt2,Mt1==Mt3)).
+
+:-
+ op(1199,fx,('==>')), 
+ op(1190,xfx,('::::')),
+ op(1180,xfx,('==>')),
+ op(1170,xfx,'<==>'),  
+ op(1160,xfx,('<-')),
+ op(1150,xfx,'=>'),
+ op(1140,xfx,'<='),
+ op(1130,xfx,'<=>'), 
+ op(600,yfx,'&'), 
+ op(600,yfx,'v'),
+ op(350,xfx,'xor'),
+ op(300,fx,'~'),
+ op(300,fx,'-').
 

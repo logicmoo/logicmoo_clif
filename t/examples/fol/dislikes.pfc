@@ -1,7 +1,7 @@
 :- include(test_header).
-#!/usr/bin/env swipl
 
-:- module(dislikes,[]).
+
+
 :- include('test_header.pfc').
 % :- process_this_script.
 

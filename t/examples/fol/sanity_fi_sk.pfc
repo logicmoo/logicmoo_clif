@@ -1,7 +1,8 @@
 :- include(test_header).
-#!/usr/bin/env swipl
 
-:- module(sanity_fi_sk,[]).
+
+
+
 
 %:- kb_shared(system:(<-)/2).
 %:- kb_shared(system:(<==)/2).
@@ -95,7 +96,7 @@ N=((min_isa, max_isa),dom,[pred])
 :- notrace(leash(+all)).
 :- notrace.
 */
-:- use_module(library(logicmoo_user)).
+ 
 :- reconsult(library(script_files)).
 
 

@@ -1,4 +1,5 @@
 :- include(test_header).
+
 /* 
 % =============================================
 % File 'mpred_builtin.pfc'
@@ -41,7 +42,7 @@
 
 % swipl -g "ensure_loaded(pack(logicmoo_base/t/examples/csp/'einstein_simpler.pfc'))."
 
-:- ensure_loaded(library(logicmoo_user)).
+
 
 :- file_begin(pfc).
 

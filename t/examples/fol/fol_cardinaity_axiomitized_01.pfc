@@ -1,12 +1,13 @@
 :- include(test_header).
-#!/usr/bin/env swipl
-:- include(test_header).
+
+
+
 
 end_of_file.
 
-:- module(missing_count,[]).
 
-:- use_module(library(logicmoo_clif)).
+
+
 
 % Tests that you can express regular semweb cardinatility though in FOL
 

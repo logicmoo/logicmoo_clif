@@ -166,7 +166,8 @@ baseKB:tAsserted(P):-
    asserted_id(P,_).
 
 :- multifile(baseKB:ist/2).
-ist(MT,P):- istAsserted(MT,P).
+:- kb_global(baseKB:ist/2).
+:- assert(((ist(MT,P):- istAsserted(MT,P)))).
 
 
 % Y=verbSemTrans(xIndicateTheWord,X,xTransitiveThatClauseFrame,and(isa('ACTION',eventInformationTransferEvent),informationOrigin('ACTION','SUBJECT'),infoTransferred('ACTION','CLAUSE'))),rtrace(kif_to_boxlog(Y,BL)).

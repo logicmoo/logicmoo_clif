@@ -1,4 +1,5 @@
 :- include(test_header).
+
 lives(englishman, red)
 keep(swede, dogs)
 drinks(dane, tea)

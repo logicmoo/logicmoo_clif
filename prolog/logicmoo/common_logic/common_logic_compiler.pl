@@ -306,8 +306,8 @@ to_poss(KB,X,poss(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
 to_poss(KB,poss(BDT,X),poss(BDT,X)):-nonvar(BDT),!,share_scopes(KB,BDT),!.
 to_poss(KB,X,poss(BDT,X)):-share_scopes(KB,BDT),!.
 
-to_nesc(KB,X,nesc(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
-to_nesc(KB,nesc(BDT,X),nesc(BDT,X)):-nonvar(BDT),!,share_scopes(KB,BDT),!.
+% to_nesc(KB,X,nesc(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
+to_nesc(_KB,nesc(BDT,X),nesc(BDT,X)):-!. % nonvar(BDT),!,share_scopes(KB,BDT),!.
 to_nesc(KB,X,nesc(BDT,X)):-share_scopes(KB,BDT),!.
 
 
@@ -475,7 +475,7 @@ nnf1(KB,~(poss(BDT,F)),FreeV,BOX,Paths):- nonvar(F),!,
 % =================================
 
 nnf1(KB,nesc(BDT,F),FreeV,BOX,Paths):- 
-   nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX).
+   nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX),!.
 
 nnf1(KB,nesc(Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
 nnf1(KB,nesc(_,Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
@@ -577,11 +577,32 @@ nnf1(KB,all(X,NNF),FreeV, NNF2, Paths):- % is_using_feature(quants_removed_in_NN
 % Existential Skolem Setting (only one of the next few clauses are used)  ========
 % =================================
 
+nnf1(KB,(Q :- P),FreeV,(Q :- PP),Paths):- nnf1(KB,P,FreeV,PP,Paths),!.
+
 nnf1(KB,(Q :- P),FreeV,Lit,N):- 
    nnf1(KB,~(Q) => ~(ante(P)),FreeV,Lit,N).
 
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!, trace_or_throw(bad_nnf(KB,exists(X,Fml),FreeV,NNF,Paths)).
 % maybe this instead ? nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
+
+% USED
+nnf1(KB,exists(X,FmlIn),FreeV,NNF1NNF2,Paths):- is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+    term_slots(FmlIn+FreeV+X,Slots),
+       delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
+    
+    nnf(KB,FmlIn,SlotsV2,Fml,_Paths),
+    subst(Fml,X,SkF,SkFml),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    % SkF = skFn(Fml),
+    % push_skolem(X,SkF),
+    
+    %to_poss(KB,Fml,FmlPos),
+    %to_nesc(KB,Fml,FmlNesc),
+    nnf(KB,(~ nesc(b_d(KB,nesc,poss),Fml) => needs(SkF)),SlotsV2,NNF1,_Paths1),    
+    nnf(KB,((needs(SkF) => SkFml)),SlotsV2,NNF2,_Paths2),
+    nnf(KB,(NNF1 & NNF2),FreeV,NNF1NNF2,Paths)
+   )),!.
 
 % USED
 nnf1(KB,exists(X,FmlIn),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -1925,6 +1946,14 @@ unusual_body :- dmsg(skipped(unusual_body)),!,fail.
 %unused_clause((C v _):-_):-nonvar(C),!.
 unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 
+
+poss_or_skolem(Var):- \+ compound(Var),!,fail.
+poss_or_skolem(poss(_)).
+poss_or_skolem(skolem(_,_)).
+poss_or_skolem(P):-arg(_,P,E),is_list(E).
+
+
+
 demodal_clauses3(KB,FlattenedO1,FlattenedOO):-
         demodal_clauses(KB,FlattenedO1,FlattenedO2),
         demodal_clauses(KB,FlattenedO2,FlattenedO3),
@@ -1932,13 +1961,29 @@ demodal_clauses3(KB,FlattenedO1,FlattenedOO):-
         demodal_clauses(KB,FlattenedO4,FlattenedO5),
       remove_unused_clauses(FlattenedO5,FlattenedOO).
 
+
 demodal_clauses(_KB,Var, Var):- quietly(var_or_atomic(Var)),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
 demodal_clauses(KB,List,ListO):- is_list(List),!,must_maplist(demodal_clauses(KB),List,ListO),!.
 demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO),!.
 
+
+/*
+demodal_head_body(KB,Head,Body,(Head:-BodyO)):- term_attvars(Head,AttVars),include(AttVars,is_skolem,HeadAttVars),
+  term_attvars(Body,BodyAttVars),subtract_eq(HeadAttVars,BodyAttVars,SKList),
+    transform_skolem_forms(SKList,HeadExtra),
+    conjoin(HeadExtra,Body,BodyM),
+    demodal_body(KB,Head,BodyM,BodyO),!.
+*/
+
+demodal_head_body(KB,Head,Body,(HeadO :- BodyO)):-
+   demodal_head(KB,Head,HeadM,HeadExtra),
+   conjoin(HeadExtra,Body,BodyM),
+   demodal_h1_body(KB,HeadM,HeadO,BodyM,BodyO),!.
+demodal_head_body(KB,Head,Body,(Head :- BodyO)):- demodal_body(KB,Head,Body,BodyO),!. % reverse_conj(Body1,BodyO),!.
+
 demodal_h1_body(KB,Head,HeadO,Body,BodyO):- 
-  demodal_h2_body(KB,Head,HeadM,Body,BodyM), (Body\=@=BodyM ; Head\=@=HeadM), !,
+  (demodal_h2_body(KB,Head,HeadM,Body,BodyM)-> (Body\=@=BodyM ; Head\=@=HeadM)), !,
   demodal_h1_body(KB,HeadM,HeadO,BodyM,BodyO).
 
 demodal_h1_body(KB,Head,HeadO,Body,BodyO):-
@@ -1950,6 +1995,9 @@ demodal_h1_body(_KB,Head,Head,Body,Body).
 unusable_body(_,Var):- \+ compound(Var),!,fail.
 unusable_body(_,(proven_not_reify(XX),_)):- !,nonvar(XX).
 unusable_body(_,(A,B,_)):- negations_of_each_other(A,B).
+unusable_body(Head,(A,B)):- !,unusable_body(Head,A);unusable_body(Head,B).
+unusable_body(_,\+ needs(_)).
+% unusable_body(_,proven_neg(needs(_))).
 
 negations_of_each_other(A,B):- A == ~B.
 negations_of_each_other(A,B):- ~A == B.
@@ -1970,18 +2018,32 @@ demodal_h2_body(KB,Head,HeadO,(BodyA;BodyB),BodyO):- !,
   demodal_h2_body(KB,Head,HeadM,BodyA,NewBodA), 
   demodal_h2_body(KB,HeadM,HeadO,BodyB,NewBodB),
   disjoin(NewBodA,NewBodB,BodyO).
+
 demodal_h2_body(_KB,Head,Head,Body,Body).
 
 
-poss_or_skolem(Var):- \+ compound(Var),!,fail.
-poss_or_skolem(poss(_)).
-poss_or_skolem(skolem(_,_)).
-poss_or_skolem(P):-arg(_,P,E),is_list(E).
+demodal_head(_KB,proven_not_reify(A),unused(proven_not_reify(A)),true):- nonvar(A),!.
+demodal_head(_KB,~(skolem(A,B)),unused(~(skolem(A,B))),true):- nonvar(B),!.
+% demodal_head(_KB,~(skolem(A,B)),unused_skolem(A,B),true):- nonvar(B),!.
+% demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
+demodal_head(_KB,~(different(A,B)),equals(A,B),true):-!.
+demodal_head(_KB,~(equals(A,B)), different(A,B),true):-!.
+demodal_head(_KB,~(mudEquals(A,B)), different(A,B),true):-!.
+
+demodal_head(_KB, not_nesc(b_d(_7B2, nesc, poss), A v ~B), (~A & B),true) :-!.
+
+demodal_head(_KB,~(isa(A,B)),not_isa(A,B),true):- nonvar(B),!.
+demodal_head(_KB,naf(~(Head)),poss(Head),true):- !.
+demodal_head(_KB,proven_neg(needs(Head)),unused(proven_neg(needs(Head))),true):- !.
+demodal_head(_KB,nesc(Head),Head,true):- !.
+demodal_head(_KB,Head,Head,true):- !.
+demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
+
 
 % demodal_body(_KB,~(_Head),(skolem(_,B), \+ G), \+ G ):- nonvar(B),nonvar(G),!.
 
 demodal_body(_KB,_Head,Var, Var):- \+compound(Var),!.  
-%demodal_body(_KB,_Head,Var, Var):-!.
+% DISABLER demodal_body(_KB,_Head,Var, Var):-!.
 
 % demodal_body(KB, Head, Body, _):- dmsg(demodal_body(KB, Head, Body)),fail.
 
@@ -2000,7 +2062,12 @@ demodal_body(_KB,_Head, poss([infer_by(_)],G), poss(G)).
 demodal_body(_KB,_Head, nesc([infer_by(_)],G), nsec(G)).
 demodal_body(_KB,_Head, nesc(G), (G)):- nonvar(G),!.
 
-demodal_body(_KB,  proven_neg(_Head), \+ ~ X, X):-!.
+demodal_body(_KB,_Head, (A,needs(G)), (needs(G),A)):- nonvar(G),!.
+
+
+demodal_body(_KB,proven_neg(_Head), (needs(G),proven_neg(A)),  (needs(G),\+ (A))):- nonvar(G),!.
+
+% demodal_body(_KB,  proven_neg(_Head), \+ ~ X, X):-!.
 
 demodal_body(_KB,  proven_tru(Head), proven_not_neg(X), \+ ~ X):- Head==X.
 demodal_body(_KB,  proven_neg(Head), proven_not_tru(X), \+  X):- Head==X.
@@ -2009,13 +2076,19 @@ demodal_body(_KB,  proven_tru(_Head), proven_not_neg(X), proven_tru(X)):-!.
 demodal_body(_KB,  proven_neg(_Head), proven_not_tru(X), proven_neg(X)):-!.
 
 
+demodal_body(_KB, _Head, proven_tru(needs(X)), needs(X)):-!.
+%demodal_body(_KB, _Head, proven_not_tru(needs(X)), \+ needs(X)):-!.
+demodal_body(_KB, _Head, proven_not_neg(needs(X)), needs(X)):-!.
 
+%demodal_body(_KB, _Head, proven_not_neg(X), proven_tru(X)):-!.
 
-% demodal_body(_KB, _Head, proven_not_neg(X), proven_tru(X)):-!.
+demodal_body(_KB, _Head, proven_neg(needs(_)),true).
+/*
 demodal_body(_KB, _Head, proven_not_neg(X), \+ ~ X).
-demodal_body(_KB, _Head, proven_not_tru(X), \+ X).
 demodal_body(_KB, _Head, proven_tru(X),  X).
 demodal_body(_KB, _Head, proven_neg(X), ~ X).
+*/
+demodal_body(_KB, _Head, proven_not_tru(X), \+ X).
 
 demodal_body(_KB, proven_neg(_Head), \+ ~ CMP, true):- compound(CMP),CMP=(skolem(_,_)).
 
@@ -2025,7 +2098,8 @@ demodal_body(_KB, proven_neg(_Head), \+ ~ CMP, true):- compound(CMP),CMP=(skolem
 
 demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
 demodal_body(_KB, _Head, ((A , B) ; (C , D)), (A , (B ; D))):- A==C,!.
-% demodal_body(_KB, _Head, ((A ; B), C), (C, (A ; B))).
+demodal_body(_KB, _Head, ((A ; B), C), (C, once(B ; A))).
+% demodal_body(_KB, _Head, (C, (A ; B)), ((B ; A), C)).
 
 demodal_body(_KB, proven_neg(Head), (Other,(\+ BHead ; ~Other1)),naf(BHead)):- BHead == Head,Other=Other1.
 demodal_body(_KB, proven_neg(Head), (Other,( ~Other1 ; \+ BHead )),naf(BHead)):- BHead == Head,Other=Other1.
@@ -2107,38 +2181,9 @@ pred_of(~(Head), Head).
 pred_of(Head, Head).
 
 
-/*
-demodal_head_body(KB,Head,Body,(Head:-BodyO)):- term_attvars(Head,AttVars),include(AttVars,is_skolem,HeadAttVars),
-  term_attvars(Body,BodyAttVars),subtract_eq(HeadAttVars,BodyAttVars,SKList),
-    transform_skolem_forms(SKList,HeadExtra),
-    conjoin(HeadExtra,Body,BodyM),
-    demodal_body(KB,Head,BodyM,BodyO),!.
-*/
-
-demodal_head_body(KB,Head,Body,(HeadO :- BodyO)):-
-   demodal_head(KB,Head,HeadM,HeadExtra),
-   conjoin(HeadExtra,Body,BodyM),
-   demodal_h1_body(KB,HeadM,HeadO,BodyM,BodyO),!.
-demodal_head_body(KB,Head,Body,(Head :- BodyO)):- demodal_body(KB,Head,Body,BodyO),!. % reverse_conj(Body1,BodyO),!.
-
 reverse_conj((A,B),Body):- !, reverse_conj(B,RB),conjoin(RB,A,Body).
 reverse_conj(Body,Body).
 
-demodal_head(_KB,proven_not_reify(A),unused(proven_not_reify(A)),true):- nonvar(A),!.
-demodal_head(_KB,~(skolem(A,B)),unused(~(skolem(A,B))),true):- nonvar(B),!.
-% demodal_head(_KB,~(skolem(A,B)),unused_skolem(A,B),true):- nonvar(B),!.
-% demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
-demodal_head(_KB,~(different(A,B)),equals(A,B),true):-!.
-demodal_head(_KB,~(equals(A,B)), different(A,B),true):-!.
-demodal_head(_KB,~(mudEquals(A,B)), different(A,B),true):-!.
-
-demodal_head(_KB, not_nesc(b_d(_7B2, nesc, poss), A v ~B), (~A & B),true) :-!.
-
-demodal_head(_KB,~(isa(A,B)),not_isa(A,B),true):- nonvar(B),!.
-demodal_head(_KB,naf(~(Head)),poss(Head),true):- !.
-demodal_head(_KB,nesc(Head),Head,true):- !.
-demodal_head(_KB,Head,Head,true):- !.
-demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 
 %= 	 	 
 

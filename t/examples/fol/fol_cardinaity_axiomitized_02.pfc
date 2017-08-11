@@ -2,6 +2,7 @@
 
 
 
+
 my-minus-one(N,M) <->  (N > 1)  &  (M = N-1)
 
 equiv(kb,logsent1,logsent2) <->

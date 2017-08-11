@@ -1,9 +1,5 @@
 :- include(test_header).
-(th#!/usr/bin/env swipl
 
-% :- module(missing_count,[]).
-
-:- use_module(library(logicmoo_snark)).
 
 
 :- debug_logicmoo(_).

@@ -1,5 +1,6 @@
 :- include(test_header).
 
+
 /*
 :- use_module(library(pce)).
 :- use_module(library(gui_tracer)).
@@ -13,7 +14,7 @@
 % :- guitracer,leash(-all),visible(-all),trace,member(_,[_]),!,notrace,leash(+all),visible(+all).
 */
 
-:- use_module(library(logicmoo_user)).
+ 
 
 :- file_begin(pfc).
 

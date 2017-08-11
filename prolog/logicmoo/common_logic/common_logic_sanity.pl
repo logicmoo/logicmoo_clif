@@ -71,7 +71,7 @@ kif_show:-  baseKB:listing(clif/1),baseKB:listing(boxlog/1),baseKB:listing(pfclo
 :- kb_shared(compile_clif/0).
 clif_uncompile:-  ain(==>( \+ compile_clif)),clif_show.
 clif_recompile:-  ain(==>( \+ compile_clif)), ain(==> compile_clif),clif_show.
-clif_compile:-  ain(==> compile_clif),clif_show.
+clif_compile:-  ain(==> compile_clif). % clif_show.
 clif_show:-  baseKB:listing(clif/1),baseKB:listing(boxlog/1).
 :- export(clif_recompile/0).
 :- export(clif_compile/0).
@@ -85,7 +85,7 @@ clif_show:-  baseKB:listing(clif/1),baseKB:listing(boxlog/1).
 :- export(boxlog_show/0).
 boxlog_uncompile:-  ain(==>( \+ compile_boxlog)),boxlog_show.
 boxlog_recompile:-  ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog),boxlog_show.
-boxlog_compile:-  ain(==> compile_boxlog),boxlog_show.
+boxlog_compile:-  ain(==> compile_boxlog). % boxlog_show.
 boxlog_show:-  baseKB:listing(boxlog/1),baseKB:listing(pfclog/1).
 
 :- kb_shared(compile_pfclog/0).
@@ -96,14 +96,14 @@ boxlog_show:-  baseKB:listing(boxlog/1),baseKB:listing(pfclog/1).
 
 pfclog_uncompile:-  ain(==>( \+ compile_pfclog)),pfclog_show.
 pfclog_recompile:-  ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog),pfclog_show.
-pfclog_compile:-  ain(==> compile_pfclog),pfclog_show.
+pfclog_compile:-  ain(==> compile_pfclog). %pfclog_show.
 pfclog_show:-  baseKB:listing(pfclog/1).
 
 
 show_kif_to_boxlog(P):- test_boxlog(P),ain(P).
 
  % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
-test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLog).                               
+test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLogL),sort(BoxLogL,BoxLogR),reverse(BoxLogR,BoxLog),!.
 
 test_defunctionalize(I):-defunctionalize(I,O),sdmsg(O).
 
@@ -135,8 +135,8 @@ test_boxlog0(P):-
   wdmsg(:- test_boxlog(P)), 
   test_boxlog(P,O),
   sdmsgf(O),flush_output,
-  boxlog_to_pfc(O,PFC),
-  sdmsgf(pfc=PFC),flush_output)).
+  nop(((boxlog_to_pfc(O,PFC),
+  nop(sdmsgf(pfc=PFC),flush_output)))))).
 
 
 test_boxlog_88(P):-
@@ -204,7 +204,7 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 %:- default_logic_uses.
 
 
-:- if_startup_script(reexport(kif_sanity_tests)).
+% :- if_startup_script(reexport(kif_sanity_tests)).
 
 % = % :- reexport(plarkc/mpred_clif).
 
@@ -227,6 +227,7 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 
 
 
+:- if( \+ current_prolog_flag(runtime_debug, 0)).
 
 :- test_boxlog(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
 :- test_boxlog(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
@@ -255,9 +256,12 @@ default_logic_uses:-uses_logic(logicmoo_kb_refution).
 % :- test_boxlog(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
 
 
+:- endif.
 
-e0 :- any_to_pfc((((tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)) 
- :- tHuman(Human))),(hasOrgan(Human, skIsHeartInArg2ofHasorgan_Fn(Human)) :- tHuman(Human))),O),wdmsg(O).
+
+e0 :- any_to_pfc(((
+ (tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)) 
+     :- tHuman(Human))),(hasOrgan(Human, skIsHeartInArg2ofHasorgan_Fn(Human)) :- tHuman(Human))),O),wdmsg(O).
 % O = tHuman(Heart)==> if_missing(hasOrgan(Human,_),hasOrgan(Human,skIsHeartInArg2ofHasorgan_Fn(Human)))  & tHeart(skIsHeartInArg2ofHasorgan_Fn(Human)).
 
 
@@ -288,9 +292,44 @@ e6:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
 e7:-  ['$VAR'('Human'),'$VAR'('Heart')]= [Human,Heart],
    (kif_to_boxlog(all([Human],exists([Heart],isa(Human,tHuman) 
      => (isa(Heart,tHeart) 
-      & hasOrgan(Human,Heart)))),O)),wdmsgl(test_defunctionalize,O).
+      & hasOrgan(Human,Heart)))),O),wdmsgl(test_defunctionalize,O)).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 end_of_file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 % /mnt/gggg/logicmoo_workspace/pack/logicmoo_base/prolog/logicmoo/common_logic/common_logic_sanity.pl:181
 % \+ if_startup_script(sanity:reexport(kif_sanity_tests)).

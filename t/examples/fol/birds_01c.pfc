@@ -1,8 +1,9 @@
 :- include(test_header).
 
+
 %  was_module(adb_pfc,[]).
 
-:- include(test_header).
+
 
  ~P,P ==> contrradiction.
 

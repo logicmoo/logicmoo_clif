@@ -1,9 +1,10 @@
 :- include(test_header).
-#!/usr/bin/env swipl
 
-% :- module(sanity_ks_two,[]).
 
-:- use_module(library(logicmoo_user)).
+
+
+
+ 
 
 :- debug_logicmoo(_).
 :- nodebug_logicmoo(http(_)).

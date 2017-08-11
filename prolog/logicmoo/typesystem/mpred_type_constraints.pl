@@ -93,7 +93,7 @@
 
 :- meta_predicate relax(*),relaxing(*).
 
-:- kb_shared(baseKB:admittedArgument/3).
+:- kb_shared(admittedArgument/3).
 
 :- thread_local(t_l:no_kif_var_coroutines/1).
 

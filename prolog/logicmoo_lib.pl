@@ -74,7 +74,7 @@
 :- user:use_module(library(logicmoo_util_common)).
 
 :- if(\+ app_argv('--nonet')).
-:- load_library_system(library(logicmoo_webbot)).
+:- whenever_flag_permits(load_network,load_library_system(library(logicmoo_webbot))).
 :- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

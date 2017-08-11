@@ -1,9 +1,33 @@
+#!/usr/bin/env swipl
+
+:- module(t123,[]).
+
+:- dynamic(t123:ttExpressionType/1).
+
 :- include(test_header).
 
-:-
-  make,
-  kif_to_boxlog(all([[Human,tHuman]],exists([[Heart,tHeart]],hasOrgan(Human,Heart))),O),wdmsgl(O).
+:- statistics.
 
+t121:- cls, test_boxlog(all([[Human,tHuman]],exists([[Heart,tHeart]],hasOrgan(Human,Heart)))).
+
+t122:- cls, test_boxlog(isa(Human,tHuman)=>all(Human,exists([[Heart,tHeart]],hasOrgan(Human,Heart)))).
+
+t122a:- cls, test_boxlog(isa(Human,tHuman)=>all(Human,(isa(Heart,tHeart)=>exists(Heart,hasOrgan(Human,Heart))))).
+
+t123:- cls, test_boxlog(all(Human,exists(Heart,isa(Human,tHuman) 
+     => (isa(Heart,tHeart) 
+      & hasOrgan(Human,Heart))))).
+
+t124:- cls, test_boxlog(all(Human,isa(Human,tHuman) => exists(Heart, (isa(Heart,tHeart)  =>  hasOrgan(Human,Heart))))).
+
+
+
+end_of_file.
+
+
+the other year.. i was creating a helpsystem for a commandline util for playing as a robot in secondlife.. 
+so human controlled commands had crazy help system .. i had written this in C#
+what i was going to say about why cyc ended up the way it did was jus tthe concxept that you know there can be  many cfg for english out there and temproary onces
 
 % You''ve proved Human does not exist when:
 % 1) you dont need skolems and

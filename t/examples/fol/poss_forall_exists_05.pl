@@ -1,13 +1,12 @@
 :- include(test_header).
-#!/usr/bin/env swipl
+
+
 
 % =================================================================================
 % Load the system
 % =================================================================================
 
-:- ensure_loaded(library(logicmoo_user)).
 
-:- make.
 
 :- set_lang(clif).
 :- begin_pfc.

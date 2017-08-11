@@ -1,5 +1,6 @@
 :- include(test_header).
-#!/usr/bin/env swipl
+
+
 
 :- include('sanity_fi_sk.pfc').
 :- rtrace(kb_shared((<-)/2)).

@@ -49,7 +49,7 @@
 
 :- set_module(class(development)).
 
-:- use_module(library(pfc)).
+:- use_module(library(pfc_lib)).
 :- set_fileAssertMt(baseKB).
 
 :- if(current_predicate(rdf_rewrite:arity/2)).
@@ -366,7 +366,9 @@ exactlyAssertedEL_first(isa, xor, 'LogicalConnective', 'UniversalVocabularyMt', 
 exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'CommutativeRelation', 'UniversalVocabularyMt', vStrDef).
 
+:- if( \+ current_prolog_flag(runtime_debug, 0)).
 :- listing(exactlyAssertedEL_first/5).
+:- endif.
 :- sanity(clause_asserted(exactlyAssertedEL_first(isa, xor, rtLogicalConnective, iUniversalVocabularyMt, vStrDef))).
 
 exactlyAssertedEL_first(isa, xor, 'BinaryRelation', 'UniversalVocabularyMt', vStrDef).

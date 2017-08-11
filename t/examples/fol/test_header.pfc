@@ -1,5 +1,6 @@
 :- include(test_header).
-#!/usr/bin/env swipl
+
+
 
 :- if( \+ exists_source(library(logicmoo_base))).
 :- dynamic(user:file_search_path/2).
@@ -10,9 +11,9 @@
 :- ensure_loaded(library(logicmoo_utils)).
 
 :- if(gethostname(ubuntu)).
-:- ensure_loaded(library(logicmoo_user)).
+
 :- else.
-:- ensure_loaded(library(logicmoo_user)).
+
 % :- load_files(logicmoo_repl, [if(not_loaded),qcompile(auto)]).
 :- endif.
 

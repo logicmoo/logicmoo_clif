@@ -125,7 +125,9 @@
             op(1150,fx,(was_dynamic)),
             op(1150,fx,(was_multifile)),
             op(1150,fy,(was_module_transparent)).
-            
+
+:- load_library_system(library(logicmoo_typesystem)).
+
 :- virtualize_source_file.
 
 :-

@@ -160,6 +160,14 @@
 :- meta_predicate is_asserted_eq(?).
 :- meta_predicate not_asserted(?).
 
+ :- meta_predicate forall_setof(0,0).
+ :- meta_predicate clr0(0).
+ :- meta_predicate whenAnd(0,0).
+ :- meta_predicate with_logical_functor(*,*,1).
+ :- meta_predicate with_kb_assertions(*,0).
+ :- meta_predicate if_main(0).
+
+
 :- virtualize_source_file.
 
 

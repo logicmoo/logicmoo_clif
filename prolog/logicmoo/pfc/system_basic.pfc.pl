@@ -22,7 +22,7 @@
 
 % :- xlisting( (==>) /2 ).
 
-:- set_prolog_flag(runtime_debug, 1). % 2 = important but dont sacrifice other features for it
+:- set_prolog_flag_until_eof(runtime_debug, 1). % 2 = important but dont sacrifice other features for it
 
 :- if((current_prolog_flag(runtime_debug,D),D>1)).
 :- '$def_modules'([clause_expansion/2],O),dmsg(O),nl.
@@ -30,11 +30,11 @@
 :- endif.
 
 :- style_check(-discontiguous).
-%:- set_prolog_flag(runtime_speed,0). % 0 = dont care
-:- set_prolog_flag(runtime_speed, 1). % 1 = default
-:- set_prolog_flag(runtime_debug, 1). % 2 = important but dont sacrifice other features for it
-:- set_prolog_flag(runtime_safety, 3).  % 3 = very important
-:- set_prolog_flag(unsafe_speedups, false).
+%:- set_prolog_flag_until_eof(runtime_speed,0). % 0 = dont care
+:- set_prolog_flag_until_eof(runtime_speed, 1). % 1 = default
+:- set_prolog_flag_until_eof(runtime_debug, 1). % 2 = important but dont sacrifice other features for it
+:- set_prolog_flag_until_eof(runtime_safety, 3).  % 3 = very important
+:- set_prolog_flag_until_eof(unsafe_speedups, false).
 
 
 
@@ -119,7 +119,7 @@ rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleto
 %((prop_mpred(pfcWatches,F,A)/is_ftNameArity(F,A),prologHybrid(F)))==>prop_mpred(pfcVisible,F,A).
 
 
-:- set_prolog_flag(gc,true).
+:- set_prolog_flag_until_eof(gc,true).
 
 
 
@@ -760,7 +760,7 @@ doRedelMe.
 :- dbreak.
 */
 
-%  % :- set_prolog_flag(dialect_pfc,cwc).
+%  % :- set_prolog_flag_until_eof(dialect_pfc,cwc).
 %  % :- mpred_trace_exec.
 
 % isa(I,C)==>{wdmsg(isa(I,C))}.
@@ -780,8 +780,8 @@ isa(iBar,tFoo).
 
 
 /*
-:- (set_prolog_flag(never_pfc,false),
-   locally(set_prolog_flag(never_pfc,true),autoload([verbose(true)]))).
+:- (set_prolog_flag_until_eof(never_pfc,false),
+   locally(set_prolog_flag_until_eof(never_pfc,true),autoload([verbose(true)]))).
 :- xlisting(tFoo).
 */
 /*
@@ -807,7 +807,7 @@ ttPredAndValueType(Str)/
       argIsa(Pred,2,VT),
       argIsa(Pred,1,tTemporalThing)).
 
-:- mpred_trace_exec.
+% :- mpred_trace_exec.
 ttPredAndValueType("size").
 ttPredAndValueType("texture").
 ttPredAndValueType("color").

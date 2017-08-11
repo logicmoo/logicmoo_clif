@@ -8,7 +8,7 @@
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot)).
+:- whenever_flag_permits(load_network,with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot))).
 :- set_module(baseKB:class(development)).
 :- set_prolog_flag(access_level,system).
 

@@ -1,5 +1,6 @@
 :- include(test_header).
 
+
 :- ensure_loaded(library(script_files)).
 
 :- process_this_script.
@@ -7,7 +8,7 @@
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet']).
 
-:- ensure_loaded(library(logicmoo_user)).
+
 
 :- set_prolog_flag(retry_undefined,false).
 
