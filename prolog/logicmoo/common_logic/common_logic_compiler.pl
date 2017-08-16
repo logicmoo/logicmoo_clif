@@ -2003,19 +2003,6 @@ undess_head((H:-B),(HH:-B)):-!,undess_head(H,HH).
 undess_head(proven_tru(H),H):-!.
 undess_head(H,H).
 
-isa_poss_t(I, C):- fail, \+ call_u(~isa(I,C)).
-poss_t(P,A,B):- \+ call_u(~t(P,A,B)).
-
-/*
-:- multifile(proven_not_neg/1).
-:- dynamic(proven_not_neg/1).
-proven_not_neg(H):- \+ call_u(~ H).
-*/
-
-proven_tru(H):- nonvar(H),loop_check(proven_neg(H)),!,fail.
-proven_tru(H):- call_u(H).
-:- kb_local(baseKB:proven_neg/1).
-
 demodal_clauses3(KB,FlattenedO1,FlattenedOO):-
         demodal_clauses(KB,FlattenedO1,FlattenedO2),
         demodal_clauses(KB,FlattenedO2,FlattenedO3),
@@ -2138,12 +2125,9 @@ demodal_body(_KB,  proven_tru(_Head), proven_not_neg(X), proven_tru(X)):-!.
 demodal_body(_KB,  proven_neg(_Head), proven_not_tru(X), proven_neg(X)):-!.
 
 
-% demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), true):-X=Y,!.
-% demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), X=Y):-!.
-demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), {(X=Y)}):-!.
-
-% demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), true):-X=Y,!.
-% demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), X=Y):-!.
+demodal_body(_KB,  Head, proven_tru(skolem(X,Y)), {(X=Y)}):- contains_var(X,Head),!.
+demodal_body(_KB,  Head, proven_tru(skolem(_X,Y)), fail):- \+ contains_var(Y,Head),!.
+demodal_body(_KB,  _Head, proven_tru(skolem(_X,_Y)), true):- !.
 demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), {ignore(X=Y)}):-!.
 
 

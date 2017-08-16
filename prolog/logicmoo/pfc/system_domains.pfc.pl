@@ -8,10 +8,15 @@
 :- sanity(ttRelationType(prologMultiValued)).
 :- kb_shared(argsIsa/2).
 
+feature_setting(N,V)/(feature_setting(N,Other),Other\==V)==> \+ feature_setting(N,Other). 
+
+feature_setting(assume_wff, true).
+
 % set false so make_wff/1 will be noticed (default is true)
 feature_setting(make_wff,true)==> (feature_setting(add_admitted_arguments,true), feature_setting(assume_wff, false)).
 feature_setting(add_admitted_arguments,true) ==> 
- ( (P/(compound(P),\+is_ftVar(P)) ==> {with_current_why(P,ignore(\+ addAdmittedArguments(P)))})).
+ ( (P/(compound(P),\+is_ftVar(P)) ==> 
+  {with_current_why(P,ignore(\+ addAdmittedArguments(P)))})).
 
 feature_setting(make_wff,true)==> 
  ((argIsa(P, N, T)/(nonvar(T),nonvar(P),integer(N)))==>

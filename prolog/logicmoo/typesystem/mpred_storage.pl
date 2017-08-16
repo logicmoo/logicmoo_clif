@@ -411,6 +411,8 @@ addAdmittedArguments(P):- doArgType(t,add_admitted_argument,P).
 
 dont_aquire_admitted_argument(admittedArgument).
 dont_aquire_admitted_argument(isa).
+dont_aquire_admitted_argument({}).
+dont_aquire_admitted_argument( '/' ).
 dont_aquire_admitted_argument(mudIsa).
 dont_aquire_admitted_argument(safe_wrap).
 dont_aquire_admitted_argument(arity).

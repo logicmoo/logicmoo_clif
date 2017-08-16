@@ -149,6 +149,25 @@ test_boxlog_88(P):-
   undo_buffer(Buffer),
   sdmsgf(Buffer),flush_output)).
 
+
+
+
+
+:- export(test_pfc/1).
+test_pfc(P):- mmake, must_det(test_pfc0(P)),!.
+test_pfcq(P):- mmake, locally(t_l:qualify_modally,must_det(test_pfc0(P))),!.
+  
+test_pfc0(P):-
+ \+ \+
+ must_det_l((
+  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
+  b_implode_varnames(P),flush_output,
+  wdmsg(:- test_pfc(P)), 
+  kif_to_pfc(P,O),
+  sdmsgf(O),flush_output)).
+
+
+
 invert_op_call(OP,What,dmsg(undo(OP,What))).
 
 undo_tell(call(OP,What)):-!, invert_op_call(OP,What,Invert),call(Invert).

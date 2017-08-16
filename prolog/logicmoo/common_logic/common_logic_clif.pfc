@@ -106,3 +106,16 @@ proven_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
 :- meta_predicate proven_holds_t(*,?,?,?).
 proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
 
+isa_poss_t(I, C):- cwc, fail, \+ call_u(~isa(I,C)).
+poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
+
+/*
+:- multifile(proven_not_neg/1).
+:- dynamic(proven_not_neg/1).
+proven_not_neg(H):- \+ call_u(~ H).
+*/
+
+:- kb_local(baseKB:proven_tru/1).
+proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; call_u(H).
+:- kb_local(baseKB:proven_neg/1).
+

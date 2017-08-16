@@ -992,7 +992,7 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    correct_flattened([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
 kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):- 
- flag(skolem_count,_,1),
+ % flag(skolem_count,_,1),
   maplist(must_det,[
    must_be_unqualified(WffIn0),
    unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
