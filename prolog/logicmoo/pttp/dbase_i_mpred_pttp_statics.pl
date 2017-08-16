@@ -525,7 +525,7 @@ body_for_head_literal(Head,Wff,Body) :-
 	Wff = (A , B) ->
 		(body_for_head_literal(Head,A,A1),
 		 body_for_head_literal(Head,B,B1),
-		 disjoin(A1,B1,Body));
+		 pttp_disjoin(A1,B1,Body));
 	Wff = (A ; B) ->
 		(body_for_head_literal(Head,A,A1),
 		 body_for_head_literal(Head,B,B1),
@@ -933,10 +933,10 @@ conjoin_pttp(A,B,C) :-
 	%true ->
 		C = (A , B).
 %%% ***
-%%% ****if* PTTP/disjoin
+%%% ****if* PTTP/pttp_disjoin
 %%% SOURCE
 
-disjoin(A,B,C) :-
+pttp_disjoin(A,B,C) :-
 	A == true ->
 		C = true;
 	B == true ->

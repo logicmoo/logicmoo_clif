@@ -455,7 +455,7 @@ update_value/3,
 %
 % If Is A Cyc Predicate Arity Ignoreable.
 %
-isCycPredArity_ignoreable(F,A):- ignore(local_qh_mpred_prop(F,A,cycPred(A))),ignore(arity(F,A)).
+isCycPredArity_ignoreable(F,A):- ignore(local_qh_mpred_prop(_,F,A,cycPred(A))),ignore(arity(F,A)).
 
 
 %= 	 	 

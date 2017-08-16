@@ -392,7 +392,7 @@ pfc_for_print_right(Prolog,PrintPFC):- =(Prolog,PrintPFC).
 %   
 %
 is_entailed_u(CLIF):- 
- pfc_run,
+ mpred_run,
  mpred_nochaining((
    must_det(any_to_pfc(CLIF,Prolog)),!, 
    \+ \+ are_clauses_entailed(Prolog))),!.
@@ -739,7 +739,7 @@ adjust_kif4(KB,P,ARGS,O):- fail, atom_concat(_,'_t',P),!,append(LARGS,[_, _, _, 
    PARGS=..[P|LARGS],adjust_kif0(KB,PARGS,O).
 */
 
-adjust_kif4(KB,W,[P,A,R|GS],O):- call(call_u(is_wrapper_pred(W))),PARGS=..[P,A,R|GS],adjust_kif0(KB,t(PARGS),O).
+adjust_kif4(KB,W,[P,A,R|GS],O):- call(clause_b(is_wrapper_pred(W))),PARGS=..[P,A,R|GS],adjust_kif0(KB,t(PARGS),O).
 
 adjust_kif4(KB,F,ARGS,O):-KIF=..[F|ARGS],length(ARGS,L),L>2,adjust_kif0(KB,KIF,F,ARGS,Conj),KIF\=@=Conj,!,adjust_kif0(KB,Conj,O).
 % adjust_kif0(KB,W,[A],O):-is_wrapper_pred(W),adjust_kif(KB,A,O),!.
@@ -1032,11 +1032,14 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
    ignore_unless(THIN\== ~ RULIFY, sdmsg(th_nnf_out= ~ RULIFY)),   
    once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,FlattenedM),
-   correct_flattened(KB,Why,FlattenedM,FlattenedO),
-   defunctionalize_each(FlattenedO,FlattenedOUT),
-   reverse(FlattenedOUT,FlattenedOUTReal),
-   maplist(from_tlog,FlattenedOUTReal,FlattenedOUTRealOUT),!.
-   
+   correct_flattened(KB,Why,FlattenedM,FlattenedIO),
+   must_maplist(undess_head,FlattenedIO,FlattenedO),
+   defunctionalize_each(FlattenedO,FlattenedOUTY),
+   predsort(sort_by_pred_class,FlattenedOUTY,FlattenedOUT),
+   =(FlattenedOUT,FlattenedOUTReal),
+   must_maplist(from_tlog,FlattenedOUTReal,FlattenedOUTRealOUT),!.
+
+
 kif_to_boxlog_theorist2(Original,THIN,KB,Why,FlattenedOUTRealOUT):-
    demodal_clauses3(KB,THIN,THIN2),
    as_prolog_hook(THIN2,THIN3),
@@ -1080,8 +1083,8 @@ tlog_is_sentence_functor(F):- \+ atom(F),!,fail.
 tlog_is_sentence_functor(F):- upcase_atom(F,F).
 tlog_is_sentence_functor(F):- is_sentence_functor(F), \+ is_holds_functor(F).
 
-to_tlog_lit(MD,KB,F,[ARG],HH):- (call_u(ttExpressionType(F));atom_concat(ft,_,F)),!,to_tlog(MD,KB,quotedIsa(ARG,F ),HH).
-to_tlog_lit(MD,KB,F,[ARG],HH):- (call_u(tSet(F));(atom_concat(t,_,F), \+ atom_concat(_,'_t',F))),!,to_tlog(MD,KB,isa(ARG,F ),HH).
+to_tlog_lit(MD,KB,F,[ARG],HH):- (clause_b(ttExpressionType(F));atom_concat(ft,_,F)),!,to_tlog(MD,KB,quotedIsa(ARG,F ),HH).
+to_tlog_lit(MD,KB,F,[ARG],HH):- (clause_b(tSet(F));(atom_concat(t,_,F), \+ atom_concat(_,'_t',F))),!,to_tlog(MD,KB,isa(ARG,F ),HH).
 to_tlog_lit(MD,_ ,F,ARGSO,HHH):- is_holds_functor(F),!,HH=..[F|ARGSO],maybe_wrap_modal(MD,HH,HHH).
 to_tlog_lit(MD,_ ,F,ARGSO,HHH):- get_holds_wrapper(F,W),(W==h;W==c),!,HH=..[F|ARGSO],maybe_wrap_modal(MD,HH,HHH).
 to_tlog_lit(MD,_ ,F,ARGSO,HHH):- get_holds_wrapper(F,W),!,XF=..[F|ARGSO],into_ff(W,XF,HH),maybe_wrap_modal(MD,HH,HHH).
@@ -1558,7 +1561,9 @@ kif_add([H|T]):- !,kif_add(H),kif_add(T).
 %kif_add((H <- B)):- !, ain((H <- B)).
 %kif_add((H :- B)):- !, ain((H :- B)).
 %kif_add((P ==> Q)):- !, ain((P ==> Q)). 
-%kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
+
+kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
+
 kif_add(WffIn):- show_call(ain(WffIn)),!.
 % unnumbervars_with_names(WffIn,Wff),
 %kif_add(WffIn):- show_call(ain(clif(WffIn))),!.

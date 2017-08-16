@@ -119,7 +119,7 @@ mdefault/1, % pfc
 mpred_do_and_undo_method/2,
 %mpred_isa/2,
 %mpred_manages_unknowns/0,
-mpred_prop/3,
+mpred_prop/4,
 predicateConventionMt/2,
 mudKeyword/2,
 mudDescription/2,

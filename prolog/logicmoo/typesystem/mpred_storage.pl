@@ -160,12 +160,13 @@
 :- meta_predicate is_asserted_eq(?).
 :- meta_predicate not_asserted(?).
 
- :- meta_predicate forall_setof(0,0).
- :- meta_predicate clr0(0).
- :- meta_predicate whenAnd(0,0).
- :- meta_predicate with_logical_functor(*,*,1).
- :- meta_predicate with_kb_assertions(*,0).
- :- meta_predicate if_main(0).
+:- meta_predicate forall_setof(*,*).
+:- meta_predicate clr0(*).
+:- meta_predicate whenAnd(*,*).
+:- meta_predicate with_logical_functor(*,*,*).
+:- meta_predicate with_logical_functor(*,*,1).
+:- meta_predicate with_kb_assertions(*,*).
+:- meta_predicate if_main(*).
 
 
 :- virtualize_source_file.
@@ -1441,8 +1442,8 @@ is_static_pred(Head):-  predicate_property(Head,meta_predicate),!.
 %
 % Prolog Managed Predicate Provide Storage Oper..
 %
-prolog_mpred_provide_storage_op(Op,G):- G\=isa(_,_), get_functor(G,F,A),call(call_u,mpred_prop(F,A,prologDynamic)),!, prolog_op(Op,G).
-prolog_mpred_provide_storage_op(Op,G):- G\=isa(_,_), get_functor(G,F,A),\+ call(call_u,mpred_prop(F,A,prologHybrid)),!,current_predicate(_,G), prolog_op(Op,G).
+prolog_mpred_provide_storage_op(Op,G):- G\=isa(_,_), get_functor(G,F,A),call(call_u,mpred_prop(M,F,A,prologDynamic)),!, prolog_op(Op,M:G).
+prolog_mpred_provide_storage_op(Op,G):- G\=isa(_,_), get_functor(G,F,A),\+ call(call_u,mpred_prop(_,F,A,prologHybrid)),!,current_predicate(_,M:G), prolog_op(Op,M:G).
 
 %= 	 	 
 

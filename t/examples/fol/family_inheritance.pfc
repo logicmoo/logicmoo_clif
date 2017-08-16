@@ -24,7 +24,7 @@ show_test(G):- cwc, defaultAssertMt(KB),printAll(must(KB:G)).
 %= ````
 %:- debug_logicmoo(logicmoo(_)).
 
-mpred_prop(otherGender,2,prologBuiltin).
+prologBuiltin(otherGender/2).
 otherGender(male,female).
 otherGender(female,male).
 

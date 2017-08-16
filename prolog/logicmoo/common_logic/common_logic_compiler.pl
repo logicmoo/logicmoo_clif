@@ -543,7 +543,7 @@ nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
 
 nnf1(KB,exactly(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
     (get_quantifier_isa(XL,X,Col) -> 
-      nnf(KB,exactly(N,X,isa(X,Col)=>NNF),FreeV,FmlO,Paths);
+      nnf(KB,exactly(N,X,isa(X,Col) & NNF),FreeV,FmlO,Paths);
       (XL=[X|MORE],!,
       (MORE==[] -> 
             nnf(KB,exactly(N,X,NNF),FreeV,FmlO,Paths);
@@ -553,8 +553,8 @@ nnf1(KB,exactly(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
 % Typed (Exists ((?x Man)(?y Woman)) ... )
 % =================================
 
-nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- nonvar(TypedX),get_quantifier_isa(TypedX,X,Col),!,
-    nnf(KB,exists(X,isa(X,Col) & NNF),FreeV,FmlO,Paths).
+nnf1(KB,exists(TypedX,NNF),FreeV,FmlO,Paths):- get_quantifier_isa(TypedX,X,Col),!,
+    nnf(KB,exists(X, NNF & isa(X,Col)),FreeV,FmlO,Paths).
 nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X],!,
     nnf(KB,exists(X,NNF),FreeV,FmlO,Paths).
 nnf1(KB,exists(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),XL=[X|MORE],!,
@@ -585,36 +585,66 @@ nnf1(KB,(Q :- P),FreeV,Lit,N):-
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!, trace_or_throw(bad_nnf(KB,exists(X,Fml),FreeV,NNF,Paths)).
 % maybe this instead ? nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!,nnf(KB,Fml,FreeV,NNF,Paths).
 
-% USED
+
+% NEW NORMAL WAY
+nnf1(KB,exists(X,Fml),FreeV,NNF1,Paths):- is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+    term_slots(Fml+FreeV+X,Slots),delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    subst(Fml,X,SkF,FmlSk),
+        nnf(KB, (  ~(  ~skolem(X,SkF) v FmlSk )=> Fml),SlotsV2,NNF1,Paths)
+   )),!.
+
+% OLD NORMAL WAY
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+    term_slots(Fml+FreeV+X,Slots),delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    subst(Fml,X,SkF,FmlSk),
+        nnf(KB,FmlSk,SlotsV2,NNF,Paths)
+   )),!.
+
+% NEEDS WAY
+nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+    term_slots(Fml+FreeV+X,Slots),
+       delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),    
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    subst(Fml,X,SkF,FmlSk),
+    nnf(KB,(~ poss(b_d(KB,nesc,poss),Fml) => needs(SkF)),SlotsV2,NNF1,_Paths1),    
+    nnf(KB,((needs(SkF) => FmlSk)),SlotsV2,NNF2,_Paths2),
+    nnf(KB,(NNF1 & NNF2),[X|FreeV],NNF1NNF2,Paths)
+       )),!.
+
+% NEW NORMAL WAY
+nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  fail, is_skolem_setting(in_nnf_implies),!,
+ must_det_l((
+    term_slots(Fml+FreeV+X,Slots),delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
+    nnf(KB,~(~(Fml)),SlotsV2,NNFInner1,_),
+    nnf(KB,NNFInner1,SlotsV2,NNFInner,_),
+    removeQ(KB,NNFInner,UQ),
+    cnf(KB, (UQ),Inner),
+    removeQ(KB,Inner,UInnerQ),
+    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    subst(Fml,X,SkF,FmlSk),
+    nnf(KB, (UInnerQ) => ~poss(b_d(KB,nesc,poss),~FmlSk),SlotsV2,NNF,Paths)
+   )),!.
+
+
+% NEEDS WAY
 nnf1(KB,exists(X,FmlIn),FreeV,NNF1NNF2,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
     term_slots(FmlIn+FreeV+X,Slots),
        delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     
     nnf(KB,FmlIn,SlotsV2,Fml,_Paths),
-    subst(Fml,X,SkF,SkFml),
+    subst(Fml,X,SkF,FmlSk),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-    % SkF = skFn(Fml),
-    % push_skolem(X,SkF),
-    
-    %to_poss(KB,Fml,FmlPos),
-    %to_nesc(KB,Fml,FmlNesc),
     nnf(KB,(~ nesc(b_d(KB,nesc,poss),Fml) => needs(SkF)),SlotsV2,NNF1,_Paths1),    
-    nnf(KB,((needs(SkF) => SkFml)),SlotsV2,NNF2,_Paths2),
+    nnf(KB,((needs(SkF) => FmlSk)),SlotsV2,NNF2,_Paths2),
     nnf(KB,(NNF1 & NNF2),FreeV,NNF1NNF2,Paths)
    )),!.
 
-% USED
-nnf1(KB,exists(X,FmlIn),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
- must_det_l((
-    term_slots(FmlIn+FreeV+X,Slots),
-       delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
-    % skolem_f(KB, Fml, X, SlotsV2, SkF),
-    nnf(KB,FmlIn,SlotsV2,Fml,_Paths),
-    SkF = skFn(Fml),
-    push_skolem(X,SkF),
-    nnf(KB,(~(skolem(X,SkF)) v Fml),[X|SlotsV2],NNF,Paths)
-   )),!.
 
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
@@ -631,9 +661,9 @@ nnf1(KB,exists(X,Ante=>FmlIn),FreeV,NNF,Paths):- fail, is_skolem_setting(in_nnf_
     term_slots(Fml+FreeV+X,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-    subst(Fml,X,SkF,SkFml),
+    subst(Fml,X,SkF,FmlSk),
     % push_skolem(X,SkF),
-    nnf(KB,~ Ante v (SkFml v Fml),SlotsV2,NNF,Paths)
+    nnf(KB,~ Ante v (FmlSk v Fml),SlotsV2,NNF,Paths)
    )),!.
 
 nnf1(KB,exists(X,FmlIn),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -642,9 +672,9 @@ nnf1(KB,exists(X,FmlIn),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
     term_slots(Fml+FreeV+X,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-    subst(Fml,X,SkF,SkFml),
+    subst(Fml,X,SkF,FmlSk),
     % push_skolem(X,SkF),
-    nnf(KB,(SkFml v Fml),SlotsV2,NNF,Paths)
+    nnf(KB,(FmlSk v Fml),SlotsV2,NNF,Paths)
    )),!.
 
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -652,9 +682,9 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
     term_slots(Fml+FreeV+X,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-    subst(Fml,X,SkF,SkFml),
+    subst(Fml,X,SkF,FmlSk),
     % push_skolem(X,SkF),
-    nnf(KB,(SkFml v Fml),SlotsV2,NNF,Paths)
+    nnf(KB,(FmlSk v Fml),SlotsV2,NNF,Paths)
    )),!.
 
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -663,8 +693,8 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    term_slots(Fml+FreeV+NNF1,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),    
-    subst(NNF1,X,SkF,SkFml),
-   nnf(KB, (~(nesc(NNF1)) => nesc(SkFml)),[X|Slots],NNF,Paths))),!.
+    subst(NNF1,X,SkF,FmlSk),
+   nnf(KB, (~(nesc(NNF1)) => nesc(FmlSk)),[X|Slots],NNF,Paths))),!.
 
 /*
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -673,11 +703,11 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    term_slots(Fml+FreeV+NNF1,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-    subst(NNF1,X,SkF,SkFml),
+    subst(NNF1,X,SkF,FmlSk),
     % copy_term(NNF1+X,NNF2+Y),
    nnf(KB, 
     ((~(reify)(SkF) => NNF1) & 
-     (reify(SkF) => SkFml)),
+     (reify(SkF) => FmlSk)),
      [X|Slots],NNF,Paths))),!.
 */
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -686,8 +716,8 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    term_slots(Fml+FreeV+NNF1,Slots),
     delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),    
-    subst(NNF1,X,SkF,SkFml),
-   nnf(KB, (~(nesc(NNF1)) => nesc(SkFml)),[X|Slots],NNF,Paths))),!.
+    subst(NNF1,X,SkF,FmlSk),
+   nnf(KB, (~(nesc(NNF1)) => nesc(FmlSk)),[X|Slots],NNF,Paths))),!.
 
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -697,7 +727,7 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
     delete_eq(Slots,X,SlotsV1),
     delete_eq(SlotsV1,KB,SlotsV2),
     skolem_f(KB, Fml, X, SlotsV2, SkF),
-   subst(NNF1,X,SkF,SkFml),nnf(KB, SkFml ,[X|Slots],NNF,Paths))),!.
+   subst(NNF1,X,SkF,FmlSk),nnf(KB, FmlSk ,[X|Slots],NNF,Paths))),!.
 
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
@@ -1740,7 +1770,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   sanity(is_list(EachClause)),
   must_maplist(correct_cls(KB),EachClause,SOO),
   expand_cl(KB,SOO,SOOO))),
-  sort(SOOO,SET),
+  predsort(sort_by_pred_class,SOOO,SET),
   cf_to_flattened_clauses(KB,Why,SET,Flattened),
   list_to_set(Flattened,FlattenedM),!,
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
@@ -1942,7 +1972,7 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
 unusual_body :- call_u(feature_setting(use_unusual_body,true)),!,dmsg(used(unusual_body)).
 unusual_body :- dmsg(skipped(unusual_body)),!,fail.
 
-%unused_clause(unused(C):-_):-nonvar(C),!.
+%unused_clause('$unused'(C):-_):-nonvar(C),!.
 %unused_clause((C v _):-_):-nonvar(C),!.
 unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 
@@ -1952,7 +1982,39 @@ poss_or_skolem(poss(_)).
 poss_or_skolem(skolem(_,_)).
 poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
+%%% ***
+%%% ****if* PTTP/disjoin
+%%% SOURCE
 
+disjoin(A,B,C) :-
+	A == true ->
+		C = true;
+	B == true ->
+		C = true;
+	A == false ->
+		C = B;
+	B == false ->
+		C = A;
+	%true ->
+		C = (A ; B).
+
+
+undess_head((H:-B),(HH:-B)):-!,undess_head(H,HH).
+undess_head(proven_tru(H),H):-!.
+undess_head(H,H).
+
+isa_poss_t(I, C):- fail, \+ call_u(~isa(I,C)).
+poss_t(P,A,B):- \+ call_u(~t(P,A,B)).
+
+/*
+:- multifile(proven_not_neg/1).
+:- dynamic(proven_not_neg/1).
+proven_not_neg(H):- \+ call_u(~ H).
+*/
+
+proven_tru(H):- nonvar(H),loop_check(proven_neg(H)),!,fail.
+proven_tru(H):- call_u(H).
+:- kb_local(baseKB:proven_neg/1).
 
 demodal_clauses3(KB,FlattenedO1,FlattenedOO):-
         demodal_clauses(KB,FlattenedO1,FlattenedO2),
@@ -2006,9 +2068,9 @@ negations_of_each_other(A,B):- ~A == B.
 
 % demodal_h2_body(KB,Head,HeadM,Body,BodyM) 
 
-demodal_h2_body(_KB,Head,unused(Head),(proven_not_reify(XX),BB),(unused(proven_not_reify(XX)),BB)).
+demodal_h2_body(_KB,Head,'$unused'(Head),(proven_not_reify(XX),BB),('$unused'(proven_not_reify(XX)),BB)).
 
-demodal_h2_body(_KB,Head,unused(Head),UnusedBody,unused(UnusedBody)):- unusable_body(Head,UnusedBody).
+demodal_h2_body(_KB,Head,'$unused'(Head),UnusedBody,'$unused'(UnusedBody)):- unusable_body(Head,UnusedBody).
 
 demodal_h2_body(KB,Head,HeadO,(BodyA,BodyB),BodyO):- !,
   demodal_h2_body(KB,Head,HeadM,BodyA,NewBodA), 
@@ -2022,8 +2084,8 @@ demodal_h2_body(KB,Head,HeadO,(BodyA;BodyB),BodyO):- !,
 demodal_h2_body(_KB,Head,Head,Body,Body).
 
 
-demodal_head(_KB,proven_not_reify(A),unused(proven_not_reify(A)),true):- nonvar(A),!.
-demodal_head(_KB,~(skolem(A,B)),unused(~(skolem(A,B))),true):- nonvar(B),!.
+demodal_head(_KB,proven_not_reify(A),'$unused'(proven_not_reify(A)),true):- nonvar(A),!.
+demodal_head(_KB,~(skolem(A,B)),'$unused'(~(skolem(A,B))),true):- nonvar(B),!.
 % demodal_head(_KB,~(skolem(A,B)),unused_skolem(A,B),true):- nonvar(B),!.
 % demodal_head(_KB,different(A,B),not_equals(A,B),true):-!.
 demodal_head(_KB,~(different(A,B)),equals(A,B),true):-!.
@@ -2034,7 +2096,7 @@ demodal_head(_KB, not_nesc(b_d(_7B2, nesc, poss), A v ~B), (~A & B),true) :-!.
 
 demodal_head(_KB,~(isa(A,B)),not_isa(A,B),true):- nonvar(B),!.
 demodal_head(_KB,naf(~(Head)),poss(Head),true):- !.
-demodal_head(_KB,proven_neg(needs(Head)),unused(proven_neg(needs(Head))),true):- !.
+demodal_head(_KB,proven_neg(needs(Head)),'$unused'(proven_neg(needs(Head))),true):- !.
 demodal_head(_KB,nesc(Head),Head,true):- !.
 demodal_head(_KB,Head,Head,true):- !.
 demodal_head(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
@@ -2076,6 +2138,16 @@ demodal_body(_KB,  proven_tru(_Head), proven_not_neg(X), proven_tru(X)):-!.
 demodal_body(_KB,  proven_neg(_Head), proven_not_tru(X), proven_neg(X)):-!.
 
 
+% demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), true):-X=Y,!.
+% demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), X=Y):-!.
+demodal_body(_KB,  _Head, proven_tru(skolem(X,Y)), {(X=Y)}):-!.
+
+% demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), true):-X=Y,!.
+% demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), X=Y):-!.
+demodal_body(_KB,  _Head, proven_not_neg(skolem(X,Y)), {ignore(X=Y)}):-!.
+
+
+
 demodal_body(_KB, _Head, proven_tru(needs(X)), needs(X)):-!.
 %demodal_body(_KB, _Head, proven_not_tru(needs(X)), \+ needs(X)):-!.
 demodal_body(_KB, _Head, proven_not_neg(needs(X)), needs(X)):-!.
@@ -2098,7 +2170,7 @@ demodal_body(_KB, proven_neg(_Head), \+ ~ CMP, true):- compound(CMP),CMP=(skolem
 
 demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
 demodal_body(_KB, _Head, ((A , B) ; (C , D)), (A , (B ; D))):- A==C,!.
-demodal_body(_KB, _Head, ((A ; B), C), (C, once(B ; A))).
+% demodal_body(_KB, _Head, ((A ; B), C), (C, once(B ; A))).
 % demodal_body(_KB, _Head, (C, (A ; B)), ((B ; A), C)).
 
 demodal_body(_KB, proven_neg(Head), (Other,(\+ BHead ; ~Other1)),naf(BHead)):- BHead == Head,Other=Other1.
@@ -2830,6 +2902,20 @@ correct_boxlog_0(BOXLOG,KB,Why,FlattenedS):-
 %
 variants_are_equal( =, A,B):- unnumbervars(A+B,AA+BB),AA=@=BB,!.
 variants_are_equal( Order, A,B):- compare(Order,A,B).
+
+
+%% variants_are_equal( ?Order, ?A, ?B) is det.
+%
+% Variants Are Equal.
+%
+sort_by_pred_class( <, '$unused'(_),B):- B\='$unused'(_),!.
+sort_by_pred_class( >, B, '$unused'(_)):- B\='$unused'(_),!.
+sort_by_pred_class( <, proven_neg(_),B):- B\=proven_neg(_),!.
+sort_by_pred_class( >, B, proven_neg(_)):- B\=proven_neg(_),!.
+sort_by_pred_class( =, A,B):- unnumbervars(A+B,AA+BB),AA=@=BB,!.
+sort_by_pred_class( Op, (A:-_), B):-sort_by_pred_class( Op, A,B), Op \== (=),!.
+sort_by_pred_class( Op, A, (B:-_)):-!,sort_by_pred_class( Op, A,B), Op \== (=),!.
+sort_by_pred_class( Order, A,B):- compare(Order,A,B).
 
 
 %= 	 	 

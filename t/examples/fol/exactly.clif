@@ -1,9 +1,10 @@
+#!/usr/bin/env swipl
 :- include(test_header).
 ;; Module - Test Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
 ;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/'exactly.clif'))
 ;; causes deduction of argument types
-(:- (ensure_loaded (library logicmoo_snark)))
+(:- (ensure_loaded (library logicmoo_clif)))
 (set-kif-option :assume-wff)
 (kif-mode tell)
 

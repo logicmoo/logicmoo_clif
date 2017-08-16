@@ -10,7 +10,7 @@
 :- if((prolog_load_context(module,user), \+ current_module(pfc_lib))).
 :- module(header_sane,[test_header_include/0]).
 
-test_header_include.
+:- assert(test_header_include).
 
 :- endif.
 
@@ -36,6 +36,8 @@ test_header_include.
 :- use_module(library(logicmoo_clif)).
 :- set_prolog_flag(runtime_debug, 3). 
 
+:- dynamic(ttExpressionType/1).
+
 :- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
 :- endif.
 
@@ -44,6 +46,26 @@ test_header_include.
 user:message_hook(io_warning(_,'Illegal UTF-8 start'),warning,_):- source_location(_,_),!.
 user:message_hook(T,Type,Warn):- source_location(_,_),
   memberchk(Type,[error,warning]),once(maybe_message_hook(T,Type,Warn)),fail.
+
+
+subtest_assert(I):-kif_assert(I).
+
+
+dbanner:- nl,nl,dmsg('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),nl,nl.
+
+test_assert(A):-
+  kif_assert(A),
+  test_boxlog(A),
+  nop(forall(subtest(T),do_subtest(T))).
+
+
+do_subtest(List):- must_maplist(call,List).
+
+add_test(Name,Assert):- 
+  test_boxlog(Assert),
+   assert(( Name:- dbanner,
+      dmsg(running_test(Name)),
+      test_assert(Assert))).
 
 
 :- if(is_pfc_file).
@@ -80,4 +102,6 @@ user:message_hook(T,Type,Warn):- source_location(_,_),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
  op(300,fx,'-').
+
+:- fixup_exports.
 

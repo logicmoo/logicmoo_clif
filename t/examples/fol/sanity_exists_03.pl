@@ -3,14 +3,16 @@
 :- module(t123,[]).
 
 :- include(test_header).
-:- module(t123).   
-:- '$set_source_module'(t123).
+:- module(t123).
+
+:- dynamic(t123:ttExpressionType/1).
 
 % :- process_this_script.
 
 :- statistics.
 
 
+subtest_assert(I):-kif_assert(I).
 
 subtest([subtest_assert(tAnimal(joe)),
         mpred_test(isa(_,tHeart))]).
@@ -22,13 +24,27 @@ subtest([subtest_assert(tHeart(_)),
         mpred_test(~hasOrgan(jack,_))]).
 
 
+dbanner:- nl,nl,dmsg('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),nl,nl.
+
+add_test(Name,Assert):- 
+   % test_boxlog(Assert),
+   assert(( Name:- dbanner,
+      test_assert(Assert))).
+
+test_assert(A):-
+  kif_assert(A),
+  nop(forall(subtest(T),do_subtest(T))).
+
+
+do_subtest(List):- must_maplist(call,List).
+
+
 :- add_test(t121, (all([[Human,tAnimal]],exists([[Heart,tHeart]],hasOrgan(Human,Heart))))).
 
 :- add_test(t122, 
- (all(Human,
-   exists(Heart,
-    isa(Human,tAnimal) 
-      => (isa(Heart,tHeart) & hasOrgan(Human,Heart)))))).
+ (all(Human,exists(Heart,isa(Human,tAnimal) 
+     => (isa(Heart,tHeart) 
+      & hasOrgan(Human,Heart)))))).
 
 :- add_test(t123,
   (all(Human,isa(Human,tAnimal) => exists(Heart, (isa(Heart,tHeart)  =>  hasOrgan(Human,Heart)))))).
@@ -37,54 +53,27 @@ subtest([subtest_assert(tHeart(_)),
 
 :- begin_pfc.
 
-:- t122.
+tAnimal(iBob).
 
-:- mpred_test(\+ tHeart(_)).
-:- ain(tAnimal(iBob)).
+:- t121.
+         
 
-:- mpred_test(tHeart(_)).
-% :- mpred_why(tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(iBob))).
-% '' :-
-%       \+ tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(iBob)).
-% '' :-
-%       tAnimal(iBob).
-% '' :-
-%       tAnimal(_32725602), (\+tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32725602));\+hasOrgan(_32725602, skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32725602))), {_32725654=skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32725602)}, {is_unit(_32725654)}==>tHeart(_32725654).
-% '' :-
-%       mfl(t123,
-%           '/home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/sanity_exists_01.pl',
-%           40).
-
-:- mpred_test(hasOrgan(iBob,_)).
-
-% /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/sanity_exists_01.pl:45
-% :- mpred_why(hasOrgan(iBob, skIsAnimalInHeartArg2ofHasorgan_1FnSk(iBob))).
-% '' :-
-%       \+ tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(iBob)).
-% '' :-
-%       tAnimal(iBob).
-% '' :-
-%       tAnimal(_32734660), (\+tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32734660));\+hasOrgan(_32734660, skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32734660))), {_32734712=skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32734660)}, {is_unit(_32734712, _32734660)}==>hasOrgan(_32734660, _32734712).
-% '' :-
-%       mfl(t123,
-%           '/home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/sanity_exists_01.pl',
-%           40).
-% '' :-
-%       \+ tHeart(skIsAnimalInHeartArg2ofHasorgan_1FnSk(iBob)).
-% '' :-
-%       tAnimal(iBob).
-% '' :-
-%       tAnimal(_32734522), {_32734536=skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32734522)}, (\+tHeart(_32734536);\+hasOrgan(_32734522, _32734536)), {is_unit(_32734522)}==>hasOrgan(_32734522, skIsAnimalInHeartArg2ofHasorgan_1FnSk(_32734522)).
-% '' :-
-%       mfl(t123,
-%           '/home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/sanity_exists_01.pl',
-%           40).
-% init_why(after('/home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/sanity_exists_01.pl')).
+:-  listing(needs).
+:-  listing(pt).
 
 
-
+:- '$set_source_module'(t123).
 
 end_of_file.
+
+:- mpred_test(\+ tHeart(_)).
+:- mpred_test(\+ needs(_)).
+
+
+:- break.
+:- mpred_test(needs(_)).
+:- mpred_test(tHeart(_)).
+
 
 :- 
  ain(hasOrgan(iBob,iBobsHeart)).
@@ -95,7 +84,7 @@ end_of_file.
 
 
 
-% You''ve proved Animal does not exist when:
+% You''ve proved Human does not exist when:
 % 1) you dont need skolems and
 %    1a) no hearts exists or
 %    1b) Human has no organs

@@ -1,3 +1,7 @@
+#!/usr/bin/env swipl
+
+:- module(t123,[]).
+
 :- include(test_header).
 
 

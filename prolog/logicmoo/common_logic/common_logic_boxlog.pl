@@ -149,7 +149,7 @@ is_units_b(A):-maplist(is_unit,A).
 %
 % If Is A Unit.
 %
-is_unit :- dmsg(is_unit),break.
+is_unit :- dmsg(is_unit).
 
 %= 	 	 
 
@@ -254,11 +254,12 @@ get_op_alias_compile(_,fwc).
 %
 % Datalog Converted To Prolog Forward Chaining.
 %
+boxlog_to_pfc(H0,H0):- \+ compound(H0),!.
 boxlog_to_pfc(H0,H0):- is_ftVar(H0),!.
 boxlog_to_pfc([H|T],[HH|TT]):- !,boxlog_to_pfc(H,HH),boxlog_to_pfc(T,TT).
 boxlog_to_pfc((A,B),C):- !, must_maplist(boxlog_to_pfc,[A,B],[AA,BB]),conjoin(AA,BB,C).
-boxlog_to_pfc(unused(P),unused(P)).
-boxlog_to_pfc( (unused(H) :- B), (unused(H) :- B)).     
+boxlog_to_pfc('$unused'(P),'$unused'(P)):-!.
+boxlog_to_pfc( ('$unused'(H) :- B), ('$unused'(H) :- B)):-!.
 boxlog_to_pfc(H0,PFCO):-
   sumo_to_pdkb(H0,H00),
   subst(H00,('not'),('~'),H),
@@ -468,8 +469,9 @@ is_skolem_arg(Var):- callable(Var),functor(Var,F,_),atom_concat('sk',_,F),atom_c
 %
 %  Make a NewHead and a NewBody for +Mode using Head+Body
 %
-body_for_mpred_2(_Mode,Head,Head,A,A):- must(\+ is_ftVar(A)),fail.
-body_for_mpred_2(_Mode,Head,Head,A,A):-is_ftVar(A),!,must(\+ is_ftVar(Head)).
+
+%body_for_mpred_2(_Mode,Head,Head,A,A):- must(\+ is_ftVar(A)),fail.
+body_for_mpred_2(_Mode,Head,Head,A,A):-is_ftVar(A),!,sanity(\+ is_ftVar(Head)).
 
 % body_for_mpred_2(_Mode,if_missing(A,B),if_missing(A,B),Body,Body):-!.
 
@@ -501,7 +503,8 @@ body_for_mpred_2(Mode,Head,HeadO,(X , Y),XY):-
    conjoin_maybe(XX,YY,XY),!.
 
 body_for_mpred_2(Mode,Head,HeadO,(X ; Y),(XX ; YY)):-
-   body_for_mpred_2(Mode,Head,HeadM,X,XX),body_for_mpred_2(Mode,HeadM,HeadO,Y,YY),!.
+   body_for_mpred_2(Mode,Head,HeadM,X,XX),
+   body_for_mpred_2(Mode,HeadM,HeadO,Y,YY),!.
    
 
 body_for_mpred_2(_Mode,Head,Head,poss(X),poss(X)).
@@ -509,7 +512,9 @@ body_for_mpred_2(_Mode,Head,Head,poss(X),{loop_check(\+ ~(X),true)}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{(In=Out;when('nonvar'(In),ignore((In=Out))))}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{when((?=(In,_);nonvar(In)),ignore(Out=In))}).
 body_for_mpred_2(Mode,Head,NewHead,B,BBB):- once(reduce_literal(B,BB)),B\=@=BB,!,body_for_mpred_1(Mode,Head,NewHead,BB,BBB).
-body_for_mpred_2(_Mode,Head,Head,~(A),~(A)):-!.
+body_for_mpred_2(Mode,Head,HeadO,proven_tru(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,H,HH).
+body_for_mpred_2(Mode,Head,HeadO,once(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,H,HH).
+body_for_mpred_2(Mode,Head,HeadO,proven_neg(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,~H,HH).
 body_for_mpred_2(_Mode,Head,Head,different(A,B),{dif:dif(A,B)}).
 body_for_mpred_2(_Mode,Head,Head,A,{A}):-a(prologBuiltin,A),!.
 body_for_mpred_2(_Mode,Head,Head,A,A).

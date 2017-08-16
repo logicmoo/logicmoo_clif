@@ -43,7 +43,16 @@ forAll(C,
 % grandparent(_5560, _5562), {is_unit(_5562, _5560)}==>if_missing(parent(_5582, _5562), parent(skArg2ofGrandparent_1Fn(_5562, _5560), _5562)).
 %
 
+
 grandparent(douglas,trudy).
 
-:- must(parent(douglas,_X)).
 
+:- test_boxlog(forAll(C, 
+ forAll(G, 
+   exists(P,  
+    implies(grandparent(C,G),
+        (parent(C,P) & parent(P,G))))))).
+
+:- mpred_test(parent(douglas,_X)).
+:- mpred_test(parent(_X,trudy)).
+:- listing(parent).

@@ -562,8 +562,8 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 
 %:- rtrace.
-%:- kb_local(mpred_prop/3).
-:- kb_local(mpred_prop/3).
+%:- kb_local(mpred_prop/4).
+:- kb_local(mpred_prop/4).
 %:- nortrace.
 
 

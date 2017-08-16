@@ -40,15 +40,23 @@ kif_io:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 
 load_clif(File):- 
-  maybe_notrace(absolute_file_name(File,Found,[extensions(['','.clif','.kif','.pfc','.pl'])])),
+  maybe_notrace(absolute_file_name(File,Found,[extensions(['','.clif','.ikl','.kif','.lisp','.lbase','.pfc','.pl']),access(read),expand(true),solutions(all)])),
+  exists_file(Found),
   % with_lisp_translation_cached(Found, = , nop).
-  with_lisp_translation(Found, kif_process_ignore).
+  file_name_extension(_,Ext,Found), 
+  with_ext_translation(Found, Ext, kif_process_ignore).
+
+with_ext_translation(Found,pl, Process):- !,process_script_file(Found,Process).
+with_ext_translation(Found,pfc, Process):- !,process_script_file(Found,Process).
+with_ext_translation(Found,_, Process):- with_lisp_translation(Found, Process).
 
 kif_process_ignore(P):-must(once(kif_process(P))).
 
 :- public(kif_process/1).
 
-
+get_atom_or_kw(ModeIn,Mode):- trim_off(':',ModeIn,Mode).
+   trim_off(Left,ModeIn,Mode):-atom_concat(Left,Mode,ModeIn),!.
+   trim_off(_,ModeIn,ModeIn).
 
 %% kif_process( :GoalAssert) is det.
 %
@@ -59,7 +67,8 @@ kif_process(Var):- is_ftVar(Var),!,wdmsg(warn(var_kif_process(Var))).
 kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),t_l:kif_action_mode(Mode),!,ignore(show_failure(kif_process(Mode,Wff))),!.
 kif_process(Wff):- t_l:kif_action_mode(Mode),ignore(show_failure(kif_process(Mode,Wff))),!.
 
-set_kif_mode(Mode):- ignore((atom(Mode),
+set_kif_mode(ModeIn):- ignore((atom(ModeIn),
+  get_atom_or_kw(ModeIn,Mode),
   retractall(t_l:kif_action_mode(_)),
   asserta(t_l:kif_action_mode(Mode)),
   fmtl(t_l:kif_action_mode(Mode)))),!.
@@ -73,6 +82,7 @@ kif_process(_,Var):- must_be(nonvar,Var),fail.
 kif_process(_,'$COMMENT'([])):-!.
 kif_process(_,'$COMMENT'([String])):-!, dmsg(String).
 kif_process(_,'$COMMENT'(String)):-!, dmsg(String).
+kif_process(_,'include'(String)):- !, load_clif(String).
 kif_process(_,'dmsg'(String)):-!, dmsg(String).
 kif_process(_,'wdmsg'(String)):-!, wdmsg(String).
 kif_process(_,'kif-mode'(Mode)):- set_kif_mode(Mode).
@@ -87,11 +97,11 @@ kif_process(call_u,Wff):- !, show_call(call_u(Wff)).
 kif_process(_,end_of_file):- !,signal_eof(kif_process),!.
 kif_process(_,_:EOF):- EOF == end_of_file,!,signal_eof(kif_process),!.
 kif_process(_,':-'(Call)):- !, kif_process(call,Call).
-kif_process(_,'?-'(Goal)):- !, kif_process(ask,Goal),break.
+kif_process(_,'?-'(Goal)):- !, kif_process(ask,Goal).
 kif_process(_,'ask'(Wff)):- !, kif_process(ask,Wff).
 kif_process(_,'tell'(Wff)):- !, kif_process(tell,Wff).
 kif_process(OP,'forall'(Vars,Wff)):- !, kif_process(OP,'all'(Vars,Wff)).
-kif_process(_,'set-kif-option'(Mode)):-!, dmsg('set-kif-option'(Mode)).
+kif_process(_,'set-kif-option'(ModeIn)):-!,get_atom_or_kw(ModeIn,Mode), dmsg('set-kif-option'(Mode)).
 
 kif_process(call,Was):- Was\=(_:_),!,prolog_load_context(module,Prev),kif_process(call,Prev:Was).
 
