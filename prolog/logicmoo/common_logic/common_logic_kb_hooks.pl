@@ -99,7 +99,7 @@ noGenlPreds/1,
 %
 % Assert Knowledge Interchange Format.
 %
-assert_kif(D):- ain(sumoSentenceString(D)).
+assert_kif(D):- ain(clif(D)).
 
 %% assert_kif_dolce( ?String) is det.
 %

@@ -80,7 +80,7 @@
             non_assertable/2,
             not_log_op/1,
             prequent/1,
-            put_singles/4,
+            quant_singles/4,
             set_is_lit/1,
             subst_except/4,
             wrap_in_neg_functor/3
@@ -590,20 +590,29 @@ is_log_op(OP):- atomic(OP),if_defined(to_dlog_ops(OPS)),!,(member(OP=_,OPS);memb
 
 
 
-%% put_singles( ?Wff, ?VALUE2, :TermARG3, ?Wff) is semidet.
+%% quant_singles( ?Wff, ?VALUE2, :TermARG3, ?Wff) is semidet.
 %
-% Put Singles.
+% Quanitify Single Vars
 %
-put_singles(Wff,_,[],Wff).
-put_singles(Wff,Exists,[S|Singles],NewWff):-   
+quant_singles(Wff,_,[],Wff).
+quant_singles(Wff,Exists,[S|Singles],NewWff):-   
    (((each_subterm(Wff,SubTerm),compound(SubTerm),
-    SubTerm=..[OtherExists,SO,_],same_vars(SO,S),
-     member(OtherExists,[all,exists])))
- -> WffM = Wff ; WffM =..[Exists,S,Wff]),
-   put_singles(WffM,Exists,Singles,NewWff),!.
+     quant_singles_01(SubTerm,S))) 
+     -> WffM = Wff ; 
+     WffM =..[Exists,S,Wff]),
+   quant_singles(WffM,Exists,Singles,NewWff),!.
 
 
-  
+quant_singles_01(SubTerm,S):- SubTerm=..[OtherExists,SO,_],
+   member(OtherExists,[all,exists]),!,
+  (is_list(SO)->member(V,SO);V=SO),
+   same_vars(V,S).
+
+quant_singles_01(SubTerm,S):- 
+    SubTerm=..[OtherExists,_,SO,_],
+    member(OtherExists,[atleast,atmost,exactly]),
+    same_vars(SO,S).
+    
 
 
 %= %= :- was_export(defunctionalize/2).
@@ -1035,9 +1044,10 @@ is_ftEquality(termOfUnit(_,_)).
 ensure_quantifiers(Wff:- B,WffO):- B== true,!, ensure_quantifiers(Wff,WffO).
 ensure_quantifiers(Wff:- B,Wff:- B):- !.
 % ensure_quantifiers(Wff,Wff):-!.
-ensure_quantifiers(Wff,WffO):-
+ensure_quantifiers(WffI,WffO):-
+ subst(WffI,forall,all,Wff),
  must_det_l((show_failure(why,term_singleslots(Wff,[],NS,[],Singles)),
-  put_singles(Wff,'all',Singles,WffM),put_singles(WffM,'all',NS,WffO))).
+  quant_singles(Wff,'all',Singles,WffM),quant_singles(WffM,'all',NS,WffO))).
 
 
 

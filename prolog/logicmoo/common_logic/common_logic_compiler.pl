@@ -424,6 +424,8 @@ discovered_term_slots(_Fml,_Slots).
 % FreeV:      List of free variables in Fml.
 % Paths:      Number of disjunctive paths in Fml.
 
+% for tracing
+% nnf(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf(KB,Fin,FreeV,NNF,Paths)),fail.
 % NonVar used in OUTPUT VAR
 nnf(KB,Lit,FreeV,LitO,N):-nonvar(LitO),!,nnf1(KB,Lit,FreeV,LitM,N),!,LitM=LitO.
 nnf(KB,Lit,FreeV,LitO,N):-var(FreeV),!,trace_or_throw(bad_nnf(KB,Lit,FreeV,LitO,N)).
@@ -508,7 +510,7 @@ nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),
 %
 
 axiom_lhs_to_rhs(_KB, poss(BDT,beliefs(A,~(F1))),~(nesc(BDT,knows(A,F1)))).
-axiom_lhs_to_rhs(_KB, all(Vs,poss(BDT,A & B)) ,  ~(exists(Vs,nesc(BDT,A & B)))).
+axiom_lhs_to_rhs(_KB, all(Vs,poss(BDT,A & B)) ,  ~(exists(Vs,nesc(BDT,A & B)))):- is_ftVar(Vs),!.
 
 % disabled
 nnf1(KB,Fin,FreeV,DIA,Paths):-  fail,  copy_term(Fin,Fml),axiom_lhs_to_rhs(KB,F1,F2) , 
@@ -530,7 +532,7 @@ nnf1(KB,cir(CT,F),FreeV,CIR,Paths):-
 
 nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
     (get_quantifier_isa(XL,X,Col) -> 
-      nnf(KB,all(X,isa(X,Col)=>NNF),FreeV,FmlO,Paths);
+      nnf(KB,all(X,(isa(X,Col)=>NNF)),FreeV,FmlO,Paths);
       (XL=[X|MORE],!,
       (MORE==[] -> 
             nnf(KB,all(X,NNF),FreeV,FmlO,Paths);
@@ -709,7 +711,10 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
     ((~(reify)(SkF) => NNF1) & 
      (reify(SkF) => FmlSk)),
      [X|Slots],NNF,Paths))),!.
+
 */
+/*
+Maybe
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
    nnf(KB,Fml,FreeV,NNF1,_Paths),
@@ -783,6 +788,7 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(shared),
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(ignore),
    add_to_vars(X,FreeV,NewVars),
    nnf(KB,Fml,NewVars,NNF,Paths).
+*/
 
 % =================================
 % ==== Cardinality (quantifier macros) ========
@@ -2635,7 +2641,8 @@ skolem_f(KB, F, X, FreeVIn, SkF):-
         delete_eq(FreeV0,X,FreeV),
         list_to_set(FreeV,FreeVSet),
 	contains_var_lits(F,X,LitsList),
-        mk_skolem_name(KB,X,LitsList,'',SK),
+        (get_var_name(X,VN)->true;VN='Exists'),
+        mk_skolem_name(KB,X,LitsList,VN,SK),
         flag(skolem_count,SKN,SKN+1),
         concat_atom(['sk',SK,'_',SKN,'FnSk'],Fun),
 	SkF =..[Fun|FreeVSet])),
@@ -2655,7 +2662,8 @@ skolem_fn(KB, F, X, FreeVIn,Fun, FreeVSet):- % dtrace,
          delete_eq(FreeV0,X,FreeV),
          list_to_set(FreeV,FreeVSet),
 	contains_var_lits(F,X,LitsList),
-        mk_skolem_name(KB,X,LitsList,'',SK),
+        (get_var_name(X,VN)->true;VN='Exists'),
+        mk_skolem_name(KB,X,LitsList,VN,SK),
         concat_atom(['sk',SK,'Fn'],Fun))).
 
 
@@ -2702,29 +2710,36 @@ pred_subst2(Pred, X, Sk, [A|As], [Ap|AS] ):- pred_subst(Pred, A,X,Sk,Ap ), pred_
 */
 
 
+atom_concat_new(SIn,CU,SIn):- atom_length(CU,L),L>1,atom_contains(SIn,CU),!.
+atom_concat_new(CU,SIn,SIn):- atom_length(CU,L),L>1,atom_contains(SIn,CU),!.
+atom_concat_new(SIn,CU,SOut):- atom_concat(SIn,CU,SOut).
 
 
-
-
-
-%% mk_skolem_name( +KB, +Var, +TermFml, +SuggestionIn, -NameSuggestion) is det.
+%% mk_skolem_name(KB, +Var, +TermFml, +SuggestionIn, -NameSuggestion) is det.
 %
 %  generate a skolem name..
 %
-mk_skolem_name(_O,Var,Fml,SIn,SOut):- is_ftVar(Fml), same_var(Var,Fml),!,atom_concat('Is',SIn,SOut).
-mk_skolem_name(_O,_V,Fml,SIn,SIn):- is_ftVar(Fml),!.
-mk_skolem_name(_O ,_V,[],SIn,SIn):- !.
-mk_skolem_name(_O,_V, OP,SIn,SIn):- is_log_op(OP),!.
-mk_skolem_name(_O,_V,Fml,SIn,SOut):- atomic(Fml),!,i_name(Fml,N),toPropercase(N,CU),!,(atom_contains(SIn,CU)->SOut=SIn;atom_concat(SIn,CU,SOut)).
-mk_skolem_name(KB,Var,[H|T],SIn,SOut):- !,mk_skolem_name(KB,Var,H,SIn,M),mk_skolem_name(KB,Var,T,M,SOut).
-mk_skolem_name(KB,Var,isa(VX,Lit),SIn,SOut):- same_var(Var,VX),is_ftNonvar(Lit),!,mk_skolem_name(KB,Var,['Is',Lit,'In'],'',F),atom_concat(F,SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,VX],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Is',F,'In'],SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,Other,VX|_],same_var(Var,VX),!,(type_of_var(KB,Other,OtherType0),
+mk_skolem_name(_KB,Var,Fml,SIn,SOut):- is_ftVar(Fml),same_var(Var,Fml),!,atom_concat_new('VFml',SIn,SOut).
+mk_skolem_name(_KB,_V, Fml,SIn,SOut):- is_ftVar(Fml),!,atom_concat_new('VaR',SIn,SOut).
+
+mk_skolem_name(_KB,_V,[],SIn,SIn):- !.
+mk_skolem_name(_KB,_V, OP,SIn,SIn):- is_log_op(OP),!.
+mk_skolem_name(_KB,_V, OP,SIn,SIn):- atom(OP),atom_concat('sk',_,OP),!.
+mk_skolem_name(_KB,_V,Fml,SIn,SOut):- atomic(Fml),!,must((i_name(Fml,N),toPropercase(N,CU))),!,atom_concat_new(SIn,CU,SOut).
+mk_skolem_name(KB,Var,[H|T],SIn,SOut):- !,mk_skolem_name(KB,Var,H,SIn,M),!,mk_skolem_name(KB,Var,T,M,SOut).
+mk_skolem_name(KB,Var,isa(VX,Lit),SIn,SOut):- same_var(Var,VX),is_ftNonvar(Lit),!,mk_skolem_name(KB,Var,['Isa',Lit],'',Mid),atom_concat_new(Mid,SIn,SOut).
+mk_skolem_name(KB,Var,inst(VX,Lit),SIn,SOut):- same_var(Var,VX),is_ftNonvar(Lit),!,mk_skolem_name(KB,Var,['Inst',Lit],'',Mid),atom_concat_new(Mid,SIn,SOut).
+mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,VX],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Is',F],'',Mid),atom_concat_new(Mid,SIn,SOut).
+
+mk_skolem_name(KB,Var,Fml,SIn,SOut):- fail, Fml=..[F,Other,VX|_],same_var(Var,VX),!,(type_of_var(KB,Other,OtherType0),
    (OtherType0=='Unk'->OtherType='';OtherType=OtherType0)),
    mk_skolem_name(KB,Var,[OtherType,'Arg2Of',F],SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,VX|_],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Arg1Of',F],SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F,_,VX|_],same_var(Var,VX),!,mk_skolem_name(KB,Var,['Arg2Of',F],SIn,SOut).
-mk_skolem_name(KB,Var,Fml,SIn,SOut):- Fml=..[F|_],!,mk_skolem_name(KB,Var,['ArgNOf',F],SIn,SOut).
+
+mk_skolem_name(_KB,Var,Fml,SIn,SOut):- Fml=..[F,VX|_],same_var(Var,VX),!,i_name(F,Lit), atomic_list_concat([Lit],Added),atom_concat_new(SIn,Added,SOut).
+mk_skolem_name(_KB,Var,Fml,SIn,SOut):- arg(N,Fml,VX),functor(Fml,F,_),number_string(N,NStr),same_var(Var,VX),!,
+  i_name(F,Lit), atomic_list_concat(['Arg',NStr,Lit],Added),atom_concat_new(SIn,Added,SOut).
+  
+mk_skolem_name(_KB,_Var,_Fml,SIn,SIn).
 
 % same_var(Var,Fml):-  ~(  ~( Var=Fml)),!.
 

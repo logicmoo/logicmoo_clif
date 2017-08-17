@@ -692,7 +692,7 @@ adjust_kif0(KB,exists(L,Expr),exists(L,ExprO)):-!,adjust_kif0(KB,Expr,ExprO).
 
 adjust_kif0(KB,all(L,Expr),               ExprO):-L==[],!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,all(V,Expr),               ExprO):-atom(V),svar_fixvarname(V,L),subst(Expr,V,'$VAR'(L),ExprM),!,adjust_kif0(KB,all('$VAR'(L),ExprM),ExprO).
-adjust_kif0(KB,all([L|List],Expr),all(L,ExprO)):-is_list(List),!,adjust_kif0(KB,exists(List,Expr),ExprO).
+adjust_kif0(KB,all([L|List],Expr),all(L,ExprO)):-is_list(List),!,adjust_kif0(KB,all(List,Expr),ExprO).
 % adjust_kif0(KB,all(L,Expr),               ExprO):- \+ contains_var(L,Expr),!,adjust_kif0(KB,Expr,ExprO).
 adjust_kif0(KB,all(L,Expr),all(L,ExprO)):-!,adjust_kif0(KB,Expr,ExprO).
 
@@ -997,6 +997,7 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    must_be_unqualified(WffIn0),
    unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
    ensure_quantifiers(WffIn,Wff),
+   
    must_be_unqualified(Wff),
    % KB = WffQ,
    check_is_kb(KB),
