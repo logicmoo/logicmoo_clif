@@ -204,7 +204,7 @@ gshow_all([],_).
 gshow_all([H],LCR):-gshow(H,LCR).
 gshow_all([H,G|Hs],[L,C,R]):-
  gshow(H,[L,C,R]),
- ([C]\=="~"- #> put(C);true),
+ ([C]\=="~" -> put(C);true),
  gshow_all([G|Hs],[L,C,R]).
  
 test:-
