@@ -1,7 +1,7 @@
 set2nat(Xs,N):-set2nat(Xs,0,N).
 
 set2nat([],R,R).
-set2nat([X|Xs],R1,Rn):-R2 #= R1+(1 #<< X),set2nat(Xs,R2,Rn).
+set2nat([X|Xs],R1,Rn):-R2 #= R1+(1 << X),set2nat(Xs,R2,Rn).
 
 hfs2nat(N,R):-default_ulimit(D),hfs2nat_(D,N,R). 
 
@@ -103,10 +103,10 @@ bitmerge_pair(A,B,P):-up0(A,X),up1(B,Y),P #= X+Y.
 
 bitmerge_unpair(P,A,B):-down0(P,A),down1(P,B).
 
-even_up(A,R):-nat2element(A,X),E #= X #<< 1,R #= 1 #<< E.
-odd_up(A,R):-nat2element(A,X),E #= 1+(X #<< 1),R #= 1 #<< E.
-even_down(A,R):-nat2element(A,X),even(X),E #= X >> 1,R #= 1 #<< E.
-odd_down(A,R):-nat2element(A,X),odd(X),E #= (X >> 1), R #= 1 #<< E.
+even_up(A,R):-nat2element(A,X),E #= X << 1,R #= 1 << E.
+odd_up(A,R):-nat2element(A,X),E #= 1+(X << 1),R #= 1 << E.
+even_down(A,R):-nat2element(A,X),even(X),E #= X >> 1,R #= 1 << E.
+odd_down(A,R):-nat2element(A,X),odd(X),E #= (X >> 1), R #= 1 << E.
 
 even(X):- 0 =:= /\(1,X).
 odd(X):- 1 =:= /\(1,X).
@@ -142,7 +142,7 @@ nat2memb(Ulimit,N,X-Y):-nat2contains(Ulimit,N,Y-X).
 nat2contains(N,XY):-default_ulimit(D),nat2contains(D,N,XY).
 nat2contains(Ulimit,N,E):-nat2element(N,X),
  ( E=N-X
- ; X #> =Ulimit,nat2contains(Ulimit,X,E)
+ ; X #>= Ulimit,nat2contains(Ulimit,X,E)
  ).
 
 nat2cdag(L,N,G):-
