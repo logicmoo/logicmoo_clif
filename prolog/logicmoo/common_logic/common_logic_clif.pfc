@@ -112,10 +112,15 @@ poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
 /*
 :- multifile(proven_not_neg/1).
 :- dynamic(proven_not_neg/1).
-proven_not_neg(H):- \+ call_u(~ H).
 */
+:- kb_local(baseKB:proven_not_neg/1).
+proven_not_neg(H):- \+ call_u(~ H), \+ proven_neg(H).
+
+:- kb_local(baseKB:proven_not_tru/1).
+proven_not_tru(H):- \+ call_u( H).
 
 :- kb_local(baseKB:proven_tru/1).
 proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; call_u(H).
+
 :- kb_local(baseKB:proven_neg/1).
 

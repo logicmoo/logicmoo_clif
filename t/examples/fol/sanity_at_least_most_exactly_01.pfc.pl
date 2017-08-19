@@ -31,7 +31,6 @@ testable_quants(X,Fml,~Q,Name):-member(QF,[all,exists]),Q=..[QF,X,Fml],atom_conc
 
 
 % single lit
-
 :- add_test(most1, (all([[Human,tHuman]],atmost(1,[[M1Spouse,tSpouse]],hasSpouse(Human,M1Spouse))))).
 :- add_test(least1, (all([[Human,tHuman]],atleast(1,[[LeastIdea,tIdea]],hasIdea(Human,LeastIdea))))).
 :- add_test(exactly1, (all([[Human,tHuman]],exactly(1,[[Heart,tHeart]],hasHeart(Human,Heart))))).
@@ -46,7 +45,11 @@ testable_quants(X,Fml,~Q,Name):-member(QF,[all,exists]),Q=..[QF,X,Fml],atom_conc
 :- add_test(least0, (all([[Human,tHuman]],atleast(0,[[L0Dollar,tDollar]],hasDollar(Human,L0Dollar))))).
 :- add_test(exactly0, (all([[Human,tHuman]],exactly(0,[[E0Coin,tCoin]],hasCoin(Human,E0Coin))))).
 :- add_test(exists0, (all([[Human,tHuman]],~exists([[CommonSense,tCommonSense]],hasCommonSense(Human,CommonSense))))).
-      
+
+:- add_test(most3, (all([[Human,tHuman]],atmost(3,[[M3Meal,tMeal]],hasMeal(Human,M3Meal))))).
+:- add_test(least3, (all([[Human,tHuman]],atleast(3,[[L3Dream,tDream]],hasDream(Human,L3Dream))))).
+:- add_test(exactly3, (all([[Human,tHuman]],exactly(3,[[E3ye,tEye]],hasEye(Human,E3ye))))).
+
 % or
 :- add_test(most1b, (all([[Human,tHuman]],atmost(1,[[M1Spouse,tSpouse]],hasSpouse(Human,M1Spouse) v controls(Human,M1Spouse))))).
 :- add_test(least1b, (all([[Human,tHuman]],atleast(1,[[LeastIdea,tIdea]],hasIdea(Human,LeastIdea) v controls(Human,LeastIdea))))).

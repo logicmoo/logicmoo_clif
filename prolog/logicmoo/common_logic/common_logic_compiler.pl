@@ -705,19 +705,19 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),!, trace_or_thr
 % NEW NORMAL WAY
 nnf1(KB,exists(X,Fml),FreeV,NNF1,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
-    term_slots(Fml+FreeV+X,Slots),delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
-    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    term_slots(FreeV,Slots),
+    skolem_f(KB, Fml, X, Slots, SkF),
     subst(Fml,X,SkF,FmlSk),
-        nnf(KB, (  ~(  ~skolem(X,SkF) v FmlSk )=> Fml),SlotsV2,NNF1,Paths)
+        nnf(KB, (  ~(  ~skolem(X,SkF) v FmlSk )=> Fml),Slots,NNF1,Paths)
    )),!.
 
 % OLD NORMAL WAY
 nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
  must_det_l((
-    term_slots(Fml+FreeV+X,Slots),delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),
-    skolem_f(KB, Fml, X, SlotsV2, SkF),
+    term_slots(FreeV,Slots),
+    skolem_f(KB, Fml, X, Slots, SkF),
     subst(Fml,X,SkF,FmlSk),
-        nnf(KB,FmlSk,SlotsV2,NNF,Paths)
+        nnf(KB,FmlSk,Slots,NNF,Paths)
    )),!.
 
 % NEEDS WAY
@@ -2182,14 +2182,42 @@ unusable_body(_,Var):- \+ compound(Var),!,fail.
 unusable_body(_,(proven_not_reify(XX),_)):- !,nonvar(XX).
 unusable_body(_,(A,B,_)):- negations_of_each_other(A,B).
 unusable_body(Head,(A,B)):- !,unusable_body(Head,A);unusable_body(Head,B).
+unusable_body(Head,(A;B)):- !,unusable_body(Head,A);unusable_body(Head,B).
 unusable_body(_,\+ needs(_)).
+unusable_body(_,fail).
 % unusable_body(_,proven_neg(needs(_))).
 
 negations_of_each_other(A,B):- A == ~B.
 negations_of_each_other(A,B):- ~A == B.
 
+/*
+LEM asserts (A v ~A) is nesisarily true.. But what if we rejected this? 
+We still need to prove things.. like "prove A" or even "prove ~A" thus we are better of with:  <>(A v ~A)
+
+"not possibly all x" can be negated to "nesc all x" without the need to invert to existential quantification
+
+all x: ~P(x)
+
+all x: ~P(x) === all x: ~<>P(x)  
+
+which can be negated to    all x: <>P(x)  without switching to existental quantification
+
+negates to  <> all P()
 
 
+
+meaning a new rule can make something that was once not possible to prove, become provable
+<>~P or <>P can become either []P or []~P later (but afterwards will not change)
+this doesnt nesc imply defeasably, but implies elaboration tollerance
+
+
+
+
+
+
+(A v ~A) in order to deal with   ?(A v ~A)   ?A ? ~<>A
+[]A v ~<>A
+*/
 % demodal_h2_body(KB,Head,HeadM,Body,BodyM) 
 
 demodal_h2_body(_KB,Head,'$unused'(Head),(proven_not_reify(XX),BB),('$unused'(proven_not_reify(XX)),BB)).

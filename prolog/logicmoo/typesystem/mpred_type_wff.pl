@@ -597,22 +597,28 @@ is_log_op(OP):- atomic(OP),if_defined(to_dlog_ops(OPS)),!,(member(OP=_,OPS);memb
 quant_singles(Wff,_,[],Wff).
 quant_singles(Wff,Exists,[S|Singles],NewWff):-   
    (((each_subterm(Wff,SubTerm),compound(SubTerm),
-     quant_singles_01(SubTerm,S))) 
+     already_quanted_01(SubTerm,S))) 
      -> WffM = Wff ; 
-     WffM =..[Exists,S,Wff]),
+     add_1quantifier(Exists,S,Wff,WffM)),!,
    quant_singles(WffM,Exists,Singles,NewWff),!.
 
+add_1quantifier(Exists,S,Wff,WffM) :- \+ compound(Wff),!,WffM =..[Exists,S,Wff].
+add_1quantifier(Exists,S,Wff,WffM) :- Wff=..[Q,X,Fml],is_quant_f(Q),add_1quantifier(Exists,S,Fml,Wff1),WffM=..[Q,X,Wff1].
+add_1quantifier(Exists,S,Wff,WffM) :- Wff=..[Q,N,X,Fml],is_quant_f(Q),add_1quantifier(Exists,S,Fml,Wff1),WffM=..[Q,N,X,Wff1].
+add_1quantifier(Exists,S,Wff,WffM) :- WffM =..[Exists,S,Wff].
 
-quant_singles_01(SubTerm,S):- SubTerm=..[OtherExists,SO,_],
+already_quanted_01(SubTerm,S):- SubTerm=..[OtherExists,SO,_],
    member(OtherExists,[all,exists]),!,
   (is_list(SO)->member(V,SO);V=SO),
    same_vars(V,S).
 
-quant_singles_01(SubTerm,S):- 
+already_quanted_01(SubTerm,S):- 
     SubTerm=..[OtherExists,_,SO,_],
     member(OtherExists,[atleast,atmost,exactly]),
     same_vars(SO,S).
     
+is_quant_f(Q):- arg(_,v(atleast,atmost,exactly,all,exists),Q).
+is_quant_f(Q):- arg(_,v(no,some,one,two),Q).
 
 
 %= %= :- was_export(defunctionalize/2).
@@ -1046,8 +1052,8 @@ ensure_quantifiers(Wff:- B,Wff:- B):- !.
 % ensure_quantifiers(Wff,Wff):-!.
 ensure_quantifiers(WffI,WffO):-
  subst(WffI,forall,all,Wff),
- must_det_l((show_failure(why,term_singleslots(Wff,[],NS,[],Singles)),
-  quant_singles(Wff,'all',Singles,WffM),quant_singles(WffM,'all',NS,WffO))).
+ must_det_l((show_failure(why,term_singleslots(Wff,NonSingles,Singles)),
+  quant_singles(Wff,'all',Singles,WffM),quant_singles(WffM,'all',NonSingles,WffO))).
 
 
 

@@ -51,12 +51,14 @@ test_assert(A):-
 do_subtest(List):- must_maplist(call,List).
 
 add_test(Name,Assert):-
-  b_implode_varnames(Assert),
+  b_implode_varnames(Name+Assert),
   assert(is_test(Name)),
+   dbanner,dmsg(test_boxlog(Name)),dbanner,
   test_boxlog(Assert),
-   assert(( Name:- dbanner,
-      dmsg(running_test(Name)),
-      test_assert(Assert))).
+   dbanner,dmsg(completed_test_boxlog(Name)),dbanner,
+   assert(( Name:- mmake, dbanner,dmsg(running_test(Name)),dbanner,
+      test_assert(Assert),
+      dbanner,dmsg(completed_running_test(Name)),dbanner)).
 
 
 :- '$current_source_module'(W), '$set_typein_module'(W).
@@ -88,6 +90,7 @@ add_test(Name,Assert):-
 
 
 fav_debug:- 
+ '$set_source_module'(header_sane),
  set_prolog_flag(access_level,system),
  set_prolog_flag(report_error,true),
  set_prolog_flag(backtrace_show_lines, true),
@@ -106,33 +109,6 @@ bt:-
 
 :- fav_debug.
 
-:- fixup_exports.
-:- set_prolog_flag(retry_undefined,true).
-
-
-:- if(( \+ current_module(pfc_lib) )).
-:- use_module(library(pfc)).
-
-% :- dynamic(ttExpressionType/1).
-:- kb_global(baseKB:ttExpressionType/1).
-
-:- set_prolog_flag(runtime_debug, 0). 
-%:- use_module(library(logicmoo_user)).
-% logicmoo_clif should maybe load from logicmoo_user
-:- use_module(library(logicmoo_clif)).
-:- set_prolog_flag(runtime_debug, 3). 
-
-
-:- set_prolog_IO(user_input,user_output,user_output).
-
-:- prolog_load_context(source,File),((atom_contains(File,'.pfc');atom_contains(File,'.clif'))-> sanity(is_pfc_file) ; must_not_be_pfc_file).
-
-
-:- multifile prolog:message//1, user:message_hook/3.
-% user:message_hook(import_private(pfc_lib,_:_/_),warning,_):- source_location(_,_),!.
-user:message_hook(io_warning(_,'Illegal UTF-8 start'),warning,_):- source_location(_,_),!.
-user:message_hook(T,Type,Warn):- source_location(_,_),
-  memberchk(Type,[error,warning]),once(maybe_message_hook(T,Type,Warn)),fail.
 
 
 show_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
@@ -140,7 +116,7 @@ show_call_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
 
 
 %= define the example language
-:- fully_expand_real(change(assert,ain),(example_known_is_success(_30487686):-_30487686),O),writeln(O).
+% :- fully_expand_real(change(assert,ain),(example_known_is_success(_30487686):-_30487686),O),writeln(O).
 example_known_is_success(G):-  G.
 example_impossible_is_success(G):-  ~(G).
 example_known_is_failure(G):-  \+ G.
@@ -164,8 +140,34 @@ example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G
 %= immediately
 % :- set_clause_compile(fwc).
 
+:- fixup_exports.
+:- set_prolog_flag(retry_undefined,true).
 
+
+:- set_prolog_IO(user_input,user_output,user_output).
+
+
+:- multifile prolog:message//1, user:message_hook/3.
+% user:message_hook(import_private(pfc_lib,_:_/_),warning,_):- source_location(_,_),!.
+user:message_hook(io_warning(_,'Illegal UTF-8 start'),warning,_):- source_location(_,_),!.
+user:message_hook(T,Type,Warn):- source_location(_,_), current_predicate(maybe_message_hook/3),
+  memberchk(Type,[error,warning]),once(maybe_message_hook(T,Type,Warn)),fail.
+
+
+:- if(( \+ current_module(pfc_lib) )).
+:- use_module(library(pfc)).
+
+% :- dynamic(ttExpressionType/1).
+:- kb_global(baseKB:ttExpressionType/1).
+
+:- set_prolog_flag(runtime_debug, 0). 
+%:- use_module(library(logicmoo_user)).
+% logicmoo_clif should maybe load from logicmoo_user
+:- use_module(library(logicmoo_clif)).
+:- set_prolog_flag(runtime_debug, 3). 
 :- endif.
+
+:- prolog_load_context(source,File),((atom_contains(File,'.pfc');atom_contains(File,'.clif'))-> sanity(is_pfc_file) ; must_not_be_pfc_file).
 
 :- if(is_pfc_file).
 
@@ -179,7 +181,7 @@ example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G
 
 :- sanity((defaultAssertMt(Mt1),fileAssertMt(Mt2),source_module(Mt3),Mt1==Mt2,Mt1==Mt3)).
 
-
+:-assert(t_l:each_file_term(must_kif_process_after_rename)).
 
 :- if((prolog_load_context(source,File),(atom_contains(File,'.clif')))).
 
@@ -198,5 +200,8 @@ example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G
 
 %:- call(call,((asserta(((system:goal_expansion(Here,Loc,_,_):- dmsg(s_goal_expansion(Here,Loc)),trace,fail))),
 %   asserta(((system:term_expansion(Here,Loc,_,_):- dmsg(s_term_expansion(Here,Loc)),trace,fail)))))).
+
+:- else.
+
 :- endif.
 

@@ -1005,7 +1005,7 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    must_be_unqualified(Wff665),
    to_modal1(KB,Wff665,Wff666),
    must_be_unqualified(Wff666),
-   qualify_nesc(Wff666,Wff6667),   
+   qualify_modality(Wff666,Wff6667),   
    ignore((Wff666\==Wff6667, sdmsg(kif=(Wff666)),sdmsg(qualify_nesc=(Wff6667)))),
    % add_preconds(Wff6667,Wff6668),
    adjust_kif(KB,Wff6667,Wff6669),
@@ -1242,12 +1242,16 @@ add_poss_to( ~(_PreCond),Wff6667, Wff6667).
 add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
 
+:- thread_local(t_l:qualify_modally/0).
+%% qualify_modality( ?P, ?Q) is det.
+qualify_modality(Wff666,Wff666):- \+ t_l:qualify_modally,!.
+qualify_modality(Wff666,Wff666):- current_prolog_flag(logicmoo_modality,false),!.
+qualify_modality(PQ,PQO):- qualify_nesc(PQ,PQO).
 
 %% qualify_nesc( ?P, ?Q) is semidet.
 %
 %  Q = (poss(P)=>P).
 %
-:- thread_local(t_l:qualify_modally/0).
 
 % qualify_nesc(Wff666,Wff666):- \+ t_l:qualify_modally,!.
 qualify_nesc(Wff666,Wff666):- var(Wff666),!.
