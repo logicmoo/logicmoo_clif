@@ -217,7 +217,7 @@ baseKB:sanity_test:- kif_to_boxlog(not((a , b ,  c , d)),S),!,disjuncts_to_list(
 
 kif_sanity_tests:- forall(clause(kif_sanity_test_0,B),must(B)).
 
-default_logic_uses:-uses_logic(logicmoo_kb_refution).
+default_logic_uses:- must(call(call,uses_logic(logicmoo_kb_refution))).
 
 %:- initialization(default_logic_uses).
 %:- default_logic_uses.

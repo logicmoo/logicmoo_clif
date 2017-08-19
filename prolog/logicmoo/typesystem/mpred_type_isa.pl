@@ -489,10 +489,8 @@ genls_upward(C,S):-clause_b(genls(C,C0)),clause_b(genls(C0,SP)),(SP=S;clause_b(g
 genls_downward(C,S):-clause_b(genls(S0,S)),clause_b(genls(SP,S0)),(SP=C;clause_b(genls(C,SP))).
 genls_inward(C,S):- genls_upward(C,M),(M=S ; genls_downward(M,S)).
 
-:- kb_shared(disjointWith/2).
-
 tran_by_trans(_,C,S):- C==S,!.
-tran_by_trans(genls,C,S):- !,genls_by_trans(C,S), \+ disjointWith(C,S).
+tran_by_trans(genls,C,S):- !,genls_by_trans(C,S), \+ call_u(disjointWith(C,S)).
 tran_by_trans(R,C,S):- var(S),!,nonvar(C),tran_upward(R,C,S),not_already_tran(R,C,S).
 tran_by_trans(R,C,S):- var(C),!,tran_downward(R,C,S),not_already_tran(R,C,S).
 tran_by_trans(R,C,S):- tran_inward(R,C,S),not_already_tran(R,C,S).
@@ -1635,3 +1633,4 @@ call_u_t(DB,P):-call_u(call(DB,P)).
 mpred_univ(C,I,Head):- atom(C),!,Head=..[C,I],predicate_property(Head,number_of_clauses(_)).
 
 
+:- fixup_exports.

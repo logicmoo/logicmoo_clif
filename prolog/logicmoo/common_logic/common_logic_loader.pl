@@ -24,6 +24,8 @@
    kif_process(*).
    % common_logic_snark
 
+:- meta_predicate with_ext_translation(+,*,:).
+
 
 :- thread_local(t_l:kif_action_mode/1).
 :- asserta_if_new(t_l:kif_action_mode(tell)).
@@ -51,6 +53,8 @@ with_ext_translation(Found,pfc, Process):- !,process_script_file(Found,Process).
 with_ext_translation(Found,_, Process):- with_lisp_translation(Found, Process).
 
 kif_process_ignore(P):-must(once(kif_process(P))).
+must_kif_process(P):-must(once(kif_process(P))).
+must_kif_process_after_rename(Sent):-  if_defined(sumo_to_pdkb(Sent,SentM),=(Sent,SentM)),must_kif_process(SentM).
 
 :- public(kif_process/1).
 

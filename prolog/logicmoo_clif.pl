@@ -39,7 +39,29 @@
 
 :- kif_compile.
 
+really_load_clif_file(Found, Options):-
+  dmsg(really_load_clif_file(Found, Options)),
+  fail.
+
+maybe_load_clif_file(Found, Options):- 
+  atom(Found),exists_file(Found),!,
+  file_name_extension(_,Ext,Found),
+  memberchk(Ext,['.clif','.ikl','.kif','.lbase']),!,
+  really_load_clif_file(Found, Options).
+  
+maybe_load_clif_file(Spec, Options):- 
+  maybe_notrace(absolute_file_name(Spec,Found,[extensions(['.clif','.ikl','.kif',
+  %'.lisp',
+  '.lbase']),access(read),expand(true),solutions(all)])),
+  exists_file(Found),!,
+  really_load_clif_file(Found, Options).
+
 :- fixup_exports.
+:- dynamic user:prolog_load_file/2.
+:- multifile user:prolog_load_file/2.
+:- use_module(library(must_trace)).
+user:prolog_load_file(Spec, Options):- maybe_load_clif_file(Spec, Options),!.
+
 
 end_of_file.
 end_of_file.

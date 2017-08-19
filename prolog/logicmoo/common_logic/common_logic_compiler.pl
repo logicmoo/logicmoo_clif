@@ -406,7 +406,105 @@ is_leave_alone(P):- functor(P,F,A),is_leave_alone_pfa(P,F,A).
 
 is_leave_alone_pfa(_,F,_):- arg(_,v((v),(&),(=>),(<=>),(all),(exists),(~)),F),!,fail.
 is_leave_alone_pfa(_,assertTemplateReln,_).
+is_leave_alone_pfa(_,skolem,_).
+is_leave_alone_pfa(_,different,_).
 is_leave_alone_pfa(_,mudEquals,2).
+
+
+% =================================
+% Typed (Exactly/AtMost/AtLeast 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
+% =================================
+expandQuants(_,Fml,Fml):- is_leave_alone(Fml),!.
+expandQuants(_,[],[]):- !.
+expandQuants(KB,[A|B],[AO|BO]):- expandQuants(KB,A,AO),expandQuants(KB,B,BO),!.
+
+expandQuants(KB,all(XL,NNF),FmlO):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      expandQuants(KB,all(X,isa(X,Col) => NNF),FmlO);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            expandQuants(KB,all(X,NNF),FmlO);
+            expandQuants(KB,all(X,all(MORE,NNF)),FmlO)))).
+
+expandQuants(KB,exactly(N,X,NNF),FmlO):- expandQuants(KB,quant(exactly(N),X,NNF),FmlO).
+expandQuants(KB,atleast(N,X,NNF),FmlO):- expandQuants(KB,quant(atleast(N),X,NNF),FmlO).
+expandQuants(KB,atmost(N,X,NNF),FmlO):- expandQuants(KB,quant(atmost(N),X,NNF),FmlO).
+expandQuants(KB,exists(X,NNF),FmlO):- expandQuants(KB,quant(exists,X,NNF),FmlO).
+expandQuants(KB,some(X,NNF),FmlO):- expandQuants(KB,quant(exactly(1),X,NNF),FmlO).
+expandQuants(KB,quant(Quant,XL,NNF),FmlO):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      expandQuants(KB,quant(Quant,X,quant(isa(Col),X, NNF)),FmlO);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            expandQuants(KB,quant(Quant,X,NNF),FmlO);
+            expandQuants(KB,quant(Quant,X,quant(Quant,MORE,NNF)),FmlO)))).
+
+expandQuants(KB,PAB,FmlO):- PAB=..[F|AB], must_maplist(expandQuants(KB),AB,ABO), FmlO=..[F|ABO].
+
+un_quant3(_,Fml,Fml):- is_leave_alone(Fml),!.
+un_quant3(KB,all(X,NNF),all(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
+un_quant3(KB,quant(isa(K),X,NNF),FmlO):- un_quant3(KB,NNF,NNFO),un_quant3(KB,isa(X,K) & NNFO,FmlO).
+un_quant3(KB,quant(Quant,X,NNF),FmlO):- un_quant3(KB,NNF,NNFO),Quant=..[Q|AUNT],append([Q|AUNT],[X,NNFO],STERM),FmlO=..STERM.
+un_quant3(KB,PAB,FmlO):- PAB=..[F|AB], must_maplist(un_quant3(KB),AB,ABO), FmlO=..[F|ABO].
+
+contains_compound(IN,CMP):-
+ \+ ((sub_term(SUB,IN),compound(SUB),SUB=CMP)).
+
+term_each_slot(IN,SUB):- sub_term(SUB,IN),is_ftVar(SUB).
+
+
+rejiggle_quants(KB,In,Out2):-
+  expandQuants(KB,In,Mid1),
+  moveInwardQuants([],elim(all),KB,Mid1,Mid2),
+  un_quant3(KB,Mid2,Out),
+  Out2 = Out.
+
+
+%% moveInwardQuants(VarsQ,MayElimAll, ?KB, ?Kif, ?FmlO) is det.
+%
+% Move Existential Quantifiers Inward
+%
+moveInwardQuants(_,_,_,Fml,Fml):- is_leave_alone(Fml),!.
+moveInwardQuants(_,_,_,[],[]):- !.
+moveInwardQuants(_,_,_,~(NNF),~(FmlO)):-!,NNF=FmlO.
+moveInwardQuants(VarsQ,MayElimAll,KB,[A|B],[AO|BO]):- moveInwardQuants(VarsQ,MayElimAll,KB,A,AO),moveInwardQuants(VarsQ,MayElimAll,KB,B,BO),!.
+moveInwardQuants(VarsQ,cant(May),KB,all(X,NNF),all(X,FmlO)):-!,moveInwardQuants([X|VarsQ],cant(May),KB,NNF,FmlO).
+moveInwardQuants(VarsQ,MayElimAll,KB,all(X,NNF),all(X,FmlO)):-!,moveInwardQuants([X|VarsQ],MayElimAll,KB,NNF,FmlO).
+
+
+moveInwardQuants(VarsQ,MayElimAll,KB,quant(Quant,X,all(Y,FmlAB)),quant(Quant,X,FmlABM)):- !,
+  moveInwardQuants([X|VarsQ],cant(MayElimAll),KB,all(Y,FmlAB),FmlABM).
+
+moveInwardQuants(VarsQ,MayElimAll,KB,quant(Quant,X,quant(Q2,Y,FmlAB)),quant(Quant,X,FmlABM)):- !,
+  moveInwardQuants([X|VarsQ],cant(MayElimAll),KB,quant(Q2,Y,FmlAB),FmlABM).
+
+/*
+moveInwardQuants(VarsQ,MayElimAll,KB,quant(Quant,X,FmlAB),quant(Quant,X,FmlABM)):- 
+  (term_each_slot(FmlAB,Var),Var\==X,\+ member_eq(Var,VarsQ)),!,
+  moveInwardQuants([Var,X|VarsQ],cant(MayElimAll),KB,FmlAB,FmlABM).
+*/
+
+moveInwardQuants(VarsQ,MayElimAll,KB,quant(Quant,X,FmlAB),FmlABO):- split_dlog_formula(FmlAB,OP,FmlA,FmlB),
+   (((not_contains_var(X,FmlB)-> (moveInwardQuants(VarsQ,cant(MayElimAll),KB,quant(Quant,X,FmlA),FmlAO),unsplit_dlog_formula(OP,FmlAO,FmlB,FmlABO)));
+   ((not_contains_var(X,FmlA)-> (moveInwardQuants([X|VarsQ],cant(MayElimAll),KB,quant(Quant,X,FmlB),FmlBO),unsplit_dlog_formula(OP,FmlA,FmlBO,FmlABO)));
+    fail))),!.
+
+moveInwardQuants(VarsQ,MayElimAll,KB,quant(Quant,X,FmlAB),quant(Quant,X,FmlABM)):- 
+   moveInwardQuants([X|VarsQ],cant(MayElimAll),KB,FmlAB,FmlABM).
+
+
+moveInwardQuants(VarsQ,MayElimAll,KB,PAB,FmlO):- PAB=..[F|AB], must_maplist(moveInwardQuants(VarsQ,MayElimAll,KB),AB,ABO), FmlO=..[F|ABO].
+
+not_contains_var(X,FmlB):- \+ contains_var(X,FmlB).
+
+split_dlog_formula(FmlAB,OP,FmlA,unused):- FmlAB=..[OP,FmlA],move_inward_sent_op(OP),!.
+split_dlog_formula(FmlAB,OP,FmlA,FmlB):- FmlAB=..[OP,FmlA,FmlB],move_inward_sent_op(OP),!.
+unsplit_dlog_formula(OP,FmlA,U,FmlAB):- U==unused, FmlAB=..[OP,FmlA].
+unsplit_dlog_formula(OP,FmlA,FmlB,FmlAB):- FmlAB=..[OP,FmlA,FmlB].
+
+move_inward_sent_op(&). move_inward_sent_op(v). move_inward_sent_op(<=>). move_inward_sent_op(=>). move_inward_sent_op(~). 
+move_inward_sent_op(nesc). move_inward_sent_op(poss).
+
 
 :- discontiguous(nnf1/5).
 :- discontiguous(axiom_lhs_to_rhs/3).
@@ -540,7 +638,7 @@ nnf1(KB,all(XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
 
 
 % =================================
-% Typed (Exactly 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
+% Typed (Exactly/AtMost/AtLeast 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
 % =================================
 
 nnf1(KB,exactly(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
@@ -550,6 +648,22 @@ nnf1(KB,exactly(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
       (MORE==[] -> 
             nnf(KB,exactly(N,X,NNF),FreeV,FmlO,Paths);
             nnf(KB,exactly(N,X,exactly(N,MORE,NNF)),FreeV,FmlO,Paths)))).
+
+nnf1(KB,atleast(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      nnf(KB,atleast(N,X,isa(X,Col) & NNF),FreeV,FmlO,Paths);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            nnf(KB,atleast(N,X,NNF),FreeV,FmlO,Paths);
+            nnf(KB,atleast(N,X,atleast(N,MORE,NNF)),FreeV,FmlO,Paths)))).
+
+nnf1(KB,atmost(N,XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
+    (get_quantifier_isa(XL,X,Col) -> 
+      nnf(KB,atmost(N,X,isa(X,Col) & NNF),FreeV,FmlO,Paths);
+      (XL=[X|MORE],!,
+      (MORE==[] -> 
+            nnf(KB,atmost(N,X,NNF),FreeV,FmlO,Paths);
+            nnf(KB,atmost(N,X,atmost(N,MORE,NNF)),FreeV,FmlO,Paths)))).
 
 % =================================
 % Typed (Exists ((?x Man)(?y Woman)) ... )
@@ -607,7 +721,7 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    )),!.
 
 % NEEDS WAY
-nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_setting(in_nnf_implies),!,
+nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_set`ting(in_nnf_implies),!,
  must_det_l((
     term_slots(Fml+FreeV+X,Slots),
        delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),    
@@ -883,17 +997,25 @@ nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- fail, NewN is N - 1, !,
     % NEWFORM =  ( ~different(X,Y) v exists(Y, FmlY & atleast(NewN,X,Fml))),
     nnf(KB,NEWFORM,[X,Y|FreeV],NNF,Paths),!.
 
-% AtLeast N:  Non list macro version (Might prefer this?)
+% AtLeast N:  "Non list macro version (Might prefer this?)"
 nnf1(KB,atleast(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
     subst_except(Fml,X,Y,FmlY),        
     NEWFORM = exists(Y, (FmlY & different(X,Y) & atleast(NewN,X,Fml))),
     nnf(KB,NEWFORM,FreeV,NNF,Paths),!.
 
-% AtMost 1: "There may never be 2 (that is X, Y are different) and have Fml be true"
-nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- N==1, !, 
-    subst_except(Fml,X,Y,FmlY),
-   NEWFORM = ( ~( exists(X,Fml) & exists(Y,FmlY) & different(X,Y) ) ),
+% AtMost 0: "There may never be even 1 and have Fml be true"
+nnf1(KB,atmost(N,X,FmlIn),FreeV,NNF,Paths):- N==0, !, 
+   nnf(KB,FmlIn,FreeV,Fml,_),
+   NEWFORM = ( ~( exists(X,Fml) )),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
+% AtMost 1: "There may never be 2 (that is X, Y are different) and have Fml be true"
+nnf1(KB,atmost(N,X,FmlIn),FreeV,NNF,Paths):- N==1, !, 
+   nnf(KB,FmlIn,FreeV,Fml,_),
+    subst_except(Fml,X,Y,FmlY),
+  %  NEWFORM = (( exists(X,Fml)) => ~( exists(Y,FmlY)  & different(X,Y) )),
+   NEWFORM = ~(( Fml & FmlY & different(X,Y))),
+   nnf(KB,NEWFORM,[X,Y|FreeV],NNF,Paths).
 
 % AtMost N: "If there are AtLeast N then  There Exists No More"
 nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- fail,  % wont work due to ~(atleast) = atmost (creating a loop (when in NNF))
@@ -907,6 +1029,12 @@ nnf1(KB,atmost(N,X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
    NEWFORM = (exists(Y, FmlY) => atmost(NewN,X,Fml)),
   nnf(KB,~different(X,Y) v NEWFORM,FreeV,NNF,Paths).
 
+
+% Exactly 0: "There may never be even 1 and have Fml be true"
+nnf1(KB,exactly(N,X,FmlIn),FreeV,NNF,Paths):- N==0, !, 
+   nnf(KB,FmlIn,FreeV,Fml,_),
+   NEWFORM = ( ~( exists(X,Fml) )),
+   nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
 % Exactly N: "There exists 1 more than the exact 1 smaller group"
 nnf1(KB,exactly(N,X,Fml),FreeV,NNF,Paths):- number(X), N>1, NewN is N - 1, !,
@@ -1073,6 +1201,8 @@ nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),
 
 	 Fml = (atleast(N,X,F)) -> Fml1 = atmost(N,X,F);
 	 Fml = (atmost(N,X,F)) -> Fml1 = atleast(N,X,F);
+         Fml = (quant(atleast(N),X,F)) -> Fml1 = quant(atmost(N),X,F);
+         Fml = (quant(atmost(N),X,F)) -> Fml1 = quant(atleast(N),X,F);
 
 	 Fml = ((A v B)) -> Fml1 = ( ~( A) &  ~( B) );
 	 Fml = ((A & B)) -> Fml1 = ( ~( A) v  ~( B) );
@@ -1700,11 +1830,11 @@ pnf(KB, IN,  _,              OUT):- is_list(IN),!, must_maplist(pnf(KB),IN,OUT).
 %pnf(KB, IN, FreeV,              OUT):- once(mnf(IN,MID)),IN\=@=MID, pnf(KB,MID,FreeV,OUT).
 %pnf(KB, IN, FreeV,              OUT):- simplify_cheap(IN,MID), pnf(KB,MID,FreeV,OUT).
 
+pnf(KB,   nesc(BDT,F),Vs,   nesc(BDT,PNF)):- !, pnf(KB,F,Vs, PNF),!.
+
+pnf(KB,   poss(BDT,F),Vs,   poss(BDT,PNF)):- !, pnf(KB,F,Vs, PNF),!.
+
 pnf(KB,   all(X,F),Vs,   all(X,PNF)):- list_to_set([X|Vs],VVs), !, pnf(KB,F, VVs, PNF),!.
-
-pnf(KB,   nesc(X,F),Vs,   nesc(X,PNF)):- !, pnf(KB,F,Vs, PNF),!.
-
-pnf(KB,   poss(X,F),Vs,   poss(X,PNF)):- !, pnf(KB,F,Vs, PNF),!.
 
 pnf(KB,  exists(X,F),Vs,exists(X,PNF)):- list_to_set([X|Vs],VVs), !, pnf(KB,F, VVs, PNF),!.
 
@@ -1985,6 +2115,7 @@ unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 
 poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
+% MAYBE? poss_or_skolem(needs(_)).
 poss_or_skolem(skolem(_,_)).
 poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
@@ -2130,6 +2261,8 @@ demodal_body(_KB,  proven_neg(Head), proven_not_tru(X), \+  X):- Head==X.
 demodal_body(_KB,  proven_tru(_Head), proven_not_neg(X), proven_tru(X)):-!.
 demodal_body(_KB,  proven_neg(_Head), proven_not_tru(X), proven_neg(X)):-!.
 
+% MAYBE ? demodal_body(_KB,  proven_neg(_Head), proven_not_neg(X), proven_tru(X)):-!.
+
 
 demodal_body(_KB,  Head, proven_tru(skolem(X,Y)), {(X=Y)}):- contains_var(X,Head),!.
 demodal_body(_KB,  Head, proven_tru(skolem(_X,Y)), fail):- \+ contains_var(Y,Head),!.
@@ -2150,7 +2283,7 @@ demodal_body(_KB, _Head, proven_not_neg(X), \+ ~ X).
 demodal_body(_KB, _Head, proven_tru(X),  X).
 demodal_body(_KB, _Head, proven_neg(X), ~ X).
 */
-demodal_body(_KB, _Head, proven_not_tru(X), \+ X).
+% demodal_body(_KB, _Head, proven_not_tru(X), \+ X).
 
 demodal_body(_KB, proven_neg(_Head), \+ ~ CMP, true):- compound(CMP),CMP=(skolem(_,_)).
 

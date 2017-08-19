@@ -68,7 +68,8 @@ show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).
 :- export(install_constant_renamer_until_eof/0).
-install_constant_renamer_until_eof:-  call_on_eof(show_missing_renames), set_prolog_flag_until_eof(do_renames,term_expansion).
+install_constant_renamer_until_eof:-  call_on_eof(show_missing_renames), 
+  set_prolog_flag_until_eof(do_renames,term_expansion).
 
 
 
@@ -1749,7 +1750,7 @@ make_functor_h(CycL,F,A):- length(Args,A),CycL=..[F|Args].
 
 saveRenames:-
    retractall(baseKB:rn_new(N,N)),
-    absolute_file_name('/mnt/dddd/workspace/logicmoo_nlu/prolog/pldata/plkb7166/kb7166_pt7_constant_renames_NEW.pl',O),
+    absolute_file_name(pack('logicmoo_nlu/prolog/pldata/plkb7166/kb7166_pt7_constant_renames_NEW.pl'),O),
          tell(O),
          listing(baseKB:rn_new/2),
          told.

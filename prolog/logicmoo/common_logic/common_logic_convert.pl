@@ -61,9 +61,10 @@ sumo_to_pdkb_const(v,v).
 sumo_to_pdkb_const(&,&).
 sumo_to_pdkb_const(~,~).
 sumo_to_pdkb_const(=>,=>).
-sumo_to_pdkb_const(U,U):- upcase_atom(U,U).
 sumo_to_pdkb_const(U,U):- downcase_atom(U,U).
+sumo_to_pdkb_const(U,U):- upcase_atom(U,U).
 sumo_to_pdkb_const(I,O):- if_defined(builtin_rn_or_rn_new(I,O)),!.
+
 
 
 

@@ -655,8 +655,9 @@ relax_term(P,P,Ai,Ac,Bi,Bc):- when_met(pred(nonvar,Ac),when_met(pred(nonvar,Bc),
 differentTerms(A,B):- dif:dif(A,B).
 
 
-:- kb_shared(admittedArgument/3).
+
 /*
+:- kb_local(baseKB:admittedArgument/3).
 baseKB:admittedArgument(P,N,A):-var_non_attvar(P),!,freeze(P,admittedArgument(P,N,A)).
 baseKB:admittedArgument(P,N,A):-var_non_attvar(A),!,freeze(A,admittedArgument(P,N,A)).
 baseKB:admittedArgument(P,N,A):-var_non_attvar(N),!,freeze(N,(number(N),admittedArgument(P,N,A))).

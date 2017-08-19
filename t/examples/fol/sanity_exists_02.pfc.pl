@@ -56,17 +56,18 @@ do_subtest(List):- must_maplist(call,List).
 :- t121.
 
 :- mpred_test(\+ tHeart(_)).
-:- mpred_test(\+ needs(_)).
+%:- mpred_test(\+ needs(_)).
 
 tAnimal(iBob).
 
-:- mpred_test(needs(_)).
+%:- mpred_test(needs(_)).
 :- mpred_test(tHeart(_)).
 
 
 hasOrgan(iBob,iBobsHeart).
 tHeart(iBobsHeart).
 
+:- listing(hasOrgan/2).
 
 
 end_of_file.
