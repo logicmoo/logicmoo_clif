@@ -721,7 +721,7 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    )),!.
 
 % NEEDS WAY
-nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_set`ting(in_nnf_implies),!,
+nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_setting(in_nnf_implies),!,
  must_det_l((
     term_slots(Fml+FreeV+X,Slots),
        delete_eq(Slots,X,SlotsV1),delete_eq(SlotsV1,KB,SlotsV2),    
