@@ -49,7 +49,7 @@ workflow_holder_queue(Atom) ==>
   rtArgsVerbatum(Atom),
   {mpred_trace(Atom)},
   arity(Atom,1),
-  (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
+  (t(Atom,Arg) ==> {nop((write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))))}).
 
 
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
@@ -109,18 +109,21 @@ proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
 isa_poss_t(I, C):- cwc, fail, \+ call_u(~isa(I,C)).
 poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
 
-/*
-:- multifile(proven_not_neg/1).
-:- dynamic(proven_not_neg/1).
-*/
-:- kb_local(baseKB:proven_not_neg/1).
-proven_not_neg(H):- \+ call_u(~ H), \+ proven_neg(H).
 
-:- kb_local(baseKB:proven_not_tru/1).
-proven_not_tru(H):- \+ call_u( H).
+:- kb_shared(baseKB:proven_not_neg/1).
+proven_not_neg(H):-  cwc, \+ call_u(~ H), \+ proven_neg(H).
 
-:- kb_local(baseKB:proven_tru/1).
+:- kb_shared(baseKB:proven_not_tru/1).
+proven_not_tru(H):-  cwc ,\+ call_u( H).
+
+:- kb_shared(baseKB:proven_tru/1).
 proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; call_u(H).
 
-:- kb_local(baseKB:proven_neg/1).
+:- kb_shared(baseKB:proven_neg/1).
+% proven_neg(H):-  cwc, call_u(~H).
 
+:- kb_shared(baseKB:proven_not_poss/1).
+proven_not_poss(H):-  cwc, fail, call_u(~H).
+
+:- kb_shared(baseKB:proven_poss/1).
+proven_poss(H):-  cwc, \+ call_u(~H).

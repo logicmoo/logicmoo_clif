@@ -52,15 +52,9 @@
 :- use_module(library(pfc_lib)).
 :- set_fileAssertMt(baseKB).
 
-:- if(current_predicate(rdf_rewrite:arity/2)).
-:- import(rdf_rewrite:arity/2).
-
-:- else.
-:- multifile(baseKB:arity/2).
-:- kb_local(baseKB:arity/2).
-:- import(baseKB:arity/2).
-
-:- endif.
+%:- if(current_predicate(rdf_rewrite:arity/2)).
+:- kb_global(rdf_rewrite:arity/2).
+%:- endif.
 
 :- use_module(library('filestreams')).
 % ===================================================================

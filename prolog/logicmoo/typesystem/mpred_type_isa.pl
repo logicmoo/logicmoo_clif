@@ -1033,7 +1033,7 @@ isa_w_type_atom(I,T):-
   atom(T),
   \+ dont_call_type_arity_one(T),
   G=..[T,I],!,
-  locally(set_prolog_flag(retry_undefined,false),
+  locally(set_prolog_flag(retry_undefined, none),
      loop_check(find_and_call(G))).
 
 

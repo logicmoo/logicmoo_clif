@@ -226,10 +226,10 @@ never_assert_u(meta_argtypes(tSet(ftAssertable)),badRules).
 :- begin_pfc.
 
 
-% ((prologHybrid(F),arity(F,A))==>{kb_local(F/A)}).
+% ((prologHybrid(F),arity(F,A))==>{kb_shared(F/A)}).
 
-%arity(F,A)/prologHybrid(F)==>{kb_local(F/A)}.
-%prologHybrid(F)/arity(F,A)==>{kb_local(F/A)}.
+%arity(F,A)/prologHybrid(F)==>{kb_shared(F/A)}.
+%prologHybrid(F)/arity(F,A)==>{kb_shared(F/A)}.
 
 
 % ======================================================================================= %
@@ -251,10 +251,10 @@ completelyAssertedCollection(A)==>tSet(A).
 tSet(tIndividual).
 
 % Types/Sets/Collections are not themselves individuals and are usable always as arity 1
-% tCol(A),{sanity(atom(A))} ==> ~tIndividual(A),{decl_type(A), kb_local(A/1)}.
+% tCol(A),{sanity(atom(A))} ==> ~tIndividual(A),{decl_type(A), kb_shared(A/1)}.
 
 ~tIndividual(A):- is_ftNonvar(A), loop_check(tCol(A)).
-tCol(A) ==> {decl_type(A), kb_local(A/1)}.
+tCol(A) ==> {decl_type(A), kb_shared(A/1)}.
 
 
 % KR expressions exists outside of the logic and are types of collections
@@ -314,10 +314,10 @@ ttTypeType(RT)==>completelyAssertedCollection(RT).
 typeType(ttActionType/1). 
 typeType(ttAgentType/1). 
 
-:- kb_local(argQuotedIsa/3).
+:- kb_shared(argQuotedIsa/3).
 
-:- kb_local(typeGenls/2).
-:- kb_local(typeProps/2).
+:- kb_shared(typeGenls/2).
+:- kb_shared(typeProps/2).
 
 
 
@@ -522,7 +522,7 @@ functorIsMacro(tiProps).
 %
 
 :- multifile(mudEquals/2).
-:- kb_local(mudEquals/2).
+:- kb_shared(mudEquals/2).
 :- export(mudEquals/2).
 mudEquals(X,Y):-equals_call(X,Y).
 
@@ -543,7 +543,7 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 %:- set_fileAssertMt(baseKB).
 
-:- kb_local(agent_call_command/2).
+:- kb_shared(agent_call_command/2).
 :- export(agent_call_command/2).
 :- system:import(agent_call_command/2).
 
@@ -562,8 +562,8 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 
 %:- rtrace.
-%:- kb_local(mpred_prop/4).
-:- kb_local(mpred_prop/4).
+%:- kb_shared(mpred_prop/4).
+:- kb_shared(mpred_prop/4).
 %:- nortrace.
 
 
@@ -572,11 +572,11 @@ tAtemporalNecessarilyEssentialCollectionType(ANECT)==>
        decontextualizedCollection(ANECT).
 
 
-:- kb_local(marker_supported/2).
-:- kb_local(pass2/0).
-:- kb_local(sometimesSlow/0).
-:- kb_local(sometimesBuggy/0).
-:- kb_local(redundantMaybe/0).
+:- kb_shared(marker_supported/2).
+:- kb_shared(pass2/0).
+:- kb_shared(sometimesSlow/0).
+:- kb_shared(sometimesBuggy/0).
+:- kb_shared(redundantMaybe/0).
 
 %interArgIsaSome(isa(tRelation,ttRelationType)).
 %interArgIsaSome(isa(tAgent,ttAgentType)).
@@ -584,12 +584,12 @@ tAtemporalNecessarilyEssentialCollectionType(ANECT)==>
 
 % NEVER (P/mpred_non_neg_literal(P) ==> { remove_negative_version(P) } ).
 
-%:- kb_local(mpred_mark_C/1).
-:- kb_local(tCol/1).
+%:- kb_shared(mpred_mark_C/1).
+:- kb_shared(tCol/1).
 
-:- kb_local(subFormat/2).
+:- kb_shared(subFormat/2).
 
-:- kb_local(genlsFwd/2).
+:- kb_shared(genlsFwd/2).
 
 
 % prologHybrid(arity/2).
@@ -686,11 +686,11 @@ conceptuallyRelated("go",actMove).
 arity(aVerbFn,1).
 resultIsa(aVerbFn(ftString),vtVerb).
 
-:- kb_local(genls/2).
+:- kb_shared(genls/2).
 
 
-:- kb_local( ( =@=> ) /2 ).
-:- kb_local( ( macroExpandExact ) /3 ).
+:- kb_shared( ( =@=> ) /2 ).
+:- kb_shared( ( macroExpandExact ) /3 ).
 
 :- op(1185,yfx, ( =@=> )).
 tiProps(C,I)=@=>isa(I,C).
@@ -710,7 +710,7 @@ macroExpandExact(P,PreReq,Q) ==>
 
 isRegisteredCycPred(apply,maplist,3).
 
-:- kb_local(isRegisteredCycPred/3).
+:- kb_shared(isRegisteredCycPred/3).
 
 /*
 :- ((rtrace, dtrace)).

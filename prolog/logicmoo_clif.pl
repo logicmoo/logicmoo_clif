@@ -8,7 +8,11 @@
  Dec 13, 2035
 
  ?- ensure_loaded(library(logicmoo_clif)).
+
+:- set_prolog_flag(verbose_autoload,true).
 */
+
+:- set_prolog_flag_until_eof(retry_undefine,false).
 
 :- user:use_module(library(logicmoo_util_common)).
 
@@ -37,7 +41,7 @@
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 
-:- kif_compile.
+% 
 
 really_load_clif_file(Found, Options):-
   dmsg(really_load_clif_file(Found, Options)),
@@ -57,10 +61,16 @@ maybe_load_clif_file(Spec, Options):-
   really_load_clif_file(Found, Options).
 
 :- fixup_exports.
+
 :- dynamic user:prolog_load_file/2.
 :- multifile user:prolog_load_file/2.
 :- use_module(library(must_trace)).
 user:prolog_load_file(Spec, Options):- maybe_load_clif_file(Spec, Options),!.
+
+:- kif_compile.
+
+
+
 
 
 end_of_file.
@@ -278,7 +288,4 @@ int_assumed_t(P, X, Y, E, F, A, B, C, G, D):- t(P,X,Y),
 
 :- fixup_exports.
 
-
-
-
-
+:- kif_compile.

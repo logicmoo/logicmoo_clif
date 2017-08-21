@@ -978,8 +978,8 @@ kif_to_boxlog(HB,KB,Why,FlattenedO):-
  unnumbervars_with_names((HB00,KB00,Why00),(HB0,KB0,Why0))->
   with_no_kif_var_coroutines(must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO))),!.
 
-:- meta_predicate(ignore_unless(*,*)).
-ignore_unless(A,B):- call(A)->B;true.
+:- meta_predicate(unless_ignore(*,*)).
+unless_ignore(A,B):- call(A)->B;true.
 
 kif_to_boxlog_attvars(kif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
 kif_to_boxlog_attvars(clif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
@@ -996,29 +996,23 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
   maplist(must_det,[
    must_be_unqualified(WffIn0),
    unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
-   ensure_quantifiers(WffIn,Wff),
-   
-   must_be_unqualified(Wff),
-   % KB = WffQ,
    check_is_kb(KB),
-   as_dlog(Wff,Wff665),!,
-   must_be_unqualified(Wff665),
-   to_modal1(KB,Wff665,Wff666),
-   must_be_unqualified(Wff666),
-   qualify_modality(Wff666,Wff6667),   
-   ignore((Wff666\==Wff6667, sdmsg(kif=(Wff666)),sdmsg(qualify_nesc=(Wff6667)))),
-   % add_preconds(Wff6667,Wff6668),
-   adjust_kif(KB,Wff6667,Wff6669),
-   must_be_unqualified(Wff6669),
-   must(nnf(KB,Wff6669,NNF)),
+   as_dlog(WffIn,DLOGKIF),!,
+   sdmsg(kif=(DLOGKIF)),
+   ensure_quantifiers(DLOGKIF,OuterQuantKIF),  
+   un_quant3(KB,OuterQuantKIF,NormalOuterQuantKIF),
+   rejiggle_quants(KB,NormalOuterQuantKIF,FullQuant),unless_ignore(DLOGKIF\==FullQuant, sdmsg(rejiggle_quants=(FullQuant))),
+   % add_preconds(Wff6667,Wff6668),   
+   qualify_modality(FullQuant,ModalKIF), unless_ignore(FullQuant\==ModalKIF, sdmsg(qualify_modality=(ModalKIF))),   
+   adjust_kif(KB,ModalKIF,ModalKBKIF),
+   must(nnf(KB,ModalKBKIF,NNF)),
    (NNF \== poss(~t)),
-   %must_be_unqualified(NNF),
    sdmsg(nnf=(NNF)),
-   %save_wid(Why,kif,Wff),
-   %save_wid(Why,pkif,Wff6669),
+   %save_wid(Why,kif,DLOGKIF),
+   %save_wid(Why,pkif,FullQuant),
    removeQ(KB,NNF,[], UnQ), 
-   ignore_unless(NNF\==UnQ, sdmsg(unq=UnQ)),
-   must(kif_to_boxlog_theorist(Wff666,UnQ,KB,Why,FlattenedOUTRealOUT))]).
+   unless_ignore(NNF\==UnQ, sdmsg(unq=UnQ)),
+   must(kif_to_boxlog_theorist(FullQuant,UnQ,KB,Why,FlattenedOUTRealOUT))]).
 
 
 kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
@@ -1028,9 +1022,9 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
    as_prolog_hook(UnQ666,THIN0),
    to_tnot(THIN0,THIN),
    must_be_unqualified(THIN),
-   % ignore_unless(THIN\==UnQ, sdmsg(th_nnf_in=THIN)),
+   % unless_ignore(THIN\==UnQ, sdmsg(th_nnf_in=THIN)),
    th_nnf(THIN,even,RULIFY),
-   ignore_unless(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(th_nnf_out_negated= DRULIFY)))),
+   unless_ignore(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(th_nnf_out_negated= DRULIFY)))),
    once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,FlattenedM),
    correct_flattened(KB,Why,FlattenedM,FlattenedIO),
@@ -1244,8 +1238,7 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
 :- thread_local(t_l:qualify_modally/0).
 %% qualify_modality( ?P, ?Q) is det.
-qualify_modality(Wff666,Wff666):- \+ t_l:qualify_modally,!.
-qualify_modality(Wff666,Wff666):- current_prolog_flag(logicmoo_modality,false),!.
+qualify_modality(OuterQuantKIF,OuterQuantKIF):- current_prolog_flag(logicmoo_modality,none),!.
 qualify_modality(PQ,PQO):- qualify_nesc(PQ,PQO).
 
 %% qualify_nesc( ?P, ?Q) is semidet.
@@ -1253,48 +1246,39 @@ qualify_modality(PQ,PQO):- qualify_nesc(PQ,PQO).
 %  Q = (poss(P)=>P).
 %
 
-% qualify_nesc(Wff666,Wff666):- \+ t_l:qualify_modally,!.
-qualify_nesc(Wff666,Wff666):- var(Wff666),!.
+% qualify_nesc(OuterQuantKIF,OuterQuantKIF):- \+ t_l:qualify_modally,!.
+qualify_nesc(OuterQuantKIF,OuterQuantKIF):- var(OuterQuantKIF),!.
 qualify_nesc(IN,OUT):-is_list(IN),must_maplist(qualify_nesc,IN,OUT),!.
-qualify_nesc(Wff666,Wff666):- leave_as_is(Wff666),!.
-qualify_nesc(Wff666,Wff666):- contains_modal(Wff666),!.
-% been caught above 
-% qualify_nesc(poss(Wff666),poss(Wff666)):-!.
+qualify_nesc(OuterQuantKIF,OuterQuantKIF):- leave_as_is(OuterQuantKIF),!.
+qualify_nesc(OuterQuantKIF,OuterQuantKIF):- contains_modal(OuterQuantKIF),!.
 qualify_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),qualify_nesc(RQ,RQQ),append(LQ,[RQQ],QQ),PQO=..[F|QQ],!.
+% qualify_nesc(P<=>Q,PQ & QP):- !,qualify_nesc(P=>Q,PQ),qualify_nesc(Q=>P,QP).
 
-% been caught above 
-% qualify_nesc(P=>Q,P=>Q):- (contains_modal(P);contains_modal(Q)),!.
+% full modality
+qualify_nesc(P,(poss(P)=>nesc(P))):- current_prolog_flag(logicmoo_modality,full), !.
 
+
+% part modality
+qualify_nesc( ~(IN), ~(poss(IN))):- current_prolog_flag(logicmoo_modality,part), !.
 %qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
+qualify_nesc(P=>Q,((poss(Q)&nesc(P))=>nesc(Q))):-  current_prolog_flag(logicmoo_modality,part), !.
 %qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
+%qualify_nesc(P,(~nesc(P)=>nesc(P))):- \+ \+ (P = (_ & _) ; P = (_ v _)).
+qualify_nesc(P,nesc(P)):- \+ current_prolog_flag(logicmoo_modality,full), !.
 
-qualify_nesc( ~(IN), nesc(~(IN))):-!.
-% qualify_nesc( ~(IN), ~(poss(IN))):-!.
+% fallback
+qualify_nesc(P,nesc(P)):- !.
 
-% qualify_nesc(P=>Q,(poss(Q)&P)=>Q):-!.
-% qualify_nesc(P,(poss(P)=>(P))):-!.
-
-qualify_nesc(P,(~nesc(P)=>nesc(P))):- \+ \+ (P = (_ & _) ; P = (_ v _)).
-
-%qualify_nesc(P=>Q,nesc(P=>Q)):-!.
-%qualify_nesc(P<=>Q,nesc(P<=>Q)):-!.
-qualify_nesc(P,nesc(P)):-!.
-
-
-% never seen
-qualify_nesc(IN,  nesc(IN)):-!.
-qualify_nesc(nesc(Wff666),(poss(Wff666)=>nesc(Wff666))):-!.
-qualify_nesc(   IN,  nesc(IN)).
-qualify_nesc(P<=>Q,PQ & QP):- !,qualify_nesc(P=>Q,PQ),qualify_nesc(Q=>P,QP).
+% never seen (but realistic)
 qualify_nesc(P=>Q,(PP => (NP & QP =>NQ))):-!, weaken_to_poss(P,PP),weaken_to_poss(Q,QP),add_nesc(P,NP),add_nesc(Q,NQ).
+qualify_nesc((P & Q),(PossPQ => (P & Q))):-  weaken_to_poss(P & Q, PossPQ),!.
 
 /*
 qualify_nesc(IN,poss(IN)):- IN=..[F|_],should_be_poss(F),!.
 qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- quietly(var_or_atomic(Var)),!.
 qualify_nesc(Wff,(poss(Wff) => nesc(Wff))):- leave_as_is_logically(Wff),!.
-qualify_nesc((P & Q),(PQ & (P & Q))):-  weaken_to_poss(P & Q,PQ),!.
 qualify_nesc(Q,(PQ & Q)):-  weaken_to_poss(Q,PQ),!.
-qualify_nesc(Wff666,Wff666):-!.
+qualify_nesc(OuterQuantKIF,OuterQuantKIF):-!.
 % qualify_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(qualify_nesc,INL,OUTL),OUT=..[F|OUTL].
 */
 
@@ -1305,15 +1289,15 @@ qualify_nesc(Wff666,Wff666):-!.
 %
 
 add_nesc(IN,OUT):-is_list(IN),must_maplist(add_nesc,IN,OUT),!.
-add_nesc(Wff666,Wff666):- is_ftVar(Wff666),!.
-add_nesc(Wff666,Wff666):-leave_as_is(Wff666),!.
-add_nesc(Wff666,Wff666):-contains_modal(Wff666),!.
+add_nesc(OuterQuantKIF,OuterQuantKIF):- is_ftVar(OuterQuantKIF),!.
+add_nesc(OuterQuantKIF,OuterQuantKIF):-leave_as_is(OuterQuantKIF),!.
+add_nesc(OuterQuantKIF,OuterQuantKIF):-contains_modal(OuterQuantKIF),!.
 add_nesc( ~(IN), nesc(~(IN))).
 add_nesc(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(add_nesc,INL,OUTL),OUT=..[F|OUTL].
 add_nesc(IN,nesc(IN)).
 /*
-add_nesc(nesc(Wff666),nesc(Wff666)):-!.
-add_nesc(poss(Wff666),poss(Wff666)):-!.
+add_nesc(nesc(OuterQuantKIF),nesc(OuterQuantKIF)):-!.
+add_nesc(poss(OuterQuantKIF),poss(OuterQuantKIF)):-!.
 add_nesc(P<=>Q,O):-!,add_nesc(((P=>Q) & (Q=>P)),O).
 add_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),add_nesc(RQ,RQQ),append(LQ,[RQQ],QQ),PQO=..[F|QQ],!.
 add_nesc(IN,poss(IN)):-IN=..[F|_],should_be_poss(F),!.
@@ -1321,11 +1305,11 @@ add_nesc(P=>Q,((PP & P & QP) =>Q)):-  weaken_to_poss(P,PP),weaken_to_poss(Q,QP).
 
 add_nesc(Q,(PQ & Q)):-  weaken_to_poss(Q,PQ),!.
 add_nesc((P & Q),(PQ & (P & Q))):-  weaken_to_poss(P & Q,PQ),!.
-add_nesc(Wff666,Wff666):-!.
+add_nesc(OuterQuantKIF,OuterQuantKIF):-!.
 */
 
 
-% weaken_to_poss(Wff666,Wff666):-!.
+% weaken_to_poss(OuterQuantKIF,OuterQuantKIF):-!.
 % weaken_to_poss(X,X):-!.
 
 
@@ -1339,7 +1323,7 @@ weaken_to_poss(poss(PQ),poss(PQ)):-!.
 weaken_to_poss(nesc(PQ),poss(PQ)):-!.
 weaken_to_poss(INL,OUTC):-is_list(INL),must_maplist(weaken_to_poss,INL,OUTL),F='&',OUT=..[F|OUTL],correct_arities(F,OUT,OUTC).
 %weaken_to_poss(PQ,PQO):- PQ=..[F,V,Q],is_quantifier(F),weaken_to_poss(Q,QQ),PQO=..[F,V,QQ],!.
-weaken_to_poss(Wff666,poss(Wff666)):- leave_as_is_logically(Wff666),!.
+weaken_to_poss(OuterQuantKIF,poss(OuterQuantKIF)):- leave_as_is_logically(OuterQuantKIF),!.
 weaken_to_poss( ~(IN), poss(~(IN))):-!.
 weaken_to_poss(IN,OUT):-IN=..[F|INL],logical_functor_pttp(F),!,must_maplist(weaken_to_poss,INL,OUTL),OUT=..[F|OUTL].
 weaken_to_poss(IN,poss(IN)).
@@ -1357,7 +1341,7 @@ weaken_to_poss(IN,poss(IN)).
 %
 get_lits(PQ,[]):- var(PQ),!.
 get_lits(PQ,QQ):- PQ=..[F,_Vs,Q],is_quantifier(F),get_lits(Q,QQ).
-get_lits(Wff666,[Wff666]):-leave_as_is_logically(Wff666),!.
+get_lits(OuterQuantKIF,[OuterQuantKIF]):-leave_as_is_logically(OuterQuantKIF),!.
 get_lits( ~(IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(not),OUT,NOUT).
 get_lits(knows(WHO,IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(knows(WHO)),OUT,NOUT).
 get_lits(beliefs(WHO,IN),NOUT):-get_lits(IN,OUT),must_maplist(simple_negate_literal(beliefs(WHO)),OUT,NOUT).
@@ -1464,13 +1448,16 @@ mpred_t_tell_kif(OP2,RULE):-
 
 
 
+:- kb_shared(wid/3).
+
 %% why_to_id( ?Term, ?Wff, ?IDWhy) is det.
 %
 % Generation Of Proof Converted To Id.
 %
 why_to_id(Term,Wff,IDWhy):-  \+ atom(Term),term_to_atom(Term,Atom),!,why_to_id(Atom,Wff,IDWhy),!.
 why_to_id(Atom,Wff,IDWhy):- clause_asserted(wid(IDWhy,Atom,Wff)),!.
-why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhyI,IDWhy),assertz_if_new(wid(IDWhy,Atom,Wff)),!.
+why_to_id(Atom,Wff,IDWhy):- must(atomic(Atom)),gensym(Atom,IDWhyI),kb_incr(IDWhyI,IDWhy),
+  mpred_ain(wid(IDWhy,Atom,Wff)),!.
 
 
 
@@ -1567,7 +1554,9 @@ kif_add([H|T]):- !,kif_add(H),kif_add(T).
 %kif_add((H :- B)):- !, ain((H :- B)).
 %kif_add((P ==> Q)):- !, ain((P ==> Q)). 
 
-kif_add(WffIn):- kif_hook(WffIn),!,show_call(ain(clif(WffIn))). 
+kif_add(WffIn):- kif_hook(WffIn),!,
+  test_boxlog(WffIn),
+  show_call(ain(clif(WffIn))). 
 
 kif_add(WffIn):- show_call(ain(WffIn)),!.
 % unnumbervars_with_names(WffIn,Wff),

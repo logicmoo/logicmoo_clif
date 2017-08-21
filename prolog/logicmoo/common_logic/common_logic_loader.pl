@@ -69,7 +69,8 @@ get_atom_or_kw(ModeIn,Mode):- trim_off(':',ModeIn,Mode).
 kif_process(Var):- is_ftVar(Var),!,wdmsg(warn(var_kif_process(Var))).
 % kif_process(Mode):- atom(Mode),set_kif_mode(Mode).
 kif_process(List):- is_list(List),must(sexpr_sterm_to_pterm(List,Wff)),t_l:kif_action_mode(Mode),!,ignore(show_failure(kif_process(Mode,Wff))),!.
-kif_process(Wff):- t_l:kif_action_mode(Mode),ignore(show_failure(kif_process(Mode,Wff))),!.
+kif_process(Wff):- t_l:kif_action_mode(Mode),!,ignore(show_failure(kif_process(Mode,Wff))),!.
+kif_process(Wff):- ignore(show_failure(kif_process(tell,Wff))),!.
 
 set_kif_mode(ModeIn):- ignore((atom(ModeIn),
   get_atom_or_kw(ModeIn,Mode),

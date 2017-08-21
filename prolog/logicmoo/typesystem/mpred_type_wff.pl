@@ -747,6 +747,16 @@ is_modal(MODAL,BDT):- arg(_,MODAL,ARG),is_modal(ARG,BDT).
 
 
 contains_modal(G):- is_modal(G,_),!.
+contains_modal(G):- contains_modalization_pred(G),!.
+
+
+%% contains_modalization_pred( ?MODAL, ?VALUE2) is semidet.
+%
+% Contains a modalizion predicate like possible_t or known_t
+%
+contains_modalization_pred(MODAL):- compound(MODAL),functor(MODAL,F,_),
+  (atom_concat(_,'_t',F);atom_concat(_,'_f',F);(arg(_,MODAL,ARG),contains_modalization_pred(ARG))).
+
 
 
 

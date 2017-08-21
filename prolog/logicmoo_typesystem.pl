@@ -108,7 +108,13 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 :- wsce(library('logicmoo/typesystem/mpred_type_wff.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("[Mostly Required] logicmoo_clif").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(logicmoo_clif).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("[Mostly Required] logicmoo_plarkc").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- use_module(logicmoo_plarkc).
 :- multifile(baseKB:cycBetween/3).
 :- dynamic(baseKB:cycBetween/3).
@@ -129,14 +135,6 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 
 
 :- must_not_be_pfc_file.
-
-
-:- multifile prolog:message//1, user:message_hook/3.
-% user:message_hook(import_private(pfc_lib,_:_/_),warning,_):- source_location(_,_),!.
-user:message_hook(io_warning(_,'Illegal UTF-8 start'),warning,_):- source_location(_,_),!.
-user:message_hook(T,Type,Warn):- source_location(_,_),
-  memberchk(Type,[error,warning]),once(maybe_message_hook(T,Type,Warn)),fail.
-
 
 :-  call(prolog_statistics:time,((ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
 

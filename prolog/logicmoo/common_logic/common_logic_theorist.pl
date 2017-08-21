@@ -1392,7 +1392,7 @@ self contained.
 \begin{verbatim} */
 
      
-:- dynamic((th_flag)/1).
+:- thread_local(t_l:th_flag_0/1).
 :- op(1150,fx,'default').
 :- op(1150,fx,'fact').
 :- op(1150,fx,constraint).
@@ -1887,14 +1887,14 @@ The following is the definition of these
 
 
 th_set((F,V)):-
-   assert((th_flag((F,V1)):- !,V=V1)),!.
+   call(call,assert((t_l:th_flag_0((F,V1)):- !,V=V1))),!.
 
 
 /* \end{verbatim}
 \index{th_flag}
 \begin{verbatim} */
 
-
+th_flag(NV):-t_l:th_flag_0(NV).
 th_flag((_,off)).
 
 
@@ -1904,7 +1904,7 @@ th_flag((_,off)).
 
 
 th_reset(F) :-
-   ignore(retract(pfclog(th_flag((F,_)) :- !,_=_))).
+   ignore(call(call,retract((t_l:th_flag_0((F,_)) :- !,_=_)))).
 
 
 /* \end{verbatim}

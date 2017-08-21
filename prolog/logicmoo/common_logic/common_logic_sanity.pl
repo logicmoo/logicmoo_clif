@@ -100,7 +100,7 @@ pfclog_compile:-  ain(==> compile_pfclog). %pfclog_show.
 pfclog_show:-  baseKB:listing(pfclog/1).
 
 
-show_kif_to_boxlog(P):- test_boxlog(P),ain(P).
+show_kif_to_boxlog(P):- dmsg(test_boxlog(P)),ain(P).
 
  % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
 test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLogL),sort(BoxLogL,BoxLogR),reverse(BoxLogR,BoxLog),!.
@@ -131,8 +131,8 @@ test_boxlog0(P):-
  \+ \+
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  b_implode_varnames(P),flush_output,
   wdmsg(:- test_boxlog(P)), 
+  b_implode_varnames(P),flush_output,
   test_boxlog(P,O),
   sdmsgf(O),flush_output,
   nop(((boxlog_to_pfc(O,PFC),
@@ -148,8 +148,6 @@ test_boxlog_88(P):-
   with_assert_buffer(with_chaining(ain(P)),Buffer),
   undo_buffer(Buffer),
   sdmsgf(Buffer),flush_output)).
-
-
 
 
 
@@ -232,6 +230,61 @@ default_logic_uses:- must(call(call,uses_logic(logicmoo_kb_refution))).
 %:- autoload.
 
 
+
+subtest_assert(I) :- kif_assert(I).
+
+
+dbanner:- nl,nl,dmsg('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),nl,nl.
+
+test_assert(A):-
+  nop(kif_assert(A)),
+  test_boxlog(A),
+  nop(forall(subtest(T),do_subtest(T))).
+
+
+do_subtest(List):- must_maplist(call,List).
+
+add_test(Name,Assert):-
+  b_implode_varnames(Name+Assert),
+  assert(is_test(Name)),
+   dbanner,dmsg(test_boxlog(Name)),dbanner,
+  test_boxlog(Assert),
+   dbanner,dmsg(completed_test_boxlog(Name)),dbanner,
+   assert(( Name:- mmake, dbanner,dmsg(running_test(Name)),dbanner,
+      test_assert(Assert),
+      dbanner,dmsg(completed_running_test(Name)),dbanner)).
+
+show_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
+show_call_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
+
+
+%= define the example language
+% :- fully_expand_real(change(assert,ain),(example_known_is_success(_30487686):-_30487686),O),writeln(O).
+example_known_is_success(G):-  G.
+example_impossible_is_success(G):-  ~(G).
+example_known_is_failure(G):-  \+ G.
+example_impossible_is_failure(G):- \+  ~(G).
+
+%= define the four truth values
+example_proven_true(G):- example_known_is_success(G),example_impossible_is_failure(G).
+example_proven_false(G):- example_impossible_is_success(G),example_known_is_failure(G).
+example_inconsistent(G):- example_known_is_success(G),example_impossible_is_success(G).
+example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G).
+  
+% :-multifile lmconf:shared_hide_data/1.
+%= lmconf:shared_hide_data(hideMeta):-is_main_thread.
+%= lmconf:shared_hide_data(hideTriggers):-is_main_thread.
+
+% = clear the screen
+% :- shell(cls).
+
+%= save compiled clauses using forward chaining storage (by default)
+%= we are using forward chaining just so any logical errors, performance and program bugs manefest
+%= immediately
+% :- set_clause_compile(fwc).
+
+
+
 :- fixup_exports.
 
 :- if(false).
@@ -244,36 +297,34 @@ default_logic_uses:- must(call(call,uses_logic(logicmoo_kb_refution))).
 :- set_prolog_flag(gc,false).
 :- endif.
 
-
-
+   
 :- if( \+ current_prolog_flag(runtime_debug, 0)).
 
-:- test_boxlog(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
-:- test_boxlog(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
-:- test_boxlog(( ~false_t(PROP) => fallacy_t(PROP) v unknown_t(PROP) v true_t(PROP) )).
-:- test_boxlog(( answerable_t(PROP) <=> askable_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog(( answerable_t(PROP) => true_t(PROP) v false_t(PROP)  )).
-:- test_boxlog(( askable_t(PROP) <=> ~fallacy_t(PROP) )).
-:- test_boxlog(( askable_t(PROP) => true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
-:- test_boxlog(( askable_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog(( asserted_t(PROP) => true_t(PROP) )).
-:- test_boxlog(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~possible_t(PROP) )).   
-:- test_boxlog(( true_t(PROP) & false_t(PROP) => fallacy_t(PROP) )).
-:- test_boxlog(( true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
+:- test_boxlog0(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
+:- test_boxlog0(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
+:- test_boxlog0(( ~false_t(PROP) => fallacy_t(PROP) v unknown_t(PROP) v true_t(PROP) )).
+:- test_boxlog0(( answerable_t(PROP) <=> askable_t(PROP) & ~unknown_t(PROP) )).
+:- test_boxlog0(( answerable_t(PROP) => true_t(PROP) v false_t(PROP)  )).
+:- test_boxlog0(( askable_t(PROP) <=> ~fallacy_t(PROP) )).
+:- test_boxlog0(( askable_t(PROP) => true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
+:- test_boxlog0(( askable_t(PROP) v fallacy_t(PROP) )).
+:- test_boxlog0(( asserted_t(PROP) => true_t(PROP) )).
+:- test_boxlog0(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~possible_t(PROP) )).   
+:- test_boxlog0(( true_t(PROP) & false_t(PROP) => fallacy_t(PROP) )).
+:- test_boxlog0(( true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
 
-:- test_boxlog(( true_t(PROP) => possible_t(PROP) )).
-:- test_boxlog(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
+:- test_boxlog0(( true_t(PROP) => possible_t(PROP) )).
+:- test_boxlog0(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
 
-:- test_boxlog(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v possible_t(PROP) )).
-:- test_boxlog(( false_t(PROP) <=> ~true_t(PROP) & ~possible_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog(( true_t(PROP) => ~false_t(PROP) & possible_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog(( ~asserted_t(PROP) => possible_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog(( ~possible_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
-:- test_boxlog(( unknown_t(PROP) => ~true_t(PROP) & possible_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
-%:- test_boxlog(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
-% :- test_boxlog(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
-
+:- test_boxlog0(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v possible_t(PROP) )).
+:- test_boxlog0(( false_t(PROP) <=> ~true_t(PROP) & ~possible_t(PROP) & ~unknown_t(PROP) )).
+:- test_boxlog0(( true_t(PROP) => ~false_t(PROP) & possible_t(PROP) & ~unknown_t(PROP) )).
+:- test_boxlog0(( ~asserted_t(PROP) => possible_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
+:- test_boxlog0(( ~possible_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
+:- test_boxlog0(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
+:- test_boxlog0(( unknown_t(PROP) => ~true_t(PROP) & possible_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
+%:- test_boxlog0(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
+% :- test_boxlog0(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
 
 :- endif.
 

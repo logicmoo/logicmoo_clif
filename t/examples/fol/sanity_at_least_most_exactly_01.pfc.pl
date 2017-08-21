@@ -1,12 +1,14 @@
 #!/usr/bin/env swipl
 
-:- module(t123,[]).
+% :- module(t123,[]).
 
 :- include(test_header).
-:- module(t123).   
-:- '$set_source_module'(t123).
+%:- module(t123).   
+%:- '$set_source_module'(t123).
 
-% :- process_this_script.
+:- set_prolog_flag(logicmoo_modality,full).
+
+:- process_this_script.
 
 :- statistics.
 
