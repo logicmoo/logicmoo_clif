@@ -99,7 +99,7 @@
 
 :- meta_predicate relaxed_call(0).
 
-% ?- G=(loves(X,Y),~knows(Y,tHuman(X))),relax_goals(G,Out),writeq(Out).
+% ?- G=(loves(X,Y),~knows(Y,tHuman(X))),relax_goal(G,Out),writeq(Out).
 
 :- meta_predicate map_plits(1,*).
 map_lits(P1,Lit):- 
@@ -487,6 +487,7 @@ as_constraint_for(Arg,ISA,FA):- ISA=..[FA,AArg],AArg==Arg,!.
 as_constraint_for(_,FA,FA).
 
 
+add_dom_rev(FA,Arg):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
 
 add_dom(Arg,FA):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
 add_dom0(Var,HintE):- var(Var),
@@ -829,9 +830,8 @@ probably_arity(F,A):-(integer(A)->true;(arity(F,A)*->true;between(1,9,A))).
 %
 :- was_export(iz/2).
 
-iz(X, Dom) :-
-      var(Dom), !,
-      get_attr(X, iz, Dom).
+iz(X, Dom) :- var(Dom), !, get_attr(X, iz, Dom).
+% iz(X, Dom) :- var(Dom), !, (get_attr(X, iz, Dom)->true;put_attr(X, iz, [iziz(Dom)])).
 iz(X, List) :- 
       listify(List,List0),
       list_to_ord_set(List0, Domain),

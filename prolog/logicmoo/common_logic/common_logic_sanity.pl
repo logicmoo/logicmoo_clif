@@ -298,35 +298,33 @@ example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G
 :- endif.
 
    
-:- if( \+ current_prolog_flag(runtime_debug, 0)).
+add_axiom(AX):- ain(baseKB:axiom(AX)).
 
-:- test_boxlog0(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
-:- test_boxlog0(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
-:- test_boxlog0(( ~false_t(PROP) => fallacy_t(PROP) v unknown_t(PROP) v true_t(PROP) )).
-:- test_boxlog0(( answerable_t(PROP) <=> askable_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog0(( answerable_t(PROP) => true_t(PROP) v false_t(PROP)  )).
-:- test_boxlog0(( askable_t(PROP) <=> ~fallacy_t(PROP) )).
-:- test_boxlog0(( askable_t(PROP) => true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
-:- test_boxlog0(( askable_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog0(( asserted_t(PROP) => true_t(PROP) )).
-:- test_boxlog0(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~possible_t(PROP) )).   
-:- test_boxlog0(( true_t(PROP) & false_t(PROP) => fallacy_t(PROP) )).
-:- test_boxlog0(( true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
+:- add_axiom(( ~fallacy_t(PROP) => unknown_t(PROP) v false_t(PROP) v true_t(PROP) )).
+:- add_axiom(( ~unknown_t(PROP) => true_t(PROP) v false_t(PROP)  )).
+:- add_axiom(( ~false_t(PROP) => fallacy_t(PROP) v unknown_t(PROP) v true_t(PROP) )).
+:- add_axiom(( answerable_t(PROP) <=> askable_t(PROP) & ~unknown_t(PROP) )).
+:- add_axiom(( answerable_t(PROP) => true_t(PROP) v false_t(PROP)  )).
+:- add_axiom(( askable_t(PROP) <=> ~fallacy_t(PROP) )).
+:- add_axiom(( askable_t(PROP) => true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
+:- add_axiom(( askable_t(PROP) v fallacy_t(PROP) )).
+:- add_axiom(( asserted_t(PROP) => true_t(PROP) )).
+:- add_axiom(( fallacy_t(PROP) => false_t(PROP) & true_t(PROP) & ~unknown_t(PROP) & ~possible_t(PROP) )).   
+:- add_axiom(( true_t(PROP) & false_t(PROP) => fallacy_t(PROP) )).
+:- add_axiom(( true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )).
 
-:- test_boxlog0(( true_t(PROP) => possible_t(PROP) )).
-:- test_boxlog0(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
+:- add_axiom(( true_t(PROP) => possible_t(PROP) )).
+:- add_axiom(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).
 
-:- test_boxlog0(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v possible_t(PROP) )).
-:- test_boxlog0(( false_t(PROP) <=> ~true_t(PROP) & ~possible_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog0(( true_t(PROP) => ~false_t(PROP) & possible_t(PROP) & ~unknown_t(PROP) )).
-:- test_boxlog0(( ~asserted_t(PROP) => possible_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog0(( ~possible_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
-:- test_boxlog0(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
-:- test_boxlog0(( unknown_t(PROP) => ~true_t(PROP) & possible_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
-%:- test_boxlog0(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
-% :- test_boxlog0(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
-
-:- endif.
+:- add_axiom(( ~true_t(PROP) => false_t(PROP) v fallacy_t(PROP) v possible_t(PROP) )).
+:- add_axiom(( false_t(PROP) <=> ~true_t(PROP) & ~possible_t(PROP) & ~unknown_t(PROP) )).
+:- add_axiom(( true_t(PROP) => ~false_t(PROP) & possible_t(PROP) & ~unknown_t(PROP) )).
+:- add_axiom(( ~asserted_t(PROP) => possible_t(PROP) v false_t(PROP) v fallacy_t(PROP) )).
+:- add_axiom(( ~possible_t(PROP) => false_t(PROP) v fallacy_t(PROP) )).
+:- add_axiom(( possible_t(PROP) => ~false_t(PROP) & ~fallacy_t(PROP)  )).            
+:- add_axiom(( unknown_t(PROP) => ~true_t(PROP) & possible_t(PROP) & ~asserted_t(PROP) & ~false_t(PROP) )).
+%:- add_axiom(( ist(MT1,askable_t(PROP))  & genlMt(MT1,MT2) => ist(MT2, (true_t(PROP) v unknown_t(PROP) v false_t(PROP)  )))).
+% :- add_axiom(( ist(MT1,asserted_t(PROP)) & genlMt(MT1,MT2) => ist(MT2,true_t(PROP)) )).
 
 
 e0 :- any_to_pfc(((

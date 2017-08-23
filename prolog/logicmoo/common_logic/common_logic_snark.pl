@@ -1107,7 +1107,7 @@ get_holds_wrapper(skolem,c).
 get_holds_wrapper(quotedIsa,c).
 get_holds_wrapper(resultIsa,c).
 get_holds_wrapper(quotedArgIsa,c).
-get_holds_wrapper(ISA,c):- tinyKB(isa(ISA,_)).
+get_holds_wrapper(ISA,c):- if_defined(tinyKB(isa(ISA,_)),fail).
 get_holds_wrapper(IST,c):- atom_contains(IST,ist). % relationAllExists ist etc
 get_holds_wrapper(genls,c).
 get_holds_wrapper(admittedArgument,c).

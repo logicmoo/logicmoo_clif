@@ -9,6 +9,10 @@
 :- module(logicmoo_plarkc,[]).
 
 
+:- multifile(baseKB:cycBetween/3).
+:- dynamic(baseKB:cycBetween/3).
+:- baseKB:export(baseKB:cycBetween/3).
+:- system:import(baseKB:cycBetween/3).
 
 :- system:reexport(library(logicmoo_clif)).
 :- '$set_source_module'(baseKB).

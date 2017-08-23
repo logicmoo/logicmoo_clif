@@ -108,18 +108,6 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 :- wsce(library('logicmoo/typesystem/mpred_type_wff.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("[Mostly Required] logicmoo_clif").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- use_module(logicmoo_clif).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("[Mostly Required] logicmoo_plarkc").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- use_module(logicmoo_plarkc).
-:- multifile(baseKB:cycBetween/3).
-:- dynamic(baseKB:cycBetween/3).
-:- baseKB:export(baseKB:cycBetween/3).
-:- system:import(baseKB:cycBetween/3).
 :- set_prolog_flag(pfc_booted,false).
 
 

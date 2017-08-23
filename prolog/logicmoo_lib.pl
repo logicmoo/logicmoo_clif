@@ -47,6 +47,7 @@
 % prolog:message_hook(T,warning,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 
 
+
 /*
 :- flag_call(unsafe_speedups=true).
 :- flag_call(runtime_debug=0).
@@ -238,7 +239,13 @@ maybe_save_lm:- qsave_lm(lm_repl4),!.
 % LOAD CYC KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- load_library_system(library(logicmoo_plarkc)).
+:- use_module(logicmoo_plarkc).
 :- check_clause_counts.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("[Mostly Required] logicmoo_clif").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- use_module(logicmoo_clif).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SETUP CYC KB EXTENSIONS (TINYKB)").

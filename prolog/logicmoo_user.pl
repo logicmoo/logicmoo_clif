@@ -14,7 +14,6 @@
 
 */
 
-
 :- abolish(use_logicmoo_mod/0).
 :- prolog_load_context(file,File),unload_file(File).
 :- asserta(use_logicmoo_mod).
