@@ -922,7 +922,7 @@ add_0(A):-trace_or_throw(fmt('ain/1 is failing ~q.',[A])).
 %
 % Implied Skipped.
 %
-implied_skipped(genls(C0,C0)).
+implied_skipped(genls(C0,C1)):-C0==C1.
 implied_skipped(props(_,[])).
 %implied_skipped(Skipped):-compound(Skipped), not(functor(Skipped,_,1)),fail, (t(Skipped);out_of_mpred_t(Skipped)).
 implied_skipped(Skipped):-baseKB:already_added_this_round(Skipped),(clause_u(Skipped)).
@@ -948,6 +948,7 @@ implied_skipped(Skipped):-baseKB:already_added_this_round(Skipped),(clause_u(Ski
 %
 % Upprop.
 %
+upprop( _O,PropSpecs):- PropSpecs==[],!.
 upprop(Obj,PropSpecs):- upprop(props(Obj,PropSpecs)).
 
 %= 	 	 
@@ -965,6 +966,7 @@ upprop(C0):- ain_expanded(C0).
 %
 % Padd.
 %
+padd( _O,PropSpecs):- PropSpecs==[],!.
 padd(Obj,PropSpecs):- ain_expanded((props(Obj,PropSpecs))).
 % -  padd(Obj,Prop,Value)
 

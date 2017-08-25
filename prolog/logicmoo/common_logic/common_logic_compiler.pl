@@ -725,6 +725,10 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
         nnf(KB,FmlSk,Slots,NNF,Paths)
    )),!.
 
+
+ one interesting trick i started to take  all P and convert to  <>P=[_]P  
+
+
 % NEEDS WAY
 % disabled
 nnf1(KB,exists(X,Fml),FreeV,NNF1NNF2,Paths):- fail, is_skolem_setting(in_nnf_implies),!,

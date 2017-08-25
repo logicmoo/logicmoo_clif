@@ -27,7 +27,7 @@ feature_setting(make_wff,true)==>
 % make_wff(true)==> (P/(compound(P),\+is_ftVar(P)) ==> {with_current_why(P,ignore(\+ deduceEachArgType(P)))}).
 
 % default is false
-==> feature_setting(add_admitted_arguments,true).
+% ==> feature_setting(add_admitted_arguments,true).
 
 % default is false
 ==> feature_setting(admitted_arguments_modal,false).
