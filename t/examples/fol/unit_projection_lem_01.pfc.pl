@@ -16,7 +16,7 @@
 % Rule 4: Cute puppies exists or not (LEM)
 nesc(exists(X,cute_puppy(X)) v ~exists(X,cute_puppy(X))).
 
-~exists(X,
+% ~exists(X,
 
 
 

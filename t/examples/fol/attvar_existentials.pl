@@ -1,7 +1,19 @@
 
 :- module(kb,[]).
+:- use_module(library(pfc)).
+:- include(test_header).
 %:- set_prolog_flag(write_attributes,portray).
 :- listing(ls).
+
+:- install_retry_undefined.
+
+ :- meta_predicate query_ex(*).
+ :- meta_predicate body_call(*).
+ :- meta_predicate bless_ex(*,*).
+ :- meta_predicate add_constraint_ex(*,*,*).
+ :- meta_predicate reify(*).
+ :- meta_predicate add_constraint_ex(*,*,*).
+
 
 :- use_module(library(must_trace)).
 % :- use_module(library(loop_check)).
@@ -12,7 +24,6 @@ kb:real_static.
 kbi:real.
 %:- module(kb).
 :- '$set_source_module'(kb).
-:- make.
 
 :- fav_debug.
 
@@ -134,7 +145,7 @@ body_call(P):- ground(P),!,kbi:loop_check(P).
 body_call(P):- bless(P).
 
 
-is_recorded(A):- recorded(kbi,A),nop(sanity(\+cyclic_term(A))).
+is_recorded(A):- recorded(kbi,A)->nop(sanity(\+cyclic_term(A)));body_call(A).
 
 % WORDED head_call(P):- (kbi:clause(can_bless(P),Body)*->Body; ((fail,kb:bless(P)))),is_recorded(P).
 
@@ -289,6 +300,11 @@ portray_av(Var):- get_attrs(Var,att(N,Attr,_)),one_portray_hook(Var,N:Attr),!.
 % :- assert_ex(male(joe)).
 
 
+% :- test_boxlog(atleast(1,X,man(X))).
+
+at1man:- ((assert_ex((atleast(1,X,man(X)))))).
+ex1man:- ((assert_ex((ex(X,man(X)))))).
+
 :- ((assert_ex((
  ex(God,
     ex(Mary,
@@ -323,8 +339,10 @@ portray_av(Var):- get_attrs(Var,att(N,Attr,_)),one_portray_hook(Var,N:Attr),!.
 
 :- module(kbi).
 :- lr.
+:- make.
+:- ensure_abox(kbi).
 
-:- set_prolog_flag(write_attributes,ignore).
+% :- set_prolog_flag(write_attributes,ignore).
 
 
 

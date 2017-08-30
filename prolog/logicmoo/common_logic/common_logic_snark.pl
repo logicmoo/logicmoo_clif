@@ -1448,7 +1448,7 @@ mpred_t_tell_kif(OP2,RULE):-
 
 
 
-:- kb_shared(wid/3).
+:- kb_shared(baseKB:wid/3).
 
 %% why_to_id( ?Term, ?Wff, ?IDWhy) is det.
 %

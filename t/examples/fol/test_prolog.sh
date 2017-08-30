@@ -15,14 +15,6 @@ if [ "$1" == "-k" ]; then
   shift
 fi
 
-# -f /dev/null
-#// For test_prolog fc_08.pfc
-if [ -f "$1" ] ; then 
-   echo -e "\\n\\nRunning Single Test: " swipl -g "\"set_prolog_flag(runtime_testing,${runtime_testing})\"" -g "\"['""$1""']\"" "${@:2}" -g "\"test_completed\"" "\\n\\n"
-   exec swipl -f .swipl -g "set_prolog_flag(runtime_testing,${runtime_testing})" -g "['""$1""']" "${@:2}" -g "test_completed"
-fi
-
-
 exitPrompt(){
     read -r -n1 -t1 -p "" ans #// clear pending key
     read -r -n1 -t10 -p "Do you wish to continue? [y]es or [N]o: " ans
@@ -67,8 +59,9 @@ for ele2 in "${listOfNames[@]}"
 	   do
 	    retry=0
 		
-		#// Runs the test
-        "$0" $keep_going "${ele}"
+   		#// Runs the test
+        echo "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g test_completed"
+        eval "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g test_completed"
         
 		exitcode=$?                 
         if [ $exitcode -eq $good_exit ]; then
@@ -91,7 +84,8 @@ for ele2 in "${listOfNames[@]}"
 		
         
 		echo "Do you wish to continue? [y]es, [Up/r]etry or [N]o: "
-		read -sN1 -t 0.0001 k1		
+		read -sN1 -r -t 0.0001 k1
+		export k1
 		
 		while true
 		do
@@ -107,9 +101,9 @@ for ele2 in "${listOfNames[@]}"
 				E) break;;
             D) break;;
 			esac
-			echo ans=$ans
+			echo "ans=$ans"
 		done
-      echo ans=$ans
+      echo "ans=$ans"
 
       [ "$ans" == '' ] && [ $exitcode -eq 7 ] && retry=1 && cls && continue  # 7 + enter
 
@@ -123,4 +117,4 @@ for ele2 in "${listOfNames[@]}"
 	done
   done
 exit $exitcode  
-   
+

@@ -25,7 +25,7 @@ ainz_pttp(A):-if_defined(mpred_ainz(A),assertz_new(A)).
 %:- was_export(internal_functor/1).
 %:- was_export(was_pttp_functor/1).
 %:- was_dynamic(was_pttp_functor/1).
-:- kb_shared(wid/3).
+:- kb_shared(baseKB:wid/3).
 :- was_export(int_query/7).
 :- was_dynamic(int_query/7).
 :- was_export(int_not_query/7).

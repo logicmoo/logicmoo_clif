@@ -726,7 +726,7 @@ nnf1(KB,exists(X,Fml),FreeV,NNF,Paths):- is_skolem_setting(in_nnf_implies),!,
    )),!.
 
 
- one interesting trick i started to take  all P and convert to  <>P=[_]P  
+%  one interesting trick i started to take  all P and convert to  <>P=[_]P  
 
 
 % NEEDS WAY

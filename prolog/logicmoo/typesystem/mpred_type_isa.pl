@@ -956,6 +956,8 @@ isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing(I,C).
 isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],notrace(current_predicate(P,G)),!,on_x_fail(call_u(G)).
 isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
 
+
+
 %% isa_asserted_0( ?I, ?T) is nondet.
 %
 %  (isa/2) asserted  Primary Helper.
@@ -997,7 +999,7 @@ isa_asserted_3(I,SType,C):- vwc, var(C),genls(C,SType),nonvar(C),SType\==C,isa_a
 /*
 :- listing(isa_asserted_3).
 :- rtrace(virtualize_source(ge,genls(_A,_B),_O)).
-:- break.
+:- b r e a k.
 */
 
 % isa_asserted_3(I,SType,C):- var(C),!,col_gen(SType,C),nonvar(C),SType\==C,isa_asserted_0(I,C).
@@ -1351,6 +1353,7 @@ assert_compound_isa(I,T,F):- ignore((is_Template(I),locally(infConfidence(vWeak)
 
 
 
+
 %% get_mpred_arg( ?N, ?C, ?E) is nondet.
 %
 % Get Managed Predicate Argument.
@@ -1390,7 +1393,6 @@ call_u_t(DB,P):-call_u(call(DB,P)).
 mpred_type_isa_file.
 
 :- fixup_exports.
-
 
 
 end_of_file.

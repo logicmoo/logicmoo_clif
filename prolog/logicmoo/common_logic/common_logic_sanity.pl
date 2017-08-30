@@ -258,6 +258,16 @@ show_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
 show_call_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
 
 
+
+ :- meta_predicate example_known_is_success(*).
+ :- meta_predicate example_known_is_failure(*).
+ :- meta_predicate example_proven_true(*).
+ :- meta_predicate example_proven_false(*).
+ :- meta_predicate example_inconsistent(*).
+ :- meta_predicate example_unknown(*).
+
+
+
 %= define the example language
 % :- fully_expand_real(change(assert,ain),(example_known_is_success(_30487686):-_30487686),O),writeln(O).
 example_known_is_success(G):-  G.

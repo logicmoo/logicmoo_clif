@@ -78,7 +78,6 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 %:- kb_shared(col_as_unary/1). % written as COL(ELEM)
 
 
-:- kb_shared(mpred_prop/4).
 :- kb_shared(mudToCyc/2).
 :- kb_shared(quotedIsa/2).
 :- kb_shared(rtReformulatorDirectivePredicate/1).
@@ -96,6 +95,23 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
 :- create_prolog_flag(mpred_te,true,[type(term),keep(false)]).
+
+:- kb_shared(baseKB:never_assert_u/1).
+:- kb_shared(baseKB:never_assert_u/2).
+:- kb_shared(baseKB:never_retract_u/1).
+:- kb_shared(baseKB:never_retract_u/2).
+:- kb_shared(baseKB:mpred_prop/4).
+:- kb_shared(baseKB:do_and_undo/2).
+:- kb_shared(baseKB:spft/3).
+:- kb_shared(baseKB:bt/2).
+:- kb_shared(baseKB:hs/1).
+:- kb_shared(baseKB:nt/3).
+:- kb_shared(baseKB:pk/3).
+:- kb_shared(baseKB:pt/2).
+:- kb_shared(baseKB:que/2).
+:- kb_shared(baseKB:pm/1).
+:- kb_shared(baseKB:spft/3).
+:- kb_shared(baseKB:tms/1).
 
 wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))).
 :- wsce(library('logicmoo/typesystem/mpred_agenda.pl')).

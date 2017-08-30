@@ -908,7 +908,7 @@ out_of_mpred_t(HEAD):-clause_safe(HEAD,true)*->true;show_success(why,call_u(fact
 %
 call_rule_db(F,_A,_HEAD):- a(completelyAssertedCollection,F),!,fail.
 call_rule_db(_F,_A,HEAD):- if_defined(use_kif(HEAD,_)),!,call_u(kif_ask(HEAD)).
-call_rule_db(_F,_A,HEAD):- ruleBackward(HEAD,BODY),call_mpred_body(HEAD,BODY).
+call_rule_db(_F,_A,HEAD):- ruleBackward(HEAD,BODY,_Why),call_mpred_body(HEAD,BODY).
 
 :- style_check(+singleton).
 :- style_check(-singleton).

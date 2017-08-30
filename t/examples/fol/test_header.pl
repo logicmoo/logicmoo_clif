@@ -1,4 +1,7 @@
 
+
+:- thread_local(t_l:each_file_term/1).
+
 :- if( exists_source(library(logicmoo_clif)) -> true ;
  ((dynamic(user:file_search_path/2),multifile(user:file_search_path/2),
   absolute_file_name('../../prolog',Dir),asserta(user:file_search_path(library,Dir))))).
