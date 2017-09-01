@@ -103,7 +103,7 @@ pfclog_show:-  baseKB:listing(pfclog/1).
 show_kif_to_boxlog(P):- dmsg(test_boxlog(P)),ain(P).
 
  % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
-test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLogL),sort(BoxLogL,BoxLogR),reverse(BoxLogR,BoxLog),!.
+test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLogL),sort(BoxLogL,BoxLog). % ,reverse(BoxLogR,BoxLog),!.
 
 test_defunctionalize(I):-defunctionalize(I,O),sdmsg(O).
 

@@ -29,15 +29,15 @@
 
 % :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
-:- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
-:- reexport(library('logicmoo/common_logic/common_logic_skolem.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_modal.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_theorist.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(system:library('logicmoo/common_logic/common_logic_sanity.pl')).
-
 
 :- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 

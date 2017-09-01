@@ -470,7 +470,7 @@ iza:attr_unify_hook(DVar, Y):-
    -> put_attr( Y, iza, DVar )
    ;  dom_chk(Y,DVar)).
 
-iza:attr_unify_hook(ArgIsas,Value):- dom_chk(Value,ArgIsas).
+% iza:attr_unify_hook(ArgIsas,Value):- dom_chk(Value,ArgIsas).
 
 
 % Translate attributes from this module to residual goals
@@ -489,6 +489,7 @@ as_constraint_for(_,FA,FA).
 
 add_dom_rev(FA,Arg):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
 
+add_dom(Arg,FA):- is_list(FA),!,maplist(add_dom(Arg),FA).
 add_dom(Arg,FA):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
 add_dom0(Var,HintE):- var(Var),
   (get_attr(Var,iza,HintL) ->min_dom(HintE,HintL,Hint);Hint=[HintE]), !,
@@ -509,8 +510,12 @@ dom_chk(E,Cs):- once(dom_call(E,Cs)).
 %
 % Isac Gen.
 %
-dom_call(Y, [H|List]):- !,dom_call0(Y,H),dom_call(Y, List).
+dom_call(Y, [H|List]):- ground(Y),!,dom_call0(Y,H),!,dom_call00(Y, List).
+dom_call(Y, [H|List]):- !,maplist(dom_call0(Y),[H|List]).
 dom_call(_, _).
+
+dom_call00(Y, [H|List]):-!,dom_call0(Y,H),!,dom_call00(Y, List).
+dom_call00(_, _).
 
 dom_call0(Y,H):- atom(H),!,isa(Y,H).
 dom_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H),!.

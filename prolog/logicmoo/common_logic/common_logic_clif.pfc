@@ -114,7 +114,11 @@ poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
 :- dynamic(proven_not_neg/1).
 */
 :- kb_local(baseKB:proven_not_neg/1).
-proven_not_neg(H):- \+ call_u(~ H), \+ proven_neg(H).
+proven_not_neg(H):- compound(H), H=..[F,A,B], proven_tru(poss_t(F,A,B)),!.
+proven_not_neg(H):- \+ proven_neg(H), \+ call_u(~ H).
+
+:- kb_local(baseKB:proven_not_poss/1).
+proven_not_poss(H):- proven_not_tru(H).
 
 :- kb_local(baseKB:proven_not_tru/1).
 proven_not_tru(H):- \+ call_u( H).

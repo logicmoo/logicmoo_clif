@@ -1,90 +1,6 @@
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/mpred/mpred_type_wff.pl
-%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
-:- module(mpred_type_wff,
-          []).
-/*
-            head_singletons/2, head_singles0/2,head_singles01/2,
 
-            call_last_is_var/1,
-            is_quantifier/1,
-            same_var/2,
-            contains_negs/1,
-            contains_no_negs/1,
-            contains_t_var/3,
-            contains_type_lits/3,
-            contains_var_lits/3,
-            correct_negations/3,
-            current_hilog/1,
-            defunctionalize/2,
-            defunctionalize/3,
-            ensure_quantifiers/2,
-            function_to_predicate/3,
-            get_isa/3,
-            get_isa0/3,
-            get_kv/3,
-            get_pred/2,
-            hilog_functor/1,
-            fresh_varname/2,
-            logical_functor_pttp/1,
-            pttp_nnf_pre_clean_functor/3,
-            isBodyConnective/1,
-            isEntityFunction/3,
-            isEntitySlot/1,
-            isEntityref/2,
-            isHiddenSlot/1,
-            isLiteralTerm/1,
-            isLiteralTerm_util/1,
-            isNonCompound/1,
-            isNonVar/1,
-            isObject/2,
-            isQualifiableAs/3,
-            isQualifiableAsClass/1,
-            isQualifiedAndKnownAs/3,
-            isQualifiedAndVarAndUnifiable/3,
-            isQualifiedAndVarAs/3,
-            isQualifiedAs/3,
-            isQualifiedAs/4,
-            % isSlot/1,
-            isSlot/2,
-            isVarObject/1,
-            isVarObject/2,
-            isVarProlog/1,
-            is_2nd_order_holds/1,
-            is_colection_name/3,
-            is_ftEquality/1,
-            is_function/1,
-            is_function_expr/2,
-            has_function/2,
-            is_function_pfa/4,
-            is_holds_false/1,
-            is_holds_false0/1,
-            is_holds_true/1,
-            is_holds_true0/1,
-            is_holds_true_not_hilog/1,
-            is_log_op/1,
-            is_log_sent/1,
-            is_logical_functor0/1,
-            is_modal/2,
-            is_neg/1,
-            is_pfc_clause/1,
-            is_pos/1,
-            is_prolog_clause/1,
-            is_sentence_functor/1,
-            is_svo_functor/1,
-            kb_nlit/2,
-            lastImproperMember/3,
-            leave_as_is/1,
-            leave_as_is_db/1,
-            leave_as_is_functor/1,
-            logical_functor_ft/1,            
-            non_assertable/2,
-            not_log_op/1,
-            prequent/1,
-            quant_singles/4,
-            set_is_lit/1,
-            subst_except/4,
-            wrap_in_neg_functor/3
-         */
+:- module(mpred_type_wff, []).     
 
 %:- include('mpred_header.pi').
 
@@ -96,8 +12,6 @@
 % Dec 13, 2035
 %
 */
-
-%:- endif.
 
 :- meta_predicate 
         call_last_is_var(0).
@@ -625,24 +539,48 @@ is_quant_f(Q):- arg(_,v(no,some,one,two),Q).
 
 
 
-%% defunctionalize( ?Wff, ?WffO) is semidet.
+
+
+
+/*
+
+
+  defunctionalize( +FmlIn, -FmlOut, [options...]).
+
+
+   converts terms like...
+
+         loves(joe,mary)
+
+   Into...
+
+         poss(loves(joe,mary)) => nesc(loves(joe,mary)).
+
+   settings are...
+
+*/
+
+
+
+%% defunctionalize( ?Wff, ?WffO) is det.
 %
 % Defunctionalize.
 %
+
 defunctionalize((H:-B),WffO):- nonvar(H),!,defunctionalize(':-',(H:-B),WffO),!.
 defunctionalize(Wff,WffO):- defunctionalize('=>',Wff,WffO),!.
 % defunctionalize(Wff,WffO):- locally(t_l:dont_use_mudEquals,defunctionalize(',',Wff,WffO)).
 
 defunctionalize_each(Wff,WffO):-must_maplist(defunctionalize,Wff,WffO).
 
-%% defunctionalize( ?OP, ?Wff, ?WffO) is semidet.
+%% defunctionalize( ?OP, ?Wff, ?WffO) is det.
 %
 % Defunctionalize.
 %
 defunctionalize(OP ,Wff,WffO):- defunctionalize_op(OP,Wff,WffM),!,WffO=WffM.
 
 
-defunctionalize_op(OP,WffO,WffO):- not_ftCompound(WffO),!.
+defunctionalize_op(_OP,WffO,WffO):- not_ftCompound(WffO),!.
 defunctionalize_op(OP,(H:- B),WffO):- 
    notrace(defunctionalize_did(OP,B,PREB,POSTB,Function,NewVar)),
    subst(H,Function,NewVar,HH),
@@ -650,8 +588,7 @@ defunctionalize_op(OP,(H:- B),WffO):-
    (HH\==H -> defunctionalize(OP,(HH:- (ignore(PREB),POSTB)),WffO);
    (Count>1 -> defunctionalize(OP,(H:- (POSTB , ignore(PREB))),WffO);
      defunctionalize(OP,(H:- (POSTB)),WffO))).
-
-  
+ 
 
 defunctionalize_op(OP,(H:- B),WffO):- 
    notrace(defunctionalize_did(OP,H,PREH,POSTH,Function,NewVar)),!,
@@ -677,6 +614,8 @@ defunctionalize_did(OP,Wff,PredifiedFunction,NextWff,Function,NewVar):-
   notrace(\+ has_function(OP,Function)),
   must(notrace((function_to_predicate(Function,NewVar,PredifiedFunction),
   subst(Wff,Function,NewVar,NextWff)))),!.
+
+
 
 is_precond_like(Var):- \+ compound(Var),!.
 is_precond_like(SubTerm):- is_ftEquality(SubTerm),!.
@@ -873,6 +812,7 @@ leave_as_is_functor('skolem').
 leave_as_is_functor('$VAR').
 leave_as_is_functor('kbMark').
 leave_as_is_functor('z_unused').
+leave_as_is_functor('wid').
 leave_as_is_functor('genlMt').
 % leave_as_is_functor('{}').
 leave_as_is_functor(F):-cheaply_u(rtArgsVerbatum(F)).

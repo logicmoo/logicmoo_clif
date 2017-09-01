@@ -6,7 +6,7 @@
 
 :- listing(ls).
 :- '$set_source_module'(kb).
-:- install_retry_undefined.
+% :- install_retry_undefined(false).
 
 
  :- meta_predicate query_ex(*).
