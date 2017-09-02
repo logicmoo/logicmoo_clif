@@ -603,6 +603,46 @@ producing(H)==>{predicate_property(H,defined)->true;show_call(must(kbi_shared(H)
 
 end_of_file.
 
+
+kbi:  ?- man(X).
+add_dom(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), nameOf(X, "John")]) ;
+add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "John")]) ;
+add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "Joe")]) ;
+add_dom(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), nameOf(X, "Joe")]) ;
+add_dom(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
+false.
+
+kbi:  ?- female(X).
+add_dom(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), nameOf(X, "Pat")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleIsExists_0FnSk)]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(OBJ478, X)]),
+add_dom(OBJ478, [man, made_skolem(OBJ478, skIsJohnNameOf_0FnSk), nameOf(OBJ478, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(OBJ5760, X)]),
+add_dom(OBJ5760, [man, made_skolem(OBJ5760, skIsExistsNameOf_0FnSk), nameOf(OBJ5760, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(OBJ9002, X)]),
+add_dom(OBJ9002, [man, child, made_skolem(OBJ9002, skIsChildIsExists_0FnSk), nameOf(OBJ9002, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(OBJ12140)), nameOf(OBJ12140, childOf(X)), mother(OBJ12140, X)]) ;
+false.
+
+kbi:  ?- room(X).
+add_dom(X, [room, made_skolem(X, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(X, "TreeThirty")]) ;
+add_dom(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
+add_dom(X, [room, made_skolem(X, skIsOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
+false.
+
+kbi:  ?- door(X).
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(OBJ17852)), has(OBJ17852, X)]),
+add_dom(OBJ17852, [room, made_skolem(OBJ17852, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(OBJ17852, "TreeThirty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(OBJ18902)), has(OBJ18902, X)]),
+add_dom(OBJ18902, [room, made_skolem(OBJ18902, skIsRoomOneTwentyNameOf_0FnSk), nameOf(OBJ18902, "OneTwenty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(OBJ21350)), has(OBJ21350, X)]),
+add_dom(OBJ21350, [room, made_skolem(OBJ21350, skIsOneTwentyNameOf_0FnSk), nameOf(OBJ21350, "OneTwenty"), made_skolem(OBJ21350, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(OBJ21350, "TreeThirty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(OBJ22760)), has(OBJ22760, X)]),
+add_dom(OBJ22760, [room, made_skolem(OBJ22760, skIsOneTwentyNameOf_0FnSk), nameOf(OBJ22760, "OneTwenty"), made_skolem(OBJ22760, skIsRoomOneTwentyNameOf_0FnSk)]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(OBJ23672)), has(OBJ23672, X)]),
+add_dom(OBJ23672, [room, made_skolem(OBJ23672, skIsOneTwentyNameOf_0FnSk), nameOf(OBJ23672, "OneTwenty")]) ;
+
+
 :- dynamic producer/1.
 :- multifile producer/1.
 :- public producer/1.
@@ -700,43 +740,4 @@ producer(room(A)) :-
 producer(nameOf(A, "OneTwenty")) :-
         call_skolem(A, skIsOneTwentyNameOf_0FnSk).
 
-
-
-kbi:  ?- man(X).
-add_dom(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), nameOf(X, "John")]) ;
-add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "John")]) ;
-add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "Joe")]) ;
-add_dom(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), nameOf(X, "Joe")]) ;
-add_dom(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
-false.
-
-kbi:  ?- female(X).
-add_dom(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), nameOf(X, "Pat")]) ;
-add_dom(X, [female, made_skolem(X, skIsFemaleIsExists_0FnSk)]) ;
-add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28104478, X)]),
-add_dom(_28104478, [man, made_skolem(_28104478, skIsJohnNameOf_0FnSk), nameOf(_28104478, "John")]) ;
-add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28105760, X)]),
-add_dom(_28105760, [man, made_skolem(_28105760, skIsExistsNameOf_0FnSk), nameOf(_28105760, "John")]) ;
-add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28109002, X)]),
-add_dom(_28109002, [man, child, made_skolem(_28109002, skIsChildIsExists_0FnSk), nameOf(_28109002, "John")]) ;
-add_dom(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_28112140)), nameOf(_28112140, childOf(X)), mother(_28112140, X)]) ;
-false.
-
-kbi:  ?- room(X).
-add_dom(X, [room, made_skolem(X, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(X, "TreeThirty")]) ;
-add_dom(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
-add_dom(X, [room, made_skolem(X, skIsOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
-false.
-
-kbi:  ?- door(X).
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28117852)), has(_28117852, X)]),
-add_dom(_28117852, [room, made_skolem(_28117852, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(_28117852, "TreeThirty")]) ;
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28118902)), has(_28118902, X)]),
-add_dom(_28118902, [room, made_skolem(_28118902, skIsRoomOneTwentyNameOf_0FnSk), nameOf(_28118902, "OneTwenty")]) ;
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28121350)), has(_28121350, X)]),
-add_dom(_28121350, [room, made_skolem(_28121350, skIsOneTwentyNameOf_0FnSk), nameOf(_28121350, "OneTwenty"), made_skolem(_28121350, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(_28121350, "TreeThirty")]) ;
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28122760)), has(_28122760, X)]),
-add_dom(_28122760, [room, made_skolem(_28122760, skIsOneTwentyNameOf_0FnSk), nameOf(_28122760, "OneTwenty"), made_skolem(_28122760, skIsRoomOneTwentyNameOf_0FnSk)]) ;
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28123672)), has(_28123672, X)]),
-add_dom(_28123672, [room, made_skolem(_28123672, skIsOneTwentyNameOf_0FnSk), nameOf(_28123672, "OneTwenty")]) ;
 
