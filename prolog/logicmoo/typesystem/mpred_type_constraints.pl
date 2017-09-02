@@ -487,14 +487,28 @@ as_constraint_for(Arg,ISA,FA):- ISA=..[FA,AArg],AArg==Arg,!.
 as_constraint_for(_,FA,FA).
 
 
-add_dom_rev(FA,Arg):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
+add_dom_rev(Prop,Var):- as_constraint_for(Var,Prop,Constraint),!,add_dom0(Var,Constraint).
 
-add_dom(Arg,FA):- is_list(FA),!,maplist(add_dom(Arg),FA).
-add_dom(Arg,FA):- as_constraint_for(Arg,FA,Constraint),!,add_dom0(Arg,Constraint).
-add_dom0(Var,HintE):- var(Var),
-  (get_attr(Var,iza,HintL) ->min_dom(HintE,HintL,Hint);Hint=[HintE]), !,
-   put_attr(Var,iza,Hint).
-add_dom0(Var,Hint):- ignore(show_failure(why,dom_call(Var,Hint))).
+add_dom(Var,Prop):- is_list(Prop),!,maplist(add_dom(Var),Prop).
+add_dom(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,add_dom0(Var,Constraint).
+
+add_dom0(Var,DomE):- var(Var),
+  (get_attr(Var,iza,DomL) ->min_dom(DomE,DomL,Dom);Dom=[DomE]), !,
+   put_attr(Var,iza,Dom).
+add_dom0(Var,Dom):- ignore(show_failure(why,dom_call(Var,Dom))).
+
+
+map_one_or_list(Call2,ArgOrL):- is_list(ArgOrL)->maplist(Call2,ArgOrL);call(Call2,ArgOrL).
+
+has_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(has_dom(Doms,Var),Prop).
+has_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),member(C,Doms).
+
+rem_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(rem_dom(Doms,Var),Prop).
+rem_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),put_attr(Var,iza,NewDoms).
+
+not_has_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(not_has_dom(Doms,Var),Prop).
+not_has_dom(Doms,Var,Prop):- \+ has_dom(Doms,Var,Prop).
+
 
 
 

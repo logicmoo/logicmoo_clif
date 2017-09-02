@@ -127,52 +127,22 @@ unify_two(AN,AttrX,V):- get_attr(V,AN,OAttr),!,OAttr=@=AttrX,!. % ,show_call(OAt
 unify_two(AN,AttrX,V):- put_attr(V,AN,AttrX).
 
 exists:attr_unify_hook(Ex,V):- unify_two(exists,Ex,V).
-v:attr_unify_hook(Ex,V):- unify_two(v,Ex,V).
-v:attr_unify_hook(Ex,V):- (var(V)->unify_two(v,Ex,V);(throw("!nameOf " : Ex=V))).
 
+require_dom(NonVar,Closure):- nonvar(NonVar),!,proven_tru(Closure).
+require_dom(Var,Closure):- attvar(Var),!,add_dom(Var,Closure).
+require_dom(Var,Closure):- add_dom(Var,Closure).
 
-nameOf1(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
-nameOf1(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
-nameOf1(Ex,V):- get_attr(Ex,v,V0),!,nameOf1(V0,V).
-nameOf1(Ex,V):- add_dom(V,nameOf1(Ex,V)),!.
+not_nameOf(Ex,V):- \+ nameOf1(Ex,V).
 
 nameOf(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
 nameOf(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
-nameOf(Ex,V):- get_attr(Ex,v,V0),!,nameOf(V0,V).
-nameOf(Ex,V):- add_dom(V,nameOf(Ex,V)).
-% nameOf(Ex,V):- nonvar(V),!,put_attr(Ex,v,V).
-% nameOf(Ex,V):- freeze(V,nameOf(Ex,V)).
+nameOf(Ex,V):- nonvar(V),has_dom(Ex,nameOf(Ex,V0)),!,text_to_string(V0,V).
+nameOf(Ex,V):- nonvar(V),!,add_dom(Ex,nameOf(Ex,V)),!.
+nameOf(Ex,V):- var(V),has_dom(Ex,nameOf(Ex,V)),!.
 
-/*
-nameOf(Ex,V):- get_attr(Ex,v,V0)->text_to_string(V0,V);put_attr(Ex,v,V).
+nameOf(Ex,V):- producer(nameOf(Ex,V)).
+% nameOf(Ex,V):- var(V),!,add_dom(Ex,nameOf(Ex,V)),!.
 
-nameOf(Ex,V):-get_index_type_of(Ex,TEx),get_index_type_of(V,TV),nameOf(TEx,TV,Ex,V).
-
-nameOf(var,var,Ex,V).
-nameOf(attvar,var,Ex,V).
-nameOf(var,attvar,Ex,V).
-nameOf(attvar,attvar,Ex,V).
-
-get_index_type_of(V,K):-var(V),!,(attvar(V)->K=attvar;K==var).
-get_index_type_of([],list(nil)):-!.
-get_index_type_of([H|_],list(K)):-!,get_index_type_of(H,K).
-get_index_type_of(C,compound(F,A)):-compound(C),!,functor(C,F,A).
-get_index_type_of(A,string):- string(A),!.
-get_index_type_of(A,number):- number(A),!.
-get_index_type_of(A,atom):- atom(A),!.
-get_index_type_of(_,unknown).
-
-gindex_type(var).
-gindex_type(attvar).
-gindex_type(list(_)).
-gindex_type(compound(_,_)).
-gindex_type(string).
-gindex_type(atom).
-gindex_type(number).
-gindex_type(unknown).
-
-:- forall(gindex_type(L),forall(gindex_type(R),writeln(nameOf(L,R,'Ex','V')))).
-*/
 
 
 assign_ex(Ex,V):- kbi:nameOf(Ex,V).
@@ -235,7 +205,7 @@ bless_ex2(_X,P):- \+ ground(P).
 bless_ex(X, P):- nonvar(X)->call(P); true.
 
 
-query_tru(Qry) :- no_repeats(loop_check(prove_tru(Qry))).
+query_tru(Qry) :- no_repeats(loop_check(proven_tru(Qry))).
 
 query_ex(PQ):-   update_changed_files1,
   existentialize(PQ,P),
@@ -302,8 +272,39 @@ assert_ex2(P):-
 
 assert_ex3('$unused'(_):-_).
 assert_ex3(proven_tru(H):- B):- !,assert_ex3((H:- B)).
-assert_ex3(P):- dmsg(P),ain(P).
+assert_ex3(skolem(V,Sk):- B):- !,
+  xform_body(sk_head,V,Sk,B,BO),
+  assert_ex4((make_skolem(V,Sk):- BO)).
 
+assert_ex3(proven_neg(H):- B):- !,assert_ex4((proven_neg(H):- B)).
+assert_ex3((Head:- (skolem(V,Sk)))):- !,
+  assert_ex4((producer(Head):- ((call_skolem(V,Sk))))).
+
+assert_ex3((Head:- (skolem(V,Sk),B))):- !,    
+  xform_body(post_sk,V,Sk,B,BO),
+  assert_ex4((producer(Head):- (call_skolem(V,Sk),BO))).
+
+assert_ex3(P):- assert_ex4(P).
+
+assert_ex4(P):- ain(P),assert_ex5(P).
+
+assert_ex5(P):- dmsg(P).
+
+
+new_sk_dict( _:{vs:_,sks:_,more:_}).
+get_sk_props(X,Dict):- attvar(X),get_attr(X,skp,Dict).
+ensure_sk_props(X,Dict):- sanity(var(X)),(get_sk_props(X,Dict)->true;((new_sk_dict(Dict),put_attr(X,skp,Dict)))).
+
+made_skolem(_,_).
+skolem(X,SK):- var(X),!, \+ has_dom(X,made_skolem(X,SK)), add_dom(X,made_skolem(X,SK)),!,make_skolem(X,SK).
+skolem(E,SK):- nameOf(E,Named),!,(make_skolem(X,SK)*->nameOf(X,Named)).
+    
+xform_body(_ALL,_V,_Sk,B,B):-!.
+xform_body(post_sk,_V,_Sk,B,B).
+xform_body(_Sk_head,_V,_Sk,B,B):-!.
+
+
+call_skolem(X,Y):- skolem(X,Y).
 
 assert_ex(P):-!,assert_ex2(P).
 
@@ -421,7 +422,7 @@ f5:- assert_ex(ex(Child,child(Child))). % would this create a second child?
 
 f6:- assert_ex(ex(P,(man(P);female(P)))).  % Two constraint paths
 
-f7:- assert_ex(ex(P,((man(P);female(P)),nameOf(P,"Pat")))).  % Two constraint paths for a single identity
+f7:- assert_ex(ex(P,((man(P);female(P)),nameOf(P,"Pat")))).  % Two *different* constraint paths for a single identity
 
 f8:- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % same comment as as f9
 f9:- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
@@ -455,6 +456,7 @@ r3:- assert_ex(
        nameOf(Child,childOf(Mother)),       
        mother(Child,Mother))))).
 
+r4:- assert_ex(all(R,implies(room(R),exists(D,and(door(D),has(R,D)))))).
 
 
 tstit(0) :- clr, f1, 
@@ -493,22 +495,84 @@ Examples:
 
 assuming mltt stops short of aristotelian logic which requires intensional equivalence to prove ranking of subtyping (for example a married man is also a man)
 
-   
-*/
+
 :- install_retry_undefined(kbi,error).
 :- install_retry_undefined(kbi,kbi_define).
 :- install_retry_undefined(kbi,error).
-:- install_retry_undefined(kbi,kb_shared).
+
+*/
+
+kbi_shared(MFA):- 
+  get_mfa(MFA,M,F,A),
+  dmsg(kbi_shared(M:F/A)),
+  functor(P,F,A),
+  M:ain(P:-call_tru(P)),
+  kb_shared(M:F/A).
+
+:- install_retry_undefined(kbi,kbi_shared).
 
 
-require_dom(Var,Closure):- add_dom(Var,Closure).
-
-% skolem(X,Y):- no_repeats(loop_check(proven_tru(skolem(X,Y)))).
-:- kb_shared(baseKB:skolem/2).
+:- kb_shared(baseKB:make_skolem/2).
 
 
 :- ensure_abox(kbi).
 
-:- f1.
+:- meta_predicate proven_holds_t(*,?,?).
+proven_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
+:- meta_predicate proven_holds_t(*,?,?,?).
+proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
+/*
+:- multifile(proven_not_neg/1).
+:- dynamic(proven_not_neg/1).
+*/
+:- kb_shared(baseKB:proven_not_neg/1).
+proven_not_neg(H):- compound(H), H=..[F,A,B], proven_tru(poss_t(F,A,B)),!.
+proven_not_neg(H):- \+ proven_neg(H), \+ call_u(~ H).
+
+:- kb_shared(baseKB:proven_not_poss/1).
+proven_not_poss(H):- proven_not_tru(H).
+
+:- kb_shared(baseKB:proven_tru/1).
+
+
+call_tru(X):- arg(1,X,E),call_tru(E,X).
+call_tru(E,X):- \+ ground(E), (has_dom(E,(X))->rem_dom(E,(X)); true),
+   loop_check(no_repeats(producer((X)))),has_dom(E,(X)).
+call_tru(E,X):- (nonvar(X);not_has_dom(E,(X)),!, loop_check(no_repeats(proven_tru((X)))), \+ proven_neg((X)).
+call_tru(_,X):- inherit_above(kbi, (X)).
+
+
+
+man(X):- \+ ground(X),
+    (has_dom(X,man(X))->rem_dom(X,man(X)); true),
+   loop_check(no_repeats(producer(man(X)))),has_dom(X,man(X)).
+man(X):- (nonvar(X);not_has_dom(X,man(X)),!, loop_check(no_repeats(proven_tru(man(X)))), \+ proven_neg(man(X)).
+man(X):- inherit_above(kbi, man(X)).
+
+
+proven_tru(H):- fail, call_u(H), \+ proven_neg(H).
+
+
+
+%proven_tru(H):- \+ ground(H),loop_check(no_repeats(producer(H))).
+%proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
+
+:- kb_shared(baseKB:proven_neg/1).
+
+
+:- kb_shared(baseKB:proven_not_tru/1).
+proven_not_tru(H):- \+ call_u( H).
+% proven_not_tru(man(A)):- trace,dmsg(proven_not_tru(man(A))).
 % :- '$set_source_module'(user).
 % :- kbi:tbl.
+
+%:- mpred_trace_exec.
+
+(((producer(H):- _ )) ==> producing(H)).
+
+producing(H)==>{predicate_property(H,defined)->true;show_call(must(kbi_shared(H)))}.
+
+:- f1.
+:- f7.
+
+:- listing(producing/1).
