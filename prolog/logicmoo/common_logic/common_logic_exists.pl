@@ -111,13 +111,15 @@ already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), Na
 already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=exists(X,_),Str==X.
 
 should_existentialize(Term,~ Sub,Str):-!,compound(Sub), should_existentialize(Term,Sub,Str).
-should_existentialize(Term,Sub,Str) :- compound(Sub),functor(Sub,F,A),
+should_existentialize(Term,Sub,Text) :- compound(Sub),functor(Sub,F,A),
   \+ dont_existentialize_args(Term,F,A),
-  arg(_N,Sub,Text),
-  (string(Text);(existentialize_args(Term,F,A),atom(Text))),
-  text_to_string(Text,Str).
+  arg(N,Sub,Text),
+  (string(Text);(existentialize_args(Term,F,A,N),atom(Text))).
 
-existentialize_args(Term,F,A):- 
+string_better(Str,StrO):- string_lower(Str,StrL),StrL\==Str,!, StrO=Str.
+string_better(Str,StrO):- toCamelcase(Str,StrL),text_to_string(StrL,StrO),!.
+
+existentialize_args(Term,F,A,_):- 
   \+ dont_existentialize_args(Term,F,A),
   do_existentialize_f(F).
 
@@ -140,11 +142,11 @@ get_named_objects(Term,Names):-
    list_to_set(NamesL,Names).
 
 existsentialize_objects([],P,P).
-existsentialize_objects([Name|TODO],P,exists(X,(nameOf(X,Name),NewP))):-
-   name(Atom,Name),
-   subst(P,Atom,X,NextPM),
-   subst(NextPM,Name,X,NextP),
-   existsentialize_objects(TODO,NextP,NewP).
+existsentialize_objects([Name|TODO],P,exists(X,(nameOf(X,Str),NewP))):-
+   text_to_string(Name,Text),string_better(Text,Str),
+   subst(P,Name,X,NextPM),
+   add_var_to_env(Str,X),
+   existsentialize_objects(TODO,NextPM,NewP).
                                     
 
 

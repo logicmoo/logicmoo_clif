@@ -128,7 +128,7 @@ unify_two(AN,AttrX,V):- put_attr(V,AN,AttrX).
 
 exists:attr_unify_hook(Ex,V):- unify_two(exists,Ex,V).
 
-require_dom(NonVar,Closure):- nonvar(NonVar),!,proven_tru(Closure).
+require_dom(NonVar,Closure):- nonvar(NonVar),!,call_tru(NonVar,Closure).
 require_dom(Var,Closure):- attvar(Var),!,add_dom(Var,Closure).
 require_dom(Var,Closure):- add_dom(Var,Closure).
 
@@ -137,8 +137,8 @@ not_nameOf(Ex,V):- \+ nameOf1(Ex,V).
 nameOf(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
 nameOf(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
 nameOf(Ex,V):- nonvar(V),has_dom(Ex,nameOf(Ex,V0)),!,text_to_string(V0,V).
-nameOf(Ex,V):- nonvar(V),!,add_dom(Ex,nameOf(Ex,V)),!.
-nameOf(Ex,V):- var(V),has_dom(Ex,nameOf(Ex,V)),!.
+nameOf(Ex,V):- nonvar(V),!,add_dom(Ex,nameOf(Ex,V)),!,add_var_to_env(V,Ex).
+nameOf(Ex,V):- var(V),has_dom(Ex,nameOf(Ex,V)),!,(nonvar(V)->add_var_to_env(V,Ex);true).
 
 nameOf(Ex,V):- producer(nameOf(Ex,V)).
 % nameOf(Ex,V):- var(V),!,add_dom(Ex,nameOf(Ex,V)),!.
@@ -205,7 +205,7 @@ bless_ex2(_X,P):- \+ ground(P).
 bless_ex(X, P):- nonvar(X)->call(P); true.
 
 
-query_tru(Qry) :- no_repeats(loop_check(proven_tru(Qry))).
+query_tru(Qry) :- nrlc((proven_tru(Qry))).
 
 query_ex(PQ):-   update_changed_files1,
   existentialize(PQ,P),
@@ -299,9 +299,14 @@ made_skolem(_,_).
 skolem(X,SK):- var(X),!, \+ has_dom(X,made_skolem(X,SK)), add_dom(X,made_skolem(X,SK)),!,make_skolem(X,SK).
 skolem(E,SK):- nameOf(E,Named),!,(make_skolem(X,SK)*->nameOf(X,Named)).
     
-xform_body(_ALL,_V,_Sk,B,B):-!.
+xform_body(_ALL,_V,_Sk,B,B):- \+ compound(B),!.
+xform_body(_ALL,_V,_Sk,proven_tru(A),A).
+xform_body(ALL,V,Sk,[A|B],[AA|BB]):- !, xform_body(ALL,V,Sk,A,AA),xform_body(ALL,V,Sk,B,BB).
+xform_body(ALL,V,Sk,(A,B),(AA,BB)):- !, xform_body(ALL,V,Sk,A,AA),xform_body(ALL,V,Sk,B,BB).
+xform_body(ALL,V,Sk,(A;B),(AA;BB)):- !, xform_body(ALL,V,Sk,A,AA),xform_body(ALL,V,Sk,B,BB).
+xform_body(ALL,V,Sk,A,B):- !, A=..[F|AL],xform_body(ALL,V,Sk,AL,BL),B=..[F|BL].
 xform_body(post_sk,_V,_Sk,B,B).
-xform_body(_Sk_head,_V,_Sk,B,B):-!.
+xform_body(sk_head,_V,_Sk,B,B):-!.
 
 
 call_skolem(X,Y):- skolem(X,Y).
@@ -375,16 +380,21 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 
 */
 
-tbl2:- test_boxlog((exists([R,X,Y,T], 
+tbl2:- P = exists([R,X,Y,T], 
   ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_durring(X,T),exists_durring(Y,T), 
-              ~different(joe,X),~different(mary,Y)) => trueIn(T,holds(R,X,Y)))))).
+              ~different(joe,X),~different(mary,Y)) => trueIn(T,holds(R,X,Y)))),
+   must(test_boxlog(P)),
+   must(assert_ex(P)).
 
 
-tbl:- test_boxlog(loves(joe,mary) <=> ((exists([R,X,Y,T], 
+tbl:- 
+   P = (loves(joe,mary) <=> ((exists([R,X,Y,T], 
   ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_durring(X,T),exists_durring(Y,T), 
-              ~different(joe,X),~different(mary,Y)) => trueIn(T,holds(R,X,Y))))))).
+              ~different(joe,X),~different(mary,Y)) => trueIn(T,holds(R,X,Y))))))),
+   must(test_boxlog(P)),
+   must(assert_ex(P)).
 
-
+f(0):- assert_ex(loves(joe,mary)).
 
 :- fixup_exports.
 
@@ -408,28 +418,28 @@ tbl:- test_boxlog(loves(joe,mary) <=> ((exists([R,X,Y,T],
 :- set_prolog_flag(logicmoo_propagation, modal).
 
 
-f1:- assert_ex(man("John")).
+f(1):- assert_ex(man("John")).
+f(1.1):- assert_ex(ex(X,(nameOf(X,"John"), man(X)))).   % same comment as as f8
+f(1.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
 
-f2:- assert_ex(ex(X,(nameOf(X,"John"), man(X)))).   % same comment as as f8
+f(2):- assert_ex(man("Joe")).   % man number 2
+f(2.1):- assert_ex(ex(X,(nameOf(X,"Joe"), man(X)))).   % same comment as as f8
+f(2.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % constraining by identity relly meant only 1
 
-f3:- assert_ex(man("Joe")).   % man number 2
+f(3):- assert_ex(room("TreeThirty")).
 
-f3a:- assert_ex(ex(X,(man(X),nameOf(X,"Joe")))).   % same comment as as f8
+f(4):- assert_ex(room("OneTwenty")).
 
-f4:- assert_ex(ex(Child,(man(Child),child(Child)))).  % Look, its a man child!
+f(5):- assert_ex(ex(Child,(man(Child),child(Child)))).  % Look, its a man child!
+f(5.1):- assert_ex(ex(Child,child(Child))). % would this create a second child?
 
-f5:- assert_ex(ex(Child,child(Child))). % would this create a second child?
-
-f6:- assert_ex(ex(P,(man(P);female(P)))).  % Two constraint paths
-
-f7:- assert_ex(ex(P,((man(P);female(P)),nameOf(P,"Pat")))).  % Two *different* constraint paths for a single identity
-
-f8:- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % same comment as as f9
-f9:- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
-
+f(6):- assert_ex(ex(P,((man(P);female(P)),nameOf(P,"Pat")))).  % Two *different* constraint paths for a single identity
+f(6.1):- assert_ex(ex(P,(man(P);female(P)))).  % Two constraint paths
 
 
-r1:- (assert_ex(
+
+
+r(1):- (assert_ex(
   ex(Mary,
     ex(John,
    (   female(Mary),
@@ -439,7 +449,7 @@ r1:- (assert_ex(
        loves(John,Mary)))))).
 
 
-r2:- assert_ex((
+r(2):- assert_ex((
  ex(God,
     ex(Mary,
    (   female(Mary),
@@ -448,7 +458,7 @@ r2:- assert_ex((
        nameOf(God,"AlFaqa"),
        loves(Mary,God)))))).
 
-r3:- assert_ex(
+r(3):- assert_ex(
   all(Child,
     ex(Mother,
    (   child(Child),
@@ -456,7 +466,7 @@ r3:- assert_ex(
        nameOf(Child,childOf(Mother)),       
        mother(Child,Mother))))).
 
-r4:- assert_ex(all(R,implies(room(R),exists(D,and(door(D),has(R,D)))))).
+r(4):- assert_ex(all(R,implies(room(R),exists(D,and(door(D),has(R,D)))))).
 
 
 tstit(0) :- clr, f1, 
@@ -535,26 +545,40 @@ proven_not_poss(H):- proven_not_tru(H).
 :- kb_shared(baseKB:proven_tru/1).
 
 
+attvar_or_const(C):- nonvar(C);attvar(C).
 call_tru(X):- arg(1,X,E),call_tru(E,X).
 call_tru(E,X):- \+ ground(E), (has_dom(E,(X))->rem_dom(E,(X)); true),
-   loop_check(no_repeats(producer((X)))),has_dom(E,(X)).
-call_tru(E,X):- (nonvar(X);not_has_dom(E,(X)),!, loop_check(no_repeats(proven_tru((X)))), \+ proven_neg((X)).
+   nrlc((producer((X)))),has_dom(E,(X)),attvar_or_const(E).
+call_tru(E,X):- (nonvar(X);not_has_dom(E,(X)),!, nrlc((proven_tru((X)))), \+ proven_neg((X))),attvar_or_const(E).
 call_tru(_,X):- inherit_above(kbi, (X)).
 
 
+loves(X,Y):-  (nonvar(X);nonvar(Y)),
+              (has_dom(X,(loves(X,Y)))->rem_dom(X,(loves(X,Y))); true),
+              (has_dom(Y,(loves(X,Y)))->rem_dom(Y,(loves(X,Y))); true),
+              nrlc(producer(loves(X,Y))),
+              (has_dom(X,(loves(X,Y)));has_dom(Y,(loves(X,Y)))),
+              (attvar_or_const(X),attvar_or_const(Y)).
+loves(X,Y):- (nonvar(X);not_has_dom(X,(loves(X,Y))),!, nrlc((proven_tru((loves(X,Y)))))),
+             (nonvar(Y);not_has_dom(Y,(loves(X,Y))),!, nrlc((proven_tru((loves(X,Y)))))), 
+             \+ proven_neg((loves(X,Y)))),attvar_or_const(X),attvar_or_const(Y).
+loves(X,Y):- inherit_above(kbi, (loves(X,Y))).
+
+
+nrlc(G):- no_repeats(loop_check(G)).
 
 man(X):- \+ ground(X),
     (has_dom(X,man(X))->rem_dom(X,man(X)); true),
-   loop_check(no_repeats(producer(man(X)))),has_dom(X,man(X)).
-man(X):- (nonvar(X);not_has_dom(X,man(X)),!, loop_check(no_repeats(proven_tru(man(X)))), \+ proven_neg(man(X)).
+   nrlc((producer(man(X)))),has_dom(X,man(X)).
+man(X):- (nonvar(X);not_has_dom(X,man(X)),!, nrlc((proven_tru(man(X)))), \+ proven_neg(man(X))).
 man(X):- inherit_above(kbi, man(X)).
 
 
-proven_tru(H):- fail, call_u(H), \+ proven_neg(H).
+proven_tru(H):- loop_check(call_u(H)), \+ show_failure(proven_neg(H)).
 
 
 
-%proven_tru(H):- \+ ground(H),loop_check(no_repeats(producer(H))).
+%proven_tru(H):- \+ ground(H),nrlc((producer(H))).
 %proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
 
 :- kb_shared(baseKB:proven_neg/1).
@@ -572,7 +596,147 @@ proven_not_tru(H):- \+ call_u( H).
 
 producing(H)==>{predicate_property(H,defined)->true;show_call(must(kbi_shared(H)))}.
 
-:- f1.
-:- f7.
+:- forall((clause(f(N),Body),iteger(N)),Body).
+:- forall((clause(r(N),Body),iteger(N)),Body).
 
 :- listing(producing/1).
+
+end_of_file.
+
+:- dynamic producer/1.
+:- multifile producer/1.
+:- public producer/1.
+:- module_transparent producer/1.
+
+producer(A) :-
+        inherit_above(kbi, producer(A)).
+producer(man(A)) :-
+        call_skolem(A, skIsJohnNameOf_0FnSk).
+producer(nameOf(A, "John")) :-
+        call_skolem(A, skIsJohnNameOf_0FnSk).
+producer(man(A)) :-
+        call_skolem(A, skIsExistsNameOf_0FnSk).
+producer(nameOf(A, "John")) :-
+        call_skolem(A, skIsExistsNameOf_0FnSk).
+producer(man(A)) :-
+        call_skolem(A, skIsJoeNameOf_0FnSk).
+producer(nameOf(A, "Joe")) :-
+        call_skolem(A, skIsJoeNameOf_0FnSk).
+producer(nameOf(A, "Joe")) :-
+        call_skolem(A, skIsExistsNameOf_0FnSk).
+producer(room(A)) :-
+        call_skolem(A, skIsRoomTreeThirtyNameOf_0FnSk).
+producer(nameOf(A, "TreeThirty")) :-
+        call_skolem(A, skIsRoomTreeThirtyNameOf_0FnSk).
+producer(room(A)) :-
+        call_skolem(A, skIsRoomOneTwentyNameOf_0FnSk).
+producer(nameOf(A, "OneTwenty")) :-
+        call_skolem(A, skIsRoomOneTwentyNameOf_0FnSk).
+producer(child(A)) :-
+        call_skolem(A, skIsChildIsExists_0FnSk).
+producer(man(A)) :-
+        call_skolem(A, skIsChildIsExists_0FnSk).
+producer(child(A)) :-
+        call_skolem(A, skIsChildExists_0FnSk).
+producer(female(A)) :-
+        call_skolem(A, skIsFemaleIsExistsNameOf_0FnSk),
+        proven_not_tru(man(A)).
+producer(man(A)) :-
+        call_skolem(A, skIsFemaleIsExistsNameOf_0FnSk),
+        proven_not_tru(female(A)).
+producer(nameOf(A, "Pat")) :-
+        call_skolem(A, skIsFemaleIsExistsNameOf_0FnSk).
+producer(female(A)) :-
+        call_skolem(A, skIsFemaleIsExists_0FnSk),
+        proven_not_tru(man(A)).
+producer(man(A)) :-
+        call_skolem(A, skIsFemaleIsExists_0FnSk),
+        proven_not_tru(female(A)).
+producer(female(A)) :-
+        call_skolem(A, skIsFemaleExistsNameOfLoves_0FnSk).
+producer(man(A)) :-
+        call_skolem(A, skIsExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsFemaleExistsNameOfLoves_0FnSk).
+producer(loves(A, B)) :-
+        call_skolem(A, skIsExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsFemaleExistsNameOfLoves_0FnSk).
+producer(nameOf(A, "Mary")) :-
+        call_skolem(A, skIsFemaleExistsNameOfLoves_0FnSk).
+producer(nameOf(A, "John")) :-
+        call_skolem(A, skIsExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsFemaleExistsNameOfLoves_0FnSk).
+producer(female(A)) :-
+        call_skolem(A, skIsGodIsFemaleExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
+producer(god(A)) :-
+        call_skolem(_, skIsGodIsFemaleExistsNameOfLoves_1FnSk(A)),
+        skolem(A, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
+producer(loves(A, B)) :-
+        call_skolem(A, skIsGodIsFemaleExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
+producer(nameOf(A, "AlFaqa")) :-
+        call_skolem(_, skIsGodIsFemaleExistsNameOfLoves_1FnSk(A)),
+        skolem(A, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
+producer(nameOf(A, "Mary")) :-
+        call_skolem(A, skIsGodIsFemaleExistsNameOfLoves_1FnSk(B)),
+        skolem(B, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
+producer(female(A)) :-
+        call_skolem(A,
+                    skIsChildofIsFemaleExistsNameOfMother_0FnSk(_)).
+producer(mother(B, A)) :-
+        call_skolem(A,
+                    skIsChildofIsFemaleExistsNameOfMother_0FnSk(B)).
+producer(nameOf(B, childOf(A))) :-
+        call_skolem(A,
+                    skIsChildofIsFemaleExistsNameOfMother_0FnSk(B)).
+producer(door(A)) :-
+        call_skolem(A, skIsDoorExistsHas_0FnSk(B)),
+        room(B).
+producer(has(B, A)) :-
+        call_skolem(A, skIsDoorExistsHas_0FnSk(B)),
+        room(B).
+producer(room(A)) :-
+        call_skolem(A, skIsOneTwentyNameOf_0FnSk).
+producer(nameOf(A, "OneTwenty")) :-
+        call_skolem(A, skIsOneTwentyNameOf_0FnSk).
+
+
+
+kbi:  ?- man(X).
+add_dom(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), nameOf(X, "John")]) ;
+add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "John")]) ;
+add_dom(X, [man, made_skolem(X, skIsExistsNameOf_0FnSk), nameOf(X, "Joe")]) ;
+add_dom(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), nameOf(X, "Joe")]) ;
+add_dom(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
+false.
+
+kbi:  ?- female(X).
+add_dom(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), nameOf(X, "Pat")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleIsExists_0FnSk)]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28104478, X)]),
+add_dom(_28104478, [man, made_skolem(_28104478, skIsJohnNameOf_0FnSk), nameOf(_28104478, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28105760, X)]),
+add_dom(_28105760, [man, made_skolem(_28105760, skIsExistsNameOf_0FnSk), nameOf(_28105760, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_28109002, X)]),
+add_dom(_28109002, [man, child, made_skolem(_28109002, skIsChildIsExists_0FnSk), nameOf(_28109002, "John")]) ;
+add_dom(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_28112140)), nameOf(_28112140, childOf(X)), mother(_28112140, X)]) ;
+false.
+
+kbi:  ?- room(X).
+add_dom(X, [room, made_skolem(X, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(X, "TreeThirty")]) ;
+add_dom(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
+add_dom(X, [room, made_skolem(X, skIsOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
+false.
+
+kbi:  ?- door(X).
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28117852)), has(_28117852, X)]),
+add_dom(_28117852, [room, made_skolem(_28117852, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(_28117852, "TreeThirty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28118902)), has(_28118902, X)]),
+add_dom(_28118902, [room, made_skolem(_28118902, skIsRoomOneTwentyNameOf_0FnSk), nameOf(_28118902, "OneTwenty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28121350)), has(_28121350, X)]),
+add_dom(_28121350, [room, made_skolem(_28121350, skIsOneTwentyNameOf_0FnSk), nameOf(_28121350, "OneTwenty"), made_skolem(_28121350, skIsRoomTreeThirtyNameOf_0FnSk), nameOf(_28121350, "TreeThirty")]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28122760)), has(_28122760, X)]),
+add_dom(_28122760, [room, made_skolem(_28122760, skIsOneTwentyNameOf_0FnSk), nameOf(_28122760, "OneTwenty"), made_skolem(_28122760, skIsRoomOneTwentyNameOf_0FnSk)]) ;
+add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_28123672)), has(_28123672, X)]),
+add_dom(_28123672, [room, made_skolem(_28123672, skIsOneTwentyNameOf_0FnSk), nameOf(_28123672, "OneTwenty")]) ;
+
