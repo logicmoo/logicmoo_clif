@@ -1,5 +1,15 @@
 
 
+% runtype: default = pfc
+:- if(current_prolog_flag(runtime_testing_module,_)->true;
+  set_prolog_flag(runtime_testing_module,test_header)).
+:- endif.
+
+:- if(( \+ current_prolog_flag(test_header,_),set_prolog_flag(test_header,loaded))).
+
+
+:- if((prolog_load_context(module,user), \+ current_module(pfc_lib))).
+
 :- thread_local(t_l:each_file_term/1).
 
 :- if( exists_source(library(logicmoo_clif)) -> true ;
@@ -20,9 +30,37 @@
 :- if((prolog_load_context(module,user), \+ current_module(pfc_lib))).
 :- module(header_sane,[test_header_include/0]).
 
-:- assert(test_header_include).
+:- endif.
+
+test_header_include.
 
 :- endif.
+
+
+%:- set_prolog_flag(runtime_speed,0). % 0 = dont care
+:- set_prolog_flag(runtime_speed, 0). % 1 = default
+:- set_prolog_flag(runtime_debug, 3). % 2 = important but dont sacrifice other features for it
+:- set_prolog_flag(runtime_safety, 3).  % 3 = very important
+:- set_prolog_flag(unsafe_speedups, false).
+:- set_prolog_flag(logicmoo_message_hook,break).
+
+:- endif.
+
+
+:- if(( \+ current_module(pfc_lib) )).
+:- use_module(library(pfc)).
+:- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
+:- endif.
+
+
+
+
+%:- set_prolog_flag(debug, true).
+%:- set_prolog_flag(gc, false).
+
+:- '$current_source_module'(W), '$set_typein_module'(W).
+:- sanity((defaultAssertMt(Mt1),fileAssertMt(Mt2),source_module(Mt3))),sanity((Mt1==Mt2,Mt1==Mt3)).
+
 
 
 :- set_prolog_flag(nonet,true).
@@ -37,6 +75,7 @@
 :- set_prolog_flag(runtime_safety, 3).  % 3 = very important
 :- set_prolog_flag(unsafe_speedups, false).
 
+:- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
 
 
 :- if(( \+ current_module(pfc_lib) )).
@@ -49,6 +88,7 @@
 %:- use_module(library(logicmoo_user)).
 % logicmoo_clif should maybe load from logicmoo_user
 :- use_module(library(logicmoo_clif)).
+:- use_module(library(script_files)).
 :- set_prolog_flag(runtime_debug, 3). 
 :- endif.
 
@@ -58,8 +98,6 @@
 
 :- endif.
 
-
-:- '$current_source_module'(W), '$set_typein_module'(W).
 
 :-
  op(1199,fx,('==>')), 
@@ -79,21 +117,6 @@
 :- fixup_exports.
 
 
-:- set_prolog_IO(user_input,user_output,user_output).
-
-
-:- prolog_load_context(source,File),((atom_contains(File,'.pfc');atom_contains(File,'.clif'))-> sanity(is_pfc_file) ; must_not_be_pfc_file).
-
-:- if(is_pfc_file).
-
-:- mpred_trace_exec.
-
-:- else.
-
-:- mpred_trace_exec.
-
-:- endif.
-
 
 :-
  op(1199,fx,('==>')), 
@@ -111,9 +134,29 @@
  op(300,fx,'-').
 
 
-:- sanity((defaultAssertMt(Mt1),fileAssertMt(Mt2),source_module(Mt3),Mt1==Mt2,Mt1==Mt3)).
+:- sanity((defaultAssertMt(Mt1),fileAssertMt(Mt2),source_module(Mt3))),sanity((Mt1==Mt2,Mt1==Mt3)).
 
+
+
+:- ensure_loaded(library('logicmoo_clif')).
+:- ensure_loaded(library('logicmoo/common_logic/common_logic_loader.pl')).
 :- assert(t_l:each_file_term(must_kif_process_after_rename)).
+
+:- prolog_load_context(source,File),((atom_contains(File,'.pfc');atom_contains(File,'.clif'))-> sanity(is_pfc_file) ; must_not_be_pfc_file).
+
+:- if(is_pfc_file).
+
+:- mpred_trace_exec.
+
+:- else.
+
+:- mpred_trace_exec.
+
+:- endif.
+
+:- cls.
+
+:- set_prolog_IO(user_input,user_output,user_error).
 
 :- if((prolog_load_context(source,File),(atom_contains(File,'.clif')))).
 

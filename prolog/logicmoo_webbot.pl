@@ -87,6 +87,9 @@ system:kill_unsafe_preds1:-
    lock_predicate(system:halt/0),fail.
 system:kill_unsafe_preds1:- \+ if_defined(getuid(0),true),!.
 system:kill_unsafe_preds1:- app_argv('--unsafe'),!.   
+system:kill_unsafe_preds1:- app_argv('--nonet'),!.   
+system:kill_unsafe_preds1:- \+ app_argv('--irc'), \+ app_argv('--all'),!.
+
 system:kill_unsafe_preds1:-   
    dmsg("kill_unsafe_preds!"),
 % (Thus restoring saved state)

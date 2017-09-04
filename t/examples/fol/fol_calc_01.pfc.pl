@@ -11,6 +11,7 @@
 
   part of why i doing the calculator (outside of a test case for logicmoo/prologmud).. is it has been belived that programs might be hard to express physically
 
+  Load with  ?- consult(pack(logicmoo_base/t/examples/fol/'fol_calc_01.pfc'))
 */
 
 :- include(test_header).

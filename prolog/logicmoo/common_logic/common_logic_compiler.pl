@@ -194,7 +194,7 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 :- include(library('pfc2.0/mpred_header.pi')).
 %:- user:ensure_loaded(library(pfc)).
 %:- endif.
-:- reexport(baseKB:library('logicmoo/common_logic/common_logic_exists.pl')).
+%:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
 
 :- use_module(library(dictoo)).
 :- virtualize_source_file.
@@ -291,7 +291,7 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 
 
 :- create_prolog_flag(logicmoo_propagation, modal,[keep(true)]).   % vs "unit"
-:- create_prolog_flag(logicmoo_modality,full,[keep(true)]).
+:- create_prolog_flag(logicmoo_modality,late,[keep(true)]).
 
 :- thread_local(t_l:using_feature/1).
 is_using_feature(Feature):- t_l:using_feature(Feature).
@@ -477,7 +477,18 @@ nnf1(_KB,Lit,FreeV,Lit,1):- is_list(Lit),!,discovered_term_slots(Lit,FreeV).
 % nnf1(_KB,Lit,FreeV,Lit,1):- is_leave_alone(Lit),!,discovered_term_slots(Lit,FreeV).
 
 % Catch and REwrite Temporal/Modals missed by preprocessor
-nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F)-> Fin \=@= F,!,nnf(KB,F,FreeV,NNF,Paths).
+nnf1(KB,Fin,FreeV,NNF,Paths):- corrected_modal(KB,Fin,F)-> Fin \=@= F,!,nnf1(KB,F,FreeV,NNF,Paths).
+
+
+
+
+
+% =================================
+% Existential Quantification (defined in common_logic_exists)
+% =================================
+
+nnf1(KB,NNF,NewVars,NNF2,Paths):- 
+  nnf_ex(KB,NNF,NewVars,NNF2,Paths),!.
 
 /*
 nnf1(KB,'tColOfCollectionSubsetFn'(Col,'tSetOfTheSetOfFn'(Var,Formulas)),FreeV,Var,2):- is_ftVar(Var), \+ is_ftVar(Col),
@@ -578,14 +589,6 @@ nnf1(KB,all(X,NNF),FreeV,all(X,NNF2),Paths):- is_using_feature(quants_removed_in
 nnf1(KB,all(X,NNF),FreeV, NNF2, Paths):- % is_using_feature(quants_removed_in_NNF),!,     
    add_to_vars(X,FreeV,NewVars),
    nnf(KB,NNF,NewVars,NNF2,Paths).
-
-
-% =================================
-% Existential Quantification (defined in common_logic_exists)
-% =================================
-
-nnf1(KB,NNF,NewVars,NNF2,Paths):- 
-  nnf_ex(KB,NNF,NewVars,NNF2,Paths),!.
 
 % =================================
 %  Temporal LTL/CTL/CTL* Logic
@@ -714,9 +717,6 @@ nnf1(KB, ~( Fml),FreeV,NNF,Paths):- nonvar(Fml),
             (nnf(KB, ~( A),FreeV,NNA,_), nnf(KB, ~( B),FreeV,NNB,_),Fml1 = v(always(CT,NNB), until(CT,NNB,&(NNA,NNB))));
              
          Fml = (exists(X,F)) -> Fml1 = all(X, ~( F));
-
-	 Fml = (atleast(N,X,F)) -> Fml1 = atmost(N,X,F);
-	 Fml = (atmost(N,X,F)) -> Fml1 = atleast(N,X,F);
          Fml = (quant(atleast(N),X,F)) -> Fml1 = quant(atmost(N),X,F);
          Fml = (quant(atmost(N),X,F)) -> Fml1 = quant(atleast(N),X,F);
 
@@ -1104,6 +1104,7 @@ corrected_modal_recurse0(_, INOUT,  INOUT):- !.
 %
 % Corrected Modal.
 %
+corrected_modal(KB,I,O):- expandQuants(KB,I,M)->I\=@=M,rejiggle_quants(KB,M,O).
 corrected_modal(KB,IN,OUTM):-
   corrected_modal0(KB,IN,M),!,must(corrected_modal_recurse0(KB,M,OUT)),!,OUT=OUTM.
 
@@ -1128,6 +1129,7 @@ corrected_modal0(_,BF,nesc(b_d(KB,B,D),F)):- BF=..[B,KB,F],b_d_p(B,D).
 corrected_modal0(_,BF,poss(b_d(KB,B,D),F)):- BF=..[D,KB,F],b_d_p(B,D).
 corrected_modal0(_,CF,cir(ct(KB,CT),F)):- CF=..[CT,KB,F],ct_op(CT).
 corrected_modal0(KB,CF,until(ct(KB,CT),A,B)):- CF=..[CT,KB,A,B],until_op(CT).
+
 
 
 %= 	 	 
@@ -1623,7 +1625,7 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
 unusual_body :- call_u(feature_setting(use_unusual_body,true)),!,dmsg(used(unusual_body)).
 unusual_body :- dmsg(skipped(unusual_body)),!,fail.
 
-%unused_clause('$unused'(C):-_):-nonvar(C),!.
+unused_clause('$unused'(C):-_):-nonvar(C),!.
 %unused_clause((C v _):-_):-nonvar(C),!.
 unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 
@@ -1632,7 +1634,7 @@ poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
 % MAYBE? poss_or_skolem(needs(_)).
 poss_or_skolem(skolem(_,_)).
-poss_or_skolem(P):-arg(_,P,E),is_list(E).
+% poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
 %%% ***
 %%% ****if* PTTP/disjoin

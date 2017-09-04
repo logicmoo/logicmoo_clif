@@ -124,7 +124,11 @@ test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(
 */
 
 :- export(test_boxlog/1).
-test_boxlog(P):- mmake, must_det(test_boxlog0(P)),!.
+test_boxlog(P):- 
+   mmake,  with_output_to(string(S),fmt9(test_boxlog(P))),
+   must(prolog:history(user_input, add(S))),
+   must_det(test_boxlog0(P)),!.
+
 test_boxlogq(P):- mmake, locally(t_l:qualify_modally,must_det(test_boxlog0(P))),!.
   
 test_boxlog0(P):-

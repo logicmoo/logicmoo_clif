@@ -498,6 +498,9 @@ add_dom0(Var,DomE):- var(Var),
 add_dom0(Var,Dom):- ignore(show_failure(why,dom_call(Var,Dom))).
 
 
+:- meta_predicate map_one_or_list(1,?).
+
+
 map_one_or_list(Call2,ArgOrL):- is_list(ArgOrL)->maplist(Call2,ArgOrL);call(Call2,ArgOrL).
 
 has_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(has_dom(Doms,Var),Prop).

@@ -17,7 +17,8 @@ vim: set filetype=md:
 */
 
 :- set_fileAssertMt(baseKB).
-% :- set_defaultAssertMt(baseKB).
+
+:- set_defaultAssertMt(baseKB).
 
 :- kb_shared((if/2,iif/2)).
 
@@ -104,3 +105,46 @@ poss(P) ==>     \+ ~ P, \+ ~poss(P).
 isa_poss_t(I, C):- cwc, fail, \+ call_u(~isa(I,C)).
 poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
 
+
+
+
+:- kb_shared(baseKB:proven_not_tru/1).
+proven_not_tru(H):- \+ call_u( H).
+% proven_not_tru(man(A)):- trace,dmsg(proven_not_tru(man(A))).
+% :- '$set_source_module'(user).
+% :- kbi:tbl.
+
+%:- mpred_trace_exec.
+
+:- kb_shared(baseKB:duce_tru/1).
+:- kb_shared(baseKB:producing/1).
+
+:- mpred_ain(((((duce_tru(H):- _ )) ==> producing(H)))).
+
+:- mpred_ain((producing(H)==>{kbi_define(H)})).
+
+
+:- meta_predicate proven_holds_t(*,?,?).
+proven_holds_t(F, A, B):- nonvar(F),current_predicate(F/2),call(F,A,B).
+:- meta_predicate proven_holds_t(*,?,?,?).
+proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
+/*
+:- multifile(proven_not_neg/1).
+:- dynamic(proven_not_neg/1).
+*/
+:- kb_shared(baseKB:proven_not_neg/1).
+proven_not_neg(H):- compound(H), H=..[F,A,B], proven_tru(poss_t(F,A,B)),!.
+proven_not_neg(H):- \+ proven_neg(H), \+ call_u(~ H).
+
+:- kb_shared(baseKB:proven_not_poss/1).
+proven_not_poss(H):- proven_not_tru(H).
+
+
+:- kb_shared(baseKB:proven_tru/1).
+proven_tru(H):- loop_check(call_u(H)), \+ show_failure(proven_neg(H)).
+%proven_tru(H):- \+ ground(H),nrlc((duce_tru(H))).
+%proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
+
+% :- kb_shared(baseKB:proven_neg/1).
+
+% proven_neg(_):- fail.

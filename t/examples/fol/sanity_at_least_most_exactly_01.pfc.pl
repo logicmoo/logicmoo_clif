@@ -3,12 +3,15 @@
 % :- module(t123,[]).
 
 :- include(test_header).
+:- cls.
 %:- module(t123).   
 %:- '$set_source_module'(t123).
 
 :- set_prolog_flag(logicmoo_modality,full).
 
-:- process_this_script.
+:- use_module(library(script_files)).
+
+% :- process_this_script.
 
 :- statistics.
 

@@ -8,6 +8,9 @@ exitcode=$good_exit
 
 keep_going=""
 runtime_testing=4
+export next_cls=0
+export on_complete=test_completed
+
 
 if [ "$1" == "-k" ]; then
   keep_going="-k"
@@ -38,16 +41,29 @@ exitPrompt(){
                         # "*_f01*.p*" "*_f02*.p*" "*_f03*.p*" "_f04*.p*" "*_f05*.p*" "*_f06*.p*" "*_f07*.p*" "*_f08*.p*" "*_f09*.p*" "*_f10*.p*" "*_f11*.p*" "*_f12*.p*" 
 )                           
 
+kill -9  %2 %3 %4 ; kill -9  %1 %2 %3 %4 
+cls
 
+kill -9  %1 %2 %3 %4 %5 %6
 
-if [ $# -ne 0 ]; then
-    listOfNames=( "$@" )
+if [ $# -ne 0 ] 
+then
+   listOfNames=( "$@" )
+   if [ $# -eq 1 ]
+   then
+      on_complete=true
+   else
+      cls
+   fi
 else
-   cls
+   echo -e "\\n\\nALL TESTs\\n\\n"
 fi
 
-#cls=1
-							 
+
+
+
+
+  			 
 echo -e "\\n\\nRunning Matching Tests: $me $keep_going ${listOfNames[*]}\\n\\n"
 
 for ele2 in "${listOfNames[@]}"
@@ -60,22 +76,23 @@ for ele2 in "${listOfNames[@]}"
 	    retry=0
 		
    		#// Runs the test
-        echo "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g test_completed"
-        eval "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g test_completed"
+        echo "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g $on_complete"
+        eval "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g $on_complete"
         
 		exitcode=$?                 
         if [ $exitcode -eq $good_exit ]; then
-			[ "${cls}" == 1 ] && cls
+			[ "${next_cls}" == 1 ] && cls
 			echo -e "\\n\\nSUCCESS: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"		
 			continue			
 	    fi
-        cls=0
-		
-		[ $exitcode -ne 7 ] && echo -e "\\n\\nFAILED: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"
-      [ $exitcode -eq 7 ] && echo -e "\\n\\nSUCCESS: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"
+        next_cls=0
 
+      [ "$on_complete" == 'on_complete' ] && [ $exitcode -ne 7 ] && echo -e "\\n\\nFAILED: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"
+      [ $exitcode -eq 7 ] && echo -e "\\n\\nSUCCESS: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"
+      [ $exitcode -eq 0 ] && [ "$on_complete" == 'true' ] && echo -e "\\n\\nSUCCESS: $0 ${keep_going} ${ele} (returned ${exitcode})\\n\\n"
       [ $exitcode -eq 6 ] && retry=1 && continue 
-		
+
+      
 		# // 2 -> 1
 		[ $exitcode -eq 2 ] && exit 1
 		 
@@ -105,13 +122,17 @@ for ele2 in "${listOfNames[@]}"
 		done
       echo "ans=$ans"
 
+      [ "$ans" == '' ] && [ $exitcode -eq 0 ] && [ "$on_complete" == 'true' ]  && retry=1 && continue 
+
       [ "$ans" == '' ] && [ $exitcode -eq 7 ] && retry=1 && cls && continue  # 7 + enter
 
 		[ "$ans" == 'y' ] && continue
 		[ "$ans" == 'B' ] && continue # down arrow
 		[ "$ans" == 'A' ] && retry=1 && cls && continue  # up arrow
 		[ "$ans" == 'r' ] && retry=1 && continue 
+      
 		echo "Exiting the script. Have a nice day!"
+
 		exit $exitcode    
 	  done
 	done

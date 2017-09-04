@@ -1,7 +1,7 @@
 :- include(test_header).
 ;; Module zebra5 - Test Zerbra Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
-;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/exactly_one_instance))./
+;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/exactly_one_instance)).
 ;; causes deduction of argument types
 (:- (module exactly_one_instance ()))
 (:- (ensure_loaded (library logicmoo_clif)))
