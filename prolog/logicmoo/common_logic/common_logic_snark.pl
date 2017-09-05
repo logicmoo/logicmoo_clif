@@ -1065,6 +1065,15 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
    kif_optionally_l(true,vbody_sort,FlattenedOUT_FTLOG,FlattenedOUT_FTLOG_SB),
    kif_optionally_l(true,kb_ify(KB),FlattenedOUT_FTLOG_SB,FlattenedOUTRealOUT)]),!.
 
+combine_clauses_with_disjuncts(SET,OUT):-
+  sort(SET,SORTED),combine_clauses_with_disjuncts_0(SORTED,OUT).  
+
+combine_clauses_with_disjuncts_0([],[]).
+combine_clauses_with_disjuncts_0([(H1:-B1),(H2:-B2)|SORTED],OUT):- 
+  H2=@=H1,must(H2=H1),!,combine_clauses_with_disjuncts_0([(H1:- (B2 ; B1))|SORTED],OUT).
+combine_clauses_with_disjuncts_0([S1|SORTED],[S1|OUT]):- 
+ combine_clauses_with_disjuncts_0(SORTED,OUT).
+
 
 is_4th_order(F):- atom_concat('never_',_,F).
 is_4th_order(F):- atom_concat('prove',_,F).

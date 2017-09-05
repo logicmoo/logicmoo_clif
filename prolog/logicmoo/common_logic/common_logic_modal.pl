@@ -324,6 +324,22 @@ demodal_body(KB, Head, (Var, Rest), NEW):- var(Var),!,demodal_body(KB, Head,  Re
 demodal_body(_KB,_Head, poss([infer_by(_)],G), poss(G)).
 demodal_body(_KB,_Head, nesc([infer_by(_)],G), nsec(G)).
 
+
+demodal_body(_KB, _Head, (A ; C), A ):- A==C,!.
+demodal_body(_KB, _Head, (A , C), A ):- A==C,!.
+
+  
+demodal_body(KB, Head, ((A0 , A1) ; (B0 , B1)), OUT):- A0==B0,!, demodal_body(KB, Head, (A1 ; B1), MID),
+   demodal_body(KB, Head, (A0 , MID), OUT).
+
+demodal_body(KB, Head, ((A0 , A1) ; (B0 , B1)), OUT):- A1==B1,!, demodal_body(KB, Head, (A0 ; B0), MID),
+   demodal_body(KB, Head, (MID , B1), OUT).
+  
+
+demodal_body(KB, Head, (A ; B), OUT):- fail, demodal_body(KB, Head, A, AA),demodal_body(KB, Head, B, BB),
+   (A ; B) \== (AA ; BB),!, demodal_body(KB, Head, (AA ; BB), OUT).
+  
+
 demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
 demodal_body(_KB, _Head, (A , B , C), (A , B)):- A==C,!.
 demodal_body(_KB, _Head, (A , B , C), (A , C)):- A==B,!.
