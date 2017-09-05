@@ -134,7 +134,7 @@ add_poss_to(PreCond,Wff6667, (poss(PreCond)=>Wff6667)).
 
 % weaken_to_poss(OuterQuantKIF,OuterQuantKIF):-!.
 % weaken_to_poss(X,X):-!.
-
+                            
 
 
 %% weaken_to_poss( ?PQ, ?PQ) is det.

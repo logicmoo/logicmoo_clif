@@ -27,7 +27,7 @@ vim: set filetype=md:
 % we ensure we are in "pfc" consultation mode (so the syntax rules will define correctly)
 :- file_begin(pfc).
 
-:- kb_shared(wid/3).
+:- kb_shared(baseKB:wid/3).
 
 
 % whenever we know about clif we''ll use the prolog forward chainging system
@@ -119,7 +119,7 @@ proven_not_tru(H):- \+ call_u( H).
 :- kb_shared(baseKB:duce_tru/1).
 :- kb_shared(baseKB:producing/1).
 
-:- mpred_ain(((((duce_tru(H):- _ )) ==> producing(H)))).
+:- mpred_ain(((((deduce_tru(_,H):- _ )) ==> producing(H)))).
 
 :- mpred_ain((producing(H)==>{kbi_define(H)})).
 

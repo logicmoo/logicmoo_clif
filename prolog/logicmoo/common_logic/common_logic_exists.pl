@@ -131,9 +131,12 @@ should_existentialize(Term,Sub,Text) :- compound(Sub),functor(Sub,F,A),
 string_better(Str,StrO):- string_lower(Str,StrL),StrL\==Str,!, StrO=Str.
 string_better(Str,StrO):- toCamelcase(Str,StrL),text_to_string(StrL,StrO),!.
 
-existentialize_args(_Term,_F,1,1).
-existentialize_args(Term,F,A,_):- 
+existentialize_args(_Sub,_Term,_F,1,1).
+existentialize_args(Sub,Term,F,A,_N):- 
   \+ dont_existentialize_args(Term,F,A),
+  arg(_,Sub,Text),
+  \+ string(Text),
+  \+ compound(Text),
   do_existentialize_f(F).
 
 do_existentialize_f(loves).

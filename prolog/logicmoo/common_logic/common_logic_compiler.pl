@@ -1039,6 +1039,7 @@ leave_as_is_logically0(LIST):- is_list(LIST),!, maplist(leave_as_is_logically0,L
 
 :- kb_global(baseKB:workflow_holder_queue/1).
 leave_as_is_logically_fa(meta_argtypes,1).
+leave_as_is_logically_fa(skolem,_).
 leave_as_is_logically_fa({},1).
 leave_as_is_logically_fa(onSpawn,1).
 leave_as_is_logically_fa(F,1):-clause_b(workflow_holder_queue(F)),!.
@@ -1634,6 +1635,7 @@ poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
 % MAYBE? poss_or_skolem(needs(_)).
 poss_or_skolem(skolem(_,_)).
+poss_or_skolem(skolem(_,_,_)).
 % poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
 %%% ***
