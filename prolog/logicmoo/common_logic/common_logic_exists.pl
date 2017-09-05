@@ -126,7 +126,7 @@ should_existentialize(Term,~ Sub,Str):-!,compound(Sub), should_existentialize(Te
 should_existentialize(Term,Sub,Text) :- compound(Sub),functor(Sub,F,A),
   \+ dont_existentialize_args(Term,F,A),
   arg(N,Sub,Text),
-  (string(Text);(existentialize_args(Term,F,A,N),atom(Text))).
+  (string(Text);(existentialize_args(Sub,Term,F,A,N),atom(Text))).
 
 string_better(Str,StrO):- string_lower(Str,StrL),StrL\==Str,!, StrO=Str.
 string_better(Str,StrO):- toCamelcase(Str,StrL),text_to_string(StrL,StrO),!.
@@ -141,6 +141,7 @@ existentialize_args(Sub,Term,F,A,_N):-
 
 do_existentialize_f(loves).
 do_existentialize_f(man).
+do_existentialize_f(_).
 
 dont_existentialize_args(_Term,F,_A):- dont_existentialize_f(F).
 
@@ -404,6 +405,8 @@ recorda_if_new(K,Lit1):- show_call(recorda(K,Lit1)).
 
 recorda_if_new(Lit1):- context_module(M), recorda_if_new(M,Lit1). 
 
+assert_ex2(P):- test_boxlog(P),!.
+
 assert_ex2(P):- 
   kif_to_boxlog(P,BLU),
   sort(BLU,BL),
@@ -419,7 +422,7 @@ assert_ex4(P):- assert_ex5(P).
 assert_ex5(P):- assert_ex9(P).
 
 assert_ex8(P):- nop(ain(P)),assert_ex9(P).
-assert_ex9(P):- gen_possible_varnames(P),portray_clause_w_vars(P).
+assert_ex9(P):- guess_varnames(P),portray_clause_w_vars(P).
 
 
 

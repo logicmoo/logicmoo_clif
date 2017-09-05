@@ -1429,7 +1429,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   cf_to_flattened_clauses(KB,Why,SET,Flattened),
   list_to_set(Flattened,FlattenedM),!,
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
-  demodal_clauses3(KB,FlattenedOOO,FlattenedO),  
+  demodal_clauses(KB,FlattenedOOO,FlattenedO),  
   defunctionalize_each(FlattenedO,FlattenedOUT),
   nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
   maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),

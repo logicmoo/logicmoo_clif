@@ -1026,7 +1026,7 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
    check_is_kb(KB),
    as_dlog(WffIn,DLOGKIF),!,
-   gen_possible_varnames(DLOGKIF),
+   guess_varnames(DLOGKIF),
    sdmsg(kif=(DLOGKIF)),
    kif_optionally(true,existentialize,DLOGKIF,EXT),
    kif_optionally(true,ensure_quantifiers,EXT,OuterQuantKIF),

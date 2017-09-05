@@ -232,17 +232,17 @@ negations_of_each_other(A,B):- A == ~B.
 negations_of_each_other(A,B):- ~A == B.
 
 
-gen_possible_varnames(IO):-gen_possible_varnames(IO,_).
-gen_possible_varnames(I,O):-gen_possible_varnames(add_var_to_env,I,O).
+guess_varnames(IO):-guess_varnames(IO,_).
+guess_varnames(I,O):-guess_varnames(add_var_to_env,I,O).
 
-gen_possible_varnames(_Each,G,G):- \+ compound(G),!.
-gen_possible_varnames(Each, nameOf(V,N), nameOf(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
-gen_possible_varnames(Each, nameOf(V,H), nameOf(V,H)):- var(V), \+ variable_name(V,_),
+guess_varnames(_Each,G,G):- \+ compound(G),!.
+guess_varnames(Each, nameOf(V,N), nameOf(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
+guess_varnames(Each, nameOf(V,H), nameOf(V,H)):- var(V), \+ variable_name(V,_),
    compound(H),functor(H,F,_),
    flag(skolem_count,SKN,SKN+1),
    toCamelcase(F,UF),atom_concat(UF,SKN,UF1),
    call(Each,UF1,V),!.
-gen_possible_varnames(Each,H,H ):- H=..[F,V],var(V),
+guess_varnames(Each,H,H ):- H=..[F,V],var(V),
   \+ variable_name(V,_), 
   \+ atom_concat('sk',_,F), 
   \+ atom_concat(_,'Of',F), 
@@ -250,8 +250,8 @@ gen_possible_varnames(Each,H,H ):- H=..[F,V],var(V),
   flag(skolem_count,SKN,SKN+1),
   toCamelcase(F,UF),atom_concat(UF,SKN,UF1),
   call(Each,UF1,V),!.
-gen_possible_varnames(Each,H,HH ):- H=..[F|ARGS],!,must_maplist_det(gen_possible_varnames(Each),ARGS,ARGSO),!,HH=..[F|ARGSO].
-gen_possible_varnames(_Each, (G), (G)):- !.
+guess_varnames(Each,H,HH ):- H=..[F|ARGS],!,must_maplist_det(guess_varnames(Each),ARGS,ARGSO),!,HH=..[F|ARGSO].
+guess_varnames(_Each, (G), (G)):- !.
 
 /*
 LEM asserts (A v ~A) is nesisarily true.. But what if we rejected this? 
