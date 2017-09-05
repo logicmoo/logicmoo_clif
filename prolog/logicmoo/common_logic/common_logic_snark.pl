@@ -11,7 +11,6 @@
             adjust_kif4/4,
             adjust_kif0/5,
             adjust_kif5/5,
-            alt_kif_to_boxlog/4,
             any_to_pfc/2,
             any_to_pfc0/2,
             as_dlog/2,
@@ -952,58 +951,36 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 %
 %====== kif_to_boxlog(+Wff,-NormalClauses):-
 :- public(kif_to_boxlog/2).
-% kif_to_boxlog(Wff,Out):- loop_check(kif_to_boxlog(Wff,Out),Out=looped_kb(Wff)).
-% kif_to_boxlog('=>'(WffIn,enables(Rule)),'$VAR'('MT2'),complete,Out1), % kif_to_boxlog('=>'(enabled(Rule),WffIn),'$VAR'('KB'),complete,Out).
-kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog3(Wff,Out,Why)).
 
-kif_to_boxlog3(Wff,Out,Why):- show_failure(kif_to_boxlog(Wff,Why,Out)),!.
-kif_to_boxlog3(WffIn,Out,Why):-  kif_to_boxlog(all('$VAR'('KB'),'=>'(kb_in('$VAR'('KB')),WffIn)),'$VAR'('KB'),Why,Out),!.
-kif_to_boxlog3(WffIn,NormalClauses,Why):- kif_to_boxlog(WffIn,'$VAR'('KB'),Why,NormalClauses),!.
-
-
-
-
-%% alt_kif_to_boxlog( ?Wff, ?KB, ?Why, ?Out) is det.
-%
-% Alt Knowledge Interchange Format Converted To Datalog.
-%
-alt_kif_to_boxlog( ~( Wff),KB,Why,Out):- !, kif_to_boxlog( ~( Wff),KB,Why,Out).
-alt_kif_to_boxlog(Wff,KB,Why,Out):- loop_check(kif_to_boxlog(( ~(nesc( ~(Wff)))),KB,Why,Out),Out=looped_kb(Wff)).
-
-:- public(kif_to_boxlog/3).
-
-
-
-%% kif_to_boxlog( ?WffIn, ?Why, ?Out) is det.
+%% kif_to_boxlog( +Fml, -Datalog) is det.
 %
 % Knowledge Interchange Format Converted To Datalog.
 %
-kif_to_boxlog(WffIn,Why,Out):-  kif_to_boxlog(WffIn,'$VAR'('KB'),Why,Out),!.
+kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog(Wff,Out,Why)),!.
+% kif_to_boxlog(Wff,Out):- loop_check(kif_to_boxlog(Wff,Out),Out=looped_kb(Wff)). % kif_to_boxlog('=>'(WffIn,enables(Rule)),'$VAR'('MT2'),complete,Out1), % kif_to_boxlog('=>'(enabled(Rule),WffIn),'$VAR'('KB'),complete,Out).
+
+%% kif_to_boxlog( +Fml, +Why, -Datalog) is det.
+%
+% Knowledge Interchange Format Converted To Datalog.
+%
+:- export(kif_to_boxlog/3).
+kif_to_boxlog(Wff,Out,Why):- kif_to_boxlog(Wff,'$VAR'('KB'),Why,Out),!.
 
 
+%% kif_to_boxlog( +Fml, ?KB, +Why, -Datalog) is det.
+%
+% Knowledge Interchange Format Converted To Datalog.
+%
 :- export(kif_to_boxlog/4).
-
-
-
-
-%% kif_to_boxlog( ?I, ?KB, ?Why, ?Flattened) is det.
-%
-% Knowledge Interchange Format Converted To Datalog.
-%
-kif_to_boxlog(I,KB,Why,Flattened):- % trace,
+kif_to_boxlog(I,KB,Why,Datalog):- % trace,
   convert_if_kif_string( I, PTerm),
-  kif_to_boxlog(PTerm,KB,Why,Flattened), !.
-
-% kif_to_boxlog(WffInIn,KB,Why,FlattenedO):-  as_dlog(WffInIn,WffIn),kif_to_boxlog_0(WffIn,KB,Why,FlattenedO),!.
-% kif_to_boxlog(Wff,KB,Why,Out):- loop_check(kif_to_boxlog(Wff,KB,Why,Out),alt_kif_to_boxlog(Wff,KB,Why,Out)),!.
-%kif_to_boxlog((Wff:- B),KB,Why,Flattened):- is_true(B),!, kif_to_boxlog(Wff,KB,Why,Flattened),!.
-%kif_to_boxlog(Wff,KB,Why,Out):- adjust_kif(KB,Wff,M),Wff \=@= M ,!,kif_to_boxlog(M,KB,Why,Out).
+  kif_to_boxlog(PTerm,KB,Why,Datalog), !.
 
 kif_to_boxlog(HB,KB,Why,FlattenedO):- 
   sumo_to_pdkb(HB,HB00)->
   sumo_to_pdkb(KB,KB00)->
   sumo_to_pdkb(Why,Why00)->
- unnumbervars_with_names((HB00,KB00,Why00),(HB0,KB0,Why0))->
+  unnumbervars_with_names((HB00,KB00,Why00),(HB0,KB0,Why0)),!,
   with_no_kif_var_coroutines(must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO))),!.
 
 :- meta_predicate(unless_ignore(*,*)).
@@ -1017,9 +994,9 @@ kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
    check_is_kb(KB),
    conjuncts_to_list(HEAD,HEADL),
    conjuncts_to_list(BODY,BODYL),
-   correct_flattened([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
+   finish_clausify([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
 
-kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):- 
+kif_to_boxlog_attvars(WffIn0,KB0,Why0,RealOUT):- 
   flag(skolem_count,_,0),
   must_maplist_det(must_det,[
    must_be_unqualified(WffIn0),
@@ -1028,8 +1005,8 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    as_dlog(WffIn,DLOGKIF),!,
    guess_varnames(DLOGKIF),
    sdmsg(kif=(DLOGKIF)),
-   kif_optionally(true,existentialize,DLOGKIF,EXT),
-   kif_optionally(true,ensure_quantifiers,EXT,OuterQuantKIF),
+   kif_optionally_e(true,existentialize,DLOGKIF,EXT),
+   kif_optionally_e(true,ensure_quantifiers,EXT,OuterQuantKIF),
    un_quant3(KB,OuterQuantKIF,NormalOuterQuantKIF),
    kif_optionally_e(true,rejiggle_quants(KB),NormalOuterQuantKIF,FullQuant),   
    kif_optionally(late,qualify_modality,FullQuant,ModalKIF),
@@ -1041,10 +1018,14 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,FlattenedOUTRealOUT):-
    % save_wid(Why,pkif,FullQuant),
    removeQ(KB,NNF,[], UnQ), 
    unless_ignore(NNF\==UnQ, sdmsg(unq=UnQ)),
-   must(kif_to_boxlog_theorist(FullQuant,UnQ,KB,Why,FlattenedOUTRealOUT))]).
+   must(kif_to_boxlog_theorist(FullQuant,UnQ,KB,Why,RealOUT))]),!.
 
+kif_to_boxlog_theorist2(Original,THIN,KB,Why,RealOUT):-
+   demodal_clauses(KB,THIN,THIN2),
+   as_prolog_hook(THIN2,THIN3),    
+    must(cf(Why,KB,Original,THIN3,RealOUT)),!.
 
-kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
+kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,RealOUT):-
   must_maplist_det(call,[
    current_outer_modal_t(HOLDS_T),
    to_tlog(HOLDS_T,KB,UnQ,UnQ666),
@@ -1057,13 +1038,21 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,FlattenedOUTRealOUT):-
    unless_ignore(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(th_nnf_out_negated= DRULIFY)))),
    once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,FlattenedM),
-   correct_flattened(KB,Why,FlattenedM,FlattenedIO),
+   finish_clausify(KB,Why,FlattenedM,FlattenedIO),
    must_maplist_det(undess_head,FlattenedIO,FlattenedIO_UNDRESSED),
    defunctionalize_each(FlattenedIO_UNDRESSED,FlattenedOUTY),
    predsort(sort_by_pred_class,FlattenedOUTY,FlattenedOUT),   
    must_maplist_det(from_tlog,FlattenedOUT,FlattenedOUT_FTLOG),
    kif_optionally_l(true,vbody_sort,FlattenedOUT_FTLOG,FlattenedOUT_FTLOG_SB),
-   kif_optionally_l(true,kb_ify(KB),FlattenedOUT_FTLOG_SB,FlattenedOUTRealOUT)]),!.
+   kif_optionally_l(true,kb_ify(KB),FlattenedOUT_FTLOG_SB,RealOUT)]),!.
+
+
+finish_clausify(KB,_Why,Flattened,FlattenedO):-
+  demodal_clauses3(KB,Flattened,FlattenedO),!.
+finish_clausify(_KB,_Why,FlattenedO,FlattenedO):-!.
+finish_clausify(KB,Why,FlattenedM,FlattenedO):-
+  correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
+  demodal_clauses3(KB,FlattenedOOO,FlattenedO).
 
 combine_clauses_with_disjuncts(SET,OUT):-
   sort(SET,SORTED),combine_clauses_with_disjuncts_0(SORTED,OUT).  
@@ -1118,21 +1107,6 @@ kbti(KB,H,HH ):- H=..[F|ARGS],tlog_is_sentence_functor(F),!,must_maplist_det(kbt
 kbti(KB,H,HH):- H=..[F,ARG1|ARGS],is_4th_order(F),HH=..[F,ARG1,KB|ARGS],!.
 kbti(KB,H,ist(KB,HH)):- H=..[F|ARGS],!,must_maplist_det(kbti(KB),ARGS,ARGSO),!,HH=..[F|ARGSO].
 kbti(_KB, (G), (G)):- !.
-
-
-
-kif_to_boxlog_theorist2(Original,THIN,KB,Why,FlattenedOUTRealOUT):-
-   demodal_clauses3(KB,THIN,THIN2),
-   as_prolog_hook(THIN2,THIN3),
-     
-    must(cf(Why,KB,Original,THIN3,FlattenedOUTRealOUT)),!.
-
-correct_flattened(KB,_Why,Flattened,FlattenedO):-
-  demodal_clauses3(KB,Flattened,FlattenedO),!.
-correct_flattened(_KB,_Why,FlattenedO,FlattenedO):-!.
-correct_flattened(KB,Why,FlattenedM,FlattenedO):-
-  correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
-  demodal_clauses3(KB,FlattenedOOO,FlattenedO).
 
 :- meta_predicate(to_tlog(+,+,*,-)).
 :- meta_predicate(to_tlog_lit(+,+,+,*,-)).
