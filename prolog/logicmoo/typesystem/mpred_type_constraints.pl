@@ -16,8 +16,8 @@
 % Douglas Miles
 */
 
-% File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/mpred/mpred_type_constraints.pl
-%:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
+% File: /opt/PrologMUD/pack/logicmmtc_base/prolog/logicmoo/mpred/mpred_type_constraints.pl
+%:- if(( ( \+ ((current_prolog_flag(logicmmtc_include,Call),Call))) )).
 :- module(mpred_type_constraints,
           [ add_dom/2,           
             arg_to_var/3,
@@ -42,7 +42,7 @@
             map_subterms/3,
             max_dom/3,
             max_dom_l/2,
-            mdif/2,
+            dif_objs/2,
             min_dom/3,
             min_dom_l/2,
             promp_yn/2,
@@ -164,6 +164,16 @@ mappable_sentence_functor(F,_):- downcase_atom(F,DC),upcase_atom(F,DC).
 %mappable_sentence_functor(F,1):- \+ tCol(F).
 %mappable_sentence_functor(F,A):- \+ argIsa(F,A,_).
 
+mtc_put_iza(X,Z):- Z=[id(ID)|_],nonvar(ID),!,put_attr(X,iza,Z).
+mtc_put_iza(X,Z):- get_attr(X,iza,[id(ID)|_]),put_attr(X,iza,[id(ID)|Z]).
+mtc_put_iza(X,Z):- gensym(id_,ID),!,put_attr(X,iza,[id(ID)|Z]).
+
+
+mtc_put_attr(X,iza,Z):- !, mtc_put_iza(X,Z).
+mtc_put_attr(X,Y,Z):- oo_put_attr(X,Y,Z).
+
+mtc_get_attr(X,Y,Z):- var(X),!,oo_get_attr(X,Y,Z).
+mtc_get_attr(X,Y,Z):- oo_get_attr(X,Y,Z),dmsg(warn(need_to_fail(oo_get_attr(X,Y,Z)))),!,fail.
 
 compound_lit(Arg):- compound(Arg).
 
@@ -252,7 +262,7 @@ args_remove_constraints3(Closure,_Modal,C,0,I):- !, transfer_constraints(Closure
 args_remove_constraints3(Closure,Modal,_F,_A,Arg):- compound_lit(Arg),!,map_argnums(Modal,args_remove_constraints3(Closure),Arg).
 args_remove_constraints3(Closure,_Modal,_F,_A,Arg):- transfer_constraints(Arg,Closure).
 
-transfer_constraints(Arg,Closure):- ignore((var(Arg),get_attr(Arg,iza,ToDo),del_attr(Arg,iza),
+transfer_constraints(Arg,Closure):- ignore((var(Arg),mtc_get_attr(Arg,iza,ToDo),del_attr(Arg,iza),
    maplist(constrain_arg_var(Closure,Arg),ToDo))).
 
 
@@ -301,7 +311,7 @@ boxlog_goal_expansion(G,_):- % \+ source_location(_,_),
 */
 
 
-is_iz_or_iza(Var):- get_attr(Var,iz,_);get_attr(Var,iza,_).
+is_iz_or_iza(Var):- mtc_get_attr(Var,iz,_);mtc_get_attr(Var,iza,_).
 
 %% relax( :GoalG) is det.
 %
@@ -309,7 +319,7 @@ is_iz_or_iza(Var):- get_attr(Var,iz,_);get_attr(Var,iza,_).
 %
 relax(G):- map_lits(relax_lit,G).
 
-relaxing(G):- term_attvars(G,Gs),notrace(relax(G)),term_attvars(G,Gs0),!,Gs0\==Gs.
+relaxing(G):- term_attvars(G,Gs),quietly(relax(G)),term_attvars(G,Gs0),!,Gs0\==Gs.
 
 relax_lit(G):- var(G),!.
 relax_lit(_:G):-!,relax_lit(G).
@@ -347,7 +357,7 @@ relax_goal_alt_old(G,GGG):-
 %
 % % relax_N(G,N,Val):- var(Val),!,setarg(N,G,Val).
 % % relax_N(G,N,Val):- iz(AA,[Val]),!,nb_setarg(N,G,AA).
-relax_N(_,_,Val):- var(Val),!, ((get_attr(Val,iz,_);get_attr(Val,iza,_))->true;put_attr(Val,iz,[_])).
+relax_N(_,_,Val):- var(Val),!, ((mtc_get_attr(Val,iz,_);mtc_get_attr(Val,iza,_))->true;mtc_put_attr(Val,iz,[_])).
 relax_N(G,N,Val):- dont_relax(Val)->true;(nb_setarg(N,G,NewVar),put_value(NewVar,Val)).
 
 :- if(exists_source(library(multivar))).
@@ -366,8 +376,8 @@ put_attr_value(Var,iz,V):- !, iz(Var,V).
 put_attr_value(Arg,Name,FA):- as_constraint_for(Arg,FA,Constraint),!,put_attr_value0(Arg,Name,Constraint).
 
 put_attr_value0(Var,Name,HintE):- 
-  (get_attr(Var,Name,HintL) -> min_dom(HintE,HintL,Hint); Hint=[HintE]), !,
-   put_attr(Var,Name,Hint).
+  (mtc_get_attr(Var,Name,HintL) -> min_dom(HintE,HintL,Hint); Hint=[HintE]), !,
+   mtc_put_attr(Var,Name,Hint).
 
 
 
@@ -457,25 +467,79 @@ inst_dom(X, List):- predsort(comp_type,List,SList),dom_call(X,SList).
 % An attributed variable with attribute value DVar has been
 % assigned the value Y
 
-iza:attr_unify_hook(DVar, Y):-
-   ( get_attr(Y, iza, Dom2)
-   -> ord_union(DVar, Dom2, NewDomain),
-   ( (fail,NewDomain == [])
-   -> fail
-   ; (fail,NewDomain = [Value])
-   -> Y = Value
-   ; put_attr(Y, iza, NewDomain)
-   )
-   ; var(Y)
-   -> put_attr( Y, iza, DVar )
-   ;  dom_chk(Y,DVar)).
+iza:attr_unify_hook(DVar, Y):- unify_attr_iza(DVar, Y).
 
-% iza:attr_unify_hook(ArgIsas,Value):- dom_chk(Value,ArgIsas).
+
+unify_attr_iza(Dom1, Y):- nonvar(Y),!,dom_chk(Y,Dom1).
+unify_attr_iza(Dom1, Y):- mtc_get_attr(Y, iza, Dom2),!,unify_doms(Dom1,Dom2,Result),mtc_put_attr(Y, iza, Result),!.
+unify_attr_iza(Dom1, Y):- mtc_put_attr(Y, iza, Dom1 ).
+
+unify_doms(Dom1,Dom2,NewDomain):- \+ disjoint_doms(Dom1,Dom2), ord_union(Dom1, Dom2, NewDomain).
+
+
+
+
+% add_all_differnt(QuantsList):-  bagof(differentFromAll(I,O),QuantsList,O),L),maplist(call,L).
+add_all_differnt(QuantsList):- 
+   maplist(add_all_differnt2(QuantsList),QuantsList),!.
+
+add_all_differnt2(QuantsList,Ex):-
+    delete_eq(QuantsList,Ex,DisjExs),
+    differentFromAll(Ex,DisjExs).
+
+
+add_dom_differentFromAll(Ex,DisjExs):- add_dom(Ex,differentFromAll(Ex,DisjExs)).
+
+differentFromAll(One,List):- maplist(dif_objs(One),List).
+
+
+
+%% dif_objs( ?A, ?B) is semidet.
+%
+% Mdif.
+%
+% dif_objs(A,B):- tlbugger:attributedVars,!,dif(A,B).
+dif_objs(A,B):- A==B,!,fail.
+dif_objs(A,B):- obtain_object_doms(A,B,Dom1,Dom2),!, 
+  \+ non_disjoint_doms(Dom1,Dom2),
+   disjoint_doms(Dom1,Dom2).
+
+dif_objs(A,B):- dif(A,B),add_dom(A,dif_objs(A,B)),add_dom(B,dif_objs(B,A)).
+
+disjoint_object_doms(Var1,Var2):- 
+  obtain_object_doms(Var1,Var2,Dom1,Dom2),
+  disjoint_doms(Dom1,Dom2).
+
+obtain_object_doms(Var1,Var2,Dom1,Dom2):- 
+  obtain_doms(Var1,Dom1),obtain_doms(Var2,Dom2).
+
+obtain_doms(Var,Doms):- mtc_get_attr(Var,iza,Doms),!.
+obtain_doms(Var,DomsO):- compound(Var),functor(Var,_,A),arg(A,Var,Doms),
+  (is_list(Doms)->DomsO=Doms; obtain_doms(Doms,DomsO)).
+
+% doms may not be merged
+disjoint_doms(Dom1,Dom2):- 
+  member(Prop,Dom1), 
+  rejects_dom(Prop,Dom2).
+
+% disjoint skolems
+rejects_dom(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1\==W2,!.
+rejects_dom(male,Dom2):- !, memberchk(female,Dom2).
+rejects_dom(_,_):- fail.
+
+% doms may not be merged
+non_disjoint_doms(Dom1,Dom2):- 
+  member(Prop,Dom1), 
+  not_rejected_dom(Prop,Dom2).
+
+% already same skolems
+not_rejected_dom(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1==W2,!.
+not_rejected_dom(male,Dom2):- memberchk(female,Dom2).
 
 
 % Translate attributes from this module to residual goals
 iza:attribute_goals(X) -->
-      { get_attr(X, iza, List) },!,
+      { mtc_get_attr(X, iza, List) },!,
       [add_dom(X, List)].
 
 %% add_dom( ?Var, ?HintE) is semidet.
@@ -483,19 +547,17 @@ iza:attribute_goals(X) -->
 % Add Iza.
 %
 as_constraint_for(Arg,isa(AArg,FA),FA):- atom(FA),AArg==Arg,!.
-as_constraint_for(Arg,ISA,FA):- ISA=..[FA,AArg],AArg==Arg,!.
+as_constraint_for(Arg,ISA,FA):- compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
 as_constraint_for(_,FA,FA).
 
 
-add_dom_rev(Prop,Var):- as_constraint_for(Var,Prop,Constraint),!,add_dom0(Var,Constraint).
+add_dom_rev(Prop,Var):- add_dom(Var,Prop).
 
-add_dom(Var,Prop):- is_list(Prop),!,maplist(add_dom(Var),Prop).
-add_dom(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,add_dom0(Var,Constraint).
+add_dom(Var,Prop):- is_list(Prop),!,maplist(add_dom1(Var),Prop).
+add_dom(Var,Prop):- add_dom1(Var,Prop).
 
-add_dom0(Var,DomE):- var(Var),
-  (get_attr(Var,iza,DomL) ->min_dom(DomE,DomL,Dom);Dom=[DomE]), !,
-   put_attr(Var,iza,Dom).
-add_dom0(Var,Dom):- ignore(show_failure(why,dom_call(Var,Dom))).
+add_dom1(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,unify_attr_iza([Constraint],Var).
+
 
 
 :- meta_predicate map_one_or_list(1,?).
@@ -503,13 +565,13 @@ add_dom0(Var,Dom):- ignore(show_failure(why,dom_call(Var,Dom))).
 
 map_one_or_list(Call2,ArgOrL):- is_list(ArgOrL)->maplist(Call2,ArgOrL);call(Call2,ArgOrL).
 
-has_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(has_dom(Doms,Var),Prop).
+has_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(has_dom(Doms,Var),Prop).
 has_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),member(C,Doms).
 
-rem_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(rem_dom(Doms,Var),Prop).
-rem_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),put_attr(Var,iza,NewDoms).
+rem_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(rem_dom(Doms,Var),Prop).
+rem_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),mtc_put_attr(Var,iza,NewDoms).
 
-not_has_dom(Var,Prop):- var(Var),get_attr(Var,iza,Doms),map_one_or_list(not_has_dom(Doms,Var),Prop).
+not_has_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(not_has_dom(Doms,Var),Prop).
 not_has_dom(Doms,Var,Prop):- \+ has_dom(Doms,Var,Prop).
 
 
@@ -535,8 +597,9 @@ dom_call00(Y, [H|List]):-!,dom_call0(Y,H),!,dom_call00(Y, List).
 dom_call00(_, _).
 
 dom_call0(Y,H):- atom(H),!,isa(Y,H).
-dom_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H),!.
-dom_call0(Y,H):- ereq(props(Y,H)).
+dom_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H).
+dom_call0(_,H):- call_u(H).
+% dom_call0(Y,H):- ereq(props(Y,H)).
 
 /*
 enforce_fa_unify_hook([Goal|ArgIsas],Value):- !,
@@ -596,7 +659,7 @@ domz_to_isa(AA,AB):-must(AA=AB).
 %
 % Attribs Converted To Atoms Primary Helper.
 %
-attribs_to_atoms0(Var,Isa):-get_attr(Var,iza,Iza),!,must(domz_to_isa(Iza,Isa)).
+attribs_to_atoms0(Var,Isa):-mtc_get_attr(Var,iza,Iza),!,must(domz_to_isa(Iza,Isa)).
 attribs_to_atoms0(O,O):- \+ (compound(O)).
 
 
@@ -743,16 +806,6 @@ attempt_attribute_one_arg(_Hint,F,N,A):-attempt_attribute_args(and,argi(F,N),A).
 
 
 
-% mdif(A,B):- tlbugger:attributedVars,!,dif(A,B).
-
-
-
-%% mdif( ?A, ?B) is semidet.
-%
-% Mdif.
-%
-mdif(A,B):-A\==B.
-
 :- was_export((samef/2,same/2)).
 
 
@@ -852,12 +905,12 @@ probably_arity(F,A):-(integer(A)->true;(arity(F,A)*->true;between(1,9,A))).
 %
 :- was_export(iz/2).
 
-iz(X, Dom) :- var(Dom), !, get_attr(X, iz, Dom).
-% iz(X, Dom) :- var(Dom), !, (get_attr(X, iz, Dom)->true;put_attr(X, iz, [iziz(Dom)])).
+iz(X, Dom) :- var(Dom), !, mtc_get_attr(X, iz, Dom).
+% iz(X, Dom) :- var(Dom), !, (mtc_get_attr(X, iz, Dom)->true;mtc_put_attr(X, iz, [iziz(Dom)])).
 iz(X, List) :- 
       listify(List,List0),
       list_to_ord_set(List0, Domain),
-      put_attr(Y, iz, Domain),
+      mtc_put_attr(Y, iz, Domain),
       X = Y.
 
 :- was_export(extend_iz_member/2).
@@ -868,7 +921,7 @@ iz(X, List) :-
 %
 % Extend Domain.
 %
-extend_iz_member(X, DomL):- init_iz(X, Dom2), ord_union(Dom2, DomL, NewDomain),put_attr( X, iz, NewDomain ).
+extend_iz_member(X, DomL):- init_iz(X, Dom2), ord_union(Dom2, DomL, NewDomain),mtc_put_attr( X, iz, NewDomain ).
 
 :- was_export(extend_iz/2).
 
@@ -878,7 +931,7 @@ extend_iz_member(X, DomL):- init_iz(X, Dom2), ord_union(Dom2, DomL, NewDomain),p
 %
 % Extend Domain.
 %
-extend_iz(X, DomE):-  init_iz(X, Dom2),ord_add_element(Dom2, DomE, NewDomain),put_attr( X, iz, NewDomain ).
+extend_iz(X, DomE):-  init_iz(X, Dom2),ord_add_element(Dom2, DomE, NewDomain),mtc_put_attr( X, iz, NewDomain ).
 
 :- was_export(init_iz/2).
 
@@ -888,31 +941,31 @@ extend_iz(X, DomE):-  init_iz(X, Dom2),ord_add_element(Dom2, DomE, NewDomain),pu
 %
 % Init Domain.
 %
-init_iz(X,Dom):-get_attr(X, iz, Dom),!.
-init_iz(X,Dom):-Dom =[_], put_attr(X, iz, Dom),!.
+init_iz(X,Dom):-mtc_get_attr(X, iz, Dom),!.
+init_iz(X,Dom):-Dom =[_], mtc_put_attr(X, iz, Dom),!.
 
 % An attributed variable with attribute value Domain has been
 % assigned the value Y
 
 iz:attr_unify_hook([Y], Value) :-  same(Y , Value),!.
 iz:attr_unify_hook(Domain, Y) :-
-   ( get_attr(Y, iz, Dom2)
+   ( mtc_get_attr(Y, iz, Dom2)
    -> ord_intersection(Domain, Dom2, NewDomain),
          ( NewDomain == []
          -> fail
          ; NewDomain = [Value]
           -> same(Y , Value)
-             ; put_attr(Y, iz, NewDomain)
+             ; mtc_put_attr(Y, iz, NewDomain)
            )
    ; var(Y)
-   -> put_attr( Y, iz, Domain )
+   -> mtc_put_attr( Y, iz, Domain )
    ; (\+ \+ (cmp_memberchk(Y, Domain)))
 ).
 
 
 
 % Translate attributes from this module to residual goals
-iz:attribute_goals(X) --> { get_attr(X, iz, List) },!,[iz(X, List)].
+iz:attribute_goals(X) --> { mtc_get_attr(X, iz, List) },!,[iz(X, List)].
 
 
 

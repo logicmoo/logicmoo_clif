@@ -16,9 +16,12 @@ vim: set filetype=md:
 %  <a href="https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md">https://github.com/TeamSPoon/PrologMUD/blob/master/runtime/try_logicmoo_examples.md</a>
 */
 
+% Term expansion was suppored to make this ok
+% :- module(baseKB,[]).
+
 :- set_fileAssertMt(baseKB).
 
-:- set_defaultAssertMt(baseKB).
+% :- set_defaultAssertMt(baseKB).
 
 :- kb_shared((if/2,iif/2)).
 
@@ -116,10 +119,12 @@ proven_not_tru(H):- \+ call_u( H).
 
 %:- mpred_trace_exec.
 
-:- kb_shared(baseKB:duce_tru/1).
+%:- kb_shared(baseKB:duce_tru/1).
 :- kb_shared(baseKB:producing/1).
 
-:- mpred_ain(((((deduce_tru(_,H):- _ )) ==> producing(H)))).
+:- mpred_ain(((((proven_tru(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((proven_poss(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((proven_neg(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
 
 :- mpred_ain((producing(H)==>{kbi_define(H)})).
 
@@ -148,3 +153,5 @@ proven_tru(H):- loop_check(call_u(H)), \+ show_failure(proven_neg(H)).
 % :- kb_shared(baseKB:proven_neg/1).
 
 % proven_neg(_):- fail.
+
+% :- rtrace.

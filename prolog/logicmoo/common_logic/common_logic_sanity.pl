@@ -102,8 +102,6 @@ pfclog_show:-  baseKB:listing(pfclog/1).
 
 show_kif_to_boxlog(P):- dmsg(test_boxlog(P)),ain(P).
 
- % test_boxlog(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
-test_boxlog(P,BoxLog):- kif_to_boxlog(P,BoxLogL),sort(BoxLogL,BoxLog). % ,reverse(BoxLogR,BoxLog),!.
 
 test_defunctionalize(I):-defunctionalize(I,O),sdmsg(O).
 
@@ -125,27 +123,43 @@ test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(
 
 
 add_boxlog_history((P)):- 
-   with_output_to(string(S),fmt9(test_boxlog(P))),
-   ignore(prolog:history(user_input, add(S))),!.
+   ignore((with_output_to(string(S),fmt9(test_boxlog(P))),
+   stream_property(In,file_no(0)),
+   prolog:history(In, add(S)))),!.
 
 :- export(test_boxlog/1).
-test_boxlog(P):- 
-   add_boxlog_history((P)),
-   mmake, must_det(test_boxlog0(P)),!.
+test_boxlog(P):- test_boxlog([],P).
 
-test_boxlogq(P):- mmake, locally(t_l:qualify_modally,must_det(test_boxlog0(P))),!.
+:- export(test_boxlog/1).
+test_boxlog(KV,P):- locally(t_l:kif_option_list(KV),test_boxlog0(P)).
+% test_boxlog_m(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
+
+
+test_boxlogq(P):- test_boxlog([+qualify],P),!.
   
 test_boxlog0(P):-
+  mmake,
+  (source_location(_,_) -> add_boxlog_history(P) ; true),
  \+ \+
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
   wdmsg(:- test_boxlog(P)), 
-  b_implode_varnames(P),flush_output,
-  test_boxlog(P,O),
-  sdmsgf(O),flush_output,
-  nop(((boxlog_to_pfc(O,PFC),
-  nop(sdmsgf(pfc=PFC),flush_output)))))).
+  b_implode_varnames(P),
+  kif_to_boxlog(P,O),
+  guess_varnames(O),flush_output,
+  kif_optionally_e(true,sdmsgf,O),flush_output, 
+  kif_optionally(false,assert_if_new,O),
+  kif_optionally(false,print_boxlog_to_pfc,O))),!.
 
+print_boxlog_to_pfc(O):-
+  boxlog_to_pfc(O,PFC),
+  sdmsgf(pfc=PFC),
+  flush_output.
+
+
+  
+
+assert_boxlog(G):- ain(boxlog(G)). 
 
 test_boxlog_88(P):-
  \+ \+

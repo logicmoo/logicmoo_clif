@@ -52,7 +52,7 @@ door(What).
 :- dmsg("i see this").
 :- kif_add(exists(C, course(C) & ~exists(MT3, midterm(C,MT3)))).
 :- set_no_debug.
-:- quietly.
+:- notrace.
 :- nodebug.
 
 :- wdmsg("we see this").

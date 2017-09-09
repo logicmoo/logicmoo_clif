@@ -758,7 +758,7 @@ not_mud_isa(I,C):- nonvar(I),nonvar(C),loop_check(not_mud_isa(I,C,_)).
 %
 %  \+  Application  (isa/2).
 %
-not_mud_isa(F, CAC,Why):- fail, baseKB:( cheaply_u(completelyAssertedCollection(CAC)),!,atom(CAC),notrace(current_predicate(_:CAC/1)),
+not_mud_isa(F, CAC,Why):- fail, baseKB:( cheaply_u(completelyAssertedCollection(CAC)),!,atom(CAC),quietly(current_predicate(_:CAC/1)),
    G=..[CAC,F],\+(call_u(G)),!,Why=completelyAssertedCollection(CAC)).
 not_mud_isa(I,C,Why):-not_mud_isa0(I,C),Why=not_mud_isa0(I,C).
 not_mud_isa(G,tTemporalThing,Why):- baseKB:call_u((a(tCol,G),Why=a(tCol,G));(tPred(G),Why=tPred(G))).
@@ -953,7 +953,7 @@ isa_asserted(I,C):-  no_repeats(loop_check(isa_asserted_0(I,C))).
 %isa_asserted(I,CC):-no_repeats((isa_asserted_0(I,C),call_u(genls(C,CC)))).
 
 isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing(I,C).
-isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],notrace(current_predicate(P,G)),!,on_x_fail(call_u(G)).
+isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
 isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
 
 
@@ -972,7 +972,7 @@ isa_asserted_0(aRelatedFn(C,_,_),I):-nonvar(C),!,C=I.
 isa_asserted_0(I,C):-  clause_b(mudIsa(I,C)).
 %isa_asserted_0(I,C):- ((t_l:useOnlyExternalDBs,!);baseKB:use_cyc_database),(kbp_t([isa,I,C]);kbp_t([C,I])).
 
-isa_asserted_0(I,C):- notrace((atom(C),G=..[C,I],current_predicate(C,M:G))),!,on_x_fail(M:G).
+isa_asserted_0(I,C):- quietly((atom(C),G=..[C,I],current_predicate(C,M:G))),!,on_x_fail(M:G).
 isa_asserted_0(I,C):-  not_mud_isa(I,C),!,fail.
 isa_asserted_0(_,C):- nonvar(C),sanity(\+ is_ftVar(C)), clause_b(completelyAssertedCollection(C)),!,fail.
 % isa_asserted_0(I,_):- sanity(\+ is_ftVar(I)), clause_b(completeIsaAsserted(I)),!,fail.

@@ -534,7 +534,7 @@ already_quanted_01(SubTerm,S):-
     same_vars(SO,S).
     
 is_quant_f(Q):- arg(_,v(atleast,atmost,exactly,all,exists),Q).
-is_quant_f(Q):- arg(_,v(no,some,one,two),Q).
+is_quant_f(Q):- arg(_,v(no,some,one,two,quant),Q).
 
 
 %= %= :- was_export(defunctionalize/2).
@@ -584,7 +584,7 @@ defunctionalize(OP ,Wff,WffO):- defunctionalize_op(OP,Wff,WffM),!,WffO=WffM.
 
 defunctionalize_op(_OP,WffO,WffO):- not_ftCompound(WffO),!.
 defunctionalize_op(OP,(H:- B),WffO):- 
-   notrace(defunctionalize_did(OP,B,PREB,POSTB,Function,NewVar)),
+   quietly(defunctionalize_did(OP,B,PREB,POSTB,Function,NewVar)),
    subst(H,Function,NewVar,HH),
    occurrences_of_var(Function,B,Count),
    (HH\==H -> defunctionalize(OP,(HH:- (ignore(PREB),POSTB)),WffO);
@@ -593,7 +593,7 @@ defunctionalize_op(OP,(H:- B),WffO):-
  
 
 defunctionalize_op(OP,(H:- B),WffO):- 
-   notrace(defunctionalize_did(OP,H,PREH,POSTH,Function,NewVar)),!,
+   quietly(defunctionalize_did(OP,H,PREH,POSTH,Function,NewVar)),!,
    subst(B,Function,NewVar,BB),
    (BB==B -> 
      =((H:- (B)),WffO) ; 
@@ -612,9 +612,9 @@ defunctionalize_did(OP,Wff,PredifiedFunction,NextWff,Function,NewVar):-
   \+ is_precond_like(SubTerm),
   arg(N,SubTerm,Function), N<4,
   compound(Function),
-  notrace(is_function_expr(OP,Function)),
-  notrace(\+ has_function(OP,Function)),
-  must(notrace((function_to_predicate(Function,NewVar,PredifiedFunction),
+  quietly(is_function_expr(OP,Function)),
+  quietly(\+ has_function(OP,Function)),
+  must(quietly((function_to_predicate(Function,NewVar,PredifiedFunction),
   subst(Wff,Function,NewVar,NextWff)))),!.
 
 
@@ -829,7 +829,7 @@ leave_as_is_functor(F):-cheaply_u(rtArgsVerbatum(F)).
 %
 prequent(original(_)).
 prequent(mudEquals(_,_)).
-prequent(skolem(_,_)).
+prequent(skolem(_,_,_)).
 prequent(different(_,_)).
 prequent(argInst(_,_,_)).
 prequent(G):-functor(G,call_builtin,_).
@@ -984,7 +984,7 @@ is_function_pfa((:-),_,F,_):- atom_concat(_Was,'Fn',F),!.
 is_ftEquality(Term):- is_ftVar(Term),!,fail.
 %is_ftEquality(Term):- get_pred(Term,Pred),is),!,(Pred==mudEquals;genlPreds(Pred,equals);clause_asserted(prologEquality(Pred))),!.
 is_ftEquality(mudEquals(_,_)).
-is_ftEquality(skolem(_,_)).
+is_ftEquality(skolem(_,_,_)).
 is_ftEquality(equals(_,_)).
 is_ftEquality(termOfUnit(_,_)).
 

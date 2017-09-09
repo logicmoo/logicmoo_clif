@@ -1665,7 +1665,7 @@ convert_string(A,B):- logicmoo_util_strings:convert_to_cycString(A,B),!.
 
 do_renames(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 do_renames(A,B):- var(A),!,A=B,!,nb_setval('$has_var',t),!.
-do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),compound_name_args_safe(B,uT,List)).
+do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),cnas(B,uT,List)).
 do_renames(uU('SubLQuoteFn',A),uSubLQuoteFn(A)):-var(A),!,nb_setval('$has_var',t),!.
 do_renames(uU('SubLQuoteFn','$VAR'(A)),uSubLQuoteFn(A)):-!,nb_setval('$has_quote',t),!,nb_setval('$has_var',t),!.
 do_renames('$KW'(A),'$VAR'(B)):- catch((fix_var_name(A,B),!,nb_setval('$has_kw',t)),E,(dtrace(dmsg(E)))),!.
@@ -1681,7 +1681,7 @@ do_renames(A,B):-
   compound_name_arguments(A,P,ARGS),
    must_maplist(do_renames,[P|ARGS],[T|L]),
    do_ren_pass2(T,L,[BB|LL]),!,
-   compound_name_args_safe(B,BB,LL).
+   cnas(B,BB,LL).
 
 
 compute_argIsa(ARG1ISA,NN,ARGISA):-
@@ -1786,12 +1786,12 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- catch(notrace(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)).
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- catch(notrace(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
 :- dmsg("I am here").
@@ -1867,7 +1867,7 @@ gaf_rename([P|ARGS],NEW):- !,
    do_ren_pass2(T,L,NEW),!.
 gaf_rename(CMPD,NEW):- CMPD=..[P|ARGS],
    gaf_rename([P|ARGS],[M|MID]),!,
-   compound_name_args_safe(NEW,M,MID).
+   cnas(NEW,M,MID).
 
 %monotonic_fact(nartR('ResultStandsInRelationFn','genlMt'),'ContentModelForPegFn','DiscourseModellingFromLinkagesMt','UniversalVocabularyMt',a7166_1938598 , [ monotonic,forward,fact,not_first_order,asserted,relevant,higher_order,dependants,asserted_when = 20050602 ] ).7
 %default_fact(nartR('ResultStandsInRelationFn','genlMt'),'ContentMtOfLinkageFn','LinkagesSpindleHeadMt','UniversalVocabularyMt',a7166_1938599 , [ default,forward,fact,not_first_order,asserted,relevant,higher_order,dependants,asserted_when = 20050602 ] ).
@@ -1936,7 +1936,7 @@ kb_transposer(I,Vs,_Info,[A1-VSO,A2,A3|A4S]):- compound(I),
  must_maplist(do_renames,ARGS,[T|L]),
  do_ren_pass2(T,L,MO),
  append(MO,[ID],NEWARGS),
- compound_name_args_safe(A0, assertion_content,NEWARGS),
+ cnas(A0, assertion_content,NEWARGS),
  (nb_current('$has_kw',t)-> reread_vars(A0-Vs,re_symbolize,A1-VSO); (A0-Vs=A1-VSO)),
  functor(A1,_,A),
  A2 = assertion_mt(ID,MT),

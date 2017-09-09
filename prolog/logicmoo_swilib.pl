@@ -238,7 +238,7 @@ logicmoo_toplevel:- dmsg("logicmoo_toplevel"),
 start_x_ide:- !.
 start_x_ide:- current_prolog_flag(logicmoo_headless,true),!.
 start_x_ide:- 
-  notrace((prolog_ide(thread_monitor),prolog_ide(debug_monitor),
+  quietly((prolog_ide(thread_monitor),prolog_ide(debug_monitor),
    % prolog_ide(open_debug_status),
    guitracer,
    use_module(library(pce_prolog_xref)),

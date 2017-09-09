@@ -611,7 +611,7 @@ rescan_mpred_facts_local:-locally_hide(baseKB:use_cyc_database,(must_det(rescan_
 %
 % Rescan Duplicated Facts.
 %
-rescan_duplicated_facts:- !, notrace( forall(member(M,[moo,user,world,hook]), forall((predicate_property(M:H,dynamic),call_u(arity(F,A)),functor(H,F,A)), rescan_duplicated_facts(M,H)))).
+rescan_duplicated_facts:- !, quietly( forall(member(M,[moo,user,world,hook]), forall((predicate_property(M:H,dynamic),call_u(arity(F,A)),functor(H,F,A)), rescan_duplicated_facts(M,H)))).
 
 	 
 
@@ -629,7 +629,7 @@ rescan_duplicated_facts(M,H):-findall(H,(clause_safe(M:H,B),B==true),CF1), once(
 %
 % Rescan Duplicated Facts.
 %
-rescan_duplicated_facts(M,H,BB):-notrace(doall((gather_fact_heads(M,H),BB=true,once((findall(C,(clause_safe(H,B),B=@=BB,reduce_clause(clause_u,(H:-B),C)),CF1),
+rescan_duplicated_facts(M,H,BB):-quietly(doall((gather_fact_heads(M,H),BB=true,once((findall(C,(clause_safe(H,B),B=@=BB,reduce_clause(clause_u,(H:-B),C)),CF1),
                                                                      list_to_set(CF1,CF2),once(reduce_fact_heads(M,H,CF1,CF2))))))).
 
 	 

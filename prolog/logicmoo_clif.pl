@@ -12,6 +12,11 @@
 :- set_prolog_flag(verbose_autoload,true).
 */
 
+
+:- set_fileAssertMt(baseKB).
+
+:- set_defaultAssertMt(baseKB).
+
 :- set_prolog_flag_until_eof(retry_undefine,false).
 
 :- user:use_module(library(logicmoo_util_common)).
@@ -54,7 +59,7 @@ maybe_load_clif_file(Found, Options):-
   really_load_clif_file(Found, Options).
   
 maybe_load_clif_file(Spec, Options):- 
-  maybe_notrace(absolute_file_name(Spec,Found,[extensions(['.clif','.ikl','.kif',
+  notrace(absolute_file_name(Spec,Found,[extensions(['.clif','.ikl','.kif',
   %'.lisp',
   '.lbase']),access(read),expand(true),solutions(all)])),
   exists_file(Found),!,

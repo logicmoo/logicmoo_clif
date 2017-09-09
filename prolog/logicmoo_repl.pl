@@ -59,7 +59,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 
 :- baseKB:import(dif:dif/2).
 :- baseKB:export(dif:dif/2).
-:- catch(notrace(nodebugx(if_file_exists(baseKB:use_module(library(prolog_predicate))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:use_module(library(prolog_predicate))))),E,dmsg(E)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % These are probly loaded by other modules

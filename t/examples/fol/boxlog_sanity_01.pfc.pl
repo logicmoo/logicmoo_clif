@@ -1,4 +1,13 @@
+
+
+:- module(kbii,[]).
+
 :- include(test_header).
+
+
+%:- ensure_abox(kbii).
+:- set_fileAssertMt(kbii).
+:- install_retry_undefined(kbii,kbi_define).
 
 
 :- ensure_loaded(library(script_files)).
@@ -219,12 +228,15 @@ holdsIn(_12442,instance(_12420,mobTourist)):-instance(_12442,actSightseeing),per
 % ================================================================================================================
 %  No one whom pays taxes in North america can be a dependant of another in the same year
 % ================================================================================================================
-:- test_boxlog(or(
-holdsIn(YEAR, instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))),
-holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), 
-holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iMexico))), 
-holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), 
-forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, _SUPPORTEE)))).
+:- set_prolog_flag(runtime_breaks,3).
+
+:- test_boxlog([-ensure,-sort],
+  or(
+   holdsIn(YEAR, instance(PERSON, nartR(tClazzCitizenFn, iGroup_UnitedStatesOfAmerica))),
+   holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_Canada))), 
+   holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iMexico))), 
+   holdsIn(YEAR, instance(PERSON, nartR(mobTaxResidentsFn, iGroup_UnitedStatesOfAmerica))), 
+   forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, _SUPPORTEE)))).
 
 
 % ~occuring(YEAR) :-
@@ -457,10 +469,10 @@ forbiddenToDoWrt(iCW_USIncomeTax, SUPPORTER, claimsAsDependent(YEAR, SUPPORTER, 
 % A person holding a bird is performing bird holding
 % ================================================================================================================
 
-:- test_boxlog(implies(
-and(instance(HOLD, actHoldingAnObject), objectActedOn(HOLD, BIRD), instance(BIRD, tClazzBird), 
+:- test_boxlog([+assert],implies(
+   and(instance(HOLD, actHoldingAnObject), objectActedOn(HOLD, BIRD), instance(BIRD, tClazzBird), 
              performedBy(HOLD, PER), instance(PER, mobPerson)), 
-holdsIn(HOLD, onPhysical(BIRD, PER))), O),maplist(wdmsg,O).
+             holdsIn(HOLD, onPhysical(BIRD, PER)))).
 
 % ~occuring(_2056) :-
 %       instance(_2056, actHoldingAnObject),
@@ -549,6 +561,8 @@ holdsIn(HOLD, onPhysical(BIRD, PER))), O),maplist(wdmsg,O).
 
 :- test_boxlog(atleast(4,X, puppy(X) & cute(X))).
 
+
+:- test_boxlog([+pfc,+assert],exactly(6,X, puppy(X) & poss(cute(X)))).
 
 
 :- test_repl.

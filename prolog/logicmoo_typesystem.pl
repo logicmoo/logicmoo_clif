@@ -130,10 +130,8 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 :- set_prolog_flag(pfc_booted,true).
 :- set_prolog_flag(read_attvars,false).
 
-:- ((hook_database:call(asserta_if_new,(ereq(G):- !, baseKB:call_u(G))))).
-:- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, baseKB:call_u(G))))).
-
-:- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, baseKB:call_u(G))))).
+:- ((hook_database:call(asserta_if_new,(ereq(G):- !, call_u(G))))).
+:- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, call_u(G))))).
 
 
 

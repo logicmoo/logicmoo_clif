@@ -786,8 +786,8 @@ nnf1(KB,Fml,FreeV,FmlO,N):-
   \+ is_precond_like(Fml),
   arg(_,Fml,Function),
   compound(Function),
-  notrace(is_function_expr('=>',Function)),
-  % notrace(\+ has_function(Function)),
+  quietly(is_function_expr('=>',Function)),
+  % quietly(\+ has_function(Function)),
   function_to_predicate(Function,NewVar,PredifiedFunction),!,
   subst(Fml,Function,NewVar,FmlMid),!,
   nnf(KB,all(NewVar,(PredifiedFunction => FmlMid)),FreeV,FmlO,N).
@@ -844,7 +844,7 @@ nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-
   must(N3 is (N1 + N2 -1)).
 
 
-nnf_arg(_KB,A,FreeV,A,1):- notrace(is_arg_leave_alone(A)),!,no_freev(FreeV).
+nnf_arg(_KB,A,FreeV,A,1):- quietly(is_arg_leave_alone(A)),!,no_freev(FreeV).
 nnf_arg(KB,A,FreeV,FA,N1):-  nnf(KB,A,FreeV,FA,N1).
 
 is_arg_leave_alone(A):- ground(A).
@@ -1411,7 +1411,7 @@ cf(_Why,KB,_Original,PNF, FlattenedOUT):- fail,
   cnf(KB,UnQ,CNF0),!,
   nnf(KB,CNF0,[],CNF,_),
   as_prolog_hook(CNF,PROLOG),
-  th_nnf(PROLOG,even,RULIFY),  
+  tlog_nnf(PROLOG,even,RULIFY),  
   rulify(constraint,RULIFY,FlattenedOUT),!.
 
 cf(Why,KB,_Original,PNF, FlattenedOUT):- 
@@ -1421,7 +1421,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   cnf(KB,UnQ,CNF0),!,
   nnf(KB,CNF0,[],CNF,_), 
   % wdmsg(cnf:-CNF),
- call(( conjuncts_to_list(CNF,Conj), make_clause_set([infer_by(Why)],Conj,EachClause),
+ call(( conjuncts_to_list_det(CNF,Conj), make_clause_set([infer_by(Why)],Conj,EachClause),
   sanity(is_list(EachClause)),
   must_maplist_det(correct_cls(KB),EachClause,SOO),
   expand_cl(KB,SOO,SOOO))),
@@ -1443,14 +1443,18 @@ check_kif_varnames(_KIF):-!.
       
 
 
+conjuncts_to_list_det(I,O):- conjuncts_to_list(I,O),!.
+list_to_conjuncts_det(C,I,O):- list_to_conjuncts(C,I,O),!.
+list_to_conjuncts_det(I,O):- list_to_conjuncts(I,O),!.
+
 %= 	 	 
 
 %% clean_repeats_d( ?PTTP, ?PTTP) is det.
 %
 % Clean Repeats (debug).
 %
-clean_repeats_d((PTT,P0),PTTP):-!, conjuncts_to_list((PTT,P0),DLIST),list_to_set(DLIST,DSET),must_maplist_det(clean_repeats_d,DSET,CSET),list_to_conjuncts((,),CSET,PTTP),!.
-clean_repeats_d((PTT;P0),PTTP):-!, disjuncts_to_list((PTT;P0),DLIST),list_to_set(DLIST,DSET),must_maplist_det(clean_repeats_d,DSET,CSET),list_to_conjuncts((;),CSET,PTTP),!.
+clean_repeats_d((PTT,P0),PTTP):-!, conjuncts_to_list_det((PTT,P0),DLIST),list_to_set(DLIST,DSET),must_maplist_det(clean_repeats_d,DSET,CSET),list_to_conjuncts_det((,),CSET,PTTP),!.
+clean_repeats_d((PTT;P0),PTTP):-!, disjuncts_to_list((PTT;P0),DLIST),list_to_set(DLIST,DSET),must_maplist_det(clean_repeats_d,DSET,CSET),list_to_conjuncts_det((;),CSET,PTTP),!.
 clean_repeats_d(PTTP,PTTP).
 
 
@@ -1607,7 +1611,7 @@ is_sent_op_modality(not).
 is_sent_op_modality(poss).
 is_sent_op_modality(nesc).
 
-has_modals(P):- notrace((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,nesc,_)))),!.
+has_modals(P):- quietly((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,nesc,_)))),!.
 
 %= 	 	 
 
@@ -1623,7 +1627,7 @@ remove_unused_clauses([Unused|FlattenedO4],FlattenedO):-
    unused_clause(Unused) -> remove_unused_clauses(FlattenedO4,FlattenedO);
      (remove_unused_clauses(FlattenedO4,FlattenedM),FlattenedO=[Unused|FlattenedM]).
 
-unusual_body :- call_u(feature_setting(use_unusual_body,true)),!,dmsg(used(unusual_body)).
+unusual_body :- clause_b(feature_setting(use_unusual_body,true)),!,dmsg(used(unusual_body)).
 unusual_body :- dmsg(skipped(unusual_body)),!,fail.
 
 unused_clause('$unused'(C):-_):-nonvar(C),!.
@@ -1634,7 +1638,6 @@ unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
 % MAYBE? poss_or_skolem(needs(_)).
-poss_or_skolem(skolem(_,_)).
 poss_or_skolem(skolem(_,_,_)).
 % poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
@@ -1854,8 +1857,7 @@ make_1_cl(Extras,One,Conj,cl([One],NewBodyListO)):-
 %
 % Flatten Conjs.
 %
-flattenConjs(_Extras,I,O):- conjuncts_to_list(I,M),must_maplist_det(conjuncts_to_list,M,L),flatten(L,O).
-
+flattenConjs(_Extras,I,O):- conjuncts_to_list_det(I,M),must_maplist_det(conjuncts_to_list_det,M,L),flatten(L,O).
 
 
 :- was_export(logical_pos/3).
@@ -2059,7 +2061,7 @@ correct_cls(KB,H,HH):-loop_check(correct_cls0(KB,H,HH),H=HH),!.
 correct_cls0(_KB,CL0,CL0):- is_ftVar(CL0),!.
 correct_cls0(KB,CL0,CL1):- is_list(CL0),!,must_maplist_det(correct_cls(KB),CL0,CL1).
 correct_cls0(KB,(H,T),HHTT):-!,correct_cls(KB,H,HH),correct_cls(KB,T,TT),append(HH,TT,HHTT).
-correct_cls0(KB,(H:-B),O):-!,conjuncts_to_list(H,HH),conjuncts_to_list(B,BB),correct_cls0(KB,cl(HH,BB),O).
+correct_cls0(KB,(H:-B),O):-!,conjuncts_to_list_det(H,HH),conjuncts_to_list_det(B,BB),correct_cls0(KB,cl(HH,BB),O).
 
 correct_cls0(KB,CL,O):- demodal_sents(KB,CL,CLM),CL\=@=CLM,!,correct_cls(KB,CLM,O).
 correct_cls0(KB,cl(H,B),O):-flatten_clauses(B,BB),B\=@=BB,correct_cls0(KB,cl(H,BB),O).
@@ -2118,7 +2120,9 @@ incorrect_cl(cl(H,B),cl([z_unused(H:-B)],[])).
 %
 % Correct Datalog.
 %
-correct_boxlog((CLAU,SES),KB,Why,FlattenedO):- nonvar(SES),conjuncts_to_list((CLAU,SES),CLAUSES),!,correct_boxlog_0(CLAUSES,KB,Why,FlattenedO),!.
+interface_to_correct_boxlog(KB,WHY,IN,OUT):- correct_boxlog(IN,KB,WHY,OUT).
+
+correct_boxlog((CLAU,SES),KB,Why,FlattenedO):- nonvar(SES),conjuncts_to_list_det((CLAU,SES),CLAUSES),!,correct_boxlog_0(CLAUSES,KB,Why,FlattenedO),!.
 correct_boxlog(CLAUSES,KB,Why,FlattenedO):- (\+ is_list(CLAUSES)),!,correct_boxlog_0([CLAUSES],KB,Why,FlattenedO),!.
 correct_boxlog(BOXLOG,KB,Why,FlattenedS):-correct_boxlog_0(BOXLOG,KB,Why,FlattenedS),!.
 

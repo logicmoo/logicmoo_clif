@@ -42,11 +42,12 @@ kif_io:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 
 load_clif(File):- 
-  maybe_notrace(absolute_file_name(File,Found,[extensions(['','.clif','.ikl','.kif','.lisp','.lbase','.pfc','.pl']),access(read),expand(true),solutions(all)])),
-  exists_file(Found),
+  notrace(absolute_file_name(File,Found,[extensions(['','.clif','.ikl','.kif','.lisp','.lbase','.pfc','.pl']),access(read),expand(true),solutions(all)])),
+  exists_file(Found),!,
   % with_lisp_translation_cached(Found, = , nop).
   file_name_extension(_,Ext,Found), 
   with_ext_translation(Found, Ext, kif_process_ignore).
+load_clif(File):- trace_or_throw(missing(load_clif(File))).
 
 with_ext_translation(Found,pl, Process):- !,process_script_file(Found,Process).
 with_ext_translation(Found,pfc, Process):- !,process_script_file(Found,Process).
