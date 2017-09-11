@@ -46,7 +46,9 @@
 % prolog:message_hook(T,error,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 % prolog:message_hook(T,warning,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 
-
+:- user:ensure_loaded(library(logicmoo_utils)).
+:- ensure_loaded(library(rtrace)).
+:- ensure_loaded(library(dmsg)).
 
 /*
 :- flag_call(unsafe_speedups=true).
@@ -131,10 +133,14 @@
 :-  multifile(yall:lambda_functor/1),
    dynamic(yall:lambda_functor/1),
    with_no_mpred_expansions(use_module(yall:library(yall),[])),
-   retractall(yall:lambda_functor('/')).
+   show_call(retractall(yall:lambda_functor('/'))).
 :- endif.
 
 
+:- current_prolog_flag(os_argv,[swipl])->
+   set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']); true.
+
+   
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOAD PARTS OF SYSTEM EARLY").

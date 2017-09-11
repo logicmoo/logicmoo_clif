@@ -146,7 +146,7 @@ proven_not_poss(H):- proven_not_tru(H).
 
 
 :- kb_shared(baseKB:proven_tru/1).
-proven_tru(H):- loop_check(call_u(H)), \+ show_failure(proven_neg(H)).
+proven_tru(H):- loop_check(call_u(H)), show_failure(\+ proven_neg(H)).
 %proven_tru(H):- \+ ground(H),nrlc((duce_tru(H))).
 %proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
 

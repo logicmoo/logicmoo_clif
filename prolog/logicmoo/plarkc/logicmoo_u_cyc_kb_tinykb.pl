@@ -131,9 +131,11 @@ reallyLoadTiny:- mpred_notrace.
 :- endif.
 
 
-%TODO FIX :-ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))).
 
-:- ain(baseKB:(((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
+
+:-ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))).
+
+%%TODO FIX  :- ain(baseKB:(((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
 % ?-listing(cycl).
 
 %TODO FIX :- must(isa(iExplorer2,tHominid)).
@@ -9462,7 +9464,7 @@ assertedTinyKB_NEVER(genls, 'CycLExpression', 'CycLTerm', 'CoreCycLMt', vStrDef)
 
 
 
-:- fixup_exports.
+% :- fixup_exports.
 
 end_of_file.
 end_of_file.
