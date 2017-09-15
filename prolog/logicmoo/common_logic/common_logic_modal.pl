@@ -172,6 +172,7 @@ weaken_to_poss(IN,poss(IN)).
 
 
 
+identical_refl(X,Y):- X==Y,!.
 
 
 
@@ -239,9 +240,9 @@ guess_varnames(IO):-guess_varnames(IO,_).
 guess_varnames(I,O):-guess_varnames(add_var_to_env,I,O).
 
 guess_varnames(_Each,G,G):- \+ compound(G),!.
-guess_varnames(Each, subRelationOf(V,N), subRelationOf(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
-guess_varnames(Each, nameOf(V,N), nameOf(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
-guess_varnames(Each, nameOf(V,H), nameOf(V,H)):- var(V), \+ variable_name(V,_),
+guess_varnames(Each, subrelation(V,N), subrelation(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
+guess_varnames(Each, isNamed(V,N), isNamed(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
+guess_varnames(Each, isNamed(V,H), isNamed(V,H)):- var(V), \+ variable_name(V,_),
    compound(H),functor(H,F,_),
    flag(skolem_count,SKN,SKN+1),
    toCamelcase(F,UF),atom_concat(UF,SKN,UF1),
@@ -328,8 +329,8 @@ demodal_any(_KB,Head,Head,true):- !.
 % demodal_any(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
 
 
-is_xformed_body(ensure_dom).
-is_xformed_body(never_dom).
+is_xformed_body(ensure_cond).
+is_xformed_body(never_cond).
 is_xformed_body(skolem).
 
 demodal_body(_KB,_Head,Var, Var):- \+compound(Var),!.  
@@ -374,14 +375,14 @@ demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
 
 demodal_body(KB,  Head, proven_not_neg(skolem(X,Y,Which)), OUT):- !, demodal_body(KB,  Head, (skolem(X,Y,Which)), OUT).
 
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_dom(X,G)):- !.
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_dom(X,G)):- !.
+demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_cond(X,G)):- !.
+demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_cond(X,G)):- !.
 
 /*     
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_dom(X,G)):- term_variables(G,Vars),memberchk(V,Vars),X =<>= V.
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_dom(X,G)):- term_variables(G,Vars),memberchk(V,Vars),X =<>= V.
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), require_xdoms(G)):-  contains_var(X,G).
-% demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_xdoms(Vars,G)):- term_variables(G,Vars),contains_var(X,G).
+demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_cond(X,G)):- term_variables(G,Vars),memberchk(V,Vars),X =<>= V.
+demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_cond(X,G)):- term_variables(G,Vars),memberchk(V,Vars),X =<>= V.
+demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), require_xconds(G)):-  contains_var(X,G).
+% demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_xconds(Vars,G)):- term_variables(G,Vars),contains_var(X,G).
 demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_neg(G), expect_tru(G)):- sharing_vars_vars(SK,G).
 demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_tru(G), expect_fals(G)):- sharing_vars_vars(SK,G).
 */

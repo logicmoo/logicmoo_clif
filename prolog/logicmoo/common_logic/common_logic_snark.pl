@@ -187,10 +187,10 @@ kif_option(_Default,Jiggler):- foption_to_name(Jiggler,Name), kif_option_value(N
 
 kif_option(Default,_Jiggler):- \+ kif_value_false(Default).
 
+as_local_kv(-Key,Key,false):-!.
+as_local_kv(+Key,Key,true):-!.
 as_local_kv(Key,Key,true):- atom(Key),!.
 as_local_kv(KeyValue,_Key,_):- \+ compound(KeyValue),!,fail.
-as_local_kv(+Key,Key,true):-!.
-as_local_kv(-Key,Key,false):-!.
 as_local_kv(KeyValue,Key,Value):- KeyValue=..[Key,Value].
 as_local_kv(KeyValue,Key,Value):- KeyValue=..[_,Key,Value].
 

@@ -6,6 +6,7 @@
 :- ensure_abox(baseKB).
 
 :- sanity(ttRelationType(prologMultiValued)).
+
 :- kb_shared(argsIsa/2).
 
 feature_setting(N,V)/(feature_setting(N,Other),Other\==V)==> \+ feature_setting(N,Other). 

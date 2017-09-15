@@ -71,14 +71,14 @@ user:portray_var_hook(Var) :-
     set_prolog_flag(write_attributes,Was)),!.
 
 
-add_dom_differentFromAll(Ex,DisjExs):- add_dom_list_val(dif,differentFromAll,Ex,DisjExs).
+add_cond_differentFromAll(Ex,DisjExs):- add_cond_list_val(dif,differentFromAll,Ex,DisjExs).
 
 
-add_dom_list_val(_,_,_,[]):- !.
-add_dom_list_val(Pred1,_,X,[Y]):- atom(Pred1), X==Y -> true;P=..[Pred1,X,Y],add_dom(X,P). 
-add_dom_list_val(Pred1,Pred,X,FreeVars):- list_to_set(FreeVars,FreeVarSet),FreeVars\==FreeVarSet,!,
-  add_dom_list_val(Pred1,Pred,X,FreeVarSet).
-add_dom_list_val(_Pred,Pred,X,FreeVars):- P=..[Pred,X,FreeVars],add_dom(X,P).
+add_cond_list_val(_,_,_,[]):- !.
+add_cond_list_val(Pred1,_,X,[Y]):- atom(Pred1), X==Y -> true;P=..[Pred1,X,Y],add_cond(X,P). 
+add_cond_list_val(Pred1,Pred,X,FreeVars):- list_to_set(FreeVars,FreeVarSet),FreeVars\==FreeVarSet,!,
+  add_cond_list_val(Pred1,Pred,X,FreeVarSet).
+add_cond_list_val(_Pred,Pred,X,FreeVars):- P=..[Pred,X,FreeVars],add_cond(X,P).
 
 one_portray_hook(Var,Attr):-
   locally(set_prolog_flag(write_attributes,ignore),
@@ -94,9 +94,9 @@ one_portray_hook(Var,Attr):-
 visit_exs(P,P,_,In,In):- \+ compound(P),!.
 
 visit_exs(ex(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),   
- add_dom_list_val(skFArg,skFArgs,X,FreeVars),
+ add_cond_list_val(skFArg,skFArgs,X,FreeVars),
  visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!,
- add_dom(X,exists(X,InnerP)).
+ add_cond(X,exists(X,InnerP)).
 visit_exs(all(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),
   visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!.
 visit_exs(P,POut,FreeVars,In,Rest):-arg(_,P,PP),compound(PP),!,P=..[F|ARGS],get_ex_quants_l(FreeVars,ARGS,ARGSO,In,Rest),POut=..[F|ARGSO].
@@ -115,14 +115,14 @@ unify_two(AN,AttrX,V):- put_attr(V,AN,AttrX).
 
 exists:attr_unify_hook(Ex,V):- unify_two(exists,Ex,V).
 v:attr_unify_hook(Ex,V):- unify_two(v,Ex,V).
-v:attr_unify_hook(Ex,V):- (var(V)->unify_two(v,Ex,V);(throw("!nameOf " : Ex=V))).
+v:attr_unify_hook(Ex,V):- (var(V)->unify_two(v,Ex,V);(throw("!isNamed " : Ex=V))).
 
-kbi:nameOf(Ex,V):- Ex==V,!.
-kbi:nameOf(Ex,V):- var(V),!,freeze(V,kbi:nameOf(Ex,V)).
-kbi:nameOf(Ex,V):- get_attr(Ex,v,V0)->V0=@=V;put_attr(Ex,v,V).
+kbi:isNamed(Ex,V):- Ex==V,!.
+kbi:isNamed(Ex,V):- var(V),!,freeze(V,kbi:isNamed(Ex,V)).
+kbi:isNamed(Ex,V):- get_attr(Ex,v,V0)->V0=@=V;put_attr(Ex,v,V).
 
 
-assign_ex(Ex,V):- kbi:nameOf(Ex,V).
+assign_ex(Ex,V):- kbi:isNamed(Ex,V).
 
 reify((P,Q)):-!,reify(P),reify(Q).
 reify(P):- query_ex(P).
@@ -195,7 +195,7 @@ minus_vars(Head,Minus,Dif):-
 do_create_cl(Lit1,BodyLits,Prop):-   
    (current_predicate(_,Lit1)->true;make_type(Lit1)),   
    term_variables(Lit1,AllHeadVars),
-   maplist(add_dom_rev(Lit1),AllHeadVars),
+   maplist(add_cond_rev(Lit1),AllHeadVars),
    term_variables(BodyLits,AllBodyVars),
    subtract_eq(AllHeadVars,AllBodyVars,UniqeHead,Intersect),
    subtract_eq(AllBodyVars,AllHeadVars,UniqeBody,_BodyIntersect),
@@ -213,7 +213,7 @@ comingle_vars(QuantsList,NewP):-
 
 add_all_differnt(QuantsList,_NewP,Ex):-
     delete_eq(QuantsList,Ex,DisjExs),
-    add_dom_differentFromAll(Ex,DisjExs).
+    add_cond_differentFromAll(Ex,DisjExs).
 
 recorda_if_new(K,Lit1):- functor(Lit1,F,A),functor(Lit0,F,A),recorded(K,Lit0),Lit0=@=Lit1,!,wdmsg(skip_recorda(Lit0=@=Lit1)).
 recorda_if_new(K,Lit1):- show_call(recorda(K,Lit1)).
@@ -250,12 +250,12 @@ assert_ex(P):- visit_exs(P,NewP,[],[],QuantsList),
 get_name_strings(Term,Names):- 
    findall(Str,
     (sub_term(Str,Term),string(Str),
-      \+ ( sub_term(NameOf,Term), compound(NameOf), NameOf=nameOf(_,StrW), StrW==Str )),
+      \+ ( sub_term(NameOf,Term), compound(NameOf), NameOf=isNamed(_,StrW), StrW==Str )),
      NamesL),
    list_to_set(NamesL,Names).
 
 existsentialize_names([],P,P).
-existsentialize_names([Name|TODO],P,ex(X,(nameOf(X,Name),NewP))):-
+existsentialize_names([Name|TODO],P,ex(X,(isNamed(X,Name),NewP))):-
    subst(P,Name,X,NextP),
    existsentialize_names(TODO,NextP,NewP).
                                     
@@ -302,7 +302,7 @@ test_count(Goal,N):-
 :- make_type(female).
 % :- make_type(god).
 :- make_type(male).
-:- make_identity(nameOf).
+:- make_identity(isNamed).
 :- make_type(loves/2).
 
 :- make.
@@ -310,22 +310,22 @@ test_count(Goal,N):-
 
 f1:- assert_ex(male("Johnathan")).
 
-f2:- assert_ex(atleast(1,X,(male(X),nameOf(X,"Johnathan")))).
+f2:- assert_ex(atleast(1,X,(male(X),isNamed(X,"Johnathan")))).
 
-f3:- assert_ex(ex(X,(male(X),nameOf(X,"Johnathan")))).
+f3:- assert_ex(ex(X,(male(X),isNamed(X,"Johnathan")))).
 
 f4:- assert_ex(male("Joe")).
 
-f5:- assert_ex(atleast(1,X,(male(X),nameOf(X,"Joe")))).
+f5:- assert_ex(atleast(1,X,(male(X),isNamed(X,"Joe")))).
 
 
 r1:- assert_ex((
  ex(God,
     ex(Mary,
    (   female(Mary),
-       nameOf(Mary,"Mary"),
+       isNamed(Mary,"Mary"),
        god(God),
-       nameOf(God,"AlFaqa"),
+       isNamed(God,"AlFaqa"),
        loves(Mary,God)))))).
 
 r2:- assert_ex(
@@ -333,7 +333,7 @@ r2:- assert_ex(
     ex(Mother,
    (   child(Child),
        female(Mother),
-       nameOf(Child,childOf(Mother)),       
+       isNamed(Child,childOf(Mother)),       
        mother(Child,Mother))))).
 
 r3:- assert_ex(ex(Child,child(Child))).
@@ -342,9 +342,9 @@ r4:- (assert_ex(
   ex(Mary,
     ex(John,
    (   female(Mary),
-       nameOf(Mary,"Mary"),
+       isNamed(Mary,"Mary"),
        male(John),
-       nameOf(John,"Johnathan"),
+       isNamed(John,"Johnathan"),
        loves(John,Mary)))))).
 
 

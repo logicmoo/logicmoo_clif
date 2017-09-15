@@ -4,13 +4,14 @@
 
 :- include(test_header).
 
+:- set_prolog_flag(retry_undefined,false).
+
+:- ensure_loaded(library(script_files)).
+
 
 %:- ensure_abox(kbii).
 :- set_fileAssertMt(kbii).
-:- install_retry_undefined(kbii,kbi_define).
 
-
-:- ensure_loaded(library(script_files)).
 
 :- process_this_script.
 
@@ -565,7 +566,8 @@ holdsIn(_12442,instance(_12420,mobTourist)):-instance(_12442,actSightseeing),per
 :- test_boxlog([+pfc,+assert],exactly(6,X, puppy(X) & poss(cute(X)))).
 
 
-:- test_repl.
+:-  test_repl.
+
 end_of_file.
 
 

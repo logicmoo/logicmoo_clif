@@ -56,12 +56,12 @@ tstit(0) :- clr, f(1),
    test_count(man(_),1).
 
 
-f(1.1):- assert_ex(ex(X,(nameOf(X,"John"), man(X)))).   % same comment as as f8
-f(1.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
+f(1.1):- assert_ex(ex(X,(isNamed(X,"John"), man(X)))).   % same comment as as f8
+f(1.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"John")))).   % constraining by identity relly meant only 1
 
 f(2):- assert_ex(man("Joe")).   % man number 2
-f(2.1):- assert_ex(ex(X,(nameOf(X,"Joe"), man(X)))).   % same comment as as f8
-f(2.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % constraining by identity relly meant only 1
+f(2.1):- assert_ex(ex(X,(isNamed(X,"Joe"), man(X)))).   % same comment as as f8
+f(2.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"Joe")))).   % constraining by identity relly meant only 1
 
 f(3):- assert_ex(room("ThreeThirty")).
 
@@ -70,7 +70,7 @@ f(4):- assert_ex(room("OneTwenty")).
 f(5):- assert_ex(ex(Child,(man(Child),child(Child)))).  % Look, its a man child!
 f(5.1):- assert_ex(ex(Child,child(Child))). % would this create a second child?
 
-f(6):- assert_ex(ex(P,((man(P);female(P)),nameOf(P,"Pat")))).  % Two *different* constraint paths for a single identity
+f(6):- assert_ex(ex(P,((man(P);female(P)),isNamed(P,"Pat")))).  % Two *different* constraint paths for a single identity
 f(6.1):- assert_ex(ex(P,(man(P);female(P)))).  % Two constraint paths
 
 
@@ -94,9 +94,9 @@ r(1):- (assert_ex(
   ex(Mary,
     ex(John,
    (   female(Mary),
-       nameOf(Mary,"Mary"),
+       isNamed(Mary,"Mary"),
        man(John),
-       nameOf(John,"John"),
+       isNamed(John,"John"),
        loves(John,Mary)))))).
 
 
@@ -104,9 +104,9 @@ r(2):- assert_ex((
  ex(God,
     ex(Mary,
    (   female(Mary),
-       nameOf(Mary,"Mary"),
+       isNamed(Mary,"Mary"),
        god(God),
-       nameOf(God,"AlFaqa"),
+       isNamed(God,"AlFaqa"),
        loves(Mary,God)))))).
 
 r(3):- assert_ex(
@@ -114,7 +114,7 @@ r(3):- assert_ex(
     ex(Mother,
    (   child(Child),
        female(Mother),
-       nameOf(Child,childOf(Mother)),       
+       isNamed(Child,childOf(Mother)),       
        mother(Child,Mother))))).
 
 r(4):- assert_ex(all(R,implies(room(R),exists(D,and(door(D),has(R,D)))))).
@@ -139,7 +139,7 @@ tstit:- forall(tstit(_),true).
 :- make_type(female).
 % :- make_type(god).
 :- make_type(man).
-:- make_identity(nameOf).  % Evil? come on, just needed something here
+:- make_identity(isNamed).  % Evil? come on, just needed something here
 :- make_type(loves/2).
 
 Examples:
@@ -229,33 +229,33 @@ end_of_file.
 
 
 kbt:  ?- man(X).
-add_dom(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), nameOf(X, "John")]) ;
-add_dom(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), nameOf(X, "Joe")]) ;
-add_dom(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
+add_cond(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), isNamed(X, "John")]) ;
+add_cond(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), isNamed(X, "Joe")]) ;
+add_cond(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
 false.
 
 
  female(X).
-add_dom(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), nameOf(X, "Pat")]) ;
-  add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_27578664, X)]),
-add_dom(_27578664, [man, made_skolem(_27578664, skIsJohnNameOf_0FnSk), nameOf(_27578664, "John")]) ;
-  add_dom(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), nameOf(X, "Mary"), loves(_27581410, X)]),
-add_dom(_27581410, [man, child, made_skolem(_27581410, skIsChildIsExists_0FnSk), nameOf(_27581410, "John")]) ;
-  add_dom(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_27586180)), nameOf(_27586180, childOf(X)), mother(_27586180, X)]) ;
+add_cond(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), isNamed(X, "Pat")]) ;
+  add_cond(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27578664, X)]),
+add_cond(_27578664, [man, made_skolem(_27578664, skIsJohnNameOf_0FnSk), isNamed(_27578664, "John")]) ;
+  add_cond(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27581410, X)]),
+add_cond(_27581410, [man, child, made_skolem(_27581410, skIsChildIsExists_0FnSk), isNamed(_27581410, "John")]) ;
+  add_cond(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_27586180)), isNamed(_27586180, childOf(X)), mother(_27586180, X)]) ;
 false.
 
 kbt:  ?- room(X).
-add_dom(X, [room, made_skolem(X, skIsRoomThreeThirtyNameOf_0FnSk), nameOf(X, "ThreeThirty")]) ;
-add_dom(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), nameOf(X, "OneTwenty")]) ;
+add_cond(X, [room, made_skolem(X, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(X, "ThreeThirty")]) ;
+add_cond(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), isNamed(X, "OneTwenty")]) ;
 false.
 
 
 kbt:  ?- door(X).
 % kbi_define(kbt:door/1).
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27566860)), has(_27566860, X)]),
- add_dom(_27566860, [room, made_skolem(_27566860, skIsRoomThreeThirtyNameOf_0FnSk), nameOf(_27566860, "ThreeThirty")]) ;
-add_dom(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27568268)), has(_27568268, X)]),
- add_dom(_27568268, [room, made_skolem(_27568268, skIsRoomOneTwentyNameOf_0FnSk), nameOf(_27568268, "OneTwenty")]) ;
+add_cond(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27566860)), has(_27566860, X)]),
+ add_cond(_27566860, [room, made_skolem(_27566860, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(_27566860, "ThreeThirty")]) ;
+add_cond(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27568268)), has(_27568268, X)]),
+ add_cond(_27568268, [room, made_skolem(_27568268, skIsRoomOneTwentyNameOf_0FnSk), isNamed(_27568268, "OneTwenty")]) ;
 false.
 
 
@@ -274,20 +274,20 @@ kbt:  ?- lr.
 producing(A) :-
         inherit_above(kbt, producing(A)).
 producing(loves(_, _)).
-producing(nameOf(_, "Joe")).
-producing(nameOf(_, "Mary")).
+producing(isNamed(_, "Joe")).
+producing(isNamed(_, "Mary")).
 producing(man(_)).
-producing(nameOf(_, "John")).
+producing(isNamed(_, "John")).
 producing(room(_)).
-producing(nameOf(_, "ThreeThirty")).
-producing(nameOf(_, "OneTwenty")).
+producing(isNamed(_, "ThreeThirty")).
+producing(isNamed(_, "OneTwenty")).
 producing(child(_)).
 producing(female(_)).
-producing(nameOf(_, "Pat")).
+producing(isNamed(_, "Pat")).
 producing(god(_)).
-producing(nameOf(_, "AlFaqa")).
+producing(isNamed(_, "AlFaqa")).
 producing(mother(_, _)).
-producing(nameOf(_, childOf(_))).
+producing(isNamed(_, childOf(_))).
 producing(door(_)).
 producing(has(_, _)).
 
@@ -307,26 +307,26 @@ duce_tru(A) :-
 duce_tru(loves(B, A)) :-
         skolem(A, skMaryNameOfLoves_1FnSk(B)),
         skolem(B, skJoeNameOfLovesExists_0FnSk).
-duce_tru(nameOf(A, "Joe")) :-
+duce_tru(isNamed(A, "Joe")) :-
         skolem(A, skJoeNameOfLovesExists_0FnSk).
-duce_tru(nameOf(A, "Mary")) :-
+duce_tru(isNamed(A, "Mary")) :-
         skolem(A, skMaryNameOfLoves_1FnSk(B)),
         skolem(B, skJoeNameOfLovesExists_0FnSk).
 duce_tru(man(A)) :-
         skolem(A, skIsJohnNameOf_0FnSk).
-duce_tru(nameOf(A, "John")) :-
+duce_tru(isNamed(A, "John")) :-
         skolem(A, skIsJohnNameOf_0FnSk).
 duce_tru(man(A)) :-
         skolem(A, skIsJoeNameOf_0FnSk).
-duce_tru(nameOf(A, "Joe")) :-
+duce_tru(isNamed(A, "Joe")) :-
         skolem(A, skIsJoeNameOf_0FnSk).
 duce_tru(room(A)) :-
         skolem(A, skIsRoomThreeThirtyNameOf_0FnSk).
-duce_tru(nameOf(A, "ThreeThirty")) :-
+duce_tru(isNamed(A, "ThreeThirty")) :-
         skolem(A, skIsRoomThreeThirtyNameOf_0FnSk).
 duce_tru(room(A)) :-
         skolem(A, skIsRoomOneTwentyNameOf_0FnSk).
-duce_tru(nameOf(A, "OneTwenty")) :-
+duce_tru(isNamed(A, "OneTwenty")) :-
         skolem(A, skIsRoomOneTwentyNameOf_0FnSk).
 duce_tru(child(A)) :-
         skolem(A, skIsChildIsExists_0FnSk).
@@ -338,7 +338,7 @@ duce_tru(female(A)) :-
 duce_tru(man(A)) :-
         skolem(A, skIsFemaleIsExistsNameOf_0FnSk),
         proven_not_tru(female(A)).
-duce_tru(nameOf(A, "Pat")) :-
+duce_tru(isNamed(A, "Pat")) :-
         skolem(A, skIsFemaleIsExistsNameOf_0FnSk).
 duce_tru(female(A)) :-
         skolem(A, skIsFemaleExistsNameOfLoves_0FnSk).
@@ -348,9 +348,9 @@ duce_tru(man(A)) :-
 duce_tru(loves(A, B)) :-
         skolem(A, skIsExistsNameOfLoves_1FnSk(B)),
         skolem(B, skIsFemaleExistsNameOfLoves_0FnSk).
-duce_tru(nameOf(A, "Mary")) :-
+duce_tru(isNamed(A, "Mary")) :-
         skolem(A, skIsFemaleExistsNameOfLoves_0FnSk).
-duce_tru(nameOf(A, "John")) :-
+duce_tru(isNamed(A, "John")) :-
         skolem(A, skIsExistsNameOfLoves_1FnSk(B)),
         skolem(B, skIsFemaleExistsNameOfLoves_0FnSk).
 duce_tru(female(A)) :-
@@ -362,10 +362,10 @@ duce_tru(god(A)) :-
 duce_tru(loves(A, B)) :-
         skolem(A, skIsGodIsFemaleExistsNameOfLoves_1FnSk(B)),
         skolem(B, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
-duce_tru(nameOf(A, "AlFaqa")) :-
+duce_tru(isNamed(A, "AlFaqa")) :-
         skolem(_, skIsGodIsFemaleExistsNameOfLoves_1FnSk(A)),
         skolem(A, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
-duce_tru(nameOf(A, "Mary")) :-
+duce_tru(isNamed(A, "Mary")) :-
         skolem(A, skIsGodIsFemaleExistsNameOfLoves_1FnSk(B)),
         skolem(B, skIsGodIsFemaleExistsNameOfLoves_0FnSk).
 duce_tru(female(A)) :-
@@ -374,7 +374,7 @@ duce_tru(female(A)) :-
 duce_tru(mother(B, A)) :-
         skolem(A,
                     skIsChildofIsFemaleExistsNameOfMother_0FnSk(B)).
-duce_tru(nameOf(B, childOf(A))) :-
+duce_tru(isNamed(B, childOf(A))) :-
         skolem(A,
                     skIsChildofIsFemaleExistsNameOfMother_0FnSk(B)).
 duce_tru(door(A)) :-

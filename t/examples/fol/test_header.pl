@@ -36,6 +36,8 @@ test_header_include.
 
 :- endif.
 
+:- ensure_loaded(library(script_files)).
+
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
 
@@ -79,6 +81,7 @@ test_header_include.
 :- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
 :- endif.
 
+:- ensure_loaded(library(pfc_test)).
 
 :- kb_global(baseKB:ttExpressionType/1).
 
@@ -143,11 +146,11 @@ test_header_include.
 
 :- if(is_pfc_file).
 
-:- mpred_trace_exec.
+%:- mpred_trace_exec.
 
 :- else.
 
-:- mpred_trace_exec.
+%:- mpred_trace_exec.
 
 :- endif.
 

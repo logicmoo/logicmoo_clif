@@ -453,11 +453,11 @@ nnf(KB,Lit,FreeV,LitO,N):-
 % nnf1(KB,Fin,FreeV,NNF,Paths):- dmsg(nnf1(KB,Fin,FreeV,NNF,Paths)),fail.
 
 % Sentence was a Variable
-nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!, %push_dom(Lit,ftSentence),
+nnf1(_KB, Lit,FreeV, Lit,1):- is_ftVar(Lit),!, %push_cond(Lit,ftSentence),
  discovered_var(Lit,FreeV).
 nnf1(_KB,Lit,_FreeV,Lit,1):- leave_as_is(Lit),!.
 nnf1(_KB,~(Lit),_FreeV,~(Lit),1):- leave_as_is(Lit),!.
-nnf1(_KB,~(Lit),FreeV,~(Lit),1):- is_ftVar(Lit),!, %push_dom(Lit,ftSentence),
+nnf1(_KB,~(Lit),FreeV,~(Lit),1):- is_ftVar(Lit),!, %push_cond(Lit,ftSentence),
  discovered_var(Lit,FreeV).
 
 
@@ -835,9 +835,9 @@ nnf_args(_Sent,_F,_N,_KB,[],_FreeV,[],0):- !.
 
 nnf_args(Sent,F,N,KB,[A|RGS],FreeV,[FA|ARGS],N3):-  
  nop(closure_push(FA,admittedArgument(FA,N,F))),
- % push_dom(A,argIsaFn(F,N)),
+ % push_cond(A,argIsaFn(F,N)),
  must((nnf_arg(KB,A,FreeV,FA,N1),sanity(number(N1)))),!,
- % push_dom(FA,argIsaFn(F,N)),
+ % push_cond(FA,argIsaFn(F,N)),
  % annote(lit,FA,Sent),
   NPlus1 is N + 1,
   nnf_args(Sent,F,NPlus1,KB,RGS,FreeV,ARGS,N2),!,

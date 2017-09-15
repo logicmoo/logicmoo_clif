@@ -918,14 +918,14 @@ File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\prolog-tip\logicmoo\t
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\prolog-tip\logicmoo_clif.pl
   173 7:%=    atleast(X,N,A)
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\fol\attvar_dict_existentials.pl
-  313 16:f2:- assert_ex(atleast(1,X,(male(X),nameOf(X,"Johnathan")))).
-  319 16:f5:- assert_ex(atleast(1,X,(male(X),nameOf(X,"Joe")))).
+  313 16:f2:- assert_ex(atleast(1,X,(male(X),isNamed(X,"Johnathan")))).
+  319 16:f5:- assert_ex(atleast(1,X,(male(X),isNamed(X,"Joe")))).
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\fol\attvar_existentials.pfc
-  60 20:f(1.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
-  64 20:f(2.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % constraining by identity relly meant only 1
+  60 20:f(1.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"John")))).   % constraining by identity relly meant only 1
+  64 20:f(2.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"Joe")))).   % constraining by identity relly meant only 1
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\fol\attvar_existentials.pl
-  60 20:f(1.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"John")))).   % constraining by identity relly meant only 1
-  64 20:f(2.2):- assert_ex(atleast(1,X,(man(X),nameOf(X,"Joe")))).   % constraining by identity relly meant only 1
+  60 20:f(1.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"John")))).   % constraining by identity relly meant only 1
+  64 20:f(2.2):- assert_ex(atleast(1,X,(man(X),isNamed(X,"Joe")))).   % constraining by identity relly meant only 1
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\fol\boxlog_sanity_01.pfc.pl
   96 16::- test_boxlog(atleast(1,X,man(X))).
   102 16::- test_boxlog(atleast(3,X,man(X))).

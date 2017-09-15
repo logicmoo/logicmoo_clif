@@ -1805,8 +1805,8 @@ azzert_rename(C,P):- asserta(baseKB:rn_new(C,P)),dmsg_rename(C,P).
 
 dmsg_rename(C,P):-C\=P,dmsg((azzert_rename(C,P))).
 dmsg_rename(C,_):-downcase_atom(C,C),!.
-dmsg_rename(C,_):-starts_lower(C),!.
-dmsg_rename(C,P):-break,dmsg(warn(azzert_rename(C,P))).
+dmsg_rename(C,_):- starts_lower(C),!.
+dmsg_rename(C,P):- dmsg(warn(azzert_rename(C,P))).
 
 re_symbolize(N,V):- catch(atom_concat(':',N,V),_,fail),!.
 re_symbolize(N,V):- ignore(V='?'(N)).

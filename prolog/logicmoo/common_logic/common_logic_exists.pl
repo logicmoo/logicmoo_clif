@@ -11,13 +11,13 @@
          form_sk/2,
          sk_form/2,
          push_skolem/2,push_skolem/3,
-         push_dom/2,
+         push_cond/2,
          annote/4,
          annote/3,
          skolem_unify/2,
          show_attrs/1,            
          isaDom/2,
-         push_cond/2,
+         push_condx/2,
          is_value/1,
          skolem_test/1,
          destructive_replace/3,
@@ -108,23 +108,23 @@ with_no_kif_var_coroutines(Goal):- locally_each(t_l:no_kif_var_coroutines(true),
 */
 
 existentialize(P,NewP):- 
-   existentialize_objs(P,MidP),
-   existentialize_rels(MidP,NewP),!.
+   kif_optionally_e(true,existentialize_objs,P,MidP),
+   kif_optionally_e(false,existentialize_rels,MidP,NewP),!.
 
 existentialize_objs(P,NewP):- 
  get_named_objs(P,Names),
- quantify_names(name_to_string,nameOf,Names,P,NewP),!.
+ quantify_names(name_to_string,isNamed,Names,P,NewP),!.
   
 existentialize_rels(P,NewP):-
  current_outer_modal_t(HOLDS_T),
  to_tlog(HOLDS_T,_KB,P,TLog),
  get_named_rels(TLog,Names),
- quantify_names(=,subRelationOf,Names,TLog,NewP),!.
+ quantify_names(=,subrelation,Names,TLog,NewP),!.
   
 
 
-already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=nameOf(_,StrW), name(Str,StrW).
-already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=subRelationOf(_,Str).
+already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=isNamed(_,StrW), name(Str,StrW).
+already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=subrelation(_,Str).
 already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=exists(X,_),Str==X.
 already_existentialized(Term,Str):-  sub_term(NameOf,Term), compound(NameOf), NameOf=all(X,_),Str==X.
 
@@ -153,10 +153,10 @@ do_existentialize_f(_).
 dont_existentialize_args(_Term,F,_A):- dont_existentialize_f(F).
 
 dont_existentialize_f(skolem).
-dont_existentialize_f(nameOf).
+dont_existentialize_f(isNamed).
 dont_existentialize_f(equals).
 dont_existentialize_f(different).
-dont_existentialize_f(subRelationOf). 
+dont_existentialize_f(subrelation). 
 
 get_named_objs(Term,Names):- 
    findall(Str,
@@ -172,6 +172,7 @@ get_named_rels(Term,Names):-
    findall(Str,
     (sub_term(Sub,Term),
       should_existentialize_rel(_Term,Sub,Str),
+      \+ dont_existentialize_f(Str),
       \+ already_existentialized(Term,Str)),
      NamesL),
    list_to_set(NamesL,Names).
@@ -225,8 +226,8 @@ kbi_define(MFA):-
   get_mfa(MFA,M,F,A),
   kbi_define(M,F,A).
 
-kbi_define(M,F,A):- clause_b(mpred_props(M,F,A,kbi_define)),!.
-kbi_define(M,F,A):- ain(mpred_props(M,F,A,kbi_define)),
+kbi_define(M,F,A):- clause_b(mpred_prop(M,F,A,kbi_define)),!.
+kbi_define(M,F,A):- ain(mpred_prop(M,F,A,kbi_define)),
  functor(P,F,A),(predicate_property(M:P,static)->true;kbi_define_now(M,F,A,P)).
 
 kbi_define_now(M,F,A,P):-  
@@ -256,11 +257,11 @@ user:portray_var_hook(Var) :-
     set_prolog_flag(write_attributes,Was)),!.
 
 
-add_dom_list_val(_,_,_,[]):- !.
-add_dom_list_val(Pred1,_,X,[Y]):- atom(Pred1), X==Y -> true;P=..[Pred1,X,Y],add_dom(X,P). 
-add_dom_list_val(Pred1,Pred,X,FreeVars):- list_to_set(FreeVars,FreeVarSet),FreeVars\==FreeVarSet,!,
-  add_dom_list_val(Pred1,Pred,X,FreeVarSet).
-add_dom_list_val(_Pred,Pred,X,FreeVars):- P=..[Pred,X,FreeVars],add_dom(X,P).
+add_cond_list_val(_,_,_,[]):- !.
+add_cond_list_val(Pred1,_,X,[Y]):- atom(Pred1), X==Y -> true;P=..[Pred1,X,Y],add_cond(X,P). 
+add_cond_list_val(Pred1,Pred,X,FreeVars):- list_to_set(FreeVars,FreeVarSet),FreeVars\==FreeVarSet,!,
+  add_cond_list_val(Pred1,Pred,X,FreeVarSet).
+add_cond_list_val(_Pred,Pred,X,FreeVars):- P=..[Pred,X,FreeVars],add_cond(X,P).
 
 one_portray_hook(Var,Attr):-
   locally(set_prolog_flag(write_attributes,ignore),
@@ -275,9 +276,9 @@ one_portray_hook(Var,Attr):-
 visit_exs(P,P,_,In,In):- \+ compound(P),!.
 
 visit_exs(ex(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),   
- add_dom_list_val(skFArg,skFArgs,X,FreeVars),
+ add_cond_list_val(skFArg,skFArgs,X,FreeVars),
  visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!,
- add_dom(X,exists(X,InnerP)).
+ add_cond(X,exists(X,InnerP)).
 visit_exs(all(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),
   visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!.
 visit_exs(P,POut,FreeVars,In,Rest):-arg(_,P,PP),compound(PP),!,P=..[F|ARGS],get_ex_quants_l(FreeVars,ARGS,ARGSO,In,Rest),POut=..[F|ARGSO].
@@ -297,33 +298,33 @@ unify_two(AN,AttrX,V):- put_attr(V,AN,AttrX).
 exists:attr_unify_hook(Ex,V):- unify_two(exists,Ex,V).
 
 
-never_dom(Var,nesc(b_d(_,nesc,poss), ~ P )):- !, ensure_dom(Var,poss(P)).
-never_dom(Var,nesc(~ P )):- !, ensure_dom(Var,poss(P)).
-never_dom(Var,(~ P )):- !, ensure_dom(Var,poss(P)).
-never_dom(NonVar,Closure):- nonvar(NonVar),!, \+ call_tru(NonVar,Closure).
+never_cond(Var,nesc(b_d(_,nesc,poss), ~ P )):- !, ensure_cond(Var,poss(P)).
+never_cond(Var,nesc(~ P )):- !, ensure_cond(Var,poss(P)).
+never_cond(Var,(~ P )):- !, ensure_cond(Var,poss(P)).
+never_cond(NonVar,Closure):- nonvar(NonVar),!, \+ call_tru(NonVar,Closure).
 
-%never_dom(Var,Closure):- attvar(Var),!,add_dom(Var,Closure).
-%never_dom(Var,Closure):- add_dom(Var,Closure).
+%never_cond(Var,Closure):- attvar(Var),!,add_cond(Var,Closure).
+%never_cond(Var,Closure):- add_cond(Var,Closure).
 
-ensure_dom(NonVar,Closure):- nonvar(NonVar),!,call_tru(NonVar,Closure).
-ensure_dom(Var,Closure):- attvar(Var),!,add_dom(Var,Closure).
-ensure_dom(Var,Closure):- add_dom(Var,Closure).
+ensure_cond(NonVar,Closure):- nonvar(NonVar),!,call_tru(NonVar,Closure).
+ensure_cond(Var,Closure):- attvar(Var),!,add_cond(Var,Closure).
+ensure_cond(Var,Closure):- add_cond(Var,Closure).
 
-not_nameOf(Ex,V):- \+ nameOf(Ex,V).
+not_nameOf(Ex,V):- \+ isNamed(Ex,V).
 
-nameOf(Ex,V):- compound(V),!,proven_tru(nameOf(Ex,V)).
-nameOf(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
-nameOf(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
-nameOf(Ex,V):- nonvar(V),has_dom(Ex,nameOf(Ex,V0)),!,text_to_string(V0,V).
-nameOf(Ex,V):- nonvar(V),!,add_dom(Ex,nameOf(Ex,V)),!,add_var_to_env(V,Ex).
-nameOf(Ex,V):- var(V),has_dom(Ex,nameOf(Ex,V)),!,(nonvar(V)->add_var_to_env(V,Ex);true).
+isNamed(Ex,V):- compound(V),!,proven_tru(isNamed(Ex,V)).
+isNamed(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
+isNamed(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
+isNamed(Ex,V):- nonvar(V),has_cond(Ex,isNamed(Ex,V0)),!,text_to_string(V0,V).
+isNamed(Ex,V):- nonvar(V),!,add_cond(Ex,isNamed(Ex,V)),!,add_var_to_env(V,Ex).
+isNamed(Ex,V):- var(V),has_cond(Ex,isNamed(Ex,V)),!,(nonvar(V)->add_var_to_env(V,Ex);true).
 
-nameOf(Ex,V):- proven_tru(nameOf(Ex,V)).
-% nameOf(Ex,V):- var(V),!,add_dom(Ex,nameOf(Ex,V)),!.
+isNamed(Ex,V):- proven_tru(isNamed(Ex,V)).
+% isNamed(Ex,V):- var(V),!,add_cond(Ex,isNamed(Ex,V)),!.
 
 
 
-assign_ex(Ex,V):- nameOf(Ex,V).
+assign_ex(Ex,V):- isNamed(Ex,V).
 
 reify((P,Q)):-!,reify(P),reify(Q).
 reify(P):- query_ex(P).
@@ -366,7 +367,7 @@ bless(P):-
 
 % add_constraint_ex(_Call,_P,_V):-!,fail.
 add_constraint_ex(_,P,V):- \+ contains_var(V,P),!.
-add_constraint_ex(_,P,V):- add_dom(V,P),!.
+add_constraint_ex(_,P,V):- add_cond(V,P),!.
 add_constraint_ex(Call,P,V):-freeze(V,call(Call,V,P)).
 
 get_ev(P,Annotated,Plain):- 
@@ -414,7 +415,7 @@ minus_vars(Head,Minus,Dif):-
 do_create_cl(Lit1,BodyLits,Prop):-   
    (current_predicate(_,Lit1)->true;make_type(Lit1)),   
    term_variables(Lit1,AllHeadVars),
-   maplist(add_dom_rev(Lit1),AllHeadVars),
+   maplist(add_cond_rev(Lit1),AllHeadVars),
    term_variables(BodyLits,AllBodyVars),
    subtract_eq(AllHeadVars,AllBodyVars,UniqeHead,Intersect),
    subtract_eq(AllBodyVars,AllHeadVars,UniqeBody,_BodyIntersect),
@@ -460,24 +461,24 @@ ensure_sk_props(X,Dict):- sanity(var(X)),(get_sk_props(X,Dict)->true;((new_sk_di
 :- kb_shared(baseKB:make_existential/3).
 
 made_skolem(_,_).
-skolem(X, count(_,_,SK),Which):- var(X), has_dom(X,made_skolem(SK,Which)), !.
+skolem(X, count(_,_,SK),Which):- var(X), has_cond(X,made_skolem(SK,Which)), !.
 skolem(X, Var,Which):- var(Var),!,call(call,clause(make_existential(_,Var,_),_)),skolem(X, Var,Which).
 skolem(X, count(Start,End,SK),Which):- var(X),!, 
-  \+ has_dom(X,made_skolem(SK,_)),
+  \+ has_cond(X,made_skolem(SK,_)),
   functor(SK,SKF,_),
   !,
   between(1,Start,_),
   once((nb_get_next(SKF,Start,Which),
-  add_dom(X,made_skolem(SK,Which)),
+  add_cond(X,made_skolem(SK,Which)),
   make_existential(X,count(Start,End,SK),Which))).
 
 skolem(X, SK,Which):- var(X),!, 
-   \+ has_dom(X,made_skolem(SK,_)), !,
-  add_dom(X,made_skolem(SK,Which)),
+   \+ has_cond(X,made_skolem(SK,_)), !,
+  add_cond(X,made_skolem(SK,Which)),
   make_existential(X,SK,Which).
 
 skolem(E,SK,Which):- 
-  nameOf(E,Named),!,(make_existential(X,SK,Which)*->nameOf(X,Named)).
+  isNamed(E,Named),!,(make_existential(X,SK,Which)*->isNamed(X,Named)).
 
 
 % nb_get_first(SKF, Which):- (nb_current(SKF,Which) -> true ; (nb_setval(SKF,1),Which=1)).
@@ -548,12 +549,19 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 
 */
 
-attvar_or_const(C):- nonvar(C);attvar(C).
+attvar_or_const(C):- attvar(C); (nonvar(C),nop(C==1->break,true)).
 
-call_tru(X):- arg(1,X,E),call_tru(E,X).
-call_tru(E,X):- \+ ground(E), (has_dom(E,(X))->rem_dom(E,(X)); true),
-   nrlc((proven_tru((X)))),has_dom(E,(X)),attvar_or_const(E).
-call_tru(E,X):- (nonvar(E);not_has_dom(E,(X)),!, nrlc((proven_tru_kbi((X)))), \+ proven_neg((X))),attvar_or_const(E).
+call_tru(X):- var(X),!,(proven_tru(X); (proven_neg(Y),X= ~(Y))).
+call_tru(X):- atomic(X),!,call(X).
+call_tru(X):- arg(1,X,E),loop_check(call_tru(E,X)).
+
+call_tru(E,X):- \+ ground(E), 
+  (has_cond(E,(X))->rem_cond(E,(X)); true),
+   nrlc((proven_tru((X)))),has_cond(E,(X)),attvar_or_const(E).
+
+call_tru(E,X):- (nonvar(E);not_has_cond(E,(X))),!, 
+  nrlc((proven_tru_kbi((X)))), \+ proven_neg((X)),attvar_or_const(E).
+
 call_tru(_,X):- context_module(M), inherit_above(M, (X)).
 
 % call_tru(P):- is_recorded(P).
@@ -563,13 +571,13 @@ call_tru(_,X):- context_module(M), inherit_above(M, (X)).
 
 
 loves(X,Y):-  (nonvar(X);nonvar(Y)),
-              (has_dom(X,(loves(X,Y)))->rem_dom(X,(loves(X,Y))); true),
-              (has_dom(Y,(loves(X,Y)))->rem_dom(Y,(loves(X,Y))); true),
+              (has_cond(X,(loves(X,Y)))->rem_cond(X,(loves(X,Y))); true),
+              (has_cond(Y,(loves(X,Y)))->rem_cond(Y,(loves(X,Y))); true),
               nrlc(proven_tru(loves(X,Y))),
-              (has_dom(X,(loves(X,Y)));has_dom(Y,(loves(X,Y)))),
+              (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
-loves(X,Y):- (nonvar(X);not_has_dom(X,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))),
-             (nonvar(Y);not_has_dom(Y,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))), 
+loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))),
+             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))), 
              \+ proven_neg(loves(X,Y)),
              attvar_or_const(X),attvar_or_const(Y).
 loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
@@ -586,9 +594,9 @@ nrlc(G):- no_repeats(loop_check(G)).
 
 
 man(X):- \+ ground(X),
-    (has_dom(X,man(X))->rem_dom(X,man(X)); true),
-   nrlc((proven_tru(man(X)))),has_dom(X,man(X)).
-man(X):- (nonvar(X);not_has_dom(X,man(X)),!, nrlc((proven_tru_kbi(man(X)))), \+ proven_neg(man(X))).
+    (has_cond(X,man(X))->rem_cond(X,man(X)); true),
+   nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
+man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((proven_tru_kbi(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 
 
@@ -772,7 +780,7 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),dmsg(( \+ con
 % ATTVAR WAY
 nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- !,
  must_det_l((
-    % add_dom(X,extensional(X)),
+    % add_cond(X,extensional(X)),
     term_slots(FreeV,Slots),
     skolem_f(KB, Fml, X, [KB|Slots], SkF),    
     nnf(KB, Fml <=> skolem(X,SkF,KB),FreeV,NNF1,Paths)
@@ -792,7 +800,7 @@ nnf_ex(KB, ~ quant(atleast(N),X,Fml), FreeV,NNF,Paths):- NN is N - 1,
 
 nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
  must_det_l((
-    % add_dom(X,extensional(X)),
+    % add_cond(X,extensional(X)),
     term_slots(FreeV,Slots),
     skolem_f(KB, Fml, X, [KB|Slots], SkF),    
     nnf(KB, (Fml <=> skolem(X, count(N,inf,SkF),_Which)), FreeV, NNF1, Paths)
@@ -888,7 +896,7 @@ nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- !,
 nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF1,Paths):- fail,
  kif_option(true,skolem(nnf)), !,
  must_det_l((
-    % add_dom(X,extensional(X)),
+    % add_cond(X,extensional(X)),
     term_slots(FreeV,Slots),
     skolem_f(KB, Fml, X, [KB|Slots], SkF),    
     nnf(KB, Fml <=> skolem(X,count(N,N,SkF),_Which),FreeV,NNF1,Paths)
@@ -1057,14 +1065,14 @@ mpred_constrain_w_proxy(Goal):- functor(Goal,F,_),  mpred_constrain_w_proxy_ente
 
 show_attrs(Var):- oo_get_attrs(Var,Atts),wdmsg(Var=Atts).
 
-% todo use: push_dom(X,Dom)
-mpred_set_arg_isa(Pred,N,Term,_Outer):- holds_attrs(Term),push_dom(Term,argIsaFn(Pred,N)),!.
+% todo use: push_cond(X,Dom)
+mpred_set_arg_isa(Pred,N,Term,_Outer):- holds_attrs(Term),push_cond(Term,argIsaFn(Pred,N)),!.
 mpred_set_arg_isa(Pred,N,Term,Outer):- 
   (is_value(Term);is_function_expr('=>',Term)),!,
   must(( setarg(N,Outer,NewVar),
    % destructive_replace(Outer,Term,NewVar),   
-   push_cond(NewVar,mudEquals(NewVar,Term)))),
-   push_dom(NewVar,argIsaFn(Pred,N)),!.
+   push_condx(NewVar,mudEquals(NewVar,Term)))),
+   push_cond(NewVar,argIsaFn(Pred,N)),!.
 mpred_set_arg_isa(_Pred,_N,Term,_Outer):- compound(Term),!,must(mpred_constrain_w_proxy(Term)),!.
 mpred_set_arg_isa(_Pred,_N,_Term,_Outer).
 
@@ -1084,9 +1092,9 @@ form_sk(OtherValue, Skolem):- sk:attr_unify_hook(Skolem, OtherValue),!.
 % form_sk(OtherValue, Skolem):- nonvar(OtherValue).
 
 
-% push_dom(_,_):- \+ is_skolem_setting(push_skolem),!.
-% push_dom(X,Form2):-annote(dom, X,Form2,_Merged).
-push_dom(X,Dom):- push_cond(X,isaDom(X,Dom)).
+% push_cond(_,_):- \+ is_skolem_setting(push_skolem),!.
+% push_cond(X,Form2):-annote(cond, X,Form2,_Merged).
+push_cond(X,Dom):- push_condx(X,isaDom(X,Dom)).
 
 isaDom(X,[Y|Z]):- !,maplist(isaDom(X),[Y|Z]).
 isaDom(X,Y):- ((call_u(isa(X,Y)) *-> true; true)).
@@ -1121,12 +1129,12 @@ sk_form(Sk, Form) :- oo_get_attr(Sk, sk, Form),!.
 sk_form(Var,Form):- var(Var),!,gensym(sk_other_,Form), dtrace, oo_put_attr(Var, sk, Form).
 sk_form(sk(Value),Value):-!.
 
-push_cond(X,Form):- annote(cond,X,Form,_Merged).
+push_condx(X,Form):- annote(condx,X,Form,_Merged).
 
-cond:attr_unify_hook(Cond,Value):- var(Value),!,push_cond(Value,Cond),!. 
+condx:attr_unify_hook(Cond,Value):- var(Value),!,push_condx(Value,Cond),!. 
 % ?- A=a(1),mpred_constrain_w_proxy(A),trace,A=a(Z),Z=1.0.
-cond:attr_unify_hook([X|Cond],_Value):- !, maplist(call_u,[X|Cond]).
-cond:attr_unify_hook(Cond,_Value):- call_u(Cond).
+condx:attr_unify_hook([X|Cond],_Value):- !, maplist(call_u,[X|Cond]).
+condx:attr_unify_hook(Cond,_Value):- call_u(Cond).
 
 %push_skolem(Onto,SK_ADD):- var(Onto), \+ attvar(Onto), nop(dmsg(warn(var_not_push_skolem(Onto,SK_ADD)))),!.
 push_skolem(Onto,SK_ADD):-push_skolem(Onto,SK_ADD,_).

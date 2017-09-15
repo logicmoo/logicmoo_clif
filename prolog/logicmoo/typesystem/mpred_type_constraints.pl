@@ -19,7 +19,7 @@
 % File: /opt/PrologMUD/pack/logicmmtc_base/prolog/logicmoo/mpred/mpred_type_constraints.pl
 %:- if(( ( \+ ((current_prolog_flag(logicmmtc_include,Call),Call))) )).
 :- module(mpred_type_constraints,
-          [ add_dom/2,           
+          [ add_cond/2,           
             arg_to_var/3,
             attempt_attribute_args/3,
             attempt_attribute_args/5,
@@ -33,18 +33,18 @@
             extend_iz/2,
             extend_iz_member/2,
             init_iz/2,
-            inst_dom/2,
+            inst_cond/2,
             isa_pred_l/3,
             isa_pred_l/4,
-            dom_chk/2,
-            dom_call/2,
-            domz_to_isa/2,
+            cond_chk/2,
+            cond_call/2,
+            condz_to_isa/2,
             map_subterms/3,
-            max_dom/3,
-            max_dom_l/2,
+            max_cond/3,
+            max_cond_l/2,
             dif_objs/2,
-            min_dom/3,
-            min_dom_l/2,
+            min_cond/3,
+            min_cond_l/2,
             promp_yn/2,
             same/2,
             same_arg/3,
@@ -126,11 +126,11 @@ map_meta_lit(_,_,_,[]):-!.
 with_outer(ExprF,N,Goal):- nb_current('$outer_stack',Was),
   locally($('$outer_stack')=[ExprF-N|Was],Goal).
 
-closure_push(Closure,Data):- var(Closure),!,add_dom(Closure,Data).
+closure_push(Closure,Data):- var(Closure),!,add_cond(Closure,Data).
 closure_push(Closure,Data):- Closure=[true|_Rest],!,setarg(1,Closure,Data).
 closure_push(Closure,Data):- Closure=[_First|Rest],!,setarg(2,Closure,[Data|Rest]).
 
-constrain_arg_var(Closure,Arg,FA):- closure_push(Closure,add_dom(Arg,FA)).
+constrain_arg_var(Closure,Arg,FA):- closure_push(Closure,add_cond(Arg,FA)).
 
 
 %push_modal(neg(_)):- nb_current('$modal_stack',[neg(_)|Was]),!, b_setval('$modal_stack',Was).
@@ -164,9 +164,11 @@ mappable_sentence_functor(F,_):- downcase_atom(F,DC),upcase_atom(F,DC).
 %mappable_sentence_functor(F,1):- \+ tCol(F).
 %mappable_sentence_functor(F,A):- \+ argIsa(F,A,_).
 
-mtc_put_iza(X,Z):- Z=[id(ID)|_],nonvar(ID),!,put_attr(X,iza,Z).
-mtc_put_iza(X,Z):- get_attr(X,iza,[id(ID)|_]),put_attr(X,iza,[id(ID)|Z]).
-mtc_put_iza(X,Z):- gensym(id_,ID),!,put_attr(X,iza,[id(ID)|Z]).
+%mtc_put_iza(X,Z):- Z=[id(ID)|_],nonvar(ID),!,put_attr(X,iza,Z).
+%mtc_put_iza(X,Z):- get_attr(X,iza,[id(ID)|_]),put_attr(X,iza,[id(ID)|Z]).
+%mtc_put_iza(X,Z):- gensym(id_,ID),!,put_attr(X,iza,[id(ID)|Z]).
+
+mtc_put_iza(X,Z):- put_attr(X,iza,Z).
 
 
 mtc_put_attr(X,iza,Z):- !, mtc_put_iza(X,Z).
@@ -371,12 +373,12 @@ put_value(Var,Value):- is_dict(Value,Tag),!,
 put_value(Var,Value):- iz(Var,[Value]).
 
 put_value_attr(Var,N-V):- put_attr_value(Var,N,V).
-put_attr_value(Var,iza,V):- !, add_dom(Var,V).
+put_attr_value(Var,iza,V):- !, add_cond(Var,V).
 put_attr_value(Var,iz,V):- !, iz(Var,V).
 put_attr_value(Arg,Name,FA):- as_constraint_for(Arg,FA,Constraint),!,put_attr_value0(Arg,Name,Constraint).
 
 put_attr_value0(Var,Name,HintE):- 
-  (mtc_get_attr(Var,Name,HintL) -> min_dom(HintE,HintL,Hint); Hint=[HintE]), !,
+  (mtc_get_attr(Var,Name,HintL) -> min_cond(HintE,HintL,Hint); Hint=[HintE]), !,
    mtc_put_attr(Var,Name,Hint).
 
 
@@ -458,11 +460,11 @@ thaw(G):- call_residue_vars(G,Vs),maplist(melt,Vs).
 melt(V):-frozen(V,G),call(G).
 
 
-%% inst_dom( ?X, ?List) is semidet.
+%% inst_cond( ?X, ?List) is semidet.
 %
 % Inst Isac.
 %
-inst_dom(X, List):- predsort(comp_type,List,SList),dom_call(X,SList).
+inst_cond(X, List):- predsort(comp_type,List,SList),cond_call(X,SList).
 
 % An attributed variable with attribute value DVar has been
 % assigned the value Y
@@ -470,11 +472,11 @@ inst_dom(X, List):- predsort(comp_type,List,SList),dom_call(X,SList).
 iza:attr_unify_hook(DVar, Y):- unify_attr_iza(DVar, Y).
 
 
-unify_attr_iza(Dom1, Y):- nonvar(Y),!,dom_chk(Y,Dom1).
-unify_attr_iza(Dom1, Y):- mtc_get_attr(Y, iza, Dom2),!,unify_doms(Dom1,Dom2,Result),mtc_put_attr(Y, iza, Result),!.
+unify_attr_iza(Dom1, Y):- nonvar(Y),!,cond_chk(Y,Dom1).
+unify_attr_iza(Dom1, Y):- mtc_get_attr(Y, iza, Dom2),!,unify_conds(Dom1,Dom2,Result),mtc_put_attr(Y, iza, Result),!.
 unify_attr_iza(Dom1, Y):- mtc_put_attr(Y, iza, Dom1 ).
 
-unify_doms(Dom1,Dom2,NewDomain):- \+ disjoint_doms(Dom1,Dom2), ord_union(Dom1, Dom2, NewDomain).
+unify_conds(Dom1,Dom2,NewDomain):- \+ disjoint_conds(Dom1,Dom2), ord_union(Dom1, Dom2, NewDomain).
 
 
 
@@ -488,7 +490,7 @@ add_all_differnt2(QuantsList,Ex):-
     differentFromAll(Ex,DisjExs).
 
 
-add_dom_differentFromAll(Ex,DisjExs):- add_dom(Ex,differentFromAll(Ex,DisjExs)).
+add_cond_differentFromAll(Ex,DisjExs):- add_cond(Ex,differentFromAll(Ex,DisjExs)).
 
 differentFromAll(One,List):- maplist(dif_objs(One),List).
 
@@ -500,49 +502,49 @@ differentFromAll(One,List):- maplist(dif_objs(One),List).
 %
 % dif_objs(A,B):- tlbugger:attributedVars,!,dif(A,B).
 dif_objs(A,B):- A==B,!,fail.
-dif_objs(A,B):- obtain_object_doms(A,B,Dom1,Dom2),!, 
-  \+ non_disjoint_doms(Dom1,Dom2),
-   disjoint_doms(Dom1,Dom2).
+dif_objs(A,B):- obtain_object_conds(A,B,Dom1,Dom2),!, 
+  \+ non_disjoint_conds(Dom1,Dom2),
+   disjoint_conds(Dom1,Dom2).
 
-dif_objs(A,B):- dif(A,B),add_dom(A,dif_objs(A,B)),add_dom(B,dif_objs(B,A)).
+dif_objs(A,B):- dif(A,B),add_cond(A,dif_objs(A,B)),add_cond(B,dif_objs(B,A)).
 
-disjoint_object_doms(Var1,Var2):- 
-  obtain_object_doms(Var1,Var2,Dom1,Dom2),
-  disjoint_doms(Dom1,Dom2).
+disjoint_object_conds(Var1,Var2):- 
+  obtain_object_conds(Var1,Var2,Dom1,Dom2),
+  disjoint_conds(Dom1,Dom2).
 
-obtain_object_doms(Var1,Var2,Dom1,Dom2):- 
-  obtain_doms(Var1,Dom1),obtain_doms(Var2,Dom2).
+obtain_object_conds(Var1,Var2,Dom1,Dom2):- 
+  obtain_conds(Var1,Dom1),obtain_conds(Var2,Dom2).
 
-obtain_doms(Var,Doms):- mtc_get_attr(Var,iza,Doms),!.
-obtain_doms(Var,DomsO):- compound(Var),functor(Var,_,A),arg(A,Var,Doms),
-  (is_list(Doms)->DomsO=Doms; obtain_doms(Doms,DomsO)).
+obtain_conds(Var,Doms):- mtc_get_attr(Var,iza,Doms),!.
+obtain_conds(Var,DomsO):- compound(Var),functor(Var,_,A),arg(A,Var,Doms),
+  (is_list(Doms)->DomsO=Doms; obtain_conds(Doms,DomsO)).
 
-% doms may not be merged
-disjoint_doms(Dom1,Dom2):- 
+% conds may not be merged
+disjoint_conds(Dom1,Dom2):- 
   member(Prop,Dom1), 
-  rejects_dom(Prop,Dom2).
+  rejects_cond(Prop,Dom2).
 
 % disjoint skolems
-rejects_dom(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1\==W2,!.
-rejects_dom(male,Dom2):- !, memberchk(female,Dom2).
-rejects_dom(_,_):- fail.
+rejects_cond(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1\==W2,!.
+rejects_cond(male,Dom2):- !, memberchk(female,Dom2).
+rejects_cond(_,_):- fail.
 
-% doms may not be merged
-non_disjoint_doms(Dom1,Dom2):- 
+% conds may not be merged
+non_disjoint_conds(Dom1,Dom2):- 
   member(Prop,Dom1), 
-  not_rejected_dom(Prop,Dom2).
+  not_rejected_cond(Prop,Dom2).
 
 % already same skolems
-not_rejected_dom(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1==W2,!.
-not_rejected_dom(male,Dom2):- memberchk(female,Dom2).
+not_rejected_cond(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1==W2,!.
+not_rejected_cond(male,Dom2):- memberchk(female,Dom2).
 
 
 % Translate attributes from this module to residual goals
 iza:attribute_goals(X) -->
       { mtc_get_attr(X, iza, List) },!,
-      [add_dom(X, List)].
+      [add_cond(X, List)].
 
-%% add_dom( ?Var, ?HintE) is semidet.
+%% add_cond( ?Var, ?HintE) is semidet.
 %
 % Add Iza.
 %
@@ -551,12 +553,12 @@ as_constraint_for(Arg,ISA,FA):- compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
 as_constraint_for(_,FA,FA).
 
 
-add_dom_rev(Prop,Var):- add_dom(Var,Prop).
+add_cond_rev(Prop,Var):- add_cond(Var,Prop).
 
-add_dom(Var,Prop):- is_list(Prop),!,maplist(add_dom1(Var),Prop).
-add_dom(Var,Prop):- add_dom1(Var,Prop).
+add_cond(Var,Prop):- is_list(Prop),!,maplist(add_cond1(Var),Prop).
+add_cond(Var,Prop):- add_cond1(Var,Prop).
 
-add_dom1(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,unify_attr_iza([Constraint],Var).
+add_cond1(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,unify_attr_iza([Constraint],Var).
 
 
 
@@ -565,41 +567,41 @@ add_dom1(Var,Prop):- as_constraint_for(Var,Prop,Constraint),!,unify_attr_iza([Co
 
 map_one_or_list(Call2,ArgOrL):- is_list(ArgOrL)->maplist(Call2,ArgOrL);call(Call2,ArgOrL).
 
-has_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(has_dom(Doms,Var),Prop).
-has_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),member(C,Doms).
+has_cond(Var,Prop):- obtain_conds(Var,Doms),map_one_or_list(has_cond(Doms,Var),Prop).
+has_cond(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),member(C,Doms).
 
-rem_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(rem_dom(Doms,Var),Prop).
-rem_dom(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),mtc_put_attr(Var,iza,NewDoms).
+rem_cond(Var,Prop):- obtain_conds(Var,Doms),map_one_or_list(rem_cond(Doms,Var),Prop).
+rem_cond(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),mtc_put_attr(Var,iza,NewDoms).
 
-not_has_dom(Var,Prop):- obtain_dom(Var,Doms),map_one_or_list(not_has_dom(Doms,Var),Prop).
-not_has_dom(Doms,Var,Prop):- \+ has_dom(Doms,Var,Prop).
-
-
+not_has_cond(Var,Prop):- obtain_conds(Var,Doms),map_one_or_list(not_has_cond(Doms,Var),Prop).
+not_has_cond(Doms,Var,Prop):- \+ has_cond(Doms,Var,Prop).
 
 
-%% dom_chk( ?E, ?Cs) is semidet.
+
+
+%% cond_chk( ?E, ?Cs) is semidet.
 %
 % Isac Checking.
 %
-dom_chk(_,_):- t_l:no_kif_var_coroutines(G),!,call(G).
-dom_chk(E,Cs):- once(dom_call(E,Cs)).
+cond_chk(_,_):- t_l:no_kif_var_coroutines(G),!,call(G).
+cond_chk(E,Cs):- once(cond_call(E,Cs)).
 
 
-%% dom_call( ?VALUE1, :TermARG2) is semidet.
+%% cond_call( ?VALUE1, :TermARG2) is semidet.
 %
 % Isac Gen.
 %
-dom_call(Y, [H|List]):- ground(Y),!,dom_call0(Y,H),!,dom_call00(Y, List).
-dom_call(Y, [H|List]):- !,maplist(dom_call0(Y),[H|List]).
-dom_call(_, _).
+cond_call(Y, [H|List]):- ground(Y),!,cond_call0(Y,H),!,cond_call00(Y, List).
+cond_call(Y, [H|List]):- !,maplist(cond_call0(Y),[H|List]).
+cond_call(_, _).
 
-dom_call00(Y, [H|List]):-!,dom_call0(Y,H),!,dom_call00(Y, List).
-dom_call00(_, _).
+cond_call00(Y, [H|List]):-!,cond_call0(Y,H),!,cond_call00(Y, List).
+cond_call00(_, _).
 
-dom_call0(Y,H):- atom(H),!,isa(Y,H).
-dom_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H).
-dom_call0(_,H):- call_u(H).
-% dom_call0(Y,H):- ereq(props(Y,H)).
+cond_call0(Y,H):- atom(H),!,isa(Y,H).
+cond_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H).
+cond_call0(_,H):- call_u(H).
+% cond_call0(Y,H):- ereq(props(Y,H)).
 
 /*
 enforce_fa_unify_hook([Goal|ArgIsas],Value):- !,
@@ -643,14 +645,14 @@ map_subterms(_Pred,IO,IO).
 
 
 
-%% domz_to_isa( :TermAA, :TermAB) is semidet.
+%% condz_to_isa( :TermAA, :TermAB) is semidet.
 %
 % iza Converted To  (iprops/2).
 %
-domz_to_isa(Iza,ftTerm):-var(Iza),!.
-domz_to_isa((A,B),isAnd(ListO)):-!,conjuncts_to_list((A,B),List),list_to_set(List,Set),min_dom_l(Set,ListO).
-domz_to_isa((A;B),isOr(Set)):-!,conjuncts_to_list((A,B),List),list_to_set(List,Set).
-domz_to_isa(AA,AB):-must(AA=AB).
+condz_to_isa(Iza,ftTerm):-var(Iza),!.
+condz_to_isa((A,B),isAnd(ListO)):-!,conjuncts_to_list((A,B),List),list_to_set(List,Set),min_cond_l(Set,ListO).
+condz_to_isa((A;B),isOr(Set)):-!,conjuncts_to_list((A,B),List),list_to_set(List,Set).
+condz_to_isa(AA,AB):-must(AA=AB).
 
 
 
@@ -659,23 +661,23 @@ domz_to_isa(AA,AB):-must(AA=AB).
 %
 % Attribs Converted To Atoms Primary Helper.
 %
-attribs_to_atoms0(Var,Isa):-mtc_get_attr(Var,iza,Iza),!,must(domz_to_isa(Iza,Isa)).
+attribs_to_atoms0(Var,Isa):-mtc_get_attr(Var,iza,Iza),!,must(condz_to_isa(Iza,Isa)).
 attribs_to_atoms0(O,O):- \+ (compound(O)).
 
 
-%% min_dom_l( ?List, ?ListO) is semidet.
+%% min_cond_l( ?List, ?ListO) is semidet.
 %
 % min  (sub_super/2) (List version).
 %
-min_dom_l(List,ListO):-isa_pred_l(lambda(Y,X,sub_super(X,Y)),List,ListO).
+min_cond_l(List,ListO):-isa_pred_l(lambda(Y,X,sub_super(X,Y)),List,ListO).
 
 
 
-%% max_dom_l( ?List, ?ListO) is semidet.
+%% max_cond_l( ?List, ?ListO) is semidet.
 %
 % max  (sub_super/2) (List version).
 %
-max_dom_l(List,ListO):-isa_pred_l(sub_super,List,ListO).
+max_cond_l(List,ListO):-isa_pred_l(sub_super,List,ListO).
 
 
 
@@ -699,39 +701,39 @@ isa_pred_l(Pred,[X|L],List,[X|O]):-isa_pred_l(Pred,L,List,O).
 
 
 
-%% min_dom( :TermHintA, ?HintE, ?HintE) is semidet.
+%% min_cond( :TermHintA, ?HintE, ?HintE) is semidet.
 %
 % min  (sub_super/2).
 %
-min_dom([H],In,Out):- !, min_dom0(H,In,Out).
-min_dom([H|T],In,Out):- !, min_dom0(H,In,Mid),min_dom(T,Mid,Out).
-min_dom(E,In,Out):- min_dom0(E,In,Out).
+min_cond([H],In,Out):- !, min_cond0(H,In,Out).
+min_cond([H|T],In,Out):- !, min_cond0(H,In,Mid),min_cond(T,Mid,Out).
+min_cond(E,In,Out):- min_cond0(E,In,Out).
 
-min_dom0(HintA,[],[HintA]).
-min_dom0(HintA,[HintB|HintL],[HintB|HintL]):- HintA==HintB,!.
-min_dom0(HintA,[HintB|HintL],[HintA,HintB|HintL]):- functor(HintA,_,A),functor(HintB,_,B),B>A,!.
-min_dom0(HintA,[HintB|HintL],[HintA|HintL]):- sub_super(HintA,HintB),!.
-min_dom0(HintA,[HintB|HintL],[HintB|HintL]):- sub_super(HintB,HintA),!.
-min_dom0(HintA,[HintB|HintL],[HintB|HintS]):- !,min_dom0(HintA,HintL,HintS).
+min_cond0(HintA,[],[HintA]).
+min_cond0(HintA,[HintB|HintL],[HintB|HintL]):- HintA==HintB,!.
+min_cond0(HintA,[HintB|HintL],[HintA,HintB|HintL]):- functor(HintA,_,A),functor(HintB,_,B),B>A,!.
+min_cond0(HintA,[HintB|HintL],[HintA|HintL]):- sub_super(HintA,HintB),!.
+min_cond0(HintA,[HintB|HintL],[HintB|HintL]):- sub_super(HintB,HintA),!.
+min_cond0(HintA,[HintB|HintL],[HintB|HintS]):- !,min_cond0(HintA,HintL,HintS).
 
 
 
 sub_super(Col1,Col2):- tCol(Col1),!,genls(Col1,Col2).
 
-%% max_dom( :TermHintA, ?HintE, ?HintE) is semidet.
+%% max_cond( :TermHintA, ?HintE, ?HintE) is semidet.
 %
 % max  (sub_super/2).
 %
-max_dom([H],In,Out):- !, max_dom0(H,In,Out).
-max_dom([H|T],In,Out):- !, max_dom0(H,In,Mid),max_dom(T,Mid,Out).
-max_dom(E,In,Out):- max_dom0(E,In,Out).
+max_cond([H],In,Out):- !, max_cond0(H,In,Out).
+max_cond([H|T],In,Out):- !, max_cond0(H,In,Mid),max_cond(T,Mid,Out).
+max_cond(E,In,Out):- max_cond0(E,In,Out).
 
-max_dom0(HintA,[],[HintA]).
-max_dom0(HintA,[HintB|HintL],[HintB|HintL]):- HintA==HintB,!.
-max_dom0(HintA,[HintB|HintL],[HintA,HintB|HintL]):- functor(HintA,_,A),functor(HintB,_,B),B>A,!.
-max_dom0(HintA,[HintB|HintL],[HintA|HintL]):- sub_super(HintB,HintA),!.
-max_dom0(HintA,[HintB|HintL],[HintB|HintL]):- sub_super(HintA,HintB),!.
-max_dom0(HintA,[HintB|HintL],[HintB|HintS]):- !,max_dom0(HintA,HintL,HintS).
+max_cond0(HintA,[],[HintA]).
+max_cond0(HintA,[HintB|HintL],[HintB|HintL]):- HintA==HintB,!.
+max_cond0(HintA,[HintB|HintL],[HintA,HintB|HintL]):- functor(HintA,_,A),functor(HintB,_,B),B>A,!.
+max_cond0(HintA,[HintB|HintL],[HintA|HintL]):- sub_super(HintB,HintA),!.
+max_cond0(HintA,[HintB|HintL],[HintB|HintL]):- sub_super(HintA,HintB),!.
+max_cond0(HintA,[HintB|HintL],[HintB|HintS]):- !,max_cond0(HintA,HintL,HintS).
 
 
 
@@ -766,7 +768,7 @@ iz_member(G):-G.
 % Attempt Attribute Arguments.
 %
 
-attempt_attribute_args(_AndOr,Hint,Var):- var(Var),add_dom(Var,Hint),!.
+attempt_attribute_args(_AndOr,Hint,Var):- var(Var),add_cond(Var,Hint),!.
 attempt_attribute_args(_AndOr,_Hint,Grnd):-ground(Grnd),!.
 attempt_attribute_args(_AndOr,_Hint,Term):- \+ (compound(Term)),!.
 attempt_attribute_args(AndOr,Hint,+(A)):-!,attempt_attribute_args(AndOr,Hint,A).
@@ -775,7 +777,7 @@ attempt_attribute_args(AndOr,Hint,?(A)):-!,attempt_attribute_args(AndOr,Hint,A).
 attempt_attribute_args(AndOr,Hint,(A,B)):-!,attempt_attribute_args(AndOr,Hint,A),attempt_attribute_args(AndOr,Hint,B).
 attempt_attribute_args(AndOr,Hint,[A|B]):-!,attempt_attribute_args(AndOr,Hint,A),attempt_attribute_args(AndOr,Hint,B).
 attempt_attribute_args(AndOr,Hint,(A;B)):-!,attempt_attribute_args(';'(AndOr),Hint,A),attempt_attribute_args(';'(AndOr),Hint,B).
-attempt_attribute_args(_AndOr,_Hint,Term):- use_was_isa(Term,I,C), add_dom(I,C).
+attempt_attribute_args(_AndOr,_Hint,Term):- use_was_isa(Term,I,C), add_cond(I,C).
 attempt_attribute_args(AndOr,_Hint,Term):- Term=..[F,A],tCol(F),!,attempt_attribute_args(AndOr,F,A).
 attempt_attribute_args(AndOr,Hint,Term):- Term=..[F|ARGS],!,attempt_attribute_args(AndOr,Hint,F,1,ARGS).
 

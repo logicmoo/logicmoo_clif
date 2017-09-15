@@ -1,4 +1,7 @@
+
+
 :- include(test_header).
+
 
 :- process_this_script.
 
@@ -10,10 +13,20 @@
 % ==============================================================
 
 % Turn off modal extensions (default was full)
+
+%:- rtrace.
 :- set_prolog_flag(logicmoo_modality,none).
+:- must(current_prolog_flag(logicmoo_modality,none)).
+%:- break.
+
+
+% :- fully_expand_into_cache(change(assert,assert_u),~exists(X, cute_puppy(X))=>buys(joan, horse),_O).
 
 % Rule 1: If no cute puppies exist, then Joan will buy a horse  (authored by Joan)
 ~exists(X,cute_puppy(X)) => buys(joan,horse).
+
+
+
 
 % Rule 2: It is impossible for broke people to buy things  (authored by a Shop Keeper)
 forall([P,A], 
@@ -21,6 +34,7 @@ forall([P,A],
 
 % Fact A: Joan is a broke person  (authored by Joan)
 broke(joan).
+
 
 % Expose the problem
 :- mpred_test(cute_puppy(_)).
@@ -154,14 +168,14 @@ What = skIsCutepuppyExists_0FnSk.
 
 
 % Effectively we wanted to ensure
-test_1_take:-
+test_1_take:- cwc,
   mpred_test(\+ cute_puppy(_)),
   mpred_test(\+ ~cute_puppy(_)),
   nop(mpred_test(proven_neg(buys(joan,horse)))),!.
 
 
 % Additionally we wanted to ensure
-test_2_take:- 
+test_2_take:- cwc,
  nop(mpred_test(
    \+ nesc( 
       ~exists(X,cute_puppy(X)) => buys(joan,horse)))).
@@ -198,7 +212,7 @@ since [_]~P <-> ~<>P
 % Rule 2: It is impossible for broke people to buy things,
 % Fact A: Joan is a broke person
 
-test_setup:-
+test_setup:- cwc,
  mpred_reset_kb,
  test_assert(~exists(X,cute_puppy(X)) => buys(joan,horse)),
  test_assert(forall([P,A], broke(P)=> ~buys(P,A))),

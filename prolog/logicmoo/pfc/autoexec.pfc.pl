@@ -104,6 +104,8 @@
 
 %:- set_fileAssertMt(baseKB).
 
+:- baseKB:ensure_loaded('pfclib/system_autoexec.pfc').
+
 %:- ensure_loaded(('pfclib/system_base.pfc')).
 
 :- ensure_loaded('system_basic.pfc').

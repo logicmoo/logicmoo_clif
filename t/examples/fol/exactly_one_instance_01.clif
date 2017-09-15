@@ -31,4 +31,4 @@
 ; Devil has exactly one name
 ; ============================================================
 
-(exactly 1 ?name (nameOf Devil ?name))
+(exactly 1 ?name (isNamed Devil ?name))
