@@ -128,7 +128,7 @@ add_boxlog_history((P)):-
    prolog:history(In, add(S)))),!.
 
 :- export(test_boxlog/1).
-test_boxlog(P):- test_boxlog([],P).
+test_boxlog(P):- test_boxlog0(P).
 
 :- export(test_boxlog/1).
 test_boxlog(KV,P):- locally(t_l:kif_option_list(KV),test_boxlog0(P)).
@@ -260,7 +260,7 @@ dbanner:- nl,nl,dmsg('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 test_assert(A):-
   nop(kif_assert(A)),
-  test_boxlog(A),
+  test_boxlog([+assert],A),
   nop(forall(subtest(T),do_subtest(T))).
 
 

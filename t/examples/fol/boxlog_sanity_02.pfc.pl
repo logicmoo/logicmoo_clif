@@ -9,14 +9,14 @@
 % this is a more generalized problem in Nomics
 
 % ==============================================================
-% Section 1:  Problem with Nomics
+% Section 1:  Nomics Problem
 % ==============================================================
 
 % Turn off modal extensions (default was full)
 
 %:- rtrace.
-:- set_prolog_flag(logicmoo_modality,none).
-:- must(current_prolog_flag(logicmoo_modality,none)).
+:- set_kif_option(qualify_modality,none).
+:- must(kif_option_value(qualify_modality,none)).
 %:- break.
 
 
@@ -33,7 +33,7 @@ forall([P,A],
   broke(P) => ~ buys(P,A)).
 
 % Fact A: Joan is a broke person  (authored by Joan)
-broke(joan).
+nesc(broke(joan)).
 
 
 % Expose the problem
@@ -176,14 +176,14 @@ test_1_take:- cwc,
 
 % Additionally we wanted to ensure
 test_2_take:- cwc,
- nop(mpred_test(
+ (mpred_test(
    \+ nesc( 
       ~exists(X,cute_puppy(X)) => buys(joan,horse)))).
 
 
 
 % Turn modal extensions back on:
-:- set_prolog_flag(logicmoo_modality,full).
+:- set_kif_option(qualify_modality,full).
 
 % this secretly rewrites:
 %

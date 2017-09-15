@@ -18,6 +18,7 @@
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet']).
 
+:- set_kif_option(+assert).
 
 
 :- cls.      

@@ -177,6 +177,7 @@ delistify_last_arg0(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NAR
 
 
 :- thread_local(t_l:kif_option/2).
+:- thread_local(t_l:kif_option_list/1).
 
 kif_value_false(Value):- Value == none ; Value == fail; Value == []; Value == false; Value == no ; Value=todo.
 
@@ -194,11 +195,20 @@ as_local_kv(KeyValue,_Key,_):- \+ compound(KeyValue),!,fail.
 as_local_kv(KeyValue,Key,Value):- KeyValue=..[Key,Value].
 as_local_kv(KeyValue,Key,Value):- KeyValue=..[_,Key,Value].
 
-kif_option_value(Name,Value):- t_l:kif_option(Name,Value),!.
+set_kif_option(Name+Name2):- !,set_kif_option(Name),set_kif_option(+Name2).
+set_kif_option(Name-Name2):- !,set_kif_option(Name),set_kif_option(-Name2).
+set_kif_option(+Name):- !, set_kif_option(Name,true).
+set_kif_option(-Name):- !, set_kif_option(Name,false).
+set_kif_option(List):- is_list(List),!,maplist(set_kif_option,List).
+set_kif_option(N=V):- !, set_kif_option(N,V).
+set_kif_option(N:V):- !, set_kif_option(N,V).
+set_kif_option(Name,Value):- assert_setting01(t_l:kif_option(Name,Value)),!.
+
+kif_option_value(Name,Value):- Value==none,!,(kif_option_value(Name,ValueReally)->ValueReally==Value;true).
 kif_option_value(Name,Value):- t_l:kif_option_list(Dict),
    (is_dict(Dict) -> (get_dict(Key,Dict,Value),atom_concat(Key,_,Name));
-    true -> ((member(KeyValue,Dict),as_local_kv(KeyValue,Key,Value),(atom_concat(Key,_,Name);atom_concat(_,Key,Name))))),!.
-
+    true -> ((member(KeyValue,Dict),as_local_kv(KeyValue,Key,Value),(atom_concat(Key,_,Name);atom_concat(_,Key,Name))))),!.     
+kif_option_value(Name,Value):- t_l:kif_option(Name,Value),!.
 kif_option_value(Name,Value):- current_prolog_flag(Name,Value),!.
 kif_option_value(Name,Value):- clause_b(feature_setting(Name,Value)),!.
 
@@ -911,7 +921,7 @@ write_list([]).
 %
 
 % unnumbervars_with_names(X,X):-!.
-% unnumbervars_with_names(Term,CTerm):- ground(Term),!,duplicate_term(Term,CTerm).
+% unnumbervars_with_names(Term,CTerm):- ground(Term),!,dupe_term(Term,CTerm).
 unnumbervars_with_names(Term,CTerm):- show_failure(quietly(unnumbervars(Term,CTerm))),!.
 
 unnumbervars_with_names(Term,CTerm):- break,
@@ -1042,7 +1052,7 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,RealOUT):-
    kif_optionally_e(true,ensure_quantifiers,EXT,OuterQuantKIF),
    un_quant3(KB,OuterQuantKIF,NormalOuterQuantKIF),
    kif_optionally_e(false,rejiggle_quants(KB),NormalOuterQuantKIF,FullQuant),   
-   kif_optionally_e(todo,qualify_modality,FullQuant,ModalKIF),
+   kif_optionally_e(true,qualify_modality,FullQuant,ModalKIF),
    adjust_kif(KB,ModalKIF,ModalKBKIF),
    kif_optionally_e(true,nnf(KB),ModalKBKIF,NNF),
    sanity(NNF \== poss(~t)),
@@ -1232,8 +1242,14 @@ to_tnot(THIN,THIN):- \+ compound(THIN),!.
 to_tnot(~ THIN0,NTHIN):- to_tnot( THIN0, THIN),!,to_neg(THIN,NTHIN).
 to_tnot(poss_t(C,I),POSCI):- atom(C),CI=..[C,I],!,to_poss(CI,POSCI).
 to_tnot(poss(THIN0),NTHIN):- to_poss( THIN0, NTHIN),!.
+to_tnot(poss(_,THIN0),NTHIN):- to_poss( THIN0, NTHIN),!.
+to_tnot(tru(THIN0),(NTHIN)):- to_tnot( THIN0, NTHIN),!.
 to_tnot(nesc(THIN0),(NTHIN)):- to_tnot( THIN0, NTHIN),!.
+to_tnot(nesc(_,THIN0),(NTHIN)):- to_tnot( THIN0, NTHIN),!.
+to_tnot(n(THIN0),n(NTHIN)):- to_tnot( THIN0, NTHIN),!.
+to_tnot(tru(THIN0),tru(NTHIN)):- to_tnot( THIN0, NTHIN),!.
 to_tnot((X ; Y),(Xp ; Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
+to_tnot((X v Y),(Xp ; Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot((X :- Y),(Xp :- Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot((X , Y),(Xp , Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot(THIN0,tru(THIN)):- into_mpred_form(THIN0,THIN).

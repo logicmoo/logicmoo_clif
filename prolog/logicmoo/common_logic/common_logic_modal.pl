@@ -44,7 +44,7 @@ dif_objs(X,Y) =<>= dif_objs(YY,XX):-  v(X,Y) == v(XX,YY).
 
 :- thread_local(t_l:qualify_modally/0).
 %% qualify_modality( ?P, ?Q) is det.
-qualify_modality(OuterQuantKIF,OuterQuantKIF):- current_prolog_flag(logicmoo_modality,none),!.
+qualify_modality(OuterQuantKIF,OuterQuantKIF):- kif_option_value(qualify_modality,none),!.
 qualify_modality(PQ,PQO):- qualify_nesc(PQ,PQO).
 
 
@@ -64,19 +64,19 @@ qualify_nesc(PQ,PQO):- PQ=..[F|Q],is_quantifier(F),append(LQ,[RQ],Q),qualify_nes
 % qualify_nesc(P<=>Q,PQ & QP):- !,qualify_nesc(P=>Q,PQ),qualify_nesc(Q=>P,QP).
 
 % full modality
-qualify_nesc(P,(poss(P)=>nesc(P))):- current_prolog_flag(logicmoo_modality,full), !.
+qualify_nesc(P,(poss(P)=>nesc(P))):- kif_option_value(qualify_modality,full), !.
 
 % late modality
-qualify_nesc(P,nesc(P)):- current_prolog_flag(logicmoo_modality,late), !.
+qualify_nesc(P,nesc(P)):- kif_option_value(qualify_modality,late), !.
 
 
 % part modality
-qualify_nesc( ~(IN), ~(poss(IN))):- current_prolog_flag(logicmoo_modality,part), !.
+qualify_nesc( ~(IN), ~(poss(IN))):- kif_option_value(qualify_modality,part), !.
 %qualify_nesc(P<=>Q,((nesc(P)<=>nesc(Q)) & (poss(P)<=>poss(Q)))):-!.
-qualify_nesc(P=>Q,((poss(Q)&nesc(P))=>nesc(Q))):-  current_prolog_flag(logicmoo_modality,part), !.
+qualify_nesc(P=>Q,((poss(Q)&nesc(P))=>nesc(Q))):-  kif_option_value(qualify_modality,part), !.
 %qualify_nesc(P=>Q,((nesc(P)=>nesc(Q)) & (poss(P)=>poss(Q)))):-!.
 %qualify_nesc(P,(~nesc(P)=>nesc(P))):- \+ \+ (P = (_ & _) ; P = (_ v _)).
-qualify_nesc(P,nesc(P)):- \+ current_prolog_flag(logicmoo_modality,full), !.
+qualify_nesc(P,nesc(P)):- \+ kif_option_value(qualify_modality,full), !.
 
 % fallback
 qualify_nesc(P,nesc(P)):- !.
@@ -375,8 +375,8 @@ demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
 
 demodal_body(KB,  Head, proven_not_neg(skolem(X,Y,Which)), OUT):- !, demodal_body(KB,  Head, (skolem(X,Y,Which)), OUT).
 
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_cond(X,G)):- !.
-demodal_body(KB,  (make_existential(X,_,KB)), proven_not_tru(G), never_cond(X,G)):- !.
+demodal_body(_KB,  (make_existential(X,_,_Which)), proven_not_neg(G), ensure_cond(X,G)):- !.
+demodal_body(_KB,  (make_existential(X,_,_Which)), proven_not_tru(G), never_cond(X,G)):- !.
 
 /*     
 demodal_body(KB,  (make_existential(X,_,KB)), proven_not_neg(G), ensure_cond(X,G)):- term_variables(G,Vars),memberchk(V,Vars),X =<>= V.

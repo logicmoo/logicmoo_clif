@@ -518,6 +518,7 @@ obtain_object_conds(Var1,Var2,Dom1,Dom2):-
 obtain_conds(Var,Doms):- mtc_get_attr(Var,iza,Doms),!.
 obtain_conds(Var,DomsO):- compound(Var),functor(Var,_,A),arg(A,Var,Doms),
   (is_list(Doms)->DomsO=Doms; obtain_conds(Doms,DomsO)).
+% obtain_conds(_,[]).
 
 % conds may not be merged
 disjoint_conds(Dom1,Dom2):- 
