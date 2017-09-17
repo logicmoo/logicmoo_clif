@@ -22,13 +22,13 @@
 %
 */
 
-:- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
+% :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- user:reexport(library('logicmoo_pttp')).
 
 
 
 
-:- include(library('pfc2.0/mpred_header.pi')).
+%:- include(library('pfc2.0/mpred_header.pi')).
 %:- endif.
 
 :-
@@ -154,8 +154,10 @@ kif_optionally_e(Default,Name,Jiggler,KIF,JIGGLED):-
        ((kif_value_false(Value), \+ Default==always) -> KIF=JIGGLED ;
       ((locally(t_l:kif_option(Name,Value),
          must(call(Jiggler,KIF,JIGGLED))),
-       ((KIF \=@= JIGGLED) -> (sdmsg(Name=JIGGLED)); true)))),!.
+       if_debugging(Name,(KIF \=@= JIGGLED) -> (sdmsg(Name=JIGGLED)); true)))),!.
 
+if_debugging(_,_):- !.
+if_debugging(_,G):- call(G).
 
 :- fixup_exports.
 
@@ -221,7 +223,7 @@ kif_hook(_,F,_):- atom_concat('sk',_,F),atom_concat(_,'Fn',F),!.
 kif_hook(C,_,_):- leave_as_is(C),!,fail.
 kif_hook(C,F,_):- is_sentence_functor(F),!,arg(_,C,E),kif_hook(E).
 
-: - fixup_exports.
+:- fixup_exports.
 
 %% kif_hook_skel(+TermC) is det.
 %
@@ -259,7 +261,7 @@ kif_hook_skel( Compound):- var(Compound),!,arg(_,v(and,or,xor),F),between(1,12,A
 
 
 
-
+                                                               
 %% are_clauses_entailed( :TermE) is det.
 %
 % Are Clauses Entailed.
@@ -409,7 +411,7 @@ is_clif(CLIF):-
 :- style_check(+singleton).
 
 
-
+                                                        
 
 %% correct_arities( ?VALUE1, ?FmlO, ?FmlO) is det.
 %
@@ -901,130 +903,6 @@ get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
 
 
-%% kif_to_boxlog( ?Wff, ?Out) is det.
-%
-% Knowledge Interchange Format Converted To Datalog.
-%
-%====== kif_to_boxlog(+Wff,-NormalClauses):-
-:- public(kif_to_boxlog/2).
-
-%% kif_to_boxlog( +Fml, -Datalog) is det.
-%
-% Knowledge Interchange Format Converted To Datalog.
-%
-kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog(Wff,Out,Why)),!.
-% kif_to_boxlog(Wff,Out):- loop_check(kif_to_boxlog(Wff,Out),Out=looped_kb(Wff)). % kif_to_boxlog('=>'(WffIn,enables(Rule)),'$VAR'('MT2'),complete,Out1), % kif_to_boxlog('=>'(enabled(Rule),WffIn),'$VAR'('KB'),complete,Out).
-
-%% kif_to_boxlog( +Fml, +Why, -Datalog) is det.
-%
-% Knowledge Interchange Format Converted To Datalog.
-%
-:- export(kif_to_boxlog/3).
-kif_to_boxlog(Wff,Out,Why):- kif_to_boxlog(Wff,'$VAR'('KB'),Why,Out),!.
-
-
-%% kif_to_boxlog( +Fml, ?KB, +Why, -Datalog) is det.
-%
-% Knowledge Interchange Format Converted To Datalog.
-%
-:- export(kif_to_boxlog/4).
-kif_to_boxlog(I,KB,Why,Datalog):- % trace,
-  convert_if_kif_string( I, PTerm),
-  kif_to_boxlog(PTerm,KB,Why,Datalog), !.
-
-kif_to_boxlog(HB,KB,Why,FlattenedO):- 
-  sumo_to_pdkb(HB,HB00)->
-  sumo_to_pdkb(KB,KB00)->
-  sumo_to_pdkb(Why,Why00)->
-  unnumbervars_with_names((HB00,KB00,Why00),(HB0,KB0,Why0)),!,
-  with_no_kif_var_coroutines(must(kif_to_boxlog_attvars(HB0,KB0,Why0,FlattenedO))),!.
-
-:- meta_predicate(unless_ignore(*,*)).
-unless_ignore(A,B):- call(A)->B;true.
-
-kif_to_boxlog_attvars(kif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
-kif_to_boxlog_attvars(clif(HB),KB,Why,FlattenedO):-!,kif_to_boxlog_attvars(HB,KB,Why,FlattenedO).
-  
-kif_to_boxlog_attvars(HB,KB,Why,FlattenedO):- compound(HB),HB=(HEAD:- BODY),!,
-  must_det_l((
-   check_is_kb(KB),
-   conjuncts_to_list_det(HEAD,HEADL),
-   conjuncts_to_list_det(BODY,BODYL),
-   finish_clausify([cl(HEADL,BODYL)],KB,Why,FlattenedO))),!.
-
-kif_to_boxlog_attvars(WffIn0,KB0,Why0,RealOUT):- 
-  flag(skolem_count,_,0),
-  must_maplist_det(must_det,[
-   must_be_unqualified(WffIn0),
-   unnumbervars_with_names(WffIn0:KB0:Why0,WffIn:KB:Why),
-   check_is_kb(KB),
-   as_dlog(WffIn,DLOGKIF),!,
-   guess_varnames(DLOGKIF),
-   sdmsg(kif=(DLOGKIF)),
-   kif_optionally_e(false,existentialize_objs,DLOGKIF,EXTOBJ),
-   kif_optionally_e(false,existentialize_rels,EXTOBJ,EXT),
-   kif_optionally_e(true,ensure_quantifiers,EXT,OuterQuantKIF),
-   un_quant3(KB,OuterQuantKIF,NormalOuterQuantKIF),
-   kif_optionally_e(false,rejiggle_quants(KB),NormalOuterQuantKIF,FullQuant),   
-   kif_optionally_e(true,qualify_modality,FullQuant,ModalKIF),
-   adjust_kif(KB,ModalKIF,ModalKBKIF),
-   kif_optionally_e(true,nnf(KB),ModalKBKIF,NNF),
-   sanity(NNF \== poss(~t)),
-   % sdmsg(nnf=(NNF)),
-   % save_wid(Why,kif,DLOGKIF),
-   % save_wid(Why,pkif,FullQuant),
-   removeQ(KB,NNF,[], UnQ), 
-   unless_ignore(NNF\==UnQ, sdmsg(unq=UnQ)),
-   must(kif_to_boxlog_theorist(FullQuant,UnQ,KB,Why,RealOUT))]),!.
-
-kif_to_boxlog_theorist2(Original,THIN,KB,Why,RealOUT):-
-   demodal_clauses(KB,THIN,THIN2),
-   as_prolog_hook(THIN2,THIN3),    
-    must(cf(Why,KB,Original,THIN3,RealOUT)),!.
-
-kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,RealOUT):-
-  must_maplist_det(call,[
-   current_outer_modal_t(HOLDS_T),
-   % true cause poss loss
-   kif_optionally_e(false,to_tlog(HOLDS_T,KB),UnQ,UnQ666),
-   as_prolog_hook(UnQ666,THIN0),
-   kif_optionally_e(always,to_tnot,THIN0,THIN),
-   must_be_unqualified(THIN),
-   % unless_ignore(THIN\==UnQ, sdmsg(tlog_nnf_in=THIN)),
-   kif_optionally_e(always,tlog_nnf(even),THIN,RULIFY),
-   unless_ignore(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(tlog_nnf_out_negated= DRULIFY)))),
-   once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
-   list_to_set(SideEffectsList,SetList),
-   finish_clausify(KB,Why,SetList,RealOUT)]).
-
-tlog_nnf(Even,THIN,RULIFY):- th_nnf(THIN,Even,RULIFY).
-
-
-/*
-finish_clausify(KB,Why,Datalog,FlattenedO):-
-  set_prolog_flag(gc,true),
-  (current_prolog_flag(runtime_breaks,3)-> 
-       notrace(kif_optionally_e(true,interface_to_correct_boxlog(KB,Why),Datalog,DatalogT));
-   kif_optionally_e(true,interface_to_correct_boxlog(KB,Why),Datalog,DatalogT)),
-   demodal_clauses(KB,DatalogT,FlattenedO),!.
-*/
-
-finish_clausify(KB,Why,Datalog,RealOUT):-
-  locally(set_prolog_flag(dmsg_level,never),
-  ((must_maplist_det(call,[
-  kif_optionally_e(true,from_tlog,Datalog,Datalog11),
-  kif_optionally_e(false,interface_to_correct_boxlog(KB,Why),Datalog11,Datalog1),  
-  kif_optionally_e(true,demodal_clauses(KB),Datalog1,Datalog12),
-  remove_unused_clauses(Datalog12,Datalog2),
-  kif_optionally(false,defunctionalize_each,Datalog2,Datalog3),
-  predsort(sort_by_pred_class,Datalog3,Datalog4), 
-  kif_optionally(false,vbody_sort,Datalog4,Datalog5),
-  kif_optionally(false,demodal_clauses(KB),Datalog5,Datalog6),
-  kif_optionally_e(true,combine_clauses_with_disjuncts,Datalog6,Datalog7),  
-  kif_optionally_e(true,demodal_clauses(KB),Datalog7,Datalog8),
-  kif_optionally(false,kb_ify(KB),Datalog8,RealOUT)])))),!.
-
-
 is_4th_order(F):- atom_concat('never_',_,F).
 is_4th_order(F):- atom_concat('prove',_,F).
 is_4th_order(F):- atom_concat('call_',_,F).
@@ -1076,7 +954,7 @@ to_tlog(MD,KB, nesc(_,F),   HH):- XF =..[nesc,F], !,to_tlog(MD,KB,XF, HH).
 to_tlog(MD,KB, poss(_,F),   HH):- XF =..[poss,F], !,to_tlog(MD,KB,XF, HH).
 
 
-to_tlog(_,KB, poss(F),  poss( HH)):- to_tlog(poss,KB,F, HH).
+to_tlog(_,KB, poss(F),  poss( HH)):-!, to_tlog(poss,KB,F, HH).
 
 to_tlog(MD,KB,(X ; Y),(Xp v Yp)) :- to_tlog(MD,KB,X,Xp), to_tlog(MD,KB,Y,Yp).
 to_tlog(MD,KB,(X v Y),(Xp v Yp)) :- to_tlog(MD,KB,X,Xp), to_tlog(MD,KB,Y,Yp).
@@ -1155,14 +1033,15 @@ to_tnot((X :- Y),(Xp :- Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot((X , Y),(Xp , Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot(THIN0,tru(THIN)):- into_mpred_form(THIN0,THIN).
 
-to_neg(THIN,THIN):- \+ compound(THIN),!.
-to_neg(neg(THIN),THIN).
+to_neg(THIN,neg(THIN)):- \+ compound(THIN),!.
+%to_neg(neg(THIN),THIN).
 to_neg(tru(THIN),neg(THIN)).
 to_neg(THIN,neg(THIN)).
 
+
 to_poss(THIN,poss(THIN)):- \+ compound(THIN),!.
 to_poss(poss(THIN),poss(THIN)).
-to_poss(tru(THIN),poss(THIN)).
+to_poss(tru(THIN),tru(O)):-!,to_poss(THIN,O).
 to_poss(neg(THIN),poss(neg(THIN))).
 to_poss(THIN,poss(THIN)).
 
