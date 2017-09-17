@@ -1,6 +1,6 @@
 :- include(test_header).
 
-:- process_this_script.
+% :- process_this_script.
 
 % Initially Dmiles thought LEM was the culprit, it was not.
 % this is a more generalized problem in Nomics
@@ -23,7 +23,9 @@ broke(joan).
 % I mean we need Joan to vote yes on propositon #2?
 
 % Expose the problem
+:- break.
 :- mpred_test(cute_puppy(_)).
+
  /*
 
 What = skIsCutepuppyExists_0FnSk ;

@@ -45,10 +45,6 @@
 :- meta_predicate skolem_test(0).
 :- meta_predicate skolem_unify(*,0).
 
-:- use_module(library(multivar)).
-
-% :- baseKB:ain(boxlog(X)==>X).
-
 
 :- module_transparent with_no_kif_var_coroutines/1.
 
@@ -202,6 +198,7 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 :- dynamic(user:portray/1).
 :- multifile(user:portray/1).
 
+tru(P):- call_u(proven_tru(P)).
 
 falsify(different(Puppy1, Puppy2)):- clause(proven_neg(different(Puppy1, Puppy2)),Body)*->once(Body);(!,fail).
 falsify(P):- var(P),!,proven_neg(P).
@@ -275,6 +272,24 @@ one_portray_hook(Var,Attr):-
    format('~p',[Disp]))),
    set_prolog_flag(write_attributes,portray))))).
 
+
+visit_exs(P,P,_,In,In):- \+ compound(P),!.
+
+visit_exs(ex(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),   
+ add_cond_list_val(skFArg,skFArgs,X,FreeVars),
+ visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!,
+ add_cond(X,exists(X,InnerP)).
+visit_exs(all(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),
+  visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!.
+visit_exs(P,POut,FreeVars,In,Rest):-arg(_,P,PP),compound(PP),!,P=..[F|ARGS],get_ex_quants_l(FreeVars,ARGS,ARGSO,In,Rest),POut=..[F|ARGSO].
+visit_exs(P,P,_,In,In).
+
+assert_kbi(P):- must(assert_if_new(P)).
+
+get_ex_quants_l(_,[],[],IO,IO).  
+get_ex_quants_l(FreeVars,[X|ARGS],[Y|ARGSO],In,Rest):-
+  visit_exs(X,Y,FreeVars,In,M),
+  get_ex_quants_l(FreeVars,ARGS,ARGSO,M,Rest).
 
 unify_two(AN,AttrX,V):- nonvar(V),!, (V='$VAR'(_)->true;throw(unify_two(AN,AttrX,V))).
 unify_two(AN,AttrX,V):- get_attr(V,AN,OAttr),!,OAttr=@=AttrX,!. % ,show_call(OAttr=@=AttrX).
@@ -394,6 +409,19 @@ minus_vars(Head,Minus,Dif):-
    subtract_eq(HeadVars,BodyVars,Dif).
 
 
+%===
+%do_create_cl(_,Lit1,_):- ground(Lit1),!.
+%===
+do_create_cl(Lit1,BodyLits,Prop):-   
+   (current_predicate(_,Lit1)->true;make_type(Lit1)),   
+   term_variables(Lit1,AllHeadVars),
+   maplist(add_cond_rev(Lit1),AllHeadVars),
+   term_variables(BodyLits,AllBodyVars),
+   subtract_eq(AllHeadVars,AllBodyVars,UniqeHead,Intersect),
+   subtract_eq(AllBodyVars,AllHeadVars,UniqeBody,_BodyIntersect),
+   create_ex(Lit1,Prop,UniqeHead,Intersect,UniqeBody,BodyLits),
+   recorda_if_new(Lit1).
+
 
 %create_ex(X,Lit1,BodyLits,Prop,DisjExs):- \+ contains_var(X,Lit1),assert_if_new((gen_out(Lit1):- ensure_sneezed(X,Lit1,BodyLits,Prop,[]))),fail.
 create_ex(Lit1,Prop,UniqeHead,Intersect,UniqeBody,BodyLits):-
@@ -439,6 +467,17 @@ skolem(E,SK,Which):- nonvar(E),!,dmsg(warn(skolem(E,SK,Which))),
   isNamed(E,Named),!,(make_existential(X,SK,Which)*->isNamed(X,Named)).
 skolem(X, SK,Which):- var(X),no_repeats(skolem_var(X, SK,Which)).
 
+skolem(X, SK,Which):- var(X),!, 
+   \+ has_cond(X,made_skolem(SK,_)), !,
+  add_cond(X,made_skolem(SK,Which)),
+  make_existential(X,SK,Which).
+
+skolem(E,SK,Which):- 
+  isNamed(E,Named),!,(make_existential(X,SK,Which)*->isNamed(X,Named)).
+
+
+
+
 % already has this constraint
 skolem_var(X, count(_,_,SK),Which):- has_cond(X,made_skolem(SK,Which)), !.
 % generate "which"-es
@@ -462,8 +501,16 @@ nb_get_next(SKF, Max, Which):-  flag(SKF,X,X+1),
   (X == 0 -> Which=Max ; 
   ((X >= Max -> (Which=1,flag(SKF,_,0)) ; Which = X))).
 
-                                    
 
+% nb_get_first(SKF, Which):- (nb_current(SKF,Which) -> true ; (nb_setval(SKF,1),Which=1)).
+
+nb_get_next(SKF, Max, Which):- flag(SKF,X,X+1), X == 0,!,Which=Max.
+nb_get_next(SKF, Max, Which):- flag(SKF,X,X),!, (X == Max -> (Which=1,flag(SKF,_,0)) ; Which = X).
+
+%iterate_numbs(_SK,Min,Max,Which):- Min==Max, !, between(1,Min,Which).
+iterate_numbs(SKF,Min,Max,Which):- sanity(inf==Max),!, nb_get_next(SKF,Min,Which).
+%iterate_numbs(_SK,Min,Max,Which):- !, (between(1,Min,Which);between(Min,Max,Which)).
+  
 disp_ex(X):-fmt9(X).
 
 lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/3),
@@ -497,6 +544,7 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 
 call_tru(X):- var(X),!,(proven_tru(X); (proven_neg(Y),X= ~(Y))).
 call_tru(X):- atomic(X),!,tru(X),!.
+call_tru(proven_not_tru(X)):-!,no_repeats(proven_neg(X)).
 call_tru(X):- arg(1,X,E),loop_check(call_e_tru(E,X)).
 
 /*
@@ -526,16 +574,13 @@ loves(X,Y):-  (nonvar(X);nonvar(Y)),
               nrlc(proven_tru(loves(X,Y))),
               (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
-loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))),
-             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))), 
+loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))),
+             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))), 
              \+ proven_neg(loves(X,Y)),
              attvar_or_const(X),attvar_or_const(Y).
 loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
 
-
-boxlog_to_prolog(IO,IO).
-
-tru(P):- call_u(proven_tru(P)).
+proven_tru_kbi(G):- call(call,proven_tru(G)).
 
 :- kb_shared(baseKB:proven_tru/1).
 
@@ -549,7 +594,7 @@ nrlc(G):- no_repeats(loop_check(G)).
 man(X):- \+ ground(X),
     (has_cond(X,man(X))->rem_cond(X,man(X)); true),
    nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
-man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((tru(man(X)))), \+ proven_neg(man(X))).
+man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((proven_tru_kbi(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 
 
@@ -826,7 +871,6 @@ nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- N == 1, !,
    subst_except_copy(Fml,X,Y,FmlY),
    NEWFORM =  (exists(Y,FmlY) & (exists(Y,FmlY) & different(X,Y) => ~( exists(X,Fml)))),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
-
 
 % Exactly N: states "There is AtMost N /\ AtLeast N"
 nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- !,

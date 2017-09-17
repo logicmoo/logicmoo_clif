@@ -148,8 +148,10 @@ test_boxlog0(P):-
   kif_to_boxlog(P,O),
   guess_varnames(O),flush_output,
   kif_optionally_e(true,sdmsgf,O),flush_output, 
-  kif_optionally(false,assert_if_new,O),
+  kif_optionally(true,assert_to_boxlog,O),
   kif_optionally(false,print_boxlog_to_pfc,O))),!.
+
+assert_to_boxlog(G):- ain(boxlog(G)),!.
 
 print_boxlog_to_pfc(O):-
   boxlog_to_pfc(O,PFC),

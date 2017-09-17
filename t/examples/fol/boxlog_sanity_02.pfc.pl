@@ -36,6 +36,10 @@ forall([P,A],
 nesc(broke(joan)).
 
 
+
+end_of_file.
+
+
 % Expose the problem
 :- mpred_test(cute_puppy(_)).
  /*
