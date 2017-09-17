@@ -17,9 +17,6 @@
 
 :- op(800,xfx,'=<>=').
 
-X =<>= Y :- X==Y.
-X =<>= Y :- (var(X);var(Y)),!,fail.
-dif_objs(X,Y) =<>= dif_objs(YY,XX):-  v(X,Y) == v(XX,YY).
 
 /*
 
@@ -172,11 +169,6 @@ weaken_to_poss(IN,poss(IN)).
 
 
 
-identical_refl(X,Y):- X==Y,!.
-
-
-
-
 
 undess_head(H,H):- current_prolog_flag(logicmoo_propagation, modal),!.
 
@@ -184,11 +176,12 @@ undess_head((H:-B),(HH:-B)):-!,undess_head(H,HH).
 undess_head(proven_tru(H),H):- !.
 undess_head(H,H).
 
-
 demodal_clauses(_KB,Var, Var):- \+compound(Var),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
-demodal_clauses(KB,List,ListO):- is_list(List),!,must_maplist_det(
- demodal_clauses(KB),List,ListM),!,remove_unused_clauses(ListM,ListO).
+demodal_clauses(KB,List, ListO):- is_list(List), !,
+ must_maplist_det(demodal_clauses(KB),List,ListM),!,
+ remove_unused_clauses(ListM,ListOM), 
+ kif_optionally_e(true,dedupe_clauses,ListOM,ListO).
 demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO),!.
 
 
@@ -349,8 +342,8 @@ demodal_body(_KB,_Head, poss(b_d(_7B2, nesc, poss),G), poss(G)).
 demodal_body(_KB,_Head, nesc(b_d(_7B2, nesc, poss),G), nesc(G)).
 
 
-demodal_body(_KB, _Head, (A ; C), A ):- identical_refl(A,C),!.
-demodal_body(_KB, _Head, (A , C), A ):- identical_refl(A,C),!.
+demodal_body(_KB, _Head, (A ; C), A ):- =<>=(A,C),!.
+demodal_body(_KB, _Head, (A , C), A ):- =<>=(A,C),!.
 demodal_body(_KB, _Head, neg(nesc(~(P))), tru(poss(P)) ):-!.
 
 
@@ -367,9 +360,9 @@ demodal_body(KB, Head, (A ; B), OUT):- fail, demodal_body(KB, Head, A, AA),demod
   
 
 demodal_body(_KB, _Head, ((A , B) , C), (A , B , C)):- nonvar(A),!.
-demodal_body(_KB, _Head, (A , B , C), (A , B)):- identical_refl(A,C),!.
-demodal_body(_KB, _Head, (A , B , C), (A , C)):- identical_refl(A,B),!.
-demodal_body(_KB, _Head, (A , B , C), (A , C)):- identical_refl(C,B),!.
+demodal_body(_KB, _Head, (A , B , C), (A , B)):- =<>=(A,C),!.
+demodal_body(_KB, _Head, (A , B , C), (A , C)):- =<>=(A,B),!.
+demodal_body(_KB, _Head, (A , B , C), (A , C)):- =<>=(C,B),!.
 
 demodal_body(_KB,_Head, poss(poss( G)), poss(G)):- nonvar(G),!.
 
@@ -387,10 +380,11 @@ demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_neg(G), expect_tru(G))
 demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_tru(G), expect_fals(G)):- sharing_vars_vars(SK,G).
 */
 
-demodal_body(_KB,_Head,tru(different(X,Y)),dif_objs(X,Y)):- !.
-demodal_body(_KB,_Head,neg(different(X,Y)),sameObjects(X,Y)):- !.
+demodal_body(_KB,Head,dif_objs(X,Y),dif_objs(Y,X)):- contains_var(Y,Head),\+contains_var(X,Head),!.
 demodal_body(_KB,_Head,tru(different(X,Y)),dif_objs(XX,YY)):- (X @> Y -> XX/YY=X/Y ; XX/YY=Y/X).
 demodal_body(_KB,_Head,neg(different(X,Y)),sameObjects(XX,YY)):- (X @> Y -> XX/YY=X/Y ; XX/YY=Y/X).
+demodal_body(_KB,_Head,tru(different(X,Y)),dif_objs(X,Y)):- !.
+demodal_body(_KB,_Head,neg(different(X,Y)),sameObjects(X,Y)):- !.
 
 
 
@@ -444,7 +438,7 @@ demodal_body(_KB,_Head, (G), (G)):- !.
 
 
 :- if(false).
-demodal_body(_KB, _Head, ((A , B) ; (C , D)), (A , (B ; D))):- identical_refl(A,C),!.
+demodal_body(_KB, _Head, ((A , B) ; (C , D)), (A , (B ; D))):- =<>=(A,C),!.
 demodal_body(_KB, _Head, proven_tru(X),  X).
 demodal_body(_KB, _Head, proven_neg(X), ~ X).
 % demodal_body(_KB, _Head, proven_not_tru(X), \+ X).
@@ -502,3 +496,5 @@ demodal_body(KB,Head,H,HH ):- H=..[F|ARGS],!,must_maplist_det(demodal_body(KB,He
 
 
 :- fixup_exports.
+
+

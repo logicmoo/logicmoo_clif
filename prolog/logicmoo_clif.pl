@@ -41,6 +41,7 @@
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_theorist.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_reordering.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(system:library('logicmoo/common_logic/common_logic_sanity.pl')).
 

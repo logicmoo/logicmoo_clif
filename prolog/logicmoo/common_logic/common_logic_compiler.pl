@@ -516,8 +516,8 @@ nnf1(KB,~(poss(BDT,F)),FreeV,BOX,Paths):- nonvar(F),!,
 nnf1(KB,nesc(BDT,F),FreeV,BOX,Paths):- 
    nnf(KB,F,FreeV,NNF,Paths), cnf(KB,NNF,CNF), boxRule(KB,nesc(BDT,CNF), BOX),!.
 
-nnf1(KB,nesc(Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
-nnf1(KB,nesc(_,Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
+%nnf1(KB,nesc(Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
+%nnf1(KB,nesc(_,Fin),FreeV,NNF,Paths):- !, nnf(KB,Fin,FreeV,NNF,Paths).
 
 
 % =================================
@@ -629,6 +629,8 @@ nnf1(KB,until(CT,A,B),FreeV,NNF,Paths):-  set_is_lit(A),set_is_lit(B),  share_sc
         set_is_lit(NNF1),
         set_is_lit(NNF2),
 	NNF = until(CT,NNF1, NNF2).
+
+
 
 nnf1(KB,holdsIn(TIMESPAN,TRUTH),FreeV,NNF,Paths):-  
   nnf(KB,occuring(TIMESPAN) => TRUTH,FreeV,NNF,Paths).
@@ -1637,6 +1639,9 @@ unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 
 poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
+poss_or_skolem(dif_objs(_,_)).
+poss_or_skolem(tru(X)):-!,poss_or_skolem(X).
+poss_or_skolem(falsify(X)):-!,poss_or_skolem(X).
 % MAYBE? poss_or_skolem(needs(_)).
 poss_or_skolem(skolem(_,_,_)).
 % poss_or_skolem(P):-arg(_,P,E),is_list(E).

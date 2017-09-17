@@ -822,10 +822,11 @@ nnf_ex(KB,~ quant(exactly(0),X,Fml),FreeV,NNF,Paths):- !,
   nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths).
 
 % Exactly 1: "If there exists 1 there does not exist 1 other"
-nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF,Paths):- N == 1, !,
+nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- N == 1, !,
    subst_except_copy(Fml,X,Y,FmlY),
-   NEWFORM =  ~( exists(X,Fml) & exists(Y,FmlY) & different(X,Y)),
+   NEWFORM =  (exists(Y,FmlY) & (exists(Y,FmlY) & different(X,Y) => ~( exists(X,Fml)))),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
+
 
 % Exactly N: states "There is AtMost N /\ AtLeast N"
 nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- !,

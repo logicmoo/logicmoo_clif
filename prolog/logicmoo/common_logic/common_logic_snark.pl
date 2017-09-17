@@ -1,97 +1,8 @@
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/common_logic/snark/common_logic_snark.pl
 % :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(common_logic_snark,
-          [ add_nesc/2,
-            weaken_to_poss/2,
-            add_poss_to/3,
-            add_preconds/2,
-            add_preconds2/2,
-            adjust_kif/3,
-            adjust_kif0/3,
-            adjust_kif4/4,
-            adjust_kif0/5,
-            adjust_kif5/5,
-            any_to_pfc/2,
-            any_to_pfc0/2,
-            as_dlog/2,
-            baseKB:as_prolog_hook/2,
-            as_symlog/2,
-            check_is_kb/1,
-            kif_to_pfc/2,
-            clauses_to_boxlog/4,
-            clauses_to_boxlog_0/4,
-            clauses_to_boxlog_1/4,
-            clauses_to_boxlog_2/4,
-            clauses_to_boxlog_5/4,
-            convertAndCall/2,
-            correct_arities/3,
-            % elInverse/2,
-            flatten_or_list/3,
-            fmtl/1,
-            generate_ante/4,
-            get_1_var_name/3,
-            get_constraints/2,
-            get_lits/2,
-            get_var_names/3,
-            is_clif/1,
-          are_clauses_entailed/1,
-          is_prolog_entailed/1,
-          delistify_last_arg/3,
-            kb_incr/2,
-            kif_ask/1,
-            kif_ask/2,
-            kif_ask_sent/1,
-            kif_hook/1,
-            is_gaf/1,
-            is_kif_clause/1,
-            (kif_add)/1,
-            kif_add_adding_constraints/3,
-            kif_add_boxes1/2,
-            kif_add_boxes3/3,
-            kif_to_boxlog/2,
-            kif_to_boxlog/3,
-            kif_to_boxlog/4,
-            kif_to_boxlog_attvars/4,            
-            kif_unnumbervars/2,
-            lit_cost/3,
-            litcost_compare/4,
-            local_pterm_to_sterm/2,
-            local_pterm_to_sterm2/2,
-            local_sterm_to_pterm/2,
-            ain_h/3,
-            mpred_t_tell_kif/2,
-            map_each_clause/3,
-            map_each_clause/2,
-            
-            neg_b_if_neg/3,
-            neg_h_if_neg/2,
-            not_mudEquals/2,
-            nots_to/3,
-            unnumbervars_with_names/2,
-            
-            pfc_for_print_left/2,
-            pfc_for_print_right/2,
-            save_in_code_buffer/2,
-            save_wfs/2,
-            should_be_poss/1,
-            simp_code/2,
-            simple_negate_literal/3,
-            simplify_bodies/2,
-            simplify_list/3,
-            skolem_in_code/2,skolem_in_code/3,
-            sort_body/3,
-            sort_body_0/3,
-            subsT_each/3,
-            to_dlog_ops/1,
-            to_nonvars/3,
-            to_prolog_ops/1,
-            to_symlog_ops/1,
-            type_of_var/3,
-            use_was_isa_h/3,
-            var_count_num/4,
-            why_to_id/3,
-            write_list/1,
-            (is_entailed_u)/1,
+          [ 
+
    % op(300,fx,'-'),
    /*op(1150,xfx,'=>'),
    op(1150,xfx,'<=>'),
@@ -233,9 +144,12 @@ kif_optionally(Default,Jiggler,KIF,JIGGLED):- must_maplist_det(kif_optionally_e(
 kif_optionally_e(YN,Pred1,Arg):- kif_optionally_e(YN,adapt_to_arity_2(Pred1),Arg,_).
 
 :- meta_predicate kif_optionally_e(+,2,?,?).
-kif_optionally_e( never   ,_,JIGGLED,JIGGLED):-!.
-kif_optionally_e(Default,Jiggler,KIF,JIGGLED):- 
-   foption_to_name(Jiggler,Name), !,
+kif_optionally_e(Default,Jiggler,KIF,JIGGLED):-
+  foption_to_name(Jiggler,Name), !,
+  kif_optionally_e(Default,Name,Jiggler,KIF,JIGGLED).
+
+kif_optionally_e( never ,_  ,_,JIGGLED,JIGGLED):-!.
+kif_optionally_e(Default,Name,Jiggler,KIF,JIGGLED):-
      (kif_option_value(Name,Value)-> true ; Value = Default),
        ((kif_value_false(Value), \+ Default==always) -> KIF=JIGGLED ;
       ((locally(t_l:kif_option(Name,Value),
@@ -1111,19 +1025,6 @@ finish_clausify(KB,Why,Datalog,RealOUT):-
   kif_optionally(false,kb_ify(KB),Datalog8,RealOUT)])))),!.
 
 
-
-combine_clauses_with_disjuncts(SET,OUT):-
-  sort(SET,SORTED),combine_clauses_with_disjuncts_0(SORTED,OUT).  
-
-combine_clauses_with_disjuncts_0([],[]).
-combine_clauses_with_disjuncts_0([(H1:-B1),(H2:-B2)|SORTED],OUT):- 
-  H2=@=H1,(WAS = H1:B2),
-  copy_term(WAS,NOW),H1=H2,WAS=@=NOW,!,
-  combine_clauses_with_disjuncts_0([(H1:- (B2 ; B1))|SORTED],OUT).
-combine_clauses_with_disjuncts_0([S1|SORTED],[S1|OUT]):- 
- combine_clauses_with_disjuncts_0(SORTED,OUT).
-
-
 is_4th_order(F):- atom_concat('never_',_,F).
 is_4th_order(F):- atom_concat('prove',_,F).
 is_4th_order(F):- atom_concat('call_',_,F).
@@ -1748,117 +1649,6 @@ neg_h_if_neg(H,HH):-nots_to(H,'~',HH).
 % Negated Backtackable If Negated.
 %
 neg_b_if_neg(HBINFO,B,BBB):-nots_to(B,'~',BB),sort_body(HBINFO,BB,BBB),!.
-
-
-
-
-
-
-test_sort_body_better(Head,SET,SSET):- 
-  SET=[A,B],
-  body_rating(Head,A,AR),writeln(AR-A),
-  body_rating(Head,B,BR),writeln(BR-B),
-  predsort(nearest_to_head(Head,SET),SET,SSET),!.
-
-
-sort_body_list_better(Head,SET,SSET):- 
-  predsort(nearest_to_head(Head,SET),SET,SSET),!.
-
-vbody_sort((H:-B),(H:-BO)):- !, must(sort_body_better(H,B,BO)).
-vbody_sort(H,H).
-
-sort_body_better(Head,(A,B),BodyOut):- nonvar(A), 
-   conjuncts_to_list_det((A,B),List),
-   list_to_set(List,SET),
-   sort_body_list_better(Head,SET,SSET),
-   list_to_conjuncts_det(SSET,BodyOut).
-sort_body_better(_,Body,Body).
-
-
-nearest_to_head(Head,_SET,Order,A,B):- 
-   body_rating(Head,A,AR),
-   body_rating(Head,B,BR),
-   compare_along(Order,BR,AR),
-   Order \== (=),!.
-nearest_to_head(_Head,SET,Order,A,B):-
-   nth1_eq(AR,SET,A),
-   nth1_eq(BR,SET,B),
-   compare(Order,AR,BR).
-
-compare_along(Order,[A|List1],[B|List2]):-   
-   ((compare(Order,A,B), Order \== ( = ) )
-      -> true ; compare_along(Order,List1,List2)).
- 
-nth1_eq(AR,SET,A):- nth1(AR,SET,E),E==A.
-
-body_rating(Head,A,[SC,UCR,AR,AC]):-
-  term_variables(A,BV),length(BV,BC),
-  term_variables(Head,HV),length(BV,HC),   
-  '$expand':intersection_eq(HV,BV,Shared),length(Shared,SC),
-  subtract_eq(BV,Shared,Uniq),length(Uniq,UC),UCR is - UC,
-  atomics_count(A,AC),!,
-   nop(AR is SC*3 - UC*2 + AC + HC +BC),
-   AR is ((SC*3 - UC + AC*2 ))/(BC+HC+1).
-
-atomics_count(A,AC):- findall(Sub,(sub_term(Sub,A),atomic(Sub)),Atoms),length(Atoms,AC).
-
-
-
-
-%% sort_body( ?HBINFO, ?BB, ?BBB) is det.
-%
-% Sort Body.
-%
-sort_body(HBINFO,BB,BBB):-sort_body_0(HBINFO,BB,BBB),(BBB=@=BB->true; (expand_to_hb(HBINFO,H,_),nop(dmsg([(H:-BB),'=>',(H:-BBB)])))).
-
-
-
-
-%% sort_body_0( ?VALUE1, ?SORTED, ?SORTED) is det.
-%
-% sort body  Primary Helper.
-%
-sort_body_0(_,SORTED,SORTED):-leave_as_is_logically(SORTED).
-sort_body_0(HBINFO,(A,B),SORTED):-!,conjuncts_to_list_det((A,B),List),
-   must_maplist_det(sort_body_0(HBINFO),List,ListIn),
-   predsort(litcost_compare(HBINFO),ListIn,SortedL),
-   list_to_conjuncts_det(SortedL,SORTED).
-sort_body_0(HBINFO,(A;B),SORTED):-!,disjuncts_to_list((A;B),List),
-   must_maplist_det(sort_body_0(HBINFO),List,ListIn),
-   predsort(litcost_compare(HBINFO),ListIn,SortedL),
-   list_to_conjuncts_det((;),SortedL,SORTED).
-sort_body_0(_,SORTED,SORTED).
-
-
-
-
-%% litcost_compare( ?HBINFO, ?Comp, ?A, ?B) is det.
-%
-% Litcost Compare.
-%
-litcost_compare(_,=,A,B):- A=@=B,!.
-litcost_compare(HBINFO,Comp,A,B):-lit_cost(HBINFO,A,AC),lit_cost(HBINFO,B,BC),compare(CompC,AC,BC),
-  (CompC\== (=) -> CompC = Comp ; Comp = (<)).
-
-
-
-
-%% lit_cost( ?HBINFO, ?A, :GoalAC) is det.
-%
-% Literal Cost.
-%
-lit_cost(_,A,9):-isSlot(A).
-lit_cost(_,A,0):- \+ compound(A),!.
-lit_cost(HBINFO,A,AC):- A=..[F,ARG], is_log_op(F),!,lit_cost(HBINFO,ARG,AC0),!,
- % this removes the headvar bonus
-  term_slots(A,Slots),length(Slots,SC),
-  AC is AC0+SC.
-lit_cost(HBINFO,A,AC):- expand_to_hb(HBINFO,H,B),
-  var_count_num(A,H,SH,UH),
-  var_count_num(A,B,VC,Singles),
-  AC is Singles*3 + VC + UH - SH.
-
-
 
 
 %% simp_code( ?A, ?A) is det.
