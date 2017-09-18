@@ -52,8 +52,9 @@ workflow_holder_queue(Atom) ==>
    kb_shared(Atom/1)},
   rtArgsVerbatum(Atom),
   {mpred_trace(Atom)},
-  arity(Atom,1),
-  (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
+  arity(Atom,1).
+
+  % (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s

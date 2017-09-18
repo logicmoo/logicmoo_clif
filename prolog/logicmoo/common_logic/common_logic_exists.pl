@@ -198,7 +198,6 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 :- dynamic(user:portray/1).
 :- multifile(user:portray/1).
 
-tru(P):- call_u(proven_tru(P)).
 
 falsify(different(Puppy1, Puppy2)):- clause(proven_neg(different(Puppy1, Puppy2)),Body)*->once(Body);(!,fail).
 falsify(P):- var(P),!,proven_neg(P).
@@ -272,24 +271,6 @@ one_portray_hook(Var,Attr):-
    format('~p',[Disp]))),
    set_prolog_flag(write_attributes,portray))))).
 
-
-visit_exs(P,P,_,In,In):- \+ compound(P),!.
-
-visit_exs(ex(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),   
- add_cond_list_val(skFArg,skFArgs,X,FreeVars),
- visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!,
- add_cond(X,exists(X,InnerP)).
-visit_exs(all(X,P),InnerP,FreeVars,In,Out):- append(In,[X],Mid),
-  visit_exs(P,InnerP,[X|FreeVars],Mid,Out),!.
-visit_exs(P,POut,FreeVars,In,Rest):-arg(_,P,PP),compound(PP),!,P=..[F|ARGS],get_ex_quants_l(FreeVars,ARGS,ARGSO,In,Rest),POut=..[F|ARGSO].
-visit_exs(P,P,_,In,In).
-
-assert_kbi(P):- must(assert_if_new(P)).
-
-get_ex_quants_l(_,[],[],IO,IO).  
-get_ex_quants_l(FreeVars,[X|ARGS],[Y|ARGSO],In,Rest):-
-  visit_exs(X,Y,FreeVars,In,M),
-  get_ex_quants_l(FreeVars,ARGS,ARGSO,M,Rest).
 
 unify_two(AN,AttrX,V):- nonvar(V),!, (V='$VAR'(_)->true;throw(unify_two(AN,AttrX,V))).
 unify_two(AN,AttrX,V):- get_attr(V,AN,OAttr),!,OAttr=@=AttrX,!. % ,show_call(OAttr=@=AttrX).
@@ -409,19 +390,6 @@ minus_vars(Head,Minus,Dif):-
    subtract_eq(HeadVars,BodyVars,Dif).
 
 
-%===
-%do_create_cl(_,Lit1,_):- ground(Lit1),!.
-%===
-do_create_cl(Lit1,BodyLits,Prop):-   
-   (current_predicate(_,Lit1)->true;make_type(Lit1)),   
-   term_variables(Lit1,AllHeadVars),
-   maplist(add_cond_rev(Lit1),AllHeadVars),
-   term_variables(BodyLits,AllBodyVars),
-   subtract_eq(AllHeadVars,AllBodyVars,UniqeHead,Intersect),
-   subtract_eq(AllBodyVars,AllHeadVars,UniqeBody,_BodyIntersect),
-   create_ex(Lit1,Prop,UniqeHead,Intersect,UniqeBody,BodyLits),
-   recorda_if_new(Lit1).
-
 
 %create_ex(X,Lit1,BodyLits,Prop,DisjExs):- \+ contains_var(X,Lit1),assert_if_new((gen_out(Lit1):- ensure_sneezed(X,Lit1,BodyLits,Prop,[]))),fail.
 create_ex(Lit1,Prop,UniqeHead,Intersect,UniqeBody,BodyLits):-
@@ -502,14 +470,6 @@ nb_get_next(SKF, Max, Which):-  flag(SKF,X,X+1),
   ((X >= Max -> (Which=1,flag(SKF,_,0)) ; Which = X))).
 
 
-% nb_get_first(SKF, Which):- (nb_current(SKF,Which) -> true ; (nb_setval(SKF,1),Which=1)).
-
-nb_get_next(SKF, Max, Which):- flag(SKF,X,X+1), X == 0,!,Which=Max.
-nb_get_next(SKF, Max, Which):- flag(SKF,X,X),!, (X == Max -> (Which=1,flag(SKF,_,0)) ; Which = X).
-
-%iterate_numbs(_SK,Min,Max,Which):- Min==Max, !, between(1,Min,Which).
-iterate_numbs(SKF,Min,Max,Which):- sanity(inf==Max),!, nb_get_next(SKF,Min,Which).
-%iterate_numbs(_SK,Min,Max,Which):- !, (between(1,Min,Which);between(Min,Max,Which)).
   
 disp_ex(X):-fmt9(X).
 
@@ -574,13 +534,17 @@ loves(X,Y):-  (nonvar(X);nonvar(Y)),
               nrlc(proven_tru(loves(X,Y))),
               (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
-loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))),
-             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((proven_tru_kbi((loves(X,Y)))))), 
+loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))),
+             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))), 
              \+ proven_neg(loves(X,Y)),
              attvar_or_const(X),attvar_or_const(Y).
 loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
 
-proven_tru_kbi(G):- call(call,proven_tru(G)).
+
+boxlog_to_prolog(IO,IO).
+
+tru(P):- nonvar(P),current_predicate(_,P),!,nrlc(P).
+tru(P):- nrlc(call_u(proven_tru(P))).
 
 :- kb_shared(baseKB:proven_tru/1).
 
@@ -594,7 +558,7 @@ nrlc(G):- no_repeats(loop_check(G)).
 man(X):- \+ ground(X),
     (has_cond(X,man(X))->rem_cond(X,man(X)); true),
    nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
-man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((proven_tru_kbi(man(X)))), \+ proven_neg(man(X))).
+man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((tru(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 
 
