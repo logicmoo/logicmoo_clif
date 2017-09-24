@@ -4,6 +4,10 @@
 :- use_module(library(pfc_lib)).
 % :- mpred_unload_file.
 :- ensure_abox(baseKB).
+:- set_fileAssertMt(baseKB).
+% ensure this file does not get unloaded with mpred_reset
+==> mpred_unload_option(never,$current_file.value).
+
 
 :- sanity(ttRelationType(prologMultiValued)).
 

@@ -1,13 +1,17 @@
-:- module(system_base,[]).
+:- module(system_basic,[]).
 :- set_module(class(development)).
 %:- mpred_unload_file.
 :- '$set_source_module'(baseKB).
 :- ensure_abox(baseKB).
 :- use_module(library(rtrace)).
 :- use_module(library(pfc_lib)).
-/** <module> system_base
+:- set_fileAssertMt(baseKB).
+% ensure this file does not get unloaded with mpred_reset
+==> mpred_unload_option(never,$current_file.value).
+
+/** <module> system_basic
 % =============================================
-% File 'system_base.pfc'
+% File 'system_basic.pfc'
 % Purpose: Agent Reactivity for SWI-Prolog
 % Maintainer: Douglas Miles
 % Contact: $Author: dmiles $@users.sourceforge.net ;
@@ -16,8 +20,6 @@
 % Revised At: $Date: 2002/06/27 14:13:20 $
 % =============================================
 */
-:- '$set_source_module'(baseKB).
-:- mpred_unload_file.
 
 
 % :- xlisting( (==>) /2 ).

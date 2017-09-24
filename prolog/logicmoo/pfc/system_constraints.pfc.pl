@@ -6,7 +6,10 @@
 :- mpred_unload_file.
 :- '$set_source_module'(baseKB).
 :- ensure_abox(baseKB).
-:- ensure_abox(baseKB).
+:- set_fileAssertMt(baseKB).
+% ensure this file does not get unloaded with mpred_reset
+==> mpred_unload_option(never,$current_file.value).
+
 /** <module> system_constraints
 % =============================================
 % File 'system_constraints.pfc'

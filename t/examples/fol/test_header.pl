@@ -1,4 +1,11 @@
 
+:- if(current_prolog_flag(test_header,_)).
+
+:- wdmsg(reload_of_test_header).
+
+:- mpred_reset.
+
+:- else.
 
 % runtype: default = pfc
 :- if(current_prolog_flag(runtime_testing_module,_)->true;
@@ -29,7 +36,6 @@
 
 :- if((prolog_load_context(module,user), \+ current_module(pfc_lib))).
 :- module(header_sane,[test_header_include/0]).
-
 :- endif.
 
 test_header_include.
@@ -148,11 +154,14 @@ test_header_include.
 
 %:- mpred_trace_exec.
 
-:- else.
+:- else. % is_pfc_file
+
 
 %:- mpred_trace_exec.
 
-:- endif.
+:- endif. % is_pfc_file
+
+:- endif. % current_prolog_flag(test_header,_).
 
 :- cls.
 
@@ -179,7 +188,8 @@ test_header_include.
 %:- call(call,((asserta(((system:goal_expansion(Here,Loc,_,_):- dmsg(s_goal_expansion(Here,Loc)),trace,fail))),
 %   asserta(((system:term_expansion(Here,Loc,_,_):- dmsg(s_term_expansion(Here,Loc)),trace,fail)))))).
 
-:- else.
+:- else.       % end clif file
+
 
 :- endif.
 
