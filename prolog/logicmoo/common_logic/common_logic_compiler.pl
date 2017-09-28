@@ -196,7 +196,7 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 %:- endif.
 %:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
 
-:- use_module(library(dictoo)).
+% :- use_module(library(dictoo)).
 :- virtualize_source_file.
 
 

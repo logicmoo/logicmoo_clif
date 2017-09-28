@@ -146,10 +146,11 @@ completelyAssertedCollection(ttRelationType).  % Or they might be a predciate de
 tSet(ttTypeType).
 tSet(ttExpressionType).
 
+:- mpred_trace_exec.
 ttTypeType(F)==>tSet(F).
 ttTypeType(ttTypeType).
 
-~tCol(functorDeclares).
+~tCol(functorDeclares).              
 tSet(F)==>functorDeclares(F).
 
 :- kb_shared(ttExpressionType/1). % hard coded like: compound/1
@@ -157,7 +158,6 @@ ttExpressionType(ftCallable).
 ttExpressionType(ftString).
 ttExpressionType(ftAtom).
 ttExpressionType(ftProlog).
-
 
 % :- rtrace((ain_expanded(tCol(tCol)))).
 
@@ -361,7 +361,7 @@ tooSlow ==>
 % ======================================================================================= %
 ttTypeType(TT)==>tSet(TT).
 
-tSet(RT)==>functorDeclares(RT).
+% tSet(RT)==>functorDeclares(RT).
 % tCol(P)==>{sanity(atom(P))},functorIsMacro(P).
 
 % ~ ttRelationType(col_as_unary).
@@ -785,11 +785,6 @@ isa(iBar,tFoo).
 :- (set_prolog_flag_until_eof(never_pfc,false),
    locally(set_prolog_flag_until_eof(never_pfc,true),autoload([verbose(true)]))).
 :- xlisting(tFoo).
-*/
-/*
-:- call(break).
-:- call(break).
-:- call(prolog).
 */
 :- sanity(isa(iBar,tFoo)).
 
