@@ -25,16 +25,16 @@
 %===== tests =======
 
 % means total 5 puppies 
-:- mpred_must(( findall(X,puppy(X),L),length(L,5))).
+:- test_boxlog([+test_query],( findall(X,puppy(X),L),length(L,5))).
 
 % 2 are for sure actually cute
-:- mpred_must(( findall(X,(puppy(X),cute(X)),L),length(L,2))).
+:- test_boxlog([+test_query],( findall(X,(puppy(X),cute(X)),L),length(L,2))).
 
 % leaving 3 more as possibly cute
-:- mpred_must(( findall(X,(puppy(X),poss(cute(X))),L),length(L,3))).
+:- test_boxlog([+test_query],( findall(X,(puppy(X),poss(cute(X))),L),length(L,3))).
 
 % the last puppy is not for sure known cute or or not cute so it may be ugly
-:- mpred_must(( findall(X,(puppy(X),poss(ugly(X))),L),length(L,1))).
+:- test_boxlog([+test_query],( findall(X,(puppy(X),poss(ugly(X))),L),length(L,1))).
 
 
 end_of_file.
