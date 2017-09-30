@@ -334,10 +334,10 @@ duce_tru(man(A)) :-
         skolem(A, skIsChildIsExists_0FnSk).
 duce_tru(female(A)) :-
         skolem(A, skIsFemaleIsExistsNameOf_0FnSk),
-        proven_not_tru(man(A)).
+        proven_not_nesc(man(A)).
 duce_tru(man(A)) :-
         skolem(A, skIsFemaleIsExistsNameOf_0FnSk),
-        proven_not_tru(female(A)).
+        proven_not_nesc(female(A)).
 duce_tru(isNamed(A, "Pat")) :-
         skolem(A, skIsFemaleIsExistsNameOf_0FnSk).
 duce_tru(female(A)) :-

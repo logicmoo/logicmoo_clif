@@ -303,7 +303,7 @@ holdsIn(_12442,instance(_12420,mobTourist)):-instance(_12442,actSightseeing),per
 
 % ~(human(X)) :-
 %       ~poss_t(male, X).
-% proven_tru(poss_t(male, X)) :-
+% proven_nesc(poss_t(male, X)) :-
 %       human(X).
 
 

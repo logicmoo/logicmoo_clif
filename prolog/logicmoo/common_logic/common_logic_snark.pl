@@ -116,11 +116,11 @@ set_kif_option(N:V):- !, set_kif_option(N,V).
 set_kif_option(Name,Value):- assert_setting01(t_l:kif_option(Name,Value)),!.
 
 kif_option_value(Name,Value):- Value==none,!,(kif_option_value(Name,ValueReally)->ValueReally==Value;true).
-kif_option_value(Name,Value):- t_l:kif_option_list(Dict),
-   (is_dict(Dict) -> (get_dict(Key,Dict,Value),atom_concat(Key,_,Name));
+kif_option_value(Name,Value):- t_l:kif_option_list(Dict),atom(Name),
+   (is_dict(Dict) -> (get_dict(Key,Dict,Value),atom(Name),atom(Key),atom_concat(Key,_,Name));
     true -> ((member(KeyValue,Dict),as_local_kv(KeyValue,Key,Value),(atom_concat(Key,_,Name);atom_concat(_,Key,Name))))),!.
 kif_option_value(Name,Value):- t_l:kif_option(Name,Value),!.
-kif_option_value(Name,Value):- current_prolog_flag(Name,Value),!.
+kif_option_value(Name,Value):- atom(Name),current_prolog_flag(Name,Value),!.
 kif_option_value(Name,Value):- clause_b(feature_setting(Name,Value)),!.
 
 foption_to_name(Name,Name):- \+ compound(Name),!.

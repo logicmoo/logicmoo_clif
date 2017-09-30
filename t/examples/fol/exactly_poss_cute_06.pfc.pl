@@ -227,11 +227,11 @@ proven_neg(different(Puppy1, Puppy5)) :-
         nesc(puppy(Puppy3)),
         dif_objs(Puppy1, Puppy3),
         falsify(~cute(Puppy3)).
-proven_tru(poss(cute(X))) :-
+proven_nesc(poss(cute(X))) :-
         skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB).
-proven_tru(puppy(X)) :-
+proven_nesc(puppy(X)) :-
         skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB).
-proven_tru(~cute(Puppy1)) :-
+proven_nesc(~cute(Puppy1)) :-
         nesc(puppy(Puppy1)),
         nesc(puppy(Puppy2)),
         falsify(~cute(Puppy2)),
@@ -339,9 +339,9 @@ proven_neg(different(Cute1, Puppy3)) :-
         nesc(puppy(Puppy2)),
         dif_objs(Cute1, Puppy2),
         nesc(cute(Puppy2)).
-proven_tru(cute(X)) :-
+proven_nesc(cute(X)) :-
         skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB).
-proven_tru(puppy(X)) :-
+proven_nesc(puppy(X)) :-
         skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB).
 make_existential(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB) :-
         ensure_cond(X, puppy(X)),
@@ -429,7 +429,7 @@ proven_neg(different(Puppy1, Puppy6)) :-
         dif_objs(Puppy1, Puppy2),
         dif_objs(Puppy1, Puppy3),
         nesc(puppy(Puppy3)).
-proven_tru(puppy(X)) :-
+proven_nesc(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB).
 make_existential(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB) :-
         ensure_cond(X, puppy(X)).
@@ -458,9 +458,9 @@ proven_neg(cute(X)) :-
         nesc(ugly(X)).
 proven_neg(ugly(X)) :-
         nesc(cute(X)).
-proven_tru(cute(X)) :-
+proven_nesc(cute(X)) :-
         falsify(ugly(X)).
-proven_tru(ugly(X)) :-
+proven_nesc(ugly(X)) :-
         falsify(cute(X)).
 % kbi_define(cute6:ugly/1).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:23
@@ -483,10 +483,10 @@ proven_tru(ugly(X)) :-
 proven_neg(puppy(X)) :-
         falsify(ugly(X)),
         falsify(cute(X)).
-proven_tru(cute(X)) :-
+proven_nesc(cute(X)) :-
         falsify(ugly(X)),
         nesc(puppy(X)).
-proven_tru(ugly(X)) :-
+proven_nesc(ugly(X)) :-
         falsify(cute(X)),
         nesc(puppy(X)).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:28

@@ -114,9 +114,9 @@ poss_t(P,A,B):- cwc, \+ call_u(~t(P,A,B)).
 
 
 
-:- kb_shared(baseKB:proven_not_tru/1).
-proven_not_tru(H):- \+ call_u( H).
-% proven_not_tru(man(A)):- trace,dmsg(proven_not_tru(man(A))).
+:- kb_shared(baseKB:proven_not_nesc/1).
+proven_not_nesc(H):- \+ call_u( H).
+% proven_not_nesc(man(A)):- trace,dmsg(proven_not_nesc(man(A))).
 % :- '$set_source_module'(user).
 % :- kbi:tbl.
 
@@ -125,7 +125,7 @@ proven_not_tru(H):- \+ call_u( H).
 %:- kb_shared(baseKB:duce_tru/1).
 :- kb_shared(baseKB:producing/1).
 
-:- mpred_ain(((((proven_tru(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((proven_nesc(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
 :- mpred_ain(((((proven_poss(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
 :- mpred_ain(((((proven_neg(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
 
@@ -141,17 +141,17 @@ proven_holds_t(F, A, B, C):- nonvar(F),current_predicate(F/3),call(F,A,B,C).
 :- dynamic(proven_not_neg/1).
 */
 :- kb_shared(baseKB:proven_not_neg/1).
-proven_not_neg(H):- compound(H), H=..[F,A,B], proven_tru(poss_t(F,A,B)),!.
+proven_not_neg(H):- compound(H), H=..[F,A,B], proven_nesc(poss_t(F,A,B)),!.
 proven_not_neg(H):- \+ proven_neg(H), \+ call_u(~ H).
 
 :- kb_shared(baseKB:proven_not_poss/1).
-proven_not_poss(H):- proven_not_tru(H).
+proven_not_poss(H):- proven_not_nesc(H).
 
 
-:- kb_shared(baseKB:proven_tru/1).
-proven_tru(H):- loop_check(call_u(H)), show_failure(\+ proven_neg(H)).
-%proven_tru(H):- \+ ground(H),nrlc((duce_tru(H))).
-%proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
+:- kb_shared(baseKB:proven_nesc/1).
+proven_nesc(H):- loop_check(call_u(H)), show_failure(\+ proven_neg(H)).
+%proven_nesc(H):- \+ ground(H),nrlc((duce_tru(H))).
+%proven_nesc(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).
 
 % :- kb_shared(baseKB:proven_neg/1).
 

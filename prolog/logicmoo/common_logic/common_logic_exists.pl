@@ -201,7 +201,7 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 
 falsify(different(Puppy1, Puppy2)):- clause(proven_neg(different(Puppy1, Puppy2)),Body)*->once(Body);(!,fail).
 falsify(P):- var(P),!,proven_neg(P).
-falsify(~P):- !, call_u(proven_tru(poss(P))).
+falsify(~P):- !, call_u(proven_nesc(poss(P))).
 falsify(P):- call_u(proven_neg(P)).
 
 make_identity(_):-!.
@@ -293,14 +293,14 @@ ensure_cond(Var,Closure):- add_cond(Var,Closure).
 
 not_nameOf(Ex,V):- \+ isNamed(Ex,V).
 
-isNamed(Ex,V):- compound(V),!,proven_tru(isNamed(Ex,V)).
+isNamed(Ex,V):- compound(V),!,proven_nesc(isNamed(Ex,V)).
 isNamed(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
 isNamed(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
 isNamed(Ex,V):- nonvar(V),has_cond(Ex,isNamed(Ex,V0)),!,text_to_string(V0,V).
 isNamed(Ex,V):- nonvar(V),!,add_cond(Ex,isNamed(Ex,V)),!,add_var_to_env(V,Ex).
 isNamed(Ex,V):- var(V),has_cond(Ex,isNamed(Ex,V)),!,(nonvar(V)->add_var_to_env(V,Ex);true).
 
-isNamed(Ex,V):- proven_tru(isNamed(Ex,V)).
+isNamed(Ex,V):- proven_nesc(isNamed(Ex,V)).
 % isNamed(Ex,V):- var(V),!,add_cond(Ex,isNamed(Ex,V)),!.
 
 
@@ -473,7 +473,7 @@ nb_get_next(SKF, Max, Which):-  flag(SKF,X,X+1),
   
 disp_ex(X):-fmt9(X).
 
-lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/3),
+lr:- quietly((listing(producing/1),listing(proven_nesc/1),listing(make_existential/3),
   doall((current_key(K),recorded(K,P),
     locally(set_prolog_flag(write_attributes,portray),wdmsg(P)))))).
 
@@ -502,9 +502,9 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 
 attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 
-call_tru(X):- var(X),!,(proven_tru(X); (proven_neg(Y),X= ~(Y))).
+call_tru(X):- var(X),!,(proven_nesc(X); (proven_neg(Y),X= ~(Y))).
 call_tru(X):- atomic(X),!,nesc(X),!.
-call_tru(proven_not_tru(X)):-!,no_repeats(proven_neg(X)).
+call_tru(proven_not_nesc(X)):-!,no_repeats(proven_neg(X)).
 call_tru(X):- arg(1,X,E),loop_check(call_e_tru(E,X)).
 
 /*
@@ -531,7 +531,7 @@ call_e_tru(_,X):- context_module(M), inherit_above(M, (X)).
 loves(X,Y):-  (nonvar(X);nonvar(Y)),
               (has_cond(X,(loves(X,Y)))->rem_cond(X,(loves(X,Y))); true),
               (has_cond(Y,(loves(X,Y)))->rem_cond(Y,(loves(X,Y))); true),
-              nrlc(proven_tru(loves(X,Y))),
+              nrlc(proven_nesc(loves(X,Y))),
               (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
 loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((nesc((loves(X,Y)))))),
@@ -544,11 +544,11 @@ loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
 boxlog_to_prolog(IO,IO).
 
 nesc(P):- nonvar(P),current_predicate(_,P),!,nrlc(P).
-nesc(P):- nrlc(call_u(proven_tru(P))).
+nesc(P):- nrlc(call_u(proven_nesc(P))).
 
-:- kb_shared(baseKB:proven_tru/1).
+:- kb_shared(baseKB:proven_nesc/1).
 
-% proven_tru(G):- call(call,proven_tru(G)).
+% proven_nesc(G):- call(call,proven_nesc(G)).
 
 :- meta_predicate nrlc(0).
 nrlc(G):- no_repeats(loop_check(G)).
@@ -557,7 +557,7 @@ nrlc(G):- no_repeats(loop_check(G)).
 
 man(X):- \+ ground(X),
     (has_cond(X,man(X))->rem_cond(X,man(X)); true),
-   nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
+   nrlc((proven_nesc(man(X)))),has_cond(X,man(X)).
 man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((nesc(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 

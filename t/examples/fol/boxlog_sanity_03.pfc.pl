@@ -37,15 +37,15 @@ What = skIsCutepuppyExists_0FnSk ;
 %   exists(X,cute_puppy(X))
 
 '' :-
-        proven_not_tru(buys(joan, horse)).
+        proven_not_nesc(buys(joan, horse)).
 '' :-
-        proven_not_tru(cute_puppy(skIsCutepuppyExists_0FnSk)).
+        proven_not_nesc(cute_puppy(skIsCutepuppyExists_0FnSk)).
 cute_puppy(_33699386) :-
         fwc,
-        proven_not_tru(cute_puppy(skIsCutepuppyExists_0FnSk)),
+        proven_not_nesc(cute_puppy(skIsCutepuppyExists_0FnSk)),
         { _33699386=skIsCutepuppyExists_0FnSk
         },
-        proven_not_tru(buys(joan, horse)),
+        proven_not_nesc(buys(joan, horse)),
         { is_unit(_33699386)
         }.
 '' :-

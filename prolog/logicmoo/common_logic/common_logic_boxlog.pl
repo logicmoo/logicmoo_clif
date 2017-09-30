@@ -515,7 +515,7 @@ body_for_mpred_2(_Mode,Head,Head,poss(X),{loop_check(\+ ~(X),true)}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{(In=Out;when('nonvar'(In),ignore((In=Out))))}).
 % body_for_mpred_2(Mode,Head,Head,skolem(In,Out),{when((?=(In,_);nonvar(In)),ignore(Out=In))}).
 body_for_mpred_2(Mode,Head,NewHead,B,BBB):- once(reduce_literal(B,BB)),B\=@=BB,!,body_for_mpred_1(Mode,Head,NewHead,BB,BBB).
-body_for_mpred_2(Mode,Head,HeadO,proven_tru(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,H,HH).
+body_for_mpred_2(Mode,Head,HeadO,proven_nesc(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,H,HH).
 body_for_mpred_2(Mode,Head,HeadO,once(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,H,HH).
 body_for_mpred_2(Mode,Head,HeadO,proven_neg(H),(HH)):-  !,body_for_mpred_2(Mode,Head,HeadO,~H,HH).
 body_for_mpred_2(_Mode,Head,Head,different(A,B),{dif:dif(A,B)}).
