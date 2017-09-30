@@ -30,24 +30,24 @@ dedupe_clauses_pass2([X|ListM],[X|ListO]):-
 same_cl_test0 :-
  same_clauses(
   proven_neg(dudes(X)) ,
-        ((tru(dudes(Dudes0)),
+        ((nesc(dudes(Dudes0)),
         dif_objs(X, Dudes0))),
   proven_neg(dudes(Dudes0)),
-        (tru(dudes(X)),
+        (nesc(dudes(X)),
         dif_objs(X, Dudes0))).
 
 same_cl_test1:- 
     same_clauses(
    (proven_neg(different(Dudes1, Dudes3)) :-
-           tru(dudes(Dudes3)),
-           tru(dudes(Dudes1)),
+           nesc(dudes(Dudes3)),
+           nesc(dudes(Dudes1)),
            dif_objs(Dudes1, Dudes2),
-           tru(dudes(Dudes2))),
+           nesc(dudes(Dudes2))),
    (proven_neg(different(Dudes1, Dudes2)) :-
            dif_objs(Dudes1, Dudes3),
-           tru(dudes(Dudes1)),
-           tru(dudes(Dudes2)),
-           tru(dudes(Dudes3)))).
+           nesc(dudes(Dudes1)),
+           nesc(dudes(Dudes2)),
+           nesc(dudes(Dudes3)))).
 
 
 X =<>= Y :- X==Y,!.

@@ -363,7 +363,7 @@ bless_ex2(_X,P):- \+ ground(P).
 bless_ex(X, P):- nonvar(X)->call(P); true.
 
 
-query_tru(Qry) :- nrlc((tru(Qry))).
+query_tru(Qry) :- nrlc((nesc(Qry))).
 
 query_ex(PQ):-   update_changed_files1,
   existentialize(PQ,P),
@@ -503,21 +503,21 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 
 call_tru(X):- var(X),!,(proven_tru(X); (proven_neg(Y),X= ~(Y))).
-call_tru(X):- atomic(X),!,tru(X),!.
+call_tru(X):- atomic(X),!,nesc(X),!.
 call_tru(proven_not_tru(X)):-!,no_repeats(proven_neg(X)).
 call_tru(X):- arg(1,X,E),loop_check(call_e_tru(E,X)).
 
 /*
 call_e_tru(E,X):- \+ ground(E), 
   (has_cond(E,(X))->rem_cond(E,(X)); true),
-   nrlc((tru((X)))),has_cond(E,(X)),attvar_or_const(E).
+   nrlc((nesc((X)))),has_cond(E,(X)),attvar_or_const(E).
 
 call_e_tru(E,X):- (nonvar(E);not_has_cond(E,(X))),!, 
-  nrlc((tru((X)))), \+ proven_neg((X)),attvar_or_const(E).
+  nrlc((nesc((X)))), \+ proven_neg((X)),attvar_or_const(E).
 */
 
 call_e_tru(_E,X):- 
-  nrlc((tru((X)))), \+ proven_neg((X)).
+  nrlc((nesc((X)))), \+ proven_neg((X)).
 
 call_e_tru(_,X):- context_module(M), inherit_above(M, (X)).
 
@@ -534,8 +534,8 @@ loves(X,Y):-  (nonvar(X);nonvar(Y)),
               nrlc(proven_tru(loves(X,Y))),
               (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
-loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))),
-             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((tru((loves(X,Y)))))), 
+loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((nesc((loves(X,Y)))))),
+             (nonvar(Y);not_has_cond(Y,(loves(X,Y))),!, nrlc((nesc((loves(X,Y)))))), 
              \+ proven_neg(loves(X,Y)),
              attvar_or_const(X),attvar_or_const(Y).
 loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
@@ -543,8 +543,8 @@ loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
 
 boxlog_to_prolog(IO,IO).
 
-tru(P):- nonvar(P),current_predicate(_,P),!,nrlc(P).
-tru(P):- nrlc(call_u(proven_tru(P))).
+nesc(P):- nonvar(P),current_predicate(_,P),!,nrlc(P).
+nesc(P):- nrlc(call_u(proven_tru(P))).
 
 :- kb_shared(baseKB:proven_tru/1).
 
@@ -558,7 +558,7 @@ nrlc(G):- no_repeats(loop_check(G)).
 man(X):- \+ ground(X),
     (has_cond(X,man(X))->rem_cond(X,man(X)); true),
    nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
-man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((tru(man(X)))), \+ proven_neg(man(X))).
+man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((nesc(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 
 

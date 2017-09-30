@@ -39,10 +39,10 @@
 
 proven_neg(puppy(X)) :-
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy1)).
+        nesc(puppy(Puppy1)).
 proven_neg(different(X, Puppy1)) :-
-        tru(puppy(Puppy1)),
-        tru(puppy(X)).
+        nesc(puppy(Puppy1)),
+        nesc(puppy(X)).
 proven_tru(puppy(Puppy1)) :-
         skolem(Puppy1, count(1, inf, skF(skIsPuppyExists_0FnSk, vv(KB, Puppy1))), 1).
 make_existential(Puppy1, count(1, inf, skF(skIsPuppyExists_0FnSk, vv(KB, Puppy1))), 1) :-
@@ -64,10 +64,10 @@ make_existential(Puppy1, count(1, inf, skF(skIsPuppyExists_0FnSk, vv(KB, Puppy1)
 % :- test_boxlog(atmost(1, X_VAR, puppy(X_VAR))).
 proven_neg(puppy(X)) :-
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy0)).
+        nesc(puppy(Puppy0)).
 proven_neg(different(X, Puppy0)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy0)).
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(1, X, puppy(X))))).
 */
 
@@ -106,27 +106,27 @@ make_existential(X, count(1, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), 1) :-
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:93
 % :- test_boxlog(exactly(5, X_VAR, puppy(X_VAR))).
 proven_neg(puppy(Puppy1)) :-
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
         dif_objs(Puppy1, Puppy6),
-        tru(puppy(Puppy6)).
+        nesc(puppy(Puppy6)).
 proven_neg(different(Puppy1, Puppy6)) :-
-        tru(puppy(Puppy6)),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy6)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy1)),
+        nesc(puppy(Puppy2)),
         dif_objs(Puppy1, Puppy2),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy3)).
+        nesc(puppy(Puppy3)).
 proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _38323838).
 make_existential(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _38323838) :-
@@ -148,27 +148,27 @@ make_existential(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _38323838) 
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:132
 % :- test_boxlog(atmost(5, X_VAR, puppy(X_VAR))).
 proven_neg(puppy(X)) :-
-        tru(puppy(Puppy0)),
+        nesc(puppy(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(X, Puppy3),
         dif_objs(X, Puppy4),
-        tru(puppy(Puppy4)).
+        nesc(puppy(Puppy4)).
 proven_neg(different(X, Puppy4)) :-
-        tru(puppy(Puppy4)),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy4)),
+        nesc(puppy(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)),
         dif_objs(X, Puppy0),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy1)).
+        nesc(puppy(Puppy1)).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(5, X, puppy(X))))).
 */
 
@@ -209,20 +209,20 @@ make_existential(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _41398982) 
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:191
 % :- test_boxlog(exactly(1, X_VAR, puppy(X_VAR)&cute(X_VAR))).
 proven_neg(cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy1)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(cute(Puppy1)).
+        nesc(cute(Puppy1)).
 proven_neg(puppy(X)) :-
-        tru(cute(X)),
-        tru(puppy(Puppy1)),
+        nesc(cute(X)),
+        nesc(puppy(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(cute(Puppy1)).
+        nesc(cute(Puppy1)).
 proven_neg(different(X, Puppy1)) :-
-        tru(puppy(Puppy1)),
-        tru(cute(Puppy1)),
-        tru(puppy(X)),
-        tru(cute(X)).
+        nesc(puppy(Puppy1)),
+        nesc(cute(Puppy1)),
+        nesc(puppy(X)),
+        nesc(cute(X)).
 proven_tru(cute(Puppy1)) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1))),
@@ -251,20 +251,20 @@ make_existential(Puppy1, count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, P
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:230
 % :- test_boxlog(atmost(1, X_VAR, puppy(X_VAR)&cute(X_VAR))).
 proven_neg(cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(cute(Puppy0)).
+        nesc(cute(Puppy0)).
 proven_neg(puppy(X)) :-
-        tru(cute(X)),
-        tru(puppy(Puppy0)),
+        nesc(cute(X)),
+        nesc(puppy(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(cute(Puppy0)).
+        nesc(cute(Puppy0)).
 proven_neg(different(X, Puppy0)) :-
-        tru(puppy(X)),
-        tru(cute(X)),
-        tru(puppy(Puppy0)),
-        tru(cute(Puppy0)).
+        nesc(puppy(X)),
+        nesc(cute(X)),
+        nesc(puppy(Puppy0)),
+        nesc(cute(Puppy0)).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(1, X, puppy(X)&cute(X))))).
 */
 
@@ -306,56 +306,56 @@ make_existential(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), 1) :-
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:281
 % :- test_boxlog(exactly(5, X_VAR, puppy(X_VAR)&cute(X_VAR))).
 proven_neg(cute(Cute1)) :-
-        tru(puppy(Cute1)),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Cute1)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
         dif_objs(Cute1, Puppy3),
-        tru(puppy(Puppy4)),
-        tru(cute(Puppy4)),
+        nesc(puppy(Puppy4)),
+        nesc(cute(Puppy4)),
         dif_objs(Cute1, Puppy4),
-        tru(puppy(Puppy5)),
-        tru(cute(Puppy5)),
+        nesc(puppy(Puppy5)),
+        nesc(cute(Puppy5)),
         dif_objs(Cute1, Puppy5),
-        tru(puppy(Puppy6)),
+        nesc(puppy(Puppy6)),
         dif_objs(Cute1, Puppy6),
-        tru(cute(Puppy6)).
+        nesc(cute(Puppy6)).
 proven_neg(puppy(Cute1)) :-
-        tru(cute(Cute1)),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(cute(Cute1)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
         dif_objs(Cute1, Puppy3),
-        tru(puppy(Puppy4)),
-        tru(cute(Puppy4)),
+        nesc(puppy(Puppy4)),
+        nesc(cute(Puppy4)),
         dif_objs(Cute1, Puppy4),
-        tru(puppy(Puppy5)),
-        tru(cute(Puppy5)),
+        nesc(puppy(Puppy5)),
+        nesc(cute(Puppy5)),
         dif_objs(Cute1, Puppy5),
-        tru(puppy(Puppy6)),
+        nesc(puppy(Puppy6)),
         dif_objs(Cute1, Puppy6),
-        tru(cute(Puppy6)).
+        nesc(cute(Puppy6)).
 proven_neg(different(Cute1, Puppy6)) :-
-        tru(puppy(Puppy6)),
-        tru(cute(Puppy6)),
-        tru(puppy(Puppy5)),
-        tru(cute(Puppy5)),
+        nesc(puppy(Puppy6)),
+        nesc(cute(Puppy6)),
+        nesc(puppy(Puppy5)),
+        nesc(cute(Puppy5)),
         dif_objs(Cute1, Puppy5),
-        tru(puppy(Puppy4)),
-        tru(cute(Puppy4)),
+        nesc(puppy(Puppy4)),
+        nesc(cute(Puppy4)),
         dif_objs(Cute1, Puppy4),
-        tru(puppy(Cute1)),
-        tru(cute(Cute1)),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Cute1)),
+        nesc(cute(Cute1)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Cute1, Puppy3),
-        tru(cute(Puppy3)).
+        nesc(cute(Puppy3)).
 proven_tru(cute(X)) :-
         skolem(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _42671860).
 proven_tru(puppy(X)) :-
@@ -379,56 +379,56 @@ make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _4267
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:352
 % :- test_boxlog(atmost(5, X_VAR, puppy(X_VAR)&cute(X_VAR))).
 proven_neg(cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy0)),
-        tru(cute(Puppy0)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)),
+        nesc(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
-        tru(cute(Puppy1)),
+        nesc(puppy(Puppy1)),
+        nesc(cute(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(X, Puppy4),
-        tru(cute(Puppy4)).
+        nesc(cute(Puppy4)).
 proven_neg(puppy(X)) :-
-        tru(cute(X)),
-        tru(puppy(Puppy0)),
-        tru(cute(Puppy0)),
+        nesc(cute(X)),
+        nesc(puppy(Puppy0)),
+        nesc(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
-        tru(cute(Puppy1)),
+        nesc(puppy(Puppy1)),
+        nesc(cute(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(X, Puppy4),
-        tru(cute(Puppy4)).
+        nesc(cute(Puppy4)).
 proven_neg(different(X, Puppy4)) :-
-        tru(puppy(Puppy4)),
-        tru(cute(Puppy4)),
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
+        nesc(puppy(Puppy4)),
+        nesc(cute(Puppy4)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(X)),
-        tru(cute(X)),
-        tru(puppy(Puppy0)),
-        tru(cute(Puppy0)),
+        nesc(puppy(X)),
+        nesc(cute(X)),
+        nesc(puppy(Puppy0)),
+        nesc(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(cute(Puppy1)).
+        nesc(cute(Puppy1)).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(5, X, puppy(X)&cute(X))))).
 */
 
@@ -475,14 +475,14 @@ make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _5045
 % :- test_boxlog(exactly(1, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
 proven_neg(puppy(X)) :-
         poss(cute(X)),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1).
 proven_neg(different(X, Puppy1)) :-
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         poss(cute(X)),
-        tru(puppy(X)).
+        nesc(puppy(X)).
 proven_tru(poss(cute(Puppy1))) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1, KB))),
@@ -492,8 +492,8 @@ proven_tru(puppy(Puppy1)) :-
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1, KB))),
                1).
 proven_tru(~cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy1)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1).
 make_existential(Puppy1, count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1, KB))), 1) :-
@@ -516,17 +516,17 @@ make_existential(Puppy1, count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, P
 % :- test_boxlog(atmost(1, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
 proven_neg(puppy(X)) :-
         poss(cute(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
         dif_objs(X, Puppy0).
 proven_neg(different(X, Puppy0)) :-
-        tru(puppy(X)),
+        nesc(puppy(X)),
         poss(cute(X)),
         poss(cute(Puppy0)),
-        tru(puppy(Puppy0)).
+        nesc(puppy(Puppy0)).
 proven_tru(~cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
         dif_objs(X, Puppy0).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(1, X, puppy(X)&poss(cute(X)))))).
@@ -570,36 +570,36 @@ make_existential(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), 1
 % :- test_boxlog(exactly(5, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
 proven_neg(puppy(Puppy1)) :-
         poss(cute(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         poss(cute(Puppy5)),
         dif_objs(Puppy1, Puppy5),
-        tru(puppy(Puppy6)),
+        nesc(puppy(Puppy6)),
         poss(cute(Puppy6)),
         dif_objs(Puppy1, Puppy6).
 proven_neg(different(Puppy1, Puppy6)) :-
-        tru(puppy(Puppy6)),
+        nesc(puppy(Puppy6)),
         poss(cute(Puppy6)),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         poss(cute(Puppy5)),
         dif_objs(Puppy1, Puppy5),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(Puppy1, Puppy3).
 proven_tru(poss(cute(X))) :-
@@ -611,20 +611,20 @@ proven_tru(puppy(X)) :-
                count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
                _52310992).
 proven_tru(~cute(Puppy1)) :-
-        tru(puppy(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy1)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         poss(cute(Puppy5)),
         dif_objs(Puppy1, Puppy5),
-        tru(puppy(Puppy6)),
+        nesc(puppy(Puppy6)),
         poss(cute(Puppy6)),
         dif_objs(Puppy1, Puppy6).
 make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _52310992) :-
@@ -648,53 +648,53 @@ make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _
 % :- test_boxlog(atmost(5, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
 proven_neg(puppy(X)) :-
         poss(cute(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
         dif_objs(X, Puppy4).
 proven_neg(different(X, Puppy4)) :-
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(X)),
+        nesc(puppy(X)),
         poss(cute(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1).
 proven_tru(~cute(X)) :-
-        tru(puppy(X)),
-        tru(puppy(Puppy0)),
+        nesc(puppy(X)),
+        nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
         dif_objs(X, Puppy0),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
         dif_objs(X, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(X, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         poss(cute(Puppy4)),
         dif_objs(X, Puppy4).
 % c_success(kbii, kbii:call_u(kbii:test_boxlog(atmost(5, X, puppy(X)&poss(cute(X)))))).

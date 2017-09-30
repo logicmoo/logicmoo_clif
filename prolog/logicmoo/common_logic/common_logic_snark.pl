@@ -1032,7 +1032,7 @@ is_4th_order(F):- atom_concat('call_',_,F).
 is_4th_order(F):- atom_concat('with_',_,F).
 is_4th_order(F):- atom_concat('fals',_,F).
 is_4th_order(F):- atom_concat(_,'neg',F).
-is_4th_order(F):- atom_concat(_,'tru',F).
+is_4th_order(F):- atom_concat(_,'nesc',F).
 is_4th_order(F):- atom_concat(_,'dom',F).
 is_4th_order(F):- atom_concat(_,'xdoms',F).
 is_4th_order(F):- atom_concat(_,'serted',F).
@@ -1148,16 +1148,16 @@ to_tnot(nesc(THIN0),(NTHIN)):- to_tnot( THIN0, NTHIN),!.
 to_tnot((X ; Y),(Xp ; Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot((X :- Y),(Xp :- Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
 to_tnot((X , Y),(Xp , Yp)) :- to_tnot(X,Xp), to_tnot(Y,Yp).
-to_tnot(THIN0,tru(THIN)):- into_mpred_form(THIN0,THIN).
+to_tnot(THIN0,nesc(THIN)):- into_mpred_form(THIN0,THIN).
 
 to_neg(THIN,THIN):- \+ compound(THIN),!.
 to_neg(neg(THIN),THIN).
-to_neg(tru(THIN),neg(THIN)).
+to_neg(nesc(THIN),neg(THIN)).
 to_neg(THIN,neg(THIN)).
 
 to_poss(THIN,poss(THIN)):- \+ compound(THIN),!.
 to_poss(poss(THIN),poss(THIN)).
-to_poss(tru(THIN),poss(THIN)).
+to_poss(nesc(THIN),poss(THIN)).
 to_poss(neg(THIN),poss(neg(THIN))).
 to_poss(THIN,poss(THIN)).
 

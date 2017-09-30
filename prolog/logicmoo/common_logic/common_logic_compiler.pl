@@ -1641,7 +1641,7 @@ unused_clause(naf(C):- ~(_)):-nonvar(C),!.
 poss_or_skolem(Var):- \+ compound(Var),!,fail.
 poss_or_skolem(poss(_)).
 poss_or_skolem(dif_objs(_,_)).
-poss_or_skolem(tru(X)):-!,poss_or_skolem(X).
+poss_or_skolem(nesc(X)):-!,poss_or_skolem(X).
 poss_or_skolem(falsify(X)):-!,poss_or_skolem(X).
 % MAYBE? poss_or_skolem(needs(_)).
 poss_or_skolem(skolem(_,_,_)).

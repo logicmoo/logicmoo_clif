@@ -1,11 +1,37 @@
 
-% test dealing  with counts of instances for modality
+% test dealing  with instances of type counts with modality
 
 :- module(cute6,[]).
 
 :- include(test_header).
 
-%===== domain =======
+% Option Examples: nesc($sentence),  poss($sentence),  poss($sentence)=>nesc($sentence).
+==> feature_setting(default_modality,nesc($sentence)).
+
+/*
+
+Feature Notes:
+
+P.  % P happens to be the feature_setting default_modality
+poss(P).  % possibly P
+nesc(P).  % necessarily P
+~nesc(P).  % not necessarily P
+nesc(~P).  % necessarily not P
+~poss(P).  % not possibly P
+poss(~P).  % possibly not P
+
+poss(P)=>nesc(P).  % P is true by default (allows other axioms to override)
+poss(P)&~nesc(P).  % possibly, but not necessarily P
+
+~naf(P).  % P is default
+naf(~P).  % possibly P
+naf(P).  % possibly not P
+
+there are many Logically equivalent settings like   ~poss(P) == nesc(~P)
+
+*/
+
+%===== axioms =======
 
 % there are 4 possibly cute puppies
 :- test_boxlog([+assert],exactly(4, X, puppy(X) & poss(cute(X)))).
@@ -17,7 +43,7 @@
 :- test_boxlog([+assert],exactly(5, X, puppy(X))).
 
 % cute things cannot be ugly things and visa versa
-:- test_boxlog([+assert],forall( X, iff(cute(X),not(ugly(X))))).
+:- test_boxlog([+assert],forall( X, iff(cute(X),~ugly(X)))).
 
 % all puppies are cute or ugly
 :- test_boxlog([+assert],forall( X, if(puppy(X),(ugly(X) v cute(X))))).
@@ -30,20 +56,20 @@
 % 2 are for sure actually cute
 :- test_boxlog([+test_query],{ findall(X,(puppy(X),cute(X)),L),length(L,2)}).
 
-% leaving 3 more as possibly cute
-:- test_boxlog([+test_query],{ findall(X,(puppy(X),poss(cute(X))),L),length(L,3)}).
+% leaving 3 more as _only_ possibly cute
+:- test_boxlog([+test_query],{ findall(X,(puppy(X),poss(cute(X)),naf(cute(X))),L),length(L,3)}).
 
 % the last puppy is not for sure known cute or or not cute so it may be ugly
 :- test_boxlog([+test_query],{ findall(X,(puppy(X),poss(ugly(X))),L),length(L,1)}).
 
-:- if(option_setting(test_fwc,true)).
 
+
+:- if(kif_option_value(extras(test_fwc),true)).
 puppy(X) ==> known(puppy(X)).
 cute(X) ==> known(cute(X)).
 ugly(X) ==> known(ugly(X)).
 ~ugly(X) ==> known(~ugly(X)).
 poss(cute(X)) ==> known(poss(cute(X))).
-
 :- endif.
 
 
@@ -52,7 +78,7 @@ end_of_file.
 %===== debugging notes =======
 
 :- 
-  mpred_test((tru(puppy(Puppy1)),tru(puppy(Puppy2)),Puppy1=Puppy2)).
+  mpred_test((nesc(puppy(Puppy1)),nesc(puppy(Puppy2)),Puppy1=Puppy2)).
 /*
 Puppy1 = Puppy2,
 add_cond(Puppy2, [puppy, poss(cute(Puppy2)), made_skolem(skF(skIsCuteIsPuppyX_0FnSk, vv), 4)]) ;
@@ -69,7 +95,7 @@ go_test:- forall(no_repeats(proven_neg(G)),writeln(proven_neg(G))).
 
 
 ?- 
-   tru(puppy(Puppy1)),tru(puppy(Puppy2)),tru(puppy(Puppy3)),tru(puppy(Puppy4),tru(puppy(Puppy5)),
+   nesc(puppy(Puppy1)),nesc(puppy(Puppy2)),nesc(puppy(Puppy3)),nesc(puppy(Puppy4),nesc(puppy(Puppy5)),
    comingle_vars([Puppy1,Puppy2,Puppy3,Puppy4],NewP).
 
 
@@ -92,53 +118,53 @@ end_of_file.
 %       ~puppy(X)v nesc(~cute(X))v skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592)&(puppy(X)&poss(cute(X))v~skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592))&(~puppy(_38033330)v nesc(~cute(_38033330))v~different(_38006508, _38033330)v(~puppy(_38037090)v nesc(~cute(_38037090))v~different(_38006508, _38037090)v(~puppy(_38006508)v nesc(~cute(_38006508))v(~puppy(_38044610)v nesc(~cute(_38044610)))v~different(_38006508, _38044610)v(~puppy(_38040850)v nesc(~cute(_38040850))v~different(_38006508, _38040850))))).
 % to_tnot :-
 %       ( (   (   neg(puppy(X))
-%             ;   tru(nesc(~cute(X)))
+%             ;   nesc(nesc(~cute(X)))
 %             )
-%         ;   tru(skolem(X,
+%         ;   nesc(skolem(X,
 %                        count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
 %                        _38009592))
 %         ),
-%         (   tru(puppy(X)),
-%             tru(poss(cute(X)))
+%         (   nesc(puppy(X)),
+%             nesc(poss(cute(X)))
 %         ;   neg(skolem(X,
 %                        count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
 %                        _38009592))
 %         )
 %       ),
 %       (   (   (   neg(puppy(_38033330))
-%               ;   tru(nesc(~cute(_38033330)))
+%               ;   nesc(nesc(~cute(_38033330)))
 %               )
 %           ;   neg(different(_38006508, _38033330))
 %           )
 %       ;   (   (   neg(puppy(_38037090))
-%               ;   tru(nesc(~cute(_38037090)))
+%               ;   nesc(nesc(~cute(_38037090)))
 %               )
 %           ;   neg(different(_38006508, _38037090))
 %           )
 %       ;   (   (   (   neg(puppy(_38006508))
-%                   ;   tru(nesc(~cute(_38006508)))
+%                   ;   nesc(nesc(~cute(_38006508)))
 %                   )
 %               ;   neg(puppy(_38044610))
-%               ;   tru(nesc(~cute(_38044610)))
+%               ;   nesc(nesc(~cute(_38044610)))
 %               )
 %           ;   neg(different(_38006508, _38044610))
 %           )
 %       ;   (   neg(puppy(_38040850))
-%           ;   tru(nesc(~cute(_38040850)))
+%           ;   nesc(nesc(~cute(_38040850)))
 %           )
 %       ;   neg(different(_38006508, _38040850))
 %       ).
 % tlog_nnf :-
 %       (   (   ( n(neg(puppy(X))),
-%                 n(tru(nesc(~cute(X))))
+%                 n(nesc(nesc(~cute(X))))
 %               ),
-%               n(tru(skolem(X,
+%               n(nesc(skolem(X,
 %                            count(4,
 %                                  inf,
 %                                  skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
 %                            _38009592)))
-%           ;   (   n(tru(puppy(X)))
-%               ;   n(tru(poss(cute(X))))
+%           ;   (   n(nesc(puppy(X)))
+%               ;   n(nesc(poss(cute(X))))
 %               ),
 %               n(neg(skolem(X,
 %                            count(4,
@@ -147,58 +173,58 @@ end_of_file.
 %                            _38009592)))
 %           )
 %       ;   ( ( n(neg(puppy(_38033330))),
-%               n(tru(nesc(~cute(_38033330))))
+%               n(nesc(nesc(~cute(_38033330))))
 %             ),
 %             n(neg(different(_38006508, _38033330)))
 %           ),
 %           ( ( n(neg(puppy(_38037090))),
-%               n(tru(nesc(~cute(_38037090))))
+%               n(nesc(nesc(~cute(_38037090))))
 %             ),
 %             n(neg(different(_38006508, _38037090)))
 %           ),
 %           ( ( ( n(neg(puppy(_38006508))),
-%                 n(tru(nesc(~cute(_38006508))))
+%                 n(nesc(nesc(~cute(_38006508))))
 %               ),
 %               n(neg(puppy(_38044610))),
-%               n(tru(nesc(~cute(_38044610))))
+%               n(nesc(nesc(~cute(_38044610))))
 %             ),
 %             n(neg(different(_38006508, _38044610)))
 %           ),
 %           ( n(neg(puppy(_38040850))),
-%             n(tru(nesc(~cute(_38040850))))
+%             n(nesc(nesc(~cute(_38040850))))
 %           ),
 %           n(neg(different(_38006508, _38040850)))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(~puppy(X))&n(tru(nesc(~cute(X))))&n(tru(skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592)))v(n(tru(puppy(X)))v n(tru(poss(cute(X))))&n(~skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592)))v(n(~puppy(_38033330))&n(tru(nesc(~cute(_38033330))))&n(~different(_38006508, _38033330))&(n(~puppy(_38037090))&n(tru(nesc(~cute(_38037090))))&n(~different(_38006508, _38037090))&(n(~puppy(_38006508))&n(tru(nesc(~cute(_38006508))))&(n(~puppy(_38044610))&n(tru(nesc(~cute(_38044610)))))&n(~different(_38006508, _38044610))&(n(~puppy(_38040850))&n(tru(nesc(~cute(_38040850))))&n(~different(_38006508, _38040850)))))).
+%       n(~puppy(X))&n(nesc(nesc(~cute(X))))&n(nesc(skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592)))v(n(nesc(puppy(X)))v n(nesc(poss(cute(X))))&n(~skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _38009592)))v(n(~puppy(_38033330))&n(nesc(nesc(~cute(_38033330))))&n(~different(_38006508, _38033330))&(n(~puppy(_38037090))&n(nesc(nesc(~cute(_38037090))))&n(~different(_38006508, _38037090))&(n(~puppy(_38006508))&n(nesc(nesc(~cute(_38006508))))&(n(~puppy(_38044610))&n(nesc(nesc(~cute(_38044610)))))&n(~different(_38006508, _38044610))&(n(~puppy(_38040850))&n(nesc(nesc(~cute(_38040850))))&n(~different(_38006508, _38040850)))))).
 % autoloading common_logic_modalization:sub_term/2 from /home/prologmud_server/lib/swipl-7.5.15/library/occurs
 % autoloading cute6:predsort/3 from /home/prologmud_server/lib/swipl-7.5.15/library/sort
 proven_neg(puppy(Puppy1)) :-
         falsify(~cute(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         falsify(~cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         falsify(~cute(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         falsify(~cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
         falsify(~cute(Puppy5)).
 proven_neg(different(Puppy1, Puppy5)) :-
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         falsify(~cute(Puppy5)),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         falsify(~cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy1)),
+        nesc(puppy(Puppy1)),
         falsify(~cute(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         falsify(~cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Puppy1, Puppy3),
         falsify(~cute(Puppy3)).
 proven_tru(poss(cute(X))) :-
@@ -206,17 +232,17 @@ proven_tru(poss(cute(X))) :-
 proven_tru(puppy(X)) :-
         skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB).
 proven_tru(~cute(Puppy1)) :-
-        tru(puppy(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy1)),
+        nesc(puppy(Puppy2)),
         falsify(~cute(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         falsify(~cute(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         falsify(~cute(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
         falsify(~cute(Puppy5)).
 make_existential(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB) :-
@@ -236,12 +262,12 @@ make_existential(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), K
 %       ( (   (   neg(puppy(X))
 %             ;   neg(cute(X))
 %             )
-%         ;   tru(skolem(X,
+%         ;   nesc(skolem(X,
 %                        count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))),
 %                        _39514024))
 %         ),
-%         (   tru(puppy(X)),
-%             tru(cute(X))
+%         (   nesc(puppy(X)),
+%             nesc(cute(X))
 %         ;   neg(skolem(X,
 %                        count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))),
 %                        _39514024))
@@ -264,11 +290,11 @@ make_existential(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), K
 %       (   (   ( n(neg(puppy(X))),
 %                 n(neg(cute(X)))
 %               ),
-%               n(tru(skolem(X,
+%               n(nesc(skolem(X,
 %                            count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))),
 %                            _39514024)))
-%           ;   (   n(tru(puppy(X)))
-%               ;   n(tru(cute(X)))
+%           ;   (   n(nesc(puppy(X)))
+%               ;   n(nesc(cute(X)))
 %               ),
 %               n(neg(skolem(X,
 %                            count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))),
@@ -288,31 +314,31 @@ make_existential(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), K
 %           n(neg(different(_39511688, _39535680)))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(~puppy(X))&n(~cute(X))&n(tru(skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), _39514024)))v(n(tru(puppy(X)))v n(tru(cute(X)))&n(~skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), _39514024)))v(n(~puppy(_39511688))&n(~cute(_39511688))&(n(~puppy(_39538616))&n(~cute(_39538616)))&n(~different(_39511688, _39538616))&(n(~puppy(_39535680))&n(~cute(_39535680))&n(~different(_39511688, _39535680)))).
+%       n(~puppy(X))&n(~cute(X))&n(nesc(skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), _39514024)))v(n(nesc(puppy(X)))v n(nesc(cute(X)))&n(~skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), _39514024)))v(n(~puppy(_39511688))&n(~cute(_39511688))&(n(~puppy(_39538616))&n(~cute(_39538616)))&n(~different(_39511688, _39538616))&(n(~puppy(_39535680))&n(~cute(_39535680))&n(~different(_39511688, _39535680)))).
 proven_neg(cute(Cute1)) :-
-        tru(puppy(Cute1)),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(puppy(Cute1)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Cute1, Puppy3),
-        tru(cute(Puppy3)).
+        nesc(cute(Puppy3)).
 proven_neg(puppy(Cute1)) :-
-        tru(cute(Cute1)),
-        tru(puppy(Puppy2)),
-        tru(cute(Puppy2)),
+        nesc(cute(Cute1)),
+        nesc(puppy(Puppy2)),
+        nesc(cute(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Cute1, Puppy3),
-        tru(cute(Puppy3)).
+        nesc(cute(Puppy3)).
 proven_neg(different(Cute1, Puppy3)) :-
-        tru(puppy(Puppy3)),
-        tru(cute(Puppy3)),
-        tru(puppy(Cute1)),
-        tru(cute(Cute1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy3)),
+        nesc(cute(Puppy3)),
+        nesc(puppy(Cute1)),
+        nesc(cute(Cute1)),
+        nesc(puppy(Puppy2)),
         dif_objs(Cute1, Puppy2),
-        tru(cute(Puppy2)).
+        nesc(cute(Puppy2)).
 proven_tru(cute(X)) :-
         skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB).
 proven_tru(puppy(X)) :-
@@ -329,9 +355,9 @@ make_existential(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB) :-
 %       ~puppy(X)v skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990)&(puppy(X)v~skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990))&(~puppy(_40274182)v~different(_40259278, _40274182)v(~puppy(_40276474)v~different(_40259278, _40276474)v(~puppy(_40278766)v~different(_40259278, _40278766)v(~puppy(_40259278)v~puppy(_40283350)v~different(_40259278, _40283350)v(~puppy(_40281058)v~different(_40259278, _40281058)))))).
 % to_tnot :-
 %       ( (   neg(puppy(X))
-%         ;   tru(skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990))
+%         ;   nesc(skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990))
 %         ),
-%         (   tru(puppy(X))
+%         (   nesc(puppy(X))
 %         ;   neg(skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990))
 %         )
 %       ),
@@ -354,10 +380,10 @@ make_existential(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB) :-
 %       ).
 % tlog_nnf :-
 %       (   (   n(neg(puppy(X))),
-%               n(tru(skolem(X,
+%               n(nesc(skolem(X,
 %                            count(5, inf, skF(skIsX_0FnSk, vv(KB, X))),
 %                            _40260990)))
-%           ;   n(tru(puppy(X))),
+%           ;   n(nesc(puppy(X))),
 %               n(neg(skolem(X,
 %                            count(5, inf, skF(skIsX_0FnSk, vv(KB, X))),
 %                            _40260990)))
@@ -380,29 +406,29 @@ make_existential(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB) :-
 %           n(neg(different(_40259278, _40281058)))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(~puppy(X))&n(tru(skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990)))v(n(tru(puppy(X)))&n(~skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990)))v(n(~puppy(_40274182))&n(~different(_40259278, _40274182))&(n(~puppy(_40276474))&n(~different(_40259278, _40276474))&(n(~puppy(_40278766))&n(~different(_40259278, _40278766))&(n(~puppy(_40259278))&n(~puppy(_40283350))&n(~different(_40259278, _40283350))&(n(~puppy(_40281058))&n(~different(_40259278, _40281058))))))).
+%       n(~puppy(X))&n(nesc(skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990)))v(n(nesc(puppy(X)))&n(~skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), _40260990)))v(n(~puppy(_40274182))&n(~different(_40259278, _40274182))&(n(~puppy(_40276474))&n(~different(_40259278, _40276474))&(n(~puppy(_40278766))&n(~different(_40259278, _40278766))&(n(~puppy(_40259278))&n(~puppy(_40283350))&n(~different(_40259278, _40283350))&(n(~puppy(_40281058))&n(~different(_40259278, _40281058))))))).
 proven_neg(puppy(Puppy1)) :-
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy2)),
         dif_objs(Puppy1, Puppy2),
-        tru(puppy(Puppy3)),
+        nesc(puppy(Puppy3)),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
         dif_objs(Puppy1, Puppy6),
-        tru(puppy(Puppy6)).
+        nesc(puppy(Puppy6)).
 proven_neg(different(Puppy1, Puppy6)) :-
-        tru(puppy(Puppy6)),
-        tru(puppy(Puppy5)),
+        nesc(puppy(Puppy6)),
+        nesc(puppy(Puppy5)),
         dif_objs(Puppy1, Puppy5),
-        tru(puppy(Puppy4)),
+        nesc(puppy(Puppy4)),
         dif_objs(Puppy1, Puppy4),
-        tru(puppy(Puppy1)),
-        tru(puppy(Puppy2)),
+        nesc(puppy(Puppy1)),
+        nesc(puppy(Puppy2)),
         dif_objs(Puppy1, Puppy2),
         dif_objs(Puppy1, Puppy3),
-        tru(puppy(Puppy3)).
+        nesc(puppy(Puppy3)).
 proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB).
 make_existential(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB) :-
@@ -417,21 +443,21 @@ make_existential(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB) :-
 %       (   neg(cute(X))
 %       ;   neg(ugly(X))
 %       ),
-%       (   tru(ugly(X))
-%       ;   tru(cute(X))
+%       (   nesc(ugly(X))
+%       ;   nesc(cute(X))
 %       ).
 % tlog_nnf :-
 %       (   n(neg(cute(X))),
 %           n(neg(ugly(X)))
-%       ;   n(tru(ugly(X))),
-%           n(tru(cute(X)))
+%       ;   n(nesc(ugly(X))),
+%           n(nesc(cute(X)))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(~cute(X))&n(~ugly(X))v(n(tru(ugly(X)))&n(tru(cute(X)))).
+%       n(~cute(X))&n(~ugly(X))v(n(nesc(ugly(X)))&n(nesc(cute(X)))).
 proven_neg(cute(X)) :-
-        tru(ugly(X)).
+        nesc(ugly(X)).
 proven_neg(ugly(X)) :-
-        tru(cute(X)).
+        nesc(cute(X)).
 proven_tru(cute(X)) :-
         falsify(ugly(X)).
 proven_tru(ugly(X)) :-
@@ -445,24 +471,24 @@ proven_tru(ugly(X)) :-
 %       ~puppy(X)v(ugly(X)v cute(X)).
 % to_tnot :-
 %       (   neg(puppy(X))
-%       ;   tru(ugly(X))
-%       ;   tru(cute(X))
+%       ;   nesc(ugly(X))
+%       ;   nesc(cute(X))
 %       ).
 % tlog_nnf :-
 %       n(neg(puppy(X))),
-%       n(tru(ugly(X))),
-%       n(tru(cute(X))).
+%       n(nesc(ugly(X))),
+%       n(nesc(cute(X))).
 % tlog_nnf_out_negated :-
-%       n(~puppy(X))&(n(tru(ugly(X)))&n(tru(cute(X)))).
+%       n(~puppy(X))&(n(nesc(ugly(X)))&n(nesc(cute(X)))).
 proven_neg(puppy(X)) :-
         falsify(ugly(X)),
         falsify(cute(X)).
 proven_tru(cute(X)) :-
         falsify(ugly(X)),
-        tru(puppy(X)).
+        nesc(puppy(X)).
 proven_tru(ugly(X)) :-
         falsify(cute(X)),
-        tru(puppy(X)).
+        nesc(puppy(X)).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:28
 % :- test_boxlog({findall(X_VAR, puppy(X_VAR), L_VAR), length(L_VAR, 5)}).
 % kif :-
@@ -474,16 +500,16 @@ proven_tru(ugly(X)) :-
 % nnf :-
 %       {findall(X, puppy(X), L)}&{length(L, 5)}.
 % to_tnot :-
-%       tru({findall(X, puppy(X), L)}),
-%       tru({length(L, 5)}).
+%       nesc({findall(X, puppy(X), L)}),
+%       nesc({length(L, 5)}).
 % tlog_nnf :-
-%       (   n(tru({findall(X, puppy(X), L)}))
-%       ;   n(tru({length(L, 5)}))
+%       (   n(nesc({findall(X, puppy(X), L)}))
+%       ;   n(nesc({length(L, 5)}))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(tru({findall(X, puppy(X), L)}))v n(tru({length(L, 5)})).
-tru({length(L, 5)}).
-tru({findall(X, puppy(X), L)}).
+%       n(nesc({findall(X, puppy(X), L)}))v n(nesc({length(L, 5)})).
+nesc({length(L, 5)}).
+nesc({findall(X, puppy(X), L)}).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:31
 % :- test_boxlog({ findall(X_VAR,
 %                        ( puppy(X_VAR),
@@ -505,16 +531,16 @@ tru({findall(X, puppy(X), L)}).
 % nnf :-
 %       {findall(X, puppy(X)&cute(X), L)}&{length(L, 2)}.
 % to_tnot :-
-%       tru({findall(X,  (puppy(X), cute(X)), L)}),
-%       tru({length(L, 2)}).
+%       nesc({findall(X,  (puppy(X), cute(X)), L)}),
+%       nesc({length(L, 2)}).
 % tlog_nnf :-
-%       (   n(tru({findall(X,  (puppy(X), cute(X)), L)}))
-%       ;   n(tru({length(L, 2)}))
+%       (   n(nesc({findall(X,  (puppy(X), cute(X)), L)}))
+%       ;   n(nesc({length(L, 2)}))
 %       ).
 % tlog_nnf_out_negated :-
-%       n(tru({findall(X, puppy(X)&cute(X), L)}))v n(tru({length(L, 2)})).
-tru({length(L, 2)}).
-tru({findall(X,  (puppy(X), cute(X)), L)}).
+%       n(nesc({findall(X, puppy(X)&cute(X), L)}))v n(nesc({length(L, 2)})).
+nesc({length(L, 2)}).
+nesc({findall(X,  (puppy(X), cute(X)), L)}).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:34
 % :- test_boxlog({ findall(X_VAR,
 %                        ( puppy(X_VAR),
@@ -537,12 +563,12 @@ tru({findall(X,  (puppy(X), cute(X)), L)}).
 %       { findall(X, puppy(X)&poss(cute(X)), L)&length(L, 3)
 %       }.
 % to_tnot :-
-%       tru({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)}).
+%       nesc({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)}).
 % tlog_nnf :-
-%       n(tru({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)})).
+%       n(nesc({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)})).
 % tlog_nnf_out_negated :-
-%       n(tru({findall(X, puppy(X)&poss(cute(X)), L)&length(L, 3)})).
-tru({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)}).
+%       n(nesc({findall(X, puppy(X)&poss(cute(X)), L)&length(L, 3)})).
+nesc({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)}).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:37
 % :- test_boxlog({ findall(X_VAR,
 %                        ( puppy(X_VAR),
@@ -565,12 +591,12 @@ tru({findall(X,  (puppy(X), poss(cute(X))), L), length(L, 3)}).
 %       { findall(X, puppy(X)&poss(ugly(X)), L)&length(L, 1)
 %       }.
 % to_tnot :-
-%       tru({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)}).
+%       nesc({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)}).
 % tlog_nnf :-
-%       n(tru({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)})).
+%       n(nesc({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)})).
 % tlog_nnf_out_negated :-
-%       n(tru({findall(X, puppy(X)&poss(ugly(X)), L)&length(L, 1)})).
-tru({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)}).
+%       n(nesc({findall(X, puppy(X)&poss(ugly(X)), L)&length(L, 1)})).
+nesc({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)}).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:39
 % kbi_define(cute6:option_setting/2).
 % init_why(program).

@@ -318,7 +318,7 @@ demodal_any(_KB,naf(proven_not_tru(Head)),poss(Head),true):- !.
 % demodal_any(_KB,Head,Head,true):- current_prolog_flag(logicmoo_propagation, modal),!.
 
 demodal_any(KB,falsify(nesc(~P)),poss(PP),Out):-!,demodal_any(KB,P,PP,Out).
-demodal_any(KB,tru(nesc(~P)),neg(PP),Out):-!,demodal_any(KB,P,PP,Out).
+demodal_any(KB,nesc(nesc(~P)),neg(PP),Out):-!,demodal_any(KB,P,PP,Out).
 demodal_any(KB,nesc(_,Head),NHead,Out):- !,demodal_any(KB,nesc(Head),NHead,Out).
 demodal_any(KB,poss(_,Head),NHead,Out):- !,demodal_any(KB,poss(Head),NHead,Out).
 demodal_any(KB,nesc(Head),Head,Out):- !,demodal_any(KB,Head,Head,Out).
@@ -349,7 +349,7 @@ demodal_body(_KB,_Head, nesc(b_d(_7B2, nesc, poss),G), nesc(G)).
 
 demodal_body(_KB, _Head, (A ; C), A ):- identical_refl(A,C),!.
 demodal_body(_KB, _Head, (A , C), A ):- identical_refl(A,C),!.
-demodal_body(_KB, _Head, neg(nesc(~(P))), tru(poss(P)) ):-!.
+demodal_body(_KB, _Head, neg(nesc(~(P))), nesc(poss(P)) ):-!.
 
 
   
@@ -388,9 +388,9 @@ demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_neg(G), expect_tru(G))
 demodal_body(KB,  (make_existential(_,SK,KB)), proven_not_tru(G), expect_fals(G)):- sharing_vars_vars(SK,G).
 */
 
-demodal_body(_KB,_Head,tru(different(X,Y)),dif_objs(X,Y)):- !.
+demodal_body(_KB,_Head,nesc(different(X,Y)),dif_objs(X,Y)):- !.
 demodal_body(_KB,_Head,neg(different(X,Y)),sameObjects(X,Y)):- !.
-demodal_body(_KB,_Head,tru(different(X,Y)),dif_objs(XX,YY)):- (X @> Y -> XX/YY=X/Y ; XX/YY=Y/X).
+demodal_body(_KB,_Head,nesc(different(X,Y)),dif_objs(XX,YY)):- (X @> Y -> XX/YY=X/Y ; XX/YY=Y/X).
 demodal_body(_KB,_Head,neg(different(X,Y)),sameObjects(XX,YY)):- (X @> Y -> XX/YY=X/Y ; XX/YY=Y/X).
 
 
@@ -428,14 +428,14 @@ demodal_body(_KB,  never_any(_Head), proven_not_tru(X), never_any(X)):-!.
 
 demodal_body(_KB,  _, neg(nesc(~P)),poss(P)):-!.
 
-demodal_body(_KB,  pro_tru(_Head), proven_not_neg(X), tru(X)):-!.
+demodal_body(_KB,  pro_tru(_Head), proven_not_neg(X), nesc(X)):-!.
 demodal_body(_KB,  pro_tru(_Head), proven_not_tru(X), neg(X)):-!.
 
-demodal_body(_KB,  con_neg(_Head), proven_not_neg(X), tru(X)):-!.
+demodal_body(_KB,  con_neg(_Head), proven_not_neg(X), nesc(X)):-!.
 demodal_body(_KB,  con_neg(_Head), proven_not_tru(X), neg(X)):-!.
 
 
-demodal_body(_KB,   (_Head), proven_not_neg(X), tru(X)):-!.
+demodal_body(_KB,   (_Head), proven_not_neg(X), nesc(X)):-!.
 demodal_body(_KB,   (_Head), proven_not_tru(X), falsify(X)):-!.
 
 
