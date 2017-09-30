@@ -567,7 +567,7 @@ holdsIn(_12442,instance(_12420,mobTourist)):-instance(_12442,actSightseeing),per
 :- test_boxlog([+pfc,+assert],exactly(6,X, puppy(X) & poss(cute(X)))).
 
 
-:-  test_repl.
+% :-  test_repl.
 
 end_of_file.
 
