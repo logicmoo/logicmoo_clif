@@ -43,7 +43,7 @@ proven_neg(puppy(X)) :-
 proven_neg(different(X, Puppy1)) :-
         nesc(puppy(Puppy1)),
         nesc(puppy(X)).
-proven_nesc(puppy(Puppy1)) :-
+proven_tru(puppy(Puppy1)) :-
         skolem(Puppy1, count(1, inf, skF(skIsPuppyExists_0FnSk, vv(KB, Puppy1))), 1).
 make_existential(Puppy1, count(1, inf, skF(skIsPuppyExists_0FnSk, vv(KB, Puppy1))), 1) :-
         ensure_cond(Puppy1, puppy(Puppy1)).
@@ -84,7 +84,7 @@ proven_neg(different(X, Puppy0)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:75
 % :- test_boxlog(atleast(1, X_VAR, puppy(X_VAR))).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(1, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), 1).
 make_existential(X, count(1, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), 1) :-
         ensure_cond(X, puppy(X)).
@@ -127,7 +127,7 @@ proven_neg(different(Puppy1, Puppy6)) :-
         dif_objs(Puppy1, Puppy2),
         dif_objs(Puppy1, Puppy3),
         nesc(puppy(Puppy3)).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _38323838).
 make_existential(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _38323838) :-
         ensure_cond(X, puppy(X)).
@@ -185,7 +185,7 @@ proven_neg(different(X, Puppy4)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:168
 % :- test_boxlog(atleast(5, X_VAR, puppy(X_VAR))).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _41398982).
 make_existential(X, count(5, inf, skF(skIsPuppyX_0FnSk, vv(KB, X))), _41398982) :-
         ensure_cond(X, puppy(X)).
@@ -223,11 +223,11 @@ proven_neg(different(X, Puppy1)) :-
         nesc(cute(Puppy1)),
         nesc(puppy(X)),
         nesc(cute(X)).
-proven_nesc(cute(Puppy1)) :-
+proven_tru(cute(Puppy1)) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1))),
                1).
-proven_nesc(puppy(Puppy1)) :-
+proven_tru(puppy(Puppy1)) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1))),
                1).
@@ -281,9 +281,9 @@ proven_neg(different(X, Puppy0)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:259
 % :- test_boxlog(atleast(1, X_VAR, puppy(X_VAR)&cute(X_VAR))).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         skolem(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), 1).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), 1).
 make_existential(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), 1) :-
         ensure_cond(X, puppy(X)),
@@ -356,9 +356,9 @@ proven_neg(different(Cute1, Puppy6)) :-
         nesc(puppy(Puppy3)),
         dif_objs(Cute1, Puppy3),
         nesc(cute(Puppy3)).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         skolem(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _42671860).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _42671860).
 make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _42671860) :-
         ensure_cond(X, puppy(X)),
@@ -445,9 +445,9 @@ proven_neg(different(X, Puppy4)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:417
 % :- test_boxlog(atleast(5, X_VAR, puppy(X_VAR)&cute(X_VAR))).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         skolem(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _50455988).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _50455988).
 make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X))), _50455988) :-
         ensure_cond(X, puppy(X)),
@@ -483,15 +483,15 @@ proven_neg(different(X, Puppy1)) :-
         poss(cute(Puppy1)),
         poss(cute(X)),
         nesc(puppy(X)).
-proven_nesc(poss(cute(Puppy1))) :-
+proven_tru(poss(cute(Puppy1))) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1, KB))),
                1).
-proven_nesc(puppy(Puppy1)) :-
+proven_tru(puppy(Puppy1)) :-
         skolem(Puppy1,
                count(1, inf, skF(skIsCuteIsPuppyExists_0FnSk, vv(KB, Puppy1, KB))),
                1).
-proven_nesc(~cute(X)) :-
+proven_tru(~cute(X)) :-
         nesc(puppy(X)),
         nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
@@ -524,7 +524,7 @@ proven_neg(different(X, Puppy0)) :-
         poss(cute(X)),
         poss(cute(Puppy0)),
         nesc(puppy(Puppy0)).
-proven_nesc(~cute(X)) :-
+proven_tru(~cute(X)) :-
         nesc(puppy(X)),
         nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
@@ -544,9 +544,9 @@ proven_nesc(~cute(X)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:512
 % :- test_boxlog(atleast(1, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
-proven_nesc(poss(cute(X))) :-
+proven_tru(poss(cute(X))) :-
         skolem(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), 1).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), 1).
 make_existential(X, count(1, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), 1) :-
         ensure_cond(X, puppy(X)),
@@ -602,15 +602,15 @@ proven_neg(different(Puppy1, Puppy6)) :-
         nesc(puppy(Puppy3)),
         poss(cute(Puppy3)),
         dif_objs(Puppy1, Puppy3).
-proven_nesc(poss(cute(X))) :-
+proven_tru(poss(cute(X))) :-
         skolem(X,
                count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
                _52310992).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X,
                count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
                _52310992).
-proven_nesc(~cute(Puppy1)) :-
+proven_tru(~cute(Puppy1)) :-
         nesc(puppy(Puppy1)),
         nesc(puppy(Puppy2)),
         poss(cute(Puppy2)),
@@ -680,7 +680,7 @@ proven_neg(different(X, Puppy4)) :-
         nesc(puppy(Puppy1)),
         poss(cute(Puppy1)),
         dif_objs(X, Puppy1).
-proven_nesc(~cute(X)) :-
+proven_tru(~cute(X)) :-
         nesc(puppy(X)),
         nesc(puppy(Puppy0)),
         poss(cute(Puppy0)),
@@ -712,11 +712,11 @@ proven_nesc(~cute(X)) :-
  /*
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl:674
 % :- test_boxlog(atleast(5, X_VAR, puppy(X_VAR)&poss(cute(X_VAR)))).
-proven_nesc(poss(cute(X))) :-
+proven_tru(poss(cute(X))) :-
         skolem(X,
                count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
                _64786032).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X,
                count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))),
                _64786032).

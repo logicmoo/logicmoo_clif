@@ -75,16 +75,6 @@
 %:- meta_predicate '__aux_maplist/2_map_each_clause+1'(*,1).
 %:- meta_predicate '__aux_maplist/3_map_each_clause+1'(*,*,2).
 
-%% delistify_last_arg( ?Arg, :PredMiddleArgs, ?Last) is det.
-%
-% Delistify Last Argument.
-%
-
-delistify_last_arg(Arg,Pred,Last):- no_repeats(Last,must(delistify_last_arg0(Arg,Pred,Last))).
-
-delistify_last_arg0(Arg,Pred,Last):- is_list(Arg),!,member(E,Arg),must(delistify_last_arg0(E,Pred,Last)).
-delistify_last_arg0(Arg,M:Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(M:NEWCALL),!,member_ele(NEW,Last).
-delistify_last_arg0(Arg,Pred,Last):- Pred=..[F|ARGS],append([Arg|ARGS],[NEW],NARGS),NEWCALL=..[F|NARGS],maybe_notrace(NEWCALL),!,member_ele(NEW,Last).
 
 
 :- thread_local(t_l:kif_option/2).
@@ -128,6 +118,7 @@ foption_to_name(_:Jiggler,Name):- !,foption_to_name(Jiggler,Name).
 foption_to_name(adapt_to_arity_2(Jiggler),Name):-!,foption_to_name(Jiggler,Name).
 foption_to_name(Jiggler,Name):-functor(Jiggler,Name,_).
 
+:- meta_predicate adapt_to_arity_2(1,?,?).
 adapt_to_arity_2(Pred1,A,O):- call(Pred1,A),A=O.
 
 :- meta_predicate kif_optionally(+,1,?).
@@ -182,81 +173,6 @@ kw_to_vars(KW,VARS):-subsT_each(KW,[':ARG1'=_ARG1,':ARG2'=_ARG2,':ARG3'=_ARG3,':
 is_gaf(Gaf):-when(nonvar(Gaf), \+ (is_kif_clause(Gaf))).
 
 %= %= :- was_export(is_kif_clause/1).
-
-
-
-%% is_kif_clause( ?Var) is det.
-%
-% If Is A Knowledge Interchange Format Rule.
-%
-is_kif_clause(Var):- is_ftVar(Var),!,fail.
-is_kif_clause(R):- kif_hook(R),!.
-is_kif_clause(R):- is_clif(R),!.
-
-
-
-
-%% kif_hook(+TermC) is det.
-%
-% Knowledge Interchange Format Hook.
-%
-kif_hook(C):- not_ftCompound(C),!,fail.
-kif_hook(_H :- _):-  !,fail.
-kif_hook(_H <- _):-  !,fail.
-kif_hook(_H --> _):- !,fail.
-kif_hook(_ ==> _):-  !,fail.
-kif_hook(_ <==> _):- !,fail.
-% uncommenting these next 3 lines may break sanity_birdt test
-
- kif_hook(  ~(H)):- !,nonvar(H),kif_hook(H).
- kif_hook(  \+ H):- !,nonvar(H),kif_hook(H).
- kif_hook(not(H)):- !,nonvar(H),kif_hook(H).
-
-kif_hook( naf(H)):- !,nonvar(H),kif_hook(H).
-kif_hook(In):- kif_hook_skel(In).
-kif_hook(C):- callable(C),functor(C,F,A),kif_hook(C,F,A).
-
-kif_hook(_,F,_):- atom_concat('sk',_,F),atom_concat(_,'Fn',F),!.
-kif_hook(C,_,_):- leave_as_is(C),!,fail.
-kif_hook(C,F,_):- is_sentence_functor(F),!,arg(_,C,E),kif_hook(E).
-
-: - fixup_exports.
-
-%% kif_hook_skel(+TermC) is det.
-%
-% Knowledge Interchange Format Hook Skelecton.
-%
-
-kif_hook_skel(forAll(_,_)).
-kif_hook_skel(_=>_).
-kif_hook_skel(_<=_).
-kif_hook_skel(_<=>_).
-kif_hook_skel((_ & _)).
-kif_hook_skel((_ /\ _)).
-kif_hook_skel((_ \/ _)).
-kif_hook_skel((_ v _)).
-kif_hook_skel(nesc(_)).
-kif_hook_skel(poss(_)).
-kif_hook_skel(cir(_)).
-kif_hook_skel(all(_,_)).
-kif_hook_skel(exactly(_,_,_)).
-kif_hook_skel(atmost(_,_,_)).
-kif_hook_skel(atleast(_,_,_)).
-kif_hook_skel(quant(_,_,_)).
-kif_hook_skel(exists(_,_)).
-kif_hook_skel(if(_,_)).
-kif_hook_skel(iff(_,_)).
-kif_hook_skel(equiv(_,_)).
-kif_hook_skel(implies(_,_)).
-kif_hook_skel(CLIF):- is_clif(CLIF).
-kif_hook_skel( ~(H)):- loop_check(kif_hook(H)).
-kif_hook_skel( not(H)):- loop_check(kif_hook(H)).
-kif_hook_skel( Compound):- arg(_,v(poss,nesc,until,always,release,cir),F),between(2,3,A),functor( Compound,F,A).
-kif_hook_skel( Compound):- compound( Compound),!,functor(Compound,F,_),arg(_,v(and,or,xor),F).
-kif_hook_skel( Compound):- var(Compound),!,arg(_,v(and,or,xor),F),between(1,12,A),functor( Compound,F,A).
-
-
-
 
 
 %% are_clauses_entailed( :TermE) is det.
@@ -987,10 +903,10 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,RealOUT):-
    % true cause poss loss
    kif_optionally_e(false,to_tlog(HOLDS_T,KB),UnQ,UnQ666),
    as_prolog_hook(UnQ666,THIN0),
-   kif_optionally_e(always,to_tnot,THIN0,THIN),
+   with_no_dmsg(kif_optionally_e(always,to_tnot,THIN0,THIN)),
    must_be_unqualified(THIN),
    % unless_ignore(THIN\==UnQ, sdmsg(tlog_nnf_in=THIN)),
-   kif_optionally_e(always,tlog_nnf(even),THIN,RULIFY),
+   with_no_dmsg(kif_optionally_e(always,tlog_nnf(even),THIN,RULIFY)),
    unless_ignore(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(tlog_nnf_out_negated= DRULIFY)))),
    once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,SetList),

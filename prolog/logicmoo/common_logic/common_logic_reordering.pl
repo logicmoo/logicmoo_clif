@@ -1,5 +1,6 @@
 :- module(common_logic_reordering,[]).
 
+
 :- op(800,xfx,'=<>=').
 
 

@@ -229,33 +229,33 @@ end_of_file.
 
 
 kbt:  ?- man(X).
-add_cond(X, [man, made_skolem(X, skIsJohnNameOf_0FnSk), isNamed(X, "John")]) ;
-add_cond(X, [man, made_skolem(X, skIsJoeNameOf_0FnSk), isNamed(X, "Joe")]) ;
-add_cond(X, [man, child, made_skolem(X, skIsChildIsExists_0FnSk)]) ;
+add_cond(X, [man, skF(X, skIsJohnNameOf_0FnSk), isNamed(X, "John")]) ;
+add_cond(X, [man, skF(X, skIsJoeNameOf_0FnSk), isNamed(X, "Joe")]) ;
+add_cond(X, [man, child, skF(X, skIsChildIsExists_0FnSk)]) ;
 false.
 
 
  female(X).
-add_cond(X, [female, made_skolem(X, skIsFemaleIsExistsNameOf_0FnSk), isNamed(X, "Pat")]) ;
-  add_cond(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27578664, X)]),
-add_cond(_27578664, [man, made_skolem(_27578664, skIsJohnNameOf_0FnSk), isNamed(_27578664, "John")]) ;
-  add_cond(X, [female, made_skolem(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27581410, X)]),
-add_cond(_27581410, [man, child, made_skolem(_27581410, skIsChildIsExists_0FnSk), isNamed(_27581410, "John")]) ;
-  add_cond(X, [female, made_skolem(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_27586180)), isNamed(_27586180, childOf(X)), mother(_27586180, X)]) ;
+add_cond(X, [female, skF(X, skIsFemaleIsExistsNameOf_0FnSk), isNamed(X, "Pat")]) ;
+  add_cond(X, [female, skF(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27578664, X)]),
+add_cond(_27578664, [man, skF(_27578664, skIsJohnNameOf_0FnSk), isNamed(_27578664, "John")]) ;
+  add_cond(X, [female, skF(X, skIsFemaleExistsNameOfLoves_0FnSk), isNamed(X, "Mary"), loves(_27581410, X)]),
+add_cond(_27581410, [man, child, skF(_27581410, skIsChildIsExists_0FnSk), isNamed(_27581410, "John")]) ;
+  add_cond(X, [female, skF(X, skIsChildofIsFemaleExistsNameOfMother_0FnSk(_27586180)), isNamed(_27586180, childOf(X)), mother(_27586180, X)]) ;
 false.
 
 kbt:  ?- room(X).
-add_cond(X, [room, made_skolem(X, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(X, "ThreeThirty")]) ;
-add_cond(X, [room, made_skolem(X, skIsRoomOneTwentyNameOf_0FnSk), isNamed(X, "OneTwenty")]) ;
+add_cond(X, [room, skF(X, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(X, "ThreeThirty")]) ;
+add_cond(X, [room, skF(X, skIsRoomOneTwentyNameOf_0FnSk), isNamed(X, "OneTwenty")]) ;
 false.
 
 
 kbt:  ?- door(X).
 % kbi_define(kbt:door/1).
-add_cond(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27566860)), has(_27566860, X)]),
- add_cond(_27566860, [room, made_skolem(_27566860, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(_27566860, "ThreeThirty")]) ;
-add_cond(X, [door, made_skolem(X, skIsDoorExistsHas_0FnSk(_27568268)), has(_27568268, X)]),
- add_cond(_27568268, [room, made_skolem(_27568268, skIsRoomOneTwentyNameOf_0FnSk), isNamed(_27568268, "OneTwenty")]) ;
+add_cond(X, [door, skF(X, skIsDoorExistsHas_0FnSk(_27566860)), has(_27566860, X)]),
+ add_cond(_27566860, [room, skF(_27566860, skIsRoomThreeThirtyNameOf_0FnSk), isNamed(_27566860, "ThreeThirty")]) ;
+add_cond(X, [door, skF(X, skIsDoorExistsHas_0FnSk(_27568268)), has(_27568268, X)]),
+ add_cond(_27568268, [room, skF(_27568268, skIsRoomOneTwentyNameOf_0FnSk), isNamed(_27568268, "OneTwenty")]) ;
 false.
 
 

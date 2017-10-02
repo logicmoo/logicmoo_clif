@@ -2,6 +2,7 @@
 
 :- include(test_header).
 
+:- ensure_loaded(library(script_files)).
 
 :- process_this_script.
 
@@ -23,17 +24,20 @@
 % :- fully_expand_into_cache(change(assert,assert_u),~exists(X, cute_puppy(X))=>buys(joan, horse),_O).
 
 % Rule 1: If no cute puppies exist, then Joan will buy a horse  (authored by Joan)
-~exists(X,cute_puppy(X)) => buys(joan,horse).
+:- test_boxlog([+assert], 
+  ~exists(X,cute_puppy(X)) => buys(joan,horse)).
 
 
 
 
 % Rule 2: It is impossible for broke people to buy things  (authored by a Shop Keeper)
-forall([P,A], 
-  broke(P) => ~ buys(P,A)).
+:- test_boxlog([+assert], 
+  forall([P,A], 
+    broke(P) => ~ buys(P,A))).
 
 % Fact A: Joan is a broke person  (authored by Joan)
-nesc(broke(joan)).
+:- test_boxlog([+assert], 
+  nesc(broke(joan))).
 
 
 

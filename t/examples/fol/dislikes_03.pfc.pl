@@ -1,8 +1,8 @@
 :- include(test_header).
 
 
-
 :- include('test_header.pfc').
+:- ensure_loaded(library(script_files)).
 % :- process_this_script.
 
 %=  setup pfc

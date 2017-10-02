@@ -994,6 +994,18 @@ is_ftEquality(termOfUnit(_,_)).
 
 
 
+:- export(mpred_functor/3).
+mpred_functor(Pred,Pred,A):-var(Pred),!,between(1,9,A).
+mpred_functor(F/A,F,A):-!,probably_arity(F,A).
+mpred_functor(_:Pred,F,A):-!,mpred_functor(Pred,F,A).
+mpred_functor(F,F,A):-atom(F),!,probably_arity(F,A).
+mpred_functor(Pred,F,A):-functor_safe(Pred,F,A).
+
+probably_arity(F,A):-(integer(A)->true;(arity(F,A)*->true;between(1,9,A))).
+
+
+
+
 
 %% ensure_quantifiers( ?Wff, ?WffO) is semidet.
 %

@@ -1,6 +1,7 @@
 %:- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 :- module(kbi,[existentialize/2,
 
+         kbi_define/1,
          nnf_shared/5,
          skolem_bad/4,
          skolem_f/5,
@@ -56,11 +57,11 @@ with_no_kif_var_coroutines(Goal):- locally_each(t_l:no_kif_var_coroutines(true),
 :- virtualize_source_file.
 
 
- :- meta_predicate query_ex(*).
- :- meta_predicate body_call(*).
+ :- meta_predicate query_ex(?).
+ :- meta_predicate body_call(?).
  :- meta_predicate bless_ex(*,*).
  :- meta_predicate add_constraint_ex(*,*,*).
- :- meta_predicate reify(*).
+ :- meta_predicate reify(?).
  :- meta_predicate add_constraint_ex(*,*,*).
  :- meta_predicate test_count(0,*).
  :- meta_predicate undo(0).
@@ -177,6 +178,7 @@ get_named_rels(Term,Names):-
      NamesL),
    list_to_set(NamesL,Names).
 
+:- meta_predicate quantify_names(2,*,*,*,*).
 quantify_names(_Conv,_Oper,[],P,P).
 quantify_names(Conv,Oper,[Name|TODO],P,
  exists(X,(OperC & NewP))):- 
@@ -201,11 +203,12 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 
 falsify(different(Puppy1, Puppy2)):- clause(proven_neg(different(Puppy1, Puppy2)),Body)*->once(Body);(!,fail).
 falsify(P):- var(P),!,proven_neg(P).
-falsify(~P):- !, call_u(proven_nesc(poss(P))).
+falsify(~P):- !, call_u(proven_tru(poss(P))).
 falsify(P):- call_u(proven_neg(P)).
 
 make_identity(_):-!.
 make_identity(I):- make_wrap(identityPred,I,2).
+
 
 make_type(_):-!.
 make_type(P):-make_wrap(call_tru,P,1).
@@ -218,25 +221,6 @@ make_wrap(T,MFA,D):-
    asserta_if_new(baseKB:safe_wrap(M,F,A,T)),
    M:export(F/A),
    import(F/A).
-
-
-
-kbi_define(MFA):- 
-  get_mfa(MFA,M,F,A),
-  kbi_define(M,F,A).
-
-kbi_define(M,F,A):- clause_b(mpred_prop(M,F,A,kbi_define)),!.
-kbi_define(M,F,A):- ain(mpred_prop(M,F,A,kbi_define)),
- functor(P,F,A),(predicate_property(M:P,static)->true;kbi_define_now(M,F,A,P)).
-
-kbi_define_now(M,F,A,P):-  
-  dmsg(kbi_define(M:F/A)),
-  ((M:ain(P:-call_tru(P)))),
-  kb_shared(M:F/A).
-
-
-
-
 
 
 exists:attr_portray_hook(Attr,Var):- one_portray_hook(Var,exists(Var,Attr)).
@@ -279,6 +263,7 @@ unify_two(AN,AttrX,V):- put_attr(V,AN,AttrX).
 exists:attr_unify_hook(Ex,V):- unify_two(exists,Ex,V).
 
 
+:- meta_predicate never_cond(?,*).
 never_cond(Var,nesc(b_d(_,nesc,poss), ~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,nesc(~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,(~ P )):- !, ensure_cond(Var,poss(P)).
@@ -287,20 +272,21 @@ never_cond(_Var,Closure):- ground(Closure),!, ~Closure.
 never_cond(Var,Closure):- attvar(Var),!,add_cond(Var,~Closure).
 %never_cond(Var,Closure):- add_cond(Var,Closure).
 
+:- meta_predicate ensure_cond(?,*).
 ensure_cond(NonVar,Closure):- nonvar(NonVar),!,call_e_tru(NonVar,Closure).
 ensure_cond(Var,Closure):- attvar(Var),!,add_cond(Var,Closure).
 ensure_cond(Var,Closure):- add_cond(Var,Closure).
 
 not_nameOf(Ex,V):- \+ isNamed(Ex,V).
 
-isNamed(Ex,V):- compound(V),!,proven_nesc(isNamed(Ex,V)).
+isNamed(Ex,V):- compound(V),!,proven_tru(isNamed(Ex,V)).
 isNamed(Ex,V):- atomic(Ex),!,text_to_string(Ex,V).
 isNamed(Ex,V):- nonvar(Ex),!,term_string(Ex,V).
 isNamed(Ex,V):- nonvar(V),has_cond(Ex,isNamed(Ex,V0)),!,text_to_string(V0,V).
 isNamed(Ex,V):- nonvar(V),!,add_cond(Ex,isNamed(Ex,V)),!,add_var_to_env(V,Ex).
 isNamed(Ex,V):- var(V),has_cond(Ex,isNamed(Ex,V)),!,(nonvar(V)->add_var_to_env(V,Ex);true).
 
-isNamed(Ex,V):- proven_nesc(isNamed(Ex,V)).
+isNamed(Ex,V):- proven_tru(isNamed(Ex,V)).
 % isNamed(Ex,V):- var(V),!,add_cond(Ex,isNamed(Ex,V)),!.
 
 
@@ -310,9 +296,27 @@ assign_ex(Ex,V):- isNamed(Ex,V).
 reify((P,Q)):-!,reify(P),reify(Q).
 reify(P):- query_ex(P).
 
+:- assert_if_new((genlPreds(X,Y):- fail,trace_or_throw(genlPreds(X,Y)))).
 
 
 % ex(P):- compound(P),P=..[_,I], (var(I)-> freeze(I,from_ex(P)) ; fail).
+
+decl_existential(Var):- multivar(Var),put_attr(Var,x,Var),xnr_var(Var).
+is_existential(Var):- get_attr(Var,x,V),var(V).
+x:attr_unify_hook(Was,Becoming):- (attvar(Was),attvar(Becoming)) ->  attv_bind(Was,Becoming) ; true.
+x:attribute_goals(Var) --> 
+  ({is_existential(Var)} -> [decl_existential(Var)] ; []).
+
+xnr_var(Var):- nonvar(Var) ->true; (get_attr(Var,xnr,_)->true;put_attr(Var,xnr,old_vals([]))).
+xnr:attr_unify_hook(_AttValue,_VarValue):-!.
+xnr:attr_unify_hook(AttValue,VarValue):- 
+  AttValue=old_vals(Var,Waz),
+  (Var=@=VarValue-> true ; 
+  ((\+ (member(Old,Waz),Old=@=VarValue),
+  nb_setarg(2,AttValue,[VarValue|Waz])))).
+xnr:attribute_goals(Var) --> 
+  ({is_existential(Var)} -> [] ; [xnr_var(Var)]).
+
 
 existential_var(Var,_):- nonvar(Var),!.
 existential_var(Var,_):- attvar(Var),!.
@@ -363,6 +367,7 @@ bless_ex2(_X,P):- \+ ground(P).
 bless_ex(X, P):- nonvar(X)->call(P); true.
 
 
+:- meta_predicate query_tru(?).
 query_tru(Qry) :- nrlc((nesc(Qry))).
 
 query_ex(PQ):-   update_changed_files1,
@@ -428,52 +433,65 @@ ensure_sk_props(X,Dict):- sanity(var(X)),(get_sk_props(X,Dict)->true;((new_sk_di
 
 :- kb_shared(baseKB:make_existential/3).
 
-made_skolem(_,_).
+skF(_SK,_SKVars,_Items,_Rollover,_Which).
 
 skolem(X, UNKKEY,Which):- var(UNKKEY),!,call(call,clause(make_existential(_,UNKKEY,_),_)),nonvar(UNKKEY),skolem(X, UNKKEY,Which).
-skolem(E,SK,Which):- nonvar(E),!,dmsg(warn(skolem(E,SK,Which))),
-  isNamed(E,Named),!,(make_existential(X,SK,Which)*->isNamed(X,Named)).
-skolem(X, SK,Which):- var(X),no_repeats(skolem_var(X, SK,Which)).
-
-skolem(X, SK,Which):- var(X),!, 
-   \+ has_cond(X,made_skolem(SK,_)), !,
-  add_cond(X,made_skolem(SK,Which)),
-  make_existential(X,SK,Which).
-
-skolem(E,SK,Which):- 
-  isNamed(E,Named),!,(make_existential(X,SK,Which)*->isNamed(X,Named)).
-
-
-
-
-% already has this constraint
-skolem_var(X, count(_,_,SK),Which):- has_cond(X,made_skolem(SK,Which)), !.
-% generate "which"-es
-skolem_var(X, count(Start,End,SKFVV),Which):- SKFVV = skF(SK,_VV),
-  \+ has_cond(X,made_skolem(SK,_)),
-  functor(SK,SKF,_),
-  !,
-  between(1,Start,_),
-  once((nb_get_next(SKF,Start,Which),
-  add_cond(X,made_skolem(SK,Which)),
-  make_existential(X,count(Start,End,SKFVV),Which))).
+skolem(E,SK,Which):- nonvar(E),!,dmsg(warn(nonvar_skolem(E,SK,Which))),
+  isNamed(E,Named),!,
+  (make_existential(X,SK,Which)*->isNamed(X,Named)).
+skolem(X, SK,Which):- sanity(var(X)),!, % no_repeats
+                   (skolem_var(X, SK,Which)).
 
 /*
-skolem_var(X, SK,Which):- 
-   \+ has_cond(X,made_skolem(SK,_)), !,
-  add_cond(X,made_skolem(SK,Which)),
+skolem(X, SK,Which):- var(X),!, 
+   \+ has_cond(X,skF(SK,SKVars,Items,Rollover,_)), !,
+  add_cond(X,skF(SK,SKVars,Items,Rollover,Which)),
   make_existential(X,SK,Which).
+
+skolem(E,SKF,Which):- 
+  isNamed(E,Named),!,(make_existential(X,SKF,Which)*->isNamed(X,Named)).
+
 */
 
-nb_get_next(SKF, Max, Which):-  flag(SKF,X,X+1), 
+% already has this constraint
+skolem_var(X, SKF,Which):-     
+    SKF = skF(SK,_SKVars,_Items,_Rollover,Which),
+    sanity(var(Which)),sanity(var(X)), has_cond(X,skF(SK,_,_,_,Which)), !.
+
+skolem_var(X,SKF,Which):- 
+    is_existential(X),    
+    SKF = skF(SK,SKVars,Items,Rollover,Which),
+    must(has_cond(X,skF(OldSK,_OldVars,_OldItems,OldRollover,OldWhich))),
+    OldSK \== SK,
+    (((Rollover>OldRollover) -> 
+       (Which=OldWhich,add_cond(X,skF(SK,SKVars,Items,Rollover,Which)),make_existential(X,SKF,Which));
+       (skolem_var_w_count(X,SKF,Which)))
+    ),!.
+
+% generate "which"-es
+skolem_var(X, SKF,Which):- decl_existential(X), !, skolem_var_w_count(X, SKF,Which).
+
+skolem_var_w_count(X, SKF,Which):-   
+   SKF = skF(SK,SKVars,Items,Rollover,Which),
+   nb_get_next(SK,Rollover,Offset),
+  !,
+  between(1,Items,For),
+  once((
+  Which1 is For+Offset,
+  max_out_at(Which1,Rollover,Which),
+  add_cond(X,skF(SK,SKVars,Items,Rollover,Which)),
+  make_existential(X,SKF,Which))).
+
+nb_get_next(SK, Max, Which):-  flag(SK,X,X+1), 
   (X == 0 -> Which=Max ; 
-  ((X >= Max -> (Which=1,flag(SKF,_,0)) ; Which = X))).
+  ((X >= Max -> (Which=Max,flag(SK,_,1)) ; Which = X))).
 
-
+max_out_at(In,Max,Out):- In =< Max -> In = Out 
+  ; (Mid is In - Max, max_out_at(Mid,Max,Out)).
   
 disp_ex(X):-fmt9(X).
 
-lr:- quietly((listing(producing/1),listing(proven_nesc/1),listing(make_existential/3),
+lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/3),
   doall((current_key(K),recorded(K,P),
     locally(set_prolog_flag(write_attributes,portray),wdmsg(P)))))).
 
@@ -502,10 +520,14 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 
 attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 
-call_tru(X):- var(X),!,(proven_nesc(X); (proven_neg(Y),X= ~(Y))).
+% :- meta_predicate call_tru(?).
+:- module_transparent(call_tru/1).
+call_tru(X):- var(X),!,(proven_tru(X); (proven_neg(Y),X= ~(Y))).
 call_tru(X):- atomic(X),!,nesc(X),!.
 call_tru(proven_not_nesc(X)):-!,no_repeats(proven_neg(X)).
-call_tru(X):- arg(1,X,E),loop_check(call_e_tru(E,X)).
+call_tru(proven_not_tru(X)):-!,no_repeats(proven_neg(X)).
+call_tru(X):- !, nesc(X).
+% call_tru(X):- arg(1,X,E),call_e_tru(E,X).
 
 /*
 call_e_tru(E,X):- \+ ground(E), 
@@ -516,8 +538,9 @@ call_e_tru(E,X):- (nonvar(E);not_has_cond(E,(X))),!,
   nrlc((nesc((X)))), \+ proven_neg((X)),attvar_or_const(E).
 */
 
-call_e_tru(_E,X):- 
-  nrlc((nesc((X)))), \+ proven_neg((X)).
+:- module_transparent(call_e_tru/2).
+% :- meta_predicate call_e_tru(*,*).
+call_e_tru(_E,X):- proven_tru(X), \+ proven_neg((X)).
 
 call_e_tru(_,X):- context_module(M), inherit_above(M, (X)).
 
@@ -531,7 +554,7 @@ call_e_tru(_,X):- context_module(M), inherit_above(M, (X)).
 loves(X,Y):-  (nonvar(X);nonvar(Y)),
               (has_cond(X,(loves(X,Y)))->rem_cond(X,(loves(X,Y))); true),
               (has_cond(Y,(loves(X,Y)))->rem_cond(Y,(loves(X,Y))); true),
-              nrlc(proven_nesc(loves(X,Y))),
+              nrlc(proven_tru(loves(X,Y))),
               (has_cond(X,(loves(X,Y)));has_cond(Y,(loves(X,Y)))),
               (attvar_or_const(X),attvar_or_const(Y)).
 loves(X,Y):- (nonvar(X);not_has_cond(X,(loves(X,Y))),!, nrlc((nesc((loves(X,Y)))))),
@@ -543,21 +566,30 @@ loves(X,Y):- context_module(M), inherit_above(M, (loves(X,Y))).
 
 boxlog_to_prolog(IO,IO).
 
-nesc(P):- nonvar(P),current_predicate(_,P),!,nrlc(P).
-nesc(P):- nrlc(call_u(proven_nesc(P))).
+:- module_transparent(user:nesc/1).
+%:- meta_predicate user:nesc(:).
+:- export(user:nesc/1).
+:- public(user:nesc/1).
+user:nesc(MP):-
+  strip_module(MP,M,P),
+  (((M:proven_tru(P)) *-> true ; 
+  ((nrlc(call_u(M:proven_tru(P))) *-> true ; (nonvar(P),call_u(current_predicate(_,M:P)),!,nrlc(M:P)))))).
+:- system:import(user:nesc/1).
+:- system:export(user:nesc/1).
 
-:- kb_shared(baseKB:proven_nesc/1).
+:- kb_local(baseKB:proven_tru/1).
+% :- kb_shared(baseKB:proven_tru/1).
 
-% proven_nesc(G):- call(call,proven_nesc(G)).
+% proven_tru(G):- call(call,proven_tru(G)).
 
-:- meta_predicate nrlc(0).
-nrlc(G):- no_repeats(loop_check(G)).
+:- meta_predicate nrlc(+).
+nrlc(G):- no_repeats(loop_check(G,((dmsg(warn(looped(G))),fail)))).
 
 
 
 man(X):- \+ ground(X),
     (has_cond(X,man(X))->rem_cond(X,man(X)); true),
-   nrlc((proven_nesc(man(X)))),has_cond(X,man(X)).
+   nrlc((proven_tru(man(X)))),has_cond(X,man(X)).
 man(X):- (nonvar(X);not_has_cond(X,man(X)),!, nrlc((nesc(man(X)))), \+ proven_neg(man(X))).
 man(X):- context_module(M), inherit_above(M, man(X)).
 
@@ -740,12 +772,12 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),dmsg(( \+ con
 % =================================
 
 % ATTVAR WAY
-nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- !,
+nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):-  !,
  must_det_l((
     % add_cond(X,extensional(X)),
-    term_slots(FreeV+Fml,Slots),
-    skolem_f(KB, Fml, X, [KB|Slots], SkF),    
-    nnf(KB, Fml <=> skolem(X,count(1,inf,SkF),1),FreeV,NNF1,Paths)
+    term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
+    skolem_f(KB, Fml, X, Slots, skF(Fun,SkV)),    
+    nnf(KB, Fml <=> skolem(X,skF(Fun,SkV,1,1,Which),Which),FreeV,NNF1,Paths)
    )),!.
 
 
@@ -763,9 +795,9 @@ nnf_ex(KB, ~ quant(atleast(N),X,Fml), FreeV,NNF,Paths):- NN is N - 1,
 nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
  must_det_l((
     % add_cond(X,extensional(X)),
-    term_slots(FreeV+Fml,Slots),
-    skolem_f(KB, Fml, X, [KB|Slots], SkF),    
-    nnf(KB, (Fml <=> skolem(X, count(N,inf,SkF),_Which)), FreeV, NNF1, Paths)
+    term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
+    skolem_f(KB, Fml, X, Slots, skF(Fun,SkV)),    
+    nnf(KB, (Fml <=> skolem(X, skF(Fun,SkV,N,N,Which),Which)), FreeV, NNF1, Paths)
    )),!.
 
 /*
@@ -859,9 +891,9 @@ nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF1,Paths):- fail,
  kif_option(true,skolem(nnf)), !,
  must_det_l((
     % add_cond(X,extensional(X)),
-    term_slots(FreeV+Fml,Slots),
+    term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
     skolem_f(KB, Fml, X, [KB|Slots], SkF),    
-    nnf(KB, Fml <=> skolem(X,count(N,N,SkF),_Which),FreeV,NNF1,Paths)
+    nnf(KB, Fml <=> skolem(X, co unt(N,N,SkF),_Which),FreeV,NNF1,Paths)
    )),!.
 */
 
@@ -1008,7 +1040,7 @@ skolem_fn_shared(KB, F, X, _FreeVIn,Fun, Slots):-
 :- endif.
 :- endif.
 
-:- fixup_exports.
+% :- fixup_exports.
 
 
 %%	form_sk(+Var, +Skolem) is det.
@@ -1266,6 +1298,23 @@ nnf_label(KB,exists(X,Fml),FreeV,NNF,Paths):-
          %nnf1(KB,  (((skolem(X,SKF))=>NNFMid) & FmlSk) ,NewVars,NNF,Paths))).
         % GOOD nnf(KB, isa(X,SKF) => (skolem(X,SKF)=>(NNFMid)) ,NewVars,NNF,Paths))).
          nnf(KB, skolem(X,SKF,_Which) => NNFMid ,NewVars,NNF,Paths))).
+
+
+
+
+kbi_define(M,F,A):- clause_b(mpred_prop(M,F,A,kbi_define)),!.
+kbi_define(M,F,A):- ain(mpred_prop(M,F,A,kbi_define)),
+ functor(P,F,A),(predicate_property(M:P,static)->true;kbi_define_now(M,F,A,P)).
+
+kbi_define_now(M,F,A,P):-  
+  dmsg(kbi_define(M:F/A)),
+  ((M:ain(P:-call_tru(P)))),
+  kb_shared(M:F/A).
+
+:- meta_predicate(kbi:kbi_define(:)).
+kbi:kbi_define(MFA):- 
+  get_mfa(MFA,M,F,A),
+  kbi_define(M,F,A).
 
 
 :- fixup_exports.

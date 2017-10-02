@@ -1391,6 +1391,7 @@ pnf(KB, H,Vars,FOO ):- fail,  compound(H),H=..[F|ARGS], is_sentence_functor(F), 
 pnf(_KB,          PNF, _,       PNF ).
 
 
+:- meta_predicate if_debugging(*,0).
 % if_debugging(_,_):- !.
 if_debugging(_,G):- call(G).
 %=%  Clausal Form (CF) : assumes Fml in PNF and
@@ -1626,6 +1627,7 @@ has_modals(P):- quietly((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,
 atom_compat(F,HF,HHF):- fail,F\=HF, is_sent_op_modality(F),is_sent_op_modality(HF), format(atom(HHF),'~w_~w',[F,HF]).
 
 remove_unused_clauses([],[]):- !.
+remove_unused_clauses(A,A):-!.
 remove_unused_clauses([Unused|FlattenedO4],FlattenedO):- 
    unused_clause(Unused) -> remove_unused_clauses(FlattenedO4,FlattenedO);
      (remove_unused_clauses(FlattenedO4,FlattenedM),FlattenedO=[Unused|FlattenedM]).

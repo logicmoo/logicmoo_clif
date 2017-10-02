@@ -4,6 +4,25 @@
 :- module(cute6,[]).
 
 :- include(test_header).
+:- user:use_module(library(editline)).
+:- use_module(library(occurs)). % sub_term/2
+:- use_module(library(sort)). % predsort/3
+:- use_module(library(backcomp)). % concat_atom/2
+:- user:autoload.
+
+:- module_transparent(system: = /2).
+:- module_transparent('$attvar':'$wakeup'/1).
+:- module_transparent('$attvar':'call_all_attr_uhooks'/2).
+:- module_transparent('$attvar':'begin_call_all_attr_uhooks'/2).
+:- module_transparent('$attvar':'uhook'/3).
+
+:- '$current_source_module'(M),install_retry_undefined(M,error).
+:- install_retry_undefined(user,error).
+:- install_retry_undefined(kbii,error).
+:- install_retry_undefined(kbi,error).
+% :- set_prolog_flag(autoload,false).
+:- set_prolog_flag(retry_undefined, false).
+:- set_prolog_flag(access_level, system).
 
 % Option Examples: nesc($sentence),  poss($sentence),  poss($sentence)=>nesc($sentence).
 ==> feature_setting(default_modality,nesc($sentence)).
@@ -27,20 +46,62 @@ poss(P)&~nesc(P).  % possibly, but not necessarily P
 naf(~P).  % possibly P
 naf(P).  % possibly not P
 
-there are many Logically equivalent settings like   ~poss(P) == nesc(~P)
+there are many Logically equivalent settings like   
+
+~poss(P)    == nesc(~P)
+
+falsify(~P) ==  poss(P) v nesc(P).
 
 */
 
+test_sanity(G):- sanity(mpred_test(G)).
+
+:- kbi_define(cute/1).
+:- kbi_define(ugly/1).
+
+:- kb_shared(baseKB:cute/1).
+:- kb_local(ugly/1).
+:- kb_local(isa/2).
+
 %===== axioms =======
+
 
 % there are 4 possibly cute puppies
 :- test_boxlog([+assert],exactly(4, X, puppy(X) & poss(cute(X)))).
 
+% Ensure we can see them
+:- test_sanity((findall(X,puppy(X),L),length(L,4))).
+
+
+% Ensure we can get 4x4
+:- test_sanity((findall(G,(puppy(X),puppy(Y),G =( X=Y), writeln(G),ignore(G)),L),length(L,Len),Len==16)).
+
+
+% Ensure only 4 pairs are equal instances
+:- test_sanity((findall(G,(puppy(X),puppy(Y),G =( X=Y), writeln(G),G),L),length(L,Len),Len==4)).
+
+% Ensure when two are picked out via conjunction the system tries to serve out 2 different values
+:- test_sanity(( puppy(X),puppy(Y), !, X\=Y )).
+
+% Ensure when two are picked out they are differnt object instances
+:- test_sanity(( puppy(X),puppy(Y), !, dif_objs(X,Y) )).
+
+% Ensure 12 naive obj dif pairs
+:- test_sanity(( findall(X\=Y,(puppy(X),puppy(Y), dif_objs(X,Y)),L),length(L,Len),Len==12)).
+
+% Ensure only 6 total obj dif pairs
+:- test_sanity(( findall(X\=Y,(pred1_to_unique_pairs(puppy,X,Y), dif_objs(X,Y)),L),length(L,Len),Len==6)).
+
+% there are  exactly 5 puppies total
+:- test_boxlog([+assert],exactly(5, X, puppy(X))).
+
+% :- test_sanity(( skolem(X,Y,Z),dif(Y,B),skolem(A,B,C),arg(3,Y,Y1),arg(1,Y1,Y12),arg(3,B,B1),arg(1,B1,B12),Y12\=B12,X=A)).
+
+
+end_of_file.
+
 % there are 2 (for sure) cute puppies
 :- test_boxlog([+assert],exactly(2, X, puppy(X) & cute(X))).
-
-% there are 5 puppies
-:- test_boxlog([+assert],exactly(5, X, puppy(X))).
 
 % cute things cannot be ugly things and visa versa
 :- test_boxlog([+assert],forall( X, iff(cute(X),~ugly(X)))).
@@ -50,18 +111,21 @@ there are many Logically equivalent settings like   ~poss(P) == nesc(~P)
 
 %===== tests =======
 
+:- if(kif_option_value(unit_tests,true)).
+
 % means total 5 puppies 
-:- test_boxlog([+test_query],{ findall(X,puppy(X),L),length(L,5) }).
+:- test_sanity( { findall(X,puppy(X),L),length(L,5) }).
 
 % 2 are for sure actually cute
-:- test_boxlog([+test_query],{ findall(X,(puppy(X),cute(X)),L),length(L,2)}).
+:- test_sanity( { findall(X,(puppy(X),cute(X)),L),length(L,2)}).
 
 % leaving 3 more as _only_ possibly cute
-:- test_boxlog([+test_query],{ findall(X,(puppy(X),poss(cute(X)),naf(cute(X))),L),length(L,3)}).
+:- test_sanity( { findall(X,(puppy(X),poss(cute(X)),naf(cute(X))),L),length(L,3)}).
 
 % the last puppy is not for sure known cute or or not cute so it may be ugly
-:- test_boxlog([+test_query],{ findall(X,(puppy(X),poss(ugly(X))),L),length(L,1)}).
+% :- test_sanity( { findall(X,(puppy(X),poss(ugly(X))),L),length(L,1)}).
 
+:- endif.
 
 
 :- if(kif_option_value(extras(test_fwc),true)).
@@ -78,16 +142,16 @@ end_of_file.
 %===== debugging notes =======
 
 :- 
-  mpred_test((nesc(puppy(Puppy1)),nesc(puppy(Puppy2)),Puppy1=Puppy2)).
+  test_sanity((nesc(puppy(Puppy1)),nesc(puppy(Puppy2)),Puppy1=Puppy2)).
 /*
 Puppy1 = Puppy2,
-add_cond(Puppy2, [puppy, poss(cute(Puppy2)), made_skolem(skF(skIsCuteIsPuppyX_0FnSk, vv), 4)]) ;
+add_cond(Puppy2, [puppy, poss(cute(Puppy2)), skF(skF(skIsCuteIsPuppyX_0FnSk, vv), 4)]) ;
 Puppy1 = Puppy2,
-add_cond(Puppy2, [puppy, poss(cute(Puppy2)), made_skolem(skF(skIsCuteIsPuppyX_0FnSk, vv), 2)]) ;
+add_cond(Puppy2, [puppy, poss(cute(Puppy2)), skF(skF(skIsCuteIsPuppyX_0FnSk, vv), 2)]) ;
 Puppy1 = Puppy2,
-add_cond(Puppy2, [puppy, poss(cute(Puppy2)), made_skolem(skF(skIsCuteIsPuppyX_0FnSk, vv), 3)]) ;
+add_cond(Puppy2, [puppy, poss(cute(Puppy2)), skF(skF(skIsCuteIsPuppyX_0FnSk, vv), 3)]) ;
 Puppy1 = Puppy2,
-add_cond(Puppy2, [puppy, poss(cute(Puppy2)), made_skolem(skF(skIsCuteIsPuppyX_0FnSk, vv), 1)]).
+add_cond(Puppy2, [puppy, poss(cute(Puppy2)), skF(skF(skIsCuteIsPuppyX_0FnSk, vv), 1)]).
 */
 
 go_test:- forall(no_repeats(proven_neg(G)),writeln(proven_neg(G))).
@@ -100,8 +164,24 @@ go_test:- forall(no_repeats(proven_neg(G)),writeln(proven_neg(G))).
 
 
 
+cute6:  ?- 
 
-end_of_file.
+  nl,puppy(Puppy),get_typeinfos(Puppy,TYPEINFO),writeln(Puppy=TYPEINFO),fail.
+
+_488=[poss(cute(_488)),puppy(_488)]
+_488=[poss(cute(_488)),puppy(_488)]
+_488=[poss(cute(_488)),puppy(_488)]
+_488=[poss(cute(_488)),puppy(_488)]
+_3360=[cute(_3360),puppy(_3360)]
+_3360=[cute(_3360),puppy(_3360)]
+_4836=[puppy(_4836)]
+_4836=[puppy(_4836)]
+_4836=[puppy(_4836)]
+_4836=[puppy(_4836)]
+_4836=[puppy(_4836)]
+
+
+
 
 
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:11
@@ -227,11 +307,11 @@ proven_neg(different(Puppy1, Puppy5)) :-
         nesc(puppy(Puppy3)),
         dif_objs(Puppy1, Puppy3),
         falsify(~cute(Puppy3)).
-proven_nesc(poss(cute(X))) :-
+proven_tru(poss(cute(X))) :-
         skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(4, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), KB).
-proven_nesc(~cute(Puppy1)) :-
+proven_tru(~cute(Puppy1)) :-
         nesc(puppy(Puppy1)),
         nesc(puppy(Puppy2)),
         falsify(~cute(Puppy2)),
@@ -339,9 +419,9 @@ proven_neg(different(Cute1, Puppy3)) :-
         nesc(puppy(Puppy2)),
         dif_objs(Cute1, Puppy2),
         nesc(cute(Puppy2)).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB).
 make_existential(X, count(2, inf, skF(skIsCuteIsX_0FnSk, vv(KB, X))), KB) :-
         ensure_cond(X, puppy(X)),
@@ -429,7 +509,7 @@ proven_neg(different(Puppy1, Puppy6)) :-
         dif_objs(Puppy1, Puppy2),
         dif_objs(Puppy1, Puppy3),
         nesc(puppy(Puppy3)).
-proven_nesc(puppy(X)) :-
+proven_tru(puppy(X)) :-
         skolem(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB).
 make_existential(X, count(5, inf, skF(skIsX_0FnSk, vv(KB, X))), KB) :-
         ensure_cond(X, puppy(X)).
@@ -458,9 +538,9 @@ proven_neg(cute(X)) :-
         nesc(ugly(X)).
 proven_neg(ugly(X)) :-
         nesc(cute(X)).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         falsify(ugly(X)).
-proven_nesc(ugly(X)) :-
+proven_tru(ugly(X)) :-
         falsify(cute(X)).
 % kbi_define(cute6:ugly/1).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:23
@@ -483,10 +563,10 @@ proven_nesc(ugly(X)) :-
 proven_neg(puppy(X)) :-
         falsify(ugly(X)),
         falsify(cute(X)).
-proven_nesc(cute(X)) :-
+proven_tru(cute(X)) :-
         falsify(ugly(X)),
         nesc(puppy(X)).
-proven_nesc(ugly(X)) :-
+proven_tru(ugly(X)) :-
         falsify(cute(X)),
         nesc(puppy(X)).
 % /home/prologmud_server/lib/swipl/pack/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl:28

@@ -26,8 +26,8 @@
             attempt_attribute_one_arg/4,
             attribs_to_atoms/2,
             attribs_to_atoms0/2,
-            cmp_memberchk/2,
-            cmp_memberchk0/2,
+            cmp_memberchk_0/2,
+            cmp_memberchk_00/2,
             comp_type/3,
             iz/2,
             extend_iz/2,
@@ -57,7 +57,8 @@
 
             lazy/1,lazy/2,
 
-            constrain/1,enforce/1,mpred_functor/3,
+            constrain/1,enforce/1,
+            
 
             relax/1,relax_goal/2,thaw/1,
             mpred_type_constraints_file/0
@@ -69,6 +70,49 @@
 % :- endif.
 
 
+:- module_transparent((
+            add_cond/2,           
+            arg_to_var/3,
+            attempt_attribute_args/3,
+            attempt_attribute_args/5,
+            attempt_attribute_one_arg/4,
+            attribs_to_atoms/2,
+            attribs_to_atoms0/2,
+            cmp_memberchk_0/2,
+            cmp_memberchk_00/2,
+            comp_type/3,
+            iz/2,
+            extend_iz/2,
+            extend_iz_member/2,
+            init_iz/2,
+            inst_cond/2,
+            isa_pred_l/3,
+            isa_pred_l/4,
+            cond_chk/2,
+            cond_call/2,
+            condz_to_isa/2,
+            map_subterms/3,
+            max_cond/3,
+            max_cond_l/2,
+            dif_objs/2,
+            min_cond/3,
+            min_cond_l/2,
+            promp_yn/2,
+            same/2,
+            same_arg/3,
+            samef/2,
+            to_functor/2,
+            type_size/2,
+            extract_conditions/2,
+            
+            unrelax/1, iz_member/1,
+
+            lazy/1,lazy/2,
+
+            constrain/1,enforce/1,
+
+            relax/1,relax_goal/2,thaw/1,
+            mpred_type_constraints_file/0)).
 
 :- if(exists_source(library(multivar))).
 :- use_module(library(multivar)).
@@ -86,10 +130,10 @@
    map_each_argnum(?,4,?,?,*),
    map_argnums(?,4,*),
    thaw(?),
-   lazy(0),
+   lazy(*),
    unrelax(*),
    relax_goal(*,+),
-   lazy(+,0).
+   lazy(+,*).
 
 :- meta_predicate relax(*),relaxing(*).
 
@@ -97,7 +141,7 @@
 
 :- thread_local(t_l:no_kif_var_coroutines/1).
 
-:- meta_predicate relaxed_call(0).
+:- meta_predicate relaxed_call(*).
 
 % ?- G=(loves(X,Y),~knows(Y,tHuman(X))),relax_goal(G,Out),writeq(Out).
 
@@ -175,7 +219,7 @@ mtc_put_attr(X,iza,Z):- !, mtc_put_iza(X,Z).
 mtc_put_attr(X,Y,Z):- oo_put_attr(X,Y,Z).
 
 mtc_get_attr(X,Y,Z):- var(X),!,oo_get_attr(X,Y,Z).
-mtc_get_attr(X,Y,Z):- oo_get_attr(X,Y,Z),dmsg(warn(need_to_fail(oo_get_attr(X,Y,Z)))),!,fail.
+mtc_get_attr(X,Y,Z):- oo_get_attr(X,Y,Z),nop(dmsg(warn(need_to_fail(oo_get_attr(X,Y,Z))))),!,fail.
 
 compound_lit(Arg):- compound(Arg).
 
@@ -402,8 +446,8 @@ relax_args(_,_,[]).
 :- use_module(user:library(clpr),except([{}/1])).		% Make predicates defined
 :- use_module(user:library(simplex)).		% Make predicates defined
 
-:- meta_predicate lazy_pfa(0,+,*).
-:- meta_predicate #(0).
+:- meta_predicate lazy_pfa(*,+,*).  % arg1 was 0
+:- meta_predicate #(*).  %  was 0
 '#'(G):- map_lits(lazy,G).
 
 %% lazy( :GoalG) is semidet.
@@ -416,14 +460,14 @@ lazy(is(X,G)):- !,clpr:{X =:= G}.
 % lazy(is(X,G)):-!,term_variables(G,Vs),lazy(Vs,is(X,G)).
 lazy(G):- functor(G,F,A),lazy_pfa(G,F,A).
 
-arithmetic_compare(=<).
-arithmetic_compare(=:=).
-arithmetic_compare(:=).
-arithmetic_compare(<).
-arithmetic_compare(>=).
-arithmetic_compare(>).
+clp_r_arithmetic(=<).
+clp_r_arithmetic(=:=).
+clp_r_arithmetic( := ).
+clp_r_arithmetic(<).
+clp_r_arithmetic(>=).
+clp_r_arithmetic(>).
 
-lazy_pfa(G,F,2):- arithmetic_compare(F),!,clpr:{G}.
+lazy_pfa(G,F,2):- clp_r_arithmetic(F),!,clpr:{G}.
 lazy_pfa(G,_,1):- term_variables(G,[V1|Vs1]),!,
       (Vs1 = [V2|Vs0] -> lazy([V1,V2|Vs0],G)
                       ; freeze(V1,G)).
@@ -469,17 +513,23 @@ inst_cond(X, List):- predsort(comp_type,List,SList),cond_call(X,SList).
 % An attributed variable with attribute value DVar has been
 % assigned the value Y
 
+:- module_transparent iza:attr_unify_hook/2.
 iza:attr_unify_hook(DVar, Y):- unify_attr_iza(DVar, Y).
 
-
+:- module_transparent unify_attr_iza/2.
 unify_attr_iza(Dom1, Y):- nonvar(Y),!,cond_chk(Y,Dom1).
 unify_attr_iza(Dom1, Y):- mtc_get_attr(Y, iza, Dom2),!,unify_conds(Dom1,Dom2,Result),mtc_put_attr(Y, iza, Result),!.
 unify_attr_iza(Dom1, Y):- mtc_put_attr(Y, iza, Dom1 ).
 
+:- module_transparent unify_conds/3.
 unify_conds(Dom1,Dom2,NewDomain):- \+ disjoint_conds(Dom1,Dom2), ord_union(Dom1, Dom2, NewDomain).
 
 
+get_typeinfos(Var,List):- obtain_conds(Var,Pre),include(is_typeinfo,Pre,List).
 
+
+is_typeinfo(Pre):- compound(Pre),!,functor(Pre,_,1).
+is_typeinfo(Pre):- atom(Pre),!.
 
 % add_all_differnt(QuantsList):-  bagof(differentFromAll(I,O),QuantsList,O),L),maplist(call,L).
 add_all_differnt(QuantsList):- 
@@ -503,10 +553,13 @@ differentFromAll(One,List):- maplist(dif_objs(One),List).
 % dif_objs(A,B):- tlbugger:attributedVars,!,dif(A,B).
 dif_objs(A,B):- A==B,!,fail.
 dif_objs(A,B):- obtain_object_conds(A,B,Dom1,Dom2),!, 
+ dif_objs_doms(Dom1,Dom2).
+dif_objs(A,B):- dif(A,B),add_cond(A,dif_objs(A,B)),add_cond(B,dif_objs(B,A)).
+
+dif_objs_doms(Dom1,Dom2):- member(skF(SK,_SKVars1,Items,Rollover,N1),Dom1),memberchk(skF(SK,_SKVars2,Items,Rollover,N2),Dom2),N1\=@=N2,!.
+dif_objs_doms(Dom1,Dom2):-
   \+ non_disjoint_conds(Dom1,Dom2),
    disjoint_conds(Dom1,Dom2).
-
-dif_objs(A,B):- dif(A,B),add_cond(A,dif_objs(A,B)),add_cond(B,dif_objs(B,A)).
 
 disjoint_object_conds(Var1,Var2):- 
   obtain_object_conds(Var1,Var2,Dom1,Dom2),
@@ -526,7 +579,7 @@ disjoint_conds(Dom1,Dom2):-
   rejects_cond(Prop,Dom2).
 
 % disjoint skolems
-rejects_cond(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1\==W2,!.
+rejects_cond(skF(SK,_SKVars1,Items,Rollover,W1),Dom2):- !, memberchk(skF(SK,_SKVars1,Items,Rollover,W2),Dom2),W1\==W2,!.
 rejects_cond(male,Dom2):- !, memberchk(female,Dom2).
 rejects_cond(_,_):- fail.
 
@@ -536,7 +589,7 @@ non_disjoint_conds(Dom1,Dom2):-
   not_rejected_cond(Prop,Dom2).
 
 % already same skolems
-not_rejected_cond(made_skolem(SK,W1),Dom2):- !, memberchk(made_skolem(SK,W2),Dom2),W1==W2,!.
+not_rejected_cond(skF(SK,SKVars,Items,Rollover,W1),Dom2):- !, memberchk(skF(SK,SKVars,Items,Rollover,W2),Dom2),W1==W2,!.
 not_rejected_cond(male,Dom2):- memberchk(female,Dom2).
 
 
@@ -549,8 +602,8 @@ iza:attribute_goals(X) -->
 %
 % Add Iza.
 %
-as_constraint_for(Arg,isa(AArg,FA),FA):- atom(FA),AArg==Arg,!.
-as_constraint_for(Arg,ISA,FA):- compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
+as_constraint_for(Arg,isa(AArg,FA),FA):- kif_option_value(iza_atoms,true), atom(FA),AArg==Arg,!.
+as_constraint_for(Arg,ISA,FA):-  kif_option_value(iza_atoms,true), compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
 as_constraint_for(_,FA,FA).
 
 
@@ -599,10 +652,13 @@ cond_call(_, _).
 cond_call00(Y, [H|List]):-!,cond_call0(Y,H),!,cond_call00(Y, List).
 cond_call00(_, _).
 
-cond_call0(Y,H):- atom(H),!,isa(Y,H).
+cond_call0(Y,H):- atom(H),!,nesc(isa(Y,H)).
+cond_call0(_,dif_objs(_,_)):-!.
 cond_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H).
 cond_call0(_,H):- call_u(H).
 % cond_call0(Y,H):- ereq(props(Y,H)).
+
+
 
 /*
 enforce_fa_unify_hook([Goal|ArgIsas],Value):- !,
@@ -888,17 +944,6 @@ promp_yn(Fmt,A):- format(Fmt,A),get_single_char(C),C=121.
 
 
 
-:- export(mpred_functor/3).
-mpred_functor(Pred,Pred,A):-var(Pred),!,between(1,9,A).
-mpred_functor(F/A,F,A):-!,probably_arity(F,A).
-mpred_functor(_:Pred,F,A):-!,mpred_functor(Pred,F,A).
-mpred_functor(F,F,A):-atom(F),!,probably_arity(F,A).
-mpred_functor(Pred,F,A):-functor_safe(Pred,F,A).
-
-probably_arity(F,A):-(integer(A)->true;(arity(F,A)*->true;between(1,9,A))).
-
-
-
 % :-swi_module(iz, [ iz/2  ]). % Var, ?Domain
 :- use_module(library(ordsets)).
 
@@ -962,7 +1007,7 @@ iz:attr_unify_hook(Domain, Y) :-
            )
    ; var(Y)
    -> mtc_put_attr( Y, iz, Domain )
-   ; (\+ \+ (cmp_memberchk(Y, Domain)))
+   ; (\+ \+ (cmp_memberchk_0(Y, Domain)))
 ).
 
 
@@ -977,21 +1022,21 @@ iz:attribute_goals(X) --> { mtc_get_attr(X, iz, List) },!,[iz(X, List)].
 %iza:attr_portray_hook(Val, _) :- write('iza:'), write(Val),!.
 
 
-%% cmp_memberchk( ?X, ?Y) is semidet.
+%% cmp_memberchk_0( ?X, ?Y) is semidet.
 %
 % Cmp Memberchk.
 %
-cmp_memberchk(X,Y):-numbervars(X,0,_,[attvars(skip)]),member(X,Y),!.
+cmp_memberchk_0(X,Y):-numbervars(X,0,_,[attvars(skip)]),member(X,Y),!.
 
 
 
-%% cmp_memberchk0( ?Item, :TermX1) is semidet.
+%% cmp_memberchk_00( ?Item, :TermX1) is semidet.
 %
 % Cmp Memberchk Primary Helper.
 %
-cmp_memberchk0(Item, [X1,X2,X3,X4|Xs]) :- !,
+cmp_memberchk_00(Item, [X1,X2,X3,X4|Xs]) :- !,
 	compare(R4, Item, X4),
-	(   R4 = (>) -> cmp_memberchk0(Item, Xs)
+	(   R4 = (>) -> cmp_memberchk_00(Item, Xs)
 	;   R4 = (<) ->
 	    compare(R2, Item, X2),
 	    (   R2 = (>) -> Item = X3
@@ -1000,16 +1045,66 @@ cmp_memberchk0(Item, [X1,X2,X3,X4|Xs]) :- !,
 	    )
 	;/* R4 = (=) */ true
 	).
-cmp_memberchk0(Item, [X1,X2|Xs]) :- !,
+cmp_memberchk_00(Item, [X1,X2|Xs]) :- !,
 	compare(R2, Item, X2),
-	(   R2 = (>) -> cmp_memberchk0(Item, Xs)
+	(   R2 = (>) -> cmp_memberchk_00(Item, Xs)
 	;   R2 = (<) -> Item = X1
 	;/* R2 = (=) */ true
 	).
-cmp_memberchk0(Item, [X1]) :-
+cmp_memberchk_00(Item, [X1]) :-
 	Item = X1.
 
 
+:- meta_predicate(call_engine(?,0,-,-)).
+call_engine(Templ,Goal,Engine,Det):-
+  call_engine_start(Templ,Goal,Engine),
+  call_engine_next(Engine,Templ,Det).
+
+:- meta_predicate(call_engine_start(?,0,-)).
+call_engine_start(Templ,Goal,Engine):-
+   engine_create(Templ-TF0,(Goal,deterministic(TF0)),Engine).
+
+call_engine_next(Engine,Templ,Det):-
+   repeat,
+    engine_next(Engine,Templ-Det),
+     (Det==true->!;true).
+
+metapred_plus(_,_):-!.
+metapred_plus(Cmp,Plus):-
+  (\+ compound(Cmp) -> S=0 ; compound_name_arity(Cmp,F,S)),
+  A is S + Plus,
+  current_predicate(F/A),!.
+metapred_plus(_,_).
+
+not_dif_objs(A,B):- \+ dif_objs(A,B).
+
+:- meta_predicate(pred1_to_unique_pairs(1,-,-)).
+pred1_to_unique_pairs(Pred1,Obj1,Obj2):-
+  sanity(assertion(metapred_plus(Pred1,1))),
+  lazy_findall(Elem,call(Pred1,Elem),List),
+  list_to_unique_pairs(List,Obj1,Obj2).
+
+:- meta_predicate(pred1_to_unique_pairs_confirmed(1,-,-)).
+pred1_to_unique_pairs_confirmed(Pred1,Obj1,Obj2):-
+   Tracker = '$t'([]),
+   Same2 = not_dif_objs,
+   pred1_to_unique_pairs(Pred1,ObjA,ObjB),
+   different_pairs(Same2,Tracker,ObjA,ObjB,Obj1,Obj2).
+
+list_to_unique_pairs(List,Obj1,Obj2):-
+  append(_Left,[Obj1|Rest],List),member(Obj2,Rest).
+
+:- meta_predicate different_pairs(2,+,?,?,?,?).
+different_pairs(Same2,Tracker,ObjA,ObjB,Obj1,Obj2):- 
+ Test = p(TObj1,TObj2),
+ notrace(sanity((must_be(compound,Tracker),
+    assertion(metapred_plus(Pred2InstsDiff,2))))),
+ notrace((\+ call(Same2, ObjA, ObjA))),
+ notrace((( ObjA @> ObjB -> (ObjA = Obj1, ObjB = Obj2) ; (ObjA = Obj2, ObjB = Obj1)))),
+ must(arg(1,Tracker,PrevPairs)),
+ (((member(Test,PrevPairs),call(Same2,Obj1,TObj1),call(Same2,Obj2,TObj2)))-> fail ; true),
+ must(nb_setarg(1,Tracker,[p(Obj1,Obj2)|PrevPairs])).
+     
 
 %% type_size( ?VALUE1, :PRED1000VALUE2) is semidet.
 %
