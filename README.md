@@ -34,7 +34,7 @@ mother(Ma,X),mother(Ma,Y),{X\==Y}
 
 ````
 
-examples:  https://github.com/TeamSPoon/PrologMUD/tree/master/pack/logicmoo_base/t/examples/fol
+examples:  https://github.com/TeamSPoon/logicmoo_base/tree/master/t/examples/fol
 
 # First Order Logic (FOL) declarations in Prolog source code. 
 
@@ -116,7 +116,7 @@ The abiliity to use CLIF/KIF/CycL Etc
 
 
 Source code available and pull requests accepted on GitHub:
-https://github.com/TeamSPoon/PrologMUD/tree/master/pack/logicmoo_base
+https://github.com/TeamSPoon/logicmoo_base
 
 
 # Some TODOs
