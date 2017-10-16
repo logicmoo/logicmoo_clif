@@ -926,8 +926,8 @@ xcall_t(P):- call(P).
 %
 % Assertion True Stucture.
 %
-assertion_t(Call):- baseKB:use_cyc_database,!,locally(t_l:useOnlyExternalDBs,kb_t(Call)).
-% assertion_t(Call):- locally(t_l:useOnlyExternalDBs,loop_check(call_u(Call))).
+assertion_t(Call):- baseKB:use_cyc_database,!,locally_tl(useOnlyExternalDBs,kb_t(Call)).
+% assertion_t(Call):- locally_tl(useOnlyExternalDBs,loop_check(call_u(Call))).
 
 % ================================================================================
 % end holds_t

@@ -7,7 +7,8 @@
 :- ensure_abox(baseKB).
 :- set_fileAssertMt(baseKB).
 % ensure this file does not get unloaded with mpred_reset
-==> mpred_unload_option(never,$current_file.value).
+:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
+
 
 /** <module> system_common
 % =============================================
@@ -144,6 +145,9 @@ prologEquality(('=')/2).
 prologEquality(('==')/2).
 
 arity(',',2).
+
+:- nortrace.
+
 
 ~(isa((','), prologEquality)).
 
@@ -658,7 +662,7 @@ meta_argtypes_guessed(P)==>meta_argtypes(P).
 :- if(baseKB:startup_option(datalog,sanity);baseKB:startup_option(clif,sanity)).
 
 
-% :- if_startup_script(locally(t_l:pfcExpansion,ensure_loaded(mpred_i_mpred_mpred_testing))).
+% :- if_startup_script(locally_tl(pfcExpansion,ensure_loaded(mpred_i_mpred_mpred_testing))).
 
 % :-asserta(baseKB:isa_pred_now_locked).
 

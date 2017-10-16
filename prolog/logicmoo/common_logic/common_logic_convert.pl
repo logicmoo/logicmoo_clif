@@ -115,7 +115,7 @@ must_map_preds([Pred|ListOfPreds],In,Out):- maybe_notrace(call(Pred,In,Mid)),!,m
 
 :- thread_local(t_l:no_db_expand_props/0).
 
-fully_expand_always(C0,C1):- locally(t_l:no_db_expand_props,fully_expand('==>'(C0),C1)),!.
+fully_expand_always(C0,C1):- locally_tl(no_db_expand_props,fully_expand('==>'(C0),C1)),!.
 
 
 sumo_to_pdkb(CycL,CycL):- is_ftVar(CycL).

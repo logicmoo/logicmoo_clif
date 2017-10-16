@@ -109,7 +109,7 @@
 %:- mpred_unload_file.
 :- set_fileAssertMt(baseKB).
 % ensure this file does not get unloaded with mpred_reset
-==> mpred_unload_option(never,$current_file.value).
+:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
 %:- ensure_loaded(('pfclib/system_base.pfc')).
 
 :- ensure_loaded('system_basic.pfc').

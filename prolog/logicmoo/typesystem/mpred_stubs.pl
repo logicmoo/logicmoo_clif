@@ -708,7 +708,7 @@ baseKB:mpred_provide_storage_op(Op,HB):-
   must(baseKB:is_mpred_op(Op)),
   (quietly(baseKB:remodulize(Op,HB,HeadBody)),get_functor(HeadBody,F),
     once(F==t; baseKB:a(prologHybrid,F)),   
-    locally(t_l:already_in_file_term_expansion,mpred_t_storage_op(Op,HeadBody))).
+    locally_tl(already_in_file_term_expansion,mpred_t_storage_op(Op,HeadBody))).
 
 % ====================================================
 % mpred_t_storage_op/2

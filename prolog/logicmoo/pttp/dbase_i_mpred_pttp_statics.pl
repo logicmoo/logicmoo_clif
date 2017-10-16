@@ -653,9 +653,9 @@ do_not_wrap(F):-atom_concat('int_',_,F).
 t_l:second_order_wrapper(true_t).
 
 
-correct_pttp_head(Wrapper,B,A):- locally(t_l:second_order_wrapper(Wrapper), correct_pttp(B,A)),!.
+correct_pttp_head(Wrapper,B,A):- locally_tl(second_order_wrapper(Wrapper), correct_pttp(B,A)),!.
 
-correct_pttp_body(Wrapper,B,A):- locally(t_l:second_order_wrapper(Wrapper), correct_pttp(B,A)),!.
+correct_pttp_body(Wrapper,B,A):- locally_tl(second_order_wrapper(Wrapper), correct_pttp(B,A)),!.
 
 correct_pttp(B,A):-must(correct_pttp([],B,A)),!.
 

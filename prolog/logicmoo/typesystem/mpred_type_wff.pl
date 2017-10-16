@@ -34,11 +34,9 @@ is_prolog_clause(B):- compound(B),functor(B,F,_),arg(_,v((:-)),F).
 %
 subst_except( SUB, Var, VarS,SUB ) :- Var==VarS,!.
 subst_except(  Var, VarS,SUB,SUB ) :- Var==VarS,!.
-subst_except(  Var, _,_,Var ) :- \+compound(Var),!.
+subst_except(  Var, _,_,Var ) :- \+ compound(Var),!.
 subst_except(  Var, _,_,Var ) :- leave_as_is(Var),!.
-subst_except([H|T],B,A,[HH|TT]):- !,
-   subst_except(H,B,A,HH),
-   subst_except(T,B,A,TT).
+subst_except([H|T],B,A,[HH|TT]):- !,subst_except(H,B,A,HH),subst_except(T,B,A,TT).
 subst_except(HT,B,A,HHTT):- HT=..FARGS,subst_except(FARGS,B,A,[FM|MARGS]),
    (atom(FM)->HHTT=..[FM|MARGS];append_termlist(FM,MARGS,HHTT)).
 
@@ -499,7 +497,7 @@ not_log_op(OP):- not(is_log_op(OP)).
 %
 % If Is A Log Oper..
 %
-is_log_op(OP):- current_predicate(OP,M:P),current_predicate(G,meta_predicate(_)),!.
+ % is_log_op(OP):- current_predicate(OP,M:P),current_predicate(G,meta_predicate(_)),!.
 is_log_op(OP):- atomic(OP),if_defined(to_dlog_ops(OPS)),!,(member(OP=_,OPS);member(_=OP,OPS)).
 
 
@@ -571,7 +569,7 @@ is_quant_f(Q):- arg(_,v(no,some,one,two,quant),Q).
 
 defunctionalize((H:-B),WffO):- nonvar(H),!,defunctionalize(':-',(H:-B),WffO),!.
 defunctionalize(Wff,WffO):- defunctionalize('=>',Wff,WffO),!.
-% defunctionalize(Wff,WffO):- locally(t_l:dont_use_mudEquals,defunctionalize(',',Wff,WffO)).
+% defunctionalize(Wff,WffO):- locally_tl(dont_use_mudEquals,defunctionalize(',',Wff,WffO)).
 
 defunctionalize_each(Wff,WffO):-must_maplist(defunctionalize,Wff,WffO).
 

@@ -7,7 +7,7 @@
 :- use_module(library(pfc_lib)).
 :- set_fileAssertMt(baseKB).
 % ensure this file does not get unloaded with mpred_reset
-==> mpred_unload_option(never,$current_file.value).
+:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
 
 /** <module> system_basic
 % =============================================
@@ -52,8 +52,10 @@ ttRelationType(tFunction).
 ttRelationType(tPred).
 completelyAssertedCollection(tRelation).
 completelyAssertedCollection(tPred).
-completelyAssertedCollection(tFunction).
-ttRelationType(X)/sanity(atom(X))==>(arity(X,1),pfcControlled(X)).
+
+:- (ain((completelyAssertedCollection(tFunction)))).
+:- mpred_notrace_exec.
+:- (ain((ttRelationType(X)/sanity(atom(X))==>(arity(X,1),pfcControlled(X))))).
 
 ttTypeType(C)==>completelyAssertedCollection(C).
 completelyAssertedCollection(ttTypeType).

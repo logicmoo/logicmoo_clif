@@ -8,7 +8,7 @@
 :- ensure_abox(baseKB).
 :- set_fileAssertMt(baseKB).
 % ensure this file does not get unloaded with mpred_reset
-==> mpred_unload_option(never,$current_file.value).
+:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
 
 /** <module> system_constraints
 % =============================================
@@ -53,16 +53,18 @@
 
 :- use_module(library(clause_attvars)).
 
-predicate_relaxed(Spec),{ mpred_functor(Spec,F,A),functor(P,F,A)} ==>  
-   macroExpandExact(P, relax_goal(P,Q),Q).
+predicate_relaxed(MSpec),{ strip_module(MSpec,M,Spec),mpred_functor(Spec,F,A),functor(P,F,A)} ==>  
+   macroExpandExact(P, relax_goal(P,Q),M:Q).
        
 :- else.
 
-predicate_relaxed(Spec),{ mpred_functor(Spec,F,A),functor(LOOP,F,A),kb_shared(F/A),LOOP=..[F|ARGS]} ==>  
- (((LOOP:- awc, \+ maplist(is_iz_or_iza,ARGS), LOOPY=LOOP,relax(LOOPY),!,call(LOOPY))),
-  prologOrdered(F)).  % Prolog Ordered is secondary insurance new assertions use assertz
+predicate_relaxed(MSpec),
+ { strip_module(MSpec,M,Spec), mpred_functor(Spec,F,A),functor(LOOP,F,A),kb_shared(M:F/A),LOOP=..[F|ARGS]} 
+ ==>  
+ (((M:LOOP:- awc, \+ maplist(is_iz_or_iza,ARGS), LOOPY=LOOP,!,M:relax(LOOPY),!,M:call(LOOPY))),
+ prologOrdered(F)).  % Prolog Ordered is secondary insurance new assertions use assertz
 
-
+/*
 % @TODO THIS IS DISABLED but good to figure out
 predicate_relaxed(Spec),{ fail, mpred_functor(Spec,F,A),functor(LOOP,F,A)} ==>  
  (((LOOP:- awc,LOOPY=LOOP,relaxing(LOOPY),!,call(LOOPY))),
@@ -75,7 +77,7 @@ predicate_relaxed(Spec),{ fail, mpred_functor(Spec,F,A),functor(LOOP,F,A)} ==>
       \+ is_loop_checked(LOOP),!,
       loop_check_term((LOOPY = LOOP, relax(LOOPY), LOOPY),LOOP,fail))),
   prologOrdered(F)).  % Prolog Ordered is secondary insurance new assertions use assertz
-
+*/
 
 % make sure current bug is caught
 prologOrdered(F),predSingleValued(F) ==> {trace_or_throw(unsupported(prologOrdered(F),predSingleValued(F)))}.
@@ -100,8 +102,13 @@ weak_test("Weak0","weAk2").
 :- listing(weak_test/2).
 :- endif.
 
+
+:- if(\+ current_predicate(mpred_test/1)).
+:- use_module(library(pfc_test)).
+:- endif.
+
 :- if((current_prolog_flag(runtime_safety,D),D>2)).
-:- mpred_test(weak_test(weak1,"WeAK2")).
+:- mpred_test((weak_test(weak1,"WeAK2")))->true;(writeln(mpred_test(weak_test(weak1,"WeAK2"))),break).
 :- if((current_prolog_flag(runtime_debug,D),D>1)).
 :- mpred_test(weak_test("Weak1","Weak2")).
 :- mpred_test(weak_test("Weak1","wEak2")).

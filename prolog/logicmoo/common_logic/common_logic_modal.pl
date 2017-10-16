@@ -185,7 +185,7 @@ demodal_clauses(_KB,Var, Var):- \+compound(Var),!.
 demodal_clauses(KB,(Head:-Body),HeadOBodyO):- !, demodal_head_body(KB,Head,Body,HeadOBodyO),!.
 demodal_clauses(KB,List, ListO):- is_list(List), !,
  must_maplist_det(demodal_clauses(KB),List,ListM),!,
- remove_unused_clauses(ListM,ListOM), 
+ kif_optionally_e(true,remove_unused_clauses,ListM,ListOM), 
  kif_optionally_e(true,dedupe_clauses,ListOM,ListO).
 demodal_clauses(KB,Head,HeadOBodyO):- demodal_head_body(KB,Head,true,HeadOBodyO),!.
 
@@ -256,7 +256,7 @@ unusable_body(Head,(A,B)):- !,(unusable_body(Head,A);unusable_body(Head,B)).
 unusable_body(Head,(A;B)):- !,(unusable_body(Head,A);unusable_body(Head,B)).
 unusable_body(_,\+ needs(_)).
 unusable_body(_,fail).
-% unusable_body(_,falsify(skolem(_,_,_))).
+unusable_body(_,falsify(skolem(_,_,_))).
 
 % unusable_body(_,proven_neg(needs(_))).
 
@@ -326,9 +326,10 @@ demodal_head(_KB,proven_tru(nesc(~FALSE)),proven_neg(FALSE),_Body,true):- nonvar
 demodal_head(_KB,proven_neg(DIFF),proven_helper(equals(X,Y)),_Body,true):- same_compound(DIFF,different(X, Y)), !.
 demodal_head(_KB,proven_neg(DIFF),proven_helper(dif_objs(X,Y)),_Body,true):- same_compound(DIFF,equals(X, Y)), !.
 
-demodal_head(_KB,proven_neg(skolem(X,Y,Which)),'$unused'(unmake_existential(X,Y,Which)),_Body,true).
-%demodal_head(KB,proven_nesc(H),deduce_tru(H),Body,true):- body_contains(Body,skolem(_,_,_Which)).
-%demodal_head(KB,proven_neg(H),never_any(H),Body,true):- body_contains(Body,skolem(_,_,_Which)).
+demodal_head(_KB,proven_neg(skolem(X,Y,Which)),('$unused'(make_existential(was_create_min,X,Y,Which))),_Body,true):- functor(Y,skF,_).
+demodal_head(_KB,proven_neg(skolem(X,if_all_different(A,B,C),Which)),(make_existential(X,skF(A,B,X,C),Which)),_Body,true).
+demodal_head(_KB,proven_tru(H),deduce_tru(H),Body,true):- body_contains(Body,skolem(_,_,_Which)).
+demodal_head(_KB,proven_neg(H),deduce_neg(H),Body,true):- body_contains(Body,skolem(_,_,_Which)).
 demodal_head(KB,proven_nesc(H),proven_tru(HH),_Body,Out):-  demodal_any(KB,H,HH,Out),!.
 demodal_head(KB,proven_nesc(H),proven_nesc(HH),_Body,Out):-  demodal_any(KB,H,HH,Out),!.
 demodal_head(KB,proven_neg(H),proven_neg(HH),_Body,Out):-  demodal_any(KB,H,HH,Out),!.
@@ -351,14 +352,12 @@ demodal_any(_KB,proven_not_nesc(mudEquals(A,B)), proven_nesc(different(A,B)),tru
 demodal_any(_KB, not_nesc(b_d(_7B2, nesc, poss), A v ~B), (~A & B),true) :-!.
 demodal_any(_KB,proven_not_nesc(isa(A,B)),not_isa(A,B),true):- nonvar(B),!.
 demodal_any(_KB,naf(proven_not_nesc(Head)),poss(Head),true):- !.
-% demodal_any(_KB,Head,Head,true):- current_prolog_flag(logicmoo_propagation, modal),!.
 demodal_any(KB,nesc(_,Head),NHead,Out):- !,demodal_any(KB,nesc(Head),NHead,Out).
 demodal_any(KB,poss(_,Head),NHead,Out):- !,demodal_any(KB,poss(Head),NHead,Out).
 
 demodal_any(KB,falsify(nesc(~P)),poss(PP),Out):-!,demodal_any(KB,P,PP,Out).
-%demodal_any(KB,nesc(nesc(~P)),neg(PP),Out):-!,demodal_any(KB,P,PP,Out).
-%demodal_any(KB,nesc(NESC),MID,Out):- same_compound(NESC,nesc(P)),!,demodal_any(KB,nesc((P)),MID,Out).
-% demodal_any(KB,nesc(Head),Head,Out):- !,demodal_any(KB,Head,Head,Out).
+demodal_any(KB,nesc(G),PP,Out):- same_compound(G,nesc(P)),!,demodal_any(KB,nesc(P),PP,Out).
+demodal_any(KB,poss(G),PP,Out):- same_compound(G,poss(P)),!,demodal_any(KB,poss(P),PP,Out).
 demodal_any(KB,H,HH,Out):- H=..[F,A],demodal_any(KB,A,AA,Out),HH=..[F,AA].
 demodal_any(_KB,Head,Head,true):- !.
 % demodal_any(KB,Head,HeadO,true):-  demodal_clauses(KB,Head,HeadO).
@@ -369,6 +368,7 @@ is_xformed_body(never_cond).
 is_xformed_body(skolem).
 
 demodal_body(_KB,_Head,Var, Var):- \+compound(Var),!.  
+demodal_body(_KB, _Head, skolem(X, if_all_different(N, SkF, Body), Which), not_in(X,skF(N, SkF,X, Body), Which)):-!.
 demodal_body(_KB,_Head,Var, Var):- functor(Var,F,_),is_xformed_body(F),!.
 
 demodal_body(KB, Head, Body,BodyO):- demodal_any(KB,Body,BodyM,Conj), (BodyM \== Body;Conj \== true),  
@@ -383,13 +383,17 @@ demodal_body(KB, Head, (Var, Rest), NEW):- var(Var),!,demodal_body(KB, Head,  Re
 demodal_body(_KB,_Head, poss(b_d(_7B2, nesc, poss),G), poss(G)).
 demodal_body(_KB,_Head, nesc(b_d(_7B2, nesc, poss),G), nesc(G)).
 
+demodal_body(_KB, _Head, (A ; B) , ensure_cond(G,either(CA,CB))):- same_compound(A,ensure_cond(G,CA)),same_compound(B,ensure_cond(G1,CB)),G==G1,!.
+
 demodal_body(_KB, _Head, ((A , B) ; C) , ({ignore(A)}, C) ):- identical_refl(B,C),!.
 demodal_body(_KB, _Head, (C ; (A , B) ) , ({ignore(A)}, C) ):- identical_refl(B,C),!.
 
 demodal_body(_KB, (Head), ensure_cond(_G, different(X, Y)),dif_objs(X,Y)):- compound(Head),member(XorY,[X,Y]),\+ contains_var(XorY,Head).
 demodal_body(_KB, (_Head), ensure_cond(_G, different(X, Y)),dif_objs(X,Y)):- !.
 
-demodal_body(_KB, _Head,(dif_objs(X, Y),nesc(PRED)),&(nesc(PRED),dif_objs(X, Y))):- compound(PRED),member(XorY,[X,Y]),contains_var(XorY,PRED).
+
+
+demodal_body(_KB, _Head,(dif_objs(X, Y),nesc(PRED)),(nesc(PRED)*->dif_objs(X, Y))):- compound(PRED),member(XorY,[X,Y]),contains_var(XorY,PRED).
 
 demodal_body(_KB, _Head, (A ; C), A ):- identical_refl(A,C),!.
 
@@ -476,16 +480,6 @@ demodal_body(_KB,  _ , Body ,  fail_cause(naf_sk,Body)) :- body_contains(Body,ne
 demodal_body(_KB,  _ , Body ,  fail_cause(naf_sk,Body)) :- body_contains(Body,neg(skolem(_,_,_))).
 demodal_body(_KB,  _ , Body ,  fail_cause(naf_sk,Body)) :- body_contains(Body,never_deduce(skolem(_,_,_))).
 % demodal_body(_KB,  _ , Body ,  fail_cause(naf_sk,Body)) :- body_contains(Body,falsify(skolem(_,_,_))).
-
-%demodal_body(_KB,  deduce_tru(_Head), proven_not_neg(X), pro_tru(X)):-!.
-%demodal_body(_KB,  deduce_tru(_Head), proven_not_nesc(X), never_deduce(X)):-!.
-
-demodal_body(_KB,  never_any(_Head), proven_not_neg(X), induce_tru(X)):-!.
-demodal_body(_KB,  never_any(_Head), proven_not_nesc(X), never_any(X)):-!.
-
-% demodal_body(KB,  never_any(Head), skolem(X,_SK, _Which), true):- \+ sharing_vars_vars(Head,X).
-% demodal_body(_KB,  never_any(Head), skolem(X,_SK, _Which), var(X)):- \+ sharing_vars_vars(Head,X).
-
 
 demodal_body(_KB,  _, neg(nesc(~P)),poss(P)):-!.
 

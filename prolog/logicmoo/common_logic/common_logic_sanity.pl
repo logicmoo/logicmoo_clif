@@ -122,34 +122,43 @@ test_boxlog(P):- source_location(_,_),!,nl,nl,b_implode_varnames(P),test_boxlog(
 */
 
 
-add_boxlog_history((P)):- 
-   ignore((with_output_to(string(S),fmt9(test_boxlog(P))),
+add_boxlog_history(P0):- 
+  (nb_current('$variable_names', Vs0)->true;Vs0=[]),
+  copy_term(P0+Vs0,P+Vs),
+  \+ \+ 
+  ((b_setval('$variable_names',Vs),
+  b_implode_varnames0(Vs),
+  b_implode_varnames(P),
+  guess_varnames(P),
+  with_output_to(string(S),
+    write_term(P,[numbervars(true),variable_names(Vs),character_escapes(true),ignore_ops(false),quoted(true),fullstop(true)])),
    stream_property(In,file_no(0)),
    prolog:history(In, add(S)))),!.
 
 :- export(test_boxlog/1).
-test_boxlog(P):- test_boxlog0(P).
-
-:- export(test_boxlog/1).
-test_boxlog(KV,P):- locally(t_l:kif_option_list(KV),test_boxlog0(P)).
-% test_boxlog_m(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
+test_boxlog(P):- test_boxlog([],P).
 
 
 test_boxlogq(P):- test_boxlog([+qualify],P),!.
   
-test_boxlog0(P):-
+:- export(test_boxlog/2).
+% test_boxlog_m(P,BoxLog):-logicmoo_motel:kif_to_motelog(P,BoxLog),!.
+test_boxlog(KV,P):- 
+ locally_tl(kif_option_list(KV),(
   mmake,
-  (source_location(_,_) -> add_boxlog_history(P) ; true),
+  (source_location(_,_) -> add_boxlog_history(test_boxlog(KV,P)) ; true),
  \+ \+
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
   wdmsg(:- test_boxlog(P)), 
   b_implode_varnames(P),
+  guess_varnames(P),
+  kif_optionally_e(never,ain,clif(P)),
   kif_to_boxlog(P,O),
   guess_varnames(O),flush_output,
   kif_optionally_e(true,sdmsgf,O),flush_output, 
-  kif_optionally(true,assert_to_boxlog,O),
-  kif_optionally(false,print_boxlog_to_pfc,O))),!.
+  kif_optionally(false,assert_to_boxlog,O),
+  kif_optionally(false,print_boxlog_to_pfc,O))))),!.
 
 assert_to_boxlog(G):- ain(boxlog(G)),!.
 
@@ -177,7 +186,7 @@ test_boxlog_88(P):-
 
 :- export(test_pfc/1).
 test_pfc(P):- mmake, must_det(test_pfc0(P)),!.
-test_pfcq(P):- mmake, locally(t_l:qualify_modally,must_det(test_pfc0(P))),!.
+test_pfcq(P):- mmake, locally_tl(qualify_modally,must_det(test_pfc0(P))),!.
   
 test_pfc0(P):-
  \+ \+

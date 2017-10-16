@@ -97,10 +97,12 @@ poss(P) ==>     \+ ~ P, \+ ~poss(P).
 :- kb_shared(((<-)/2)).
 
 % something is possible when is already true or if it is not false and not impossible
-:- ain(poss(G) :- {nonvar(G), (call_u(G) ; (\+ call_u(~G), \+ call_u(~poss(G))))}).
+% "uses exists"
+%:- ain(poss(G) :- (non_modal_positive(G), no_repeats(loop_check(G) ; (\+ loop_check(~G) , \+ loop_check(~poss(G)))),groundoid(G))).
+:- ain(poss(G) :- (strip_module(G,M,P),call_tru(M,poss(P)))).
 
 % something is impossible when it is false
-:- ain(~poss(G) :-  {nonvar(G), call_u(~G)}).
+:- ain(~poss(G) :-  (non_modal_positive(G), loop_check(~G))).
 
 % when something begins to be definately false, remove it.
 % ((~P)/(nonvar(P),mpred_positive_literal(P))) ==>  \+ P.
@@ -125,9 +127,12 @@ proven_not_nesc(H):- \+ call_u( H).
 %:- kb_shared(baseKB:duce_tru/1).
 :- kb_shared(baseKB:producing/1).
 
-:- mpred_ain(((((proven_tru(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
-:- mpred_ain(((((proven_poss(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
-:- mpred_ain(((((proven_neg(H):- _ ),{nonvar(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+% proven_helper ?
+:- mpred_ain(((((proven_tru(H):- _ ),{non_modal_positive(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((proven_poss(H):- _ ),{non_modal_positive(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((proven_neg(H):- _ ),{non_modal_positive(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((deduce_tru(H):- _ ),{non_modal_positive(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
+:- mpred_ain(((((deduce_neg(H):- _ ),{non_modal_positive(H),functor(H,F,A),functor(HH,F,A)}) ==> producing(HH)))).
 
 :- mpred_ain((producing(H)==>{kbi_define(H)})).
 
@@ -148,7 +153,7 @@ proven_not_neg(H):- \+ proven_neg(H), \+ call_u(~ H).
 proven_not_poss(H):- proven_not_nesc(H).
 
 
-:- kb_shared(baseKB:proven_tru/1).
+%:- kb_shared(baseKB:proven_tru/1).
 %proven_tru(H):- loop_check(call_u(H)), show_failure(\+ proven_neg(H)).
 %proven_tru(H):- \+ ground(H),nrlc((duce_tru(H))).
 %proven_tru(H):- cwc, (nonvar(H),loop_check(proven_neg(H)),!,fail) ; (fail,call_u(H)).

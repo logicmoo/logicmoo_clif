@@ -47,13 +47,13 @@ test_header_include.
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
 
-
 %:- set_prolog_flag(runtime_speed,0). % 0 = dont care
 :- set_prolog_flag(runtime_speed, 0). % 1 = default
 :- set_prolog_flag(runtime_debug, 3). % 2 = important but dont sacrifice other features for it
 :- set_prolog_flag(runtime_safety, 3).  % 3 = very important
 :- set_prolog_flag(unsafe_speedups, false).
 :- set_prolog_flag(logicmoo_message_hook,break).
+
 
 :- endif.
 
@@ -167,7 +167,7 @@ test_header_include.
 
 :- '$current_source_module'(M),install_retry_undefined(M,kbi_define).
 
-:- set_prolog_IO(user_input,user_output,user_error).
+% :- set_prolog_IO(user_input,user_output,user_error).
 
 :- if((prolog_load_context(source,File),(atom_contains(File,'.clif')))).
 

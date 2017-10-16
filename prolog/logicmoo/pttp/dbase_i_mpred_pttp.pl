@@ -85,8 +85,8 @@ pttp_assert(X) :- must_pttp_id(ID),pttp_tell_wid(ID,X).
 :- was_export(pttp_tell_wid/2).
 pttp_tell_wid(ID,XY):- 
     with_no_mpred_expansions(
-       locally(t_l:disable_px,
-          locally(t_l:infSkipFullExpand,
+       locally_tl(disable_px,
+          locally_tl(infSkipFullExpand,
             must(pttp_assert_wid(ID,pttp,XY))))),!.
 
 :- was_export(pttp_assert_wid/3).
@@ -97,7 +97,7 @@ pttp_assert_wid(_, _Mode,uses_logic(Name)):-!,must(pttp_logic(Name,Data)),!,must
 pttp_assert_wid(ID,_Mode,kif(YY)):-!, must((numbervars(YY,'$VAR',7567,_),must(pttp_assert_wid(ID,kif,YY)))).
 pttp_assert_wid(ID,_Mode,call(CALL)):-!, must((save_wid(ID,call,call(CALL)),unnumbervars(CALL,RCALL),show_failure(why,must(RCALL)))).
 %pttp_assert_wid(ID,Mode,(query:-B)):- must(assertz_unumbered((query:-B))),PNF =(query:-B), must( pttp_nnf(PNF,X)),!,must(must(pttp_assert_real_wid(ID,X))).
-pttp_assert_wid(ID,pttp,X):- must((bugger:locally(t_l:current_local_why(ID,X), must(( pttp1_wid(ID,X,Y), pttp2_wid(ID,Y)) )))).
+pttp_assert_wid(ID,pttp,X):- must(( \+ \+ (b_setval('$current_why',wp(ID,X),) must(( pttp1_wid(ID,X,Y), pttp2_wid(ID,Y)))))).
 % pttp_assert_wid(ID,Mode,KIF):- must(kif_add(ID,KIF)),!.
 pttp_assert_wid(ID,kif,X):- show_failure(why,must(kif_add_boxes1(ID,X))).
 
@@ -313,7 +313,7 @@ int_listing_wid:-
   forall(was_pttp_functor(internal,F,A),(functor(P,F,A),forall(clause(P,B),portray_clause_0((P:-B))))).
 
 :- thread_local(is_query_functor/1).
-must_pttp_id(ID):-must(t_l:current_local_why(ID,_)).
+must_pttp_id(ID):- must(nb_current('$current_why',wp(ID,_))).
 is_query_lit(Q):- functor(Q,F,_),atom_concat('quer',_,F).
 
 get_int_query(Int_query):- is_query_functor(X),!, atom_concat('int_',X,Int_query).

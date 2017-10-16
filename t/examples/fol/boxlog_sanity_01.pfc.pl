@@ -13,7 +13,7 @@
 :- set_fileAssertMt(kbii).
 
 
-:- process_this_script.
+% :- process_this_script.
 
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet']).
@@ -26,7 +26,7 @@
 % ============================================================
 % all rooms have a door
 % ============================================================
-:- test_boxlog(all(R,implies(room(R),exists(D,and(door(D),has(R,D)))))).
+:- test_boxlog([+assert],all(R,exists(D,implies(room(R),and(door(D),has(R,D)))))).
 
 % Should be simular in meaning to
 % 
@@ -44,6 +44,26 @@
 % has(R, D) :-
 %       room(R),
 %       skolem(D, skIsDoorInUnkArg2ofHas_1Fn(R)).
+
+
+:- test_boxlog([+assert],all(D,implies(door(D),exists(K,and(knob(K),has(D,K)))))).
+
+% ============================================================
+% 1 room called room222 
+% ============================================================
+:- test_boxlog([+assert,+existentialize_objs],room(r111)).
+
+room(r222).
+
+:- test_boxlog([+assert],exactly(4,X,room(X))).
+
+:- test_boxlog([+assert],room(r333)).
+
+:- test_boxlog([+assert,+exist],room(r444)).
+
+
+end_of_file.
+
 
 % ============================================================
 % joe knows  all rooms have a door

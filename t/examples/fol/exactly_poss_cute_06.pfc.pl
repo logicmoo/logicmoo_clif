@@ -25,7 +25,7 @@
 :- set_prolog_flag(access_level, system).
 
 % Option Examples: nesc($sentence),  poss($sentence),  poss($sentence)=>nesc($sentence).
-==> feature_setting(default_modality,nesc($sentence)).
+% ==> feature_setting(default_modality,nesc($sentence)).
 
 /*
 
@@ -54,7 +54,12 @@ falsify(~P) ==  poss(P) v nesc(P).
 
 */
 
-test_sanity(G):- sanity(mpred_test(G)).
+test_sanity(G):- 
+  add_boxlog_history(G),
+  test_sanity0(G),!.
+
+test_sanity0(G):- mpred_test(G),!.
+test_sanity0((A,B)):- !, mpred_test(A),test_sanity0(B).
 
 :- kbi_define(cute/1).
 :- kbi_define(ugly/1).
@@ -62,20 +67,35 @@ test_sanity(G):- sanity(mpred_test(G)).
 :- kb_shared(baseKB:cute/1).
 :- kb_local(ugly/1).
 :- kb_local(isa/2).
+:- kbi_define(poss/1).
+
 
 %===== axioms =======
+
+% there are  exactly 5 puppies total
+:- test_boxlog([+assert],exactly(5, X, puppy(X))).
+
+% Ensure we can see them
+:- test_sanity((findall(X,puppy(X),L),length(L,5))).
+
+% There is a puppy we call puppy1
+:- test_boxlog([+assert],puppy(puppy1)).
+
+% There is a puppy we call puppy2
+:- test_boxlog([+assert,+exist],puppy(puppy2)).
+
+% Ensure we still only see 5
+:- test_sanity((findall(X,puppy(X),L),length(L,5))).
+
+% Ensure we can get 5x5
+:- test_sanity((findall(G,(puppy(X),puppy(Y),G =( X=Y), writeln(G),ignore(G)),L),length(L,Len),Len==25)).
 
 
 % there are 4 possibly cute puppies
 :- test_boxlog([+assert],exactly(4, X, puppy(X) & poss(cute(X)))).
 
 % Ensure we can see them
-:- test_sanity((findall(X,puppy(X),L),length(L,4))).
-
-
-% Ensure we can get 4x4
-:- test_sanity((findall(G,(puppy(X),puppy(Y),G =( X=Y), writeln(G),ignore(G)),L),length(L,Len),Len==16)).
-
+:- test_sanity((findall(X,poss(cute(X)),L),length(L,4))).
 
 % Ensure only 4 pairs are equal instances
 :- test_sanity((findall(G,(puppy(X),puppy(Y),G =( X=Y), writeln(G),G),L),length(L,Len),Len==4)).
@@ -83,7 +103,7 @@ test_sanity(G):- sanity(mpred_test(G)).
 % Ensure when two are picked out via conjunction the system tries to serve out 2 different values
 :- test_sanity(( puppy(X),puppy(Y), !, X\=Y )).
 
-% Ensure when two are picked out they are differnt object instances
+% Ensure when two are picked out consecutively they are different object instances
 :- test_sanity(( puppy(X),puppy(Y), !, dif_objs(X,Y) )).
 
 % Ensure 12 naive obj dif pairs
@@ -92,13 +112,11 @@ test_sanity(G):- sanity(mpred_test(G)).
 % Ensure only 6 total obj dif pairs
 :- test_sanity(( findall(X\=Y,(pred1_to_unique_pairs(puppy,X,Y), dif_objs(X,Y)),L),length(L,Len),Len==6)).
 
-% there are  exactly 5 puppies total
-:- test_boxlog([+assert],exactly(5, X, puppy(X))).
+% Ensure 20 naive obj dif pairs
+:- test_sanity(( findall(X\=Y,(puppy(X),puppy(Y), dif_objs(X,Y)),L),length(L,Len),Len==20)).
 
-% :- test_sanity(( skolem(X,Y,Z),dif(Y,B),skolem(A,B,C),arg(3,Y,Y1),arg(1,Y1,Y12),arg(3,B,B1),arg(1,B1,B12),Y12\=B12,X=A)).
-
-
-end_of_file.
+% Ensure only 10 total obj dif pairs
+:- test_sanity(( findall(X\=Y,(pred1_to_unique_pairs(puppy,X,Y), dif_objs(X,Y)),L),length(L,Len),Len==10)).
 
 % there are 2 (for sure) cute puppies
 :- test_boxlog([+assert],exactly(2, X, puppy(X) & cute(X))).
@@ -108,6 +126,17 @@ end_of_file.
 
 % all puppies are cute or ugly
 :- test_boxlog([+assert],forall( X, if(puppy(X),(ugly(X) v cute(X))))).
+
+
+% there is at least one puppy
+:- test_boxlog([+assert],atleast(1, X, puppy(X))).
+
+% there is at least one puppy
+:- test_boxlog([+assert],exists(X, puppy(X))).
+
+
+end_of_file.
+
 
 %===== tests =======
 

@@ -76,8 +76,9 @@ for ele2 in "${listOfNames[@]}"
 	    retry=0
 		
    		#// Runs the test
-        echo "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g $on_complete"
-        eval "swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"['${ele}']\" -g $on_complete"
+        export TEST_CMD="swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"use_module(library(editline))\" -g \"['${ele}']\" -g $on_complete --unsafe"
+        echo TEST_CMD=$TEST_CMD
+        eval $TEST_CMD
         
 		exitcode=$?                 
         if [ $exitcode -eq $good_exit ]; then

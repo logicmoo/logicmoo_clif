@@ -458,7 +458,7 @@ side_effect_prone:- \+ t_l:noDBaseMODs(_), t_l:side_effect_ok.
 % Using No Modifications.
 %
 with_no_modifications(CALL):-!,CALL.
-with_no_modifications(CALL):-locally(t_l:noDBaseMODs(_),CALL).
+with_no_modifications(CALL):-locally_tl(noDBaseMODs(_),CALL).
 
 :- meta_predicate(with_no_db_hooks(0)).
 
@@ -469,7 +469,7 @@ with_no_modifications(CALL):-locally(t_l:noDBaseMODs(_),CALL).
 % Using No Database Hooks.
 %
 with_no_db_hooks(CALL):-!,CALL.
-with_no_db_hooks(CALL):-locally(t_l:noDBaseHOOKS(_),CALL).
+with_no_db_hooks(CALL):-locally_tl(noDBaseHOOKS(_),CALL).
 
 :- meta_predicate(with_fallbacks(0)).
 
@@ -499,7 +499,7 @@ with_fallbacksg(CALL):-locally_hide(t_l:noRandomValues(_),CALL).
 %
 % Using No Fallbacksg.
 %
-with_no_fallbacksg(CALL):-locally(t_l:noRandomValues(_),CALL).
+with_no_fallbacksg(CALL):-locally_tl(noRandomValues(_),CALL).
 
 :- meta_predicate(with_no_fallbacks(0)).
 
@@ -509,7 +509,7 @@ with_no_fallbacksg(CALL):-locally(t_l:noRandomValues(_),CALL).
 %
 % Using No Fallbacks.
 %
-with_no_fallbacks(CALL):-locally(t_l:infAssertedOnly(_),CALL).
+with_no_fallbacks(CALL):-locally_tl(infAssertedOnly(_),CALL).
 
 
 %= 	 	 
@@ -541,7 +541,7 @@ infThirdOrderCheck :- fail, infSecondOrderCheck, not(t_l:noRandomValues(_)).
 % Using Fail If Is A Asserted.
 %
 with_fail_is_asserted(Temp,Goal):-ground(Temp),!,Goal.
-with_fail_is_asserted(Temp,Goal):-locally(t_l:fail_is_asserted(Temp),Goal).
+with_fail_is_asserted(Temp,Goal):-locally_tl(fail_is_asserted(Temp),Goal).
 
 
 
@@ -852,7 +852,7 @@ mreq_old2(C0):- nop(dmsg(call_u(C0))), agenda_rescan_for_module_ready,
 %
 ireq(C0):- nop(dmsg(ireq(C0))), 
   agenda_rescan_for_module_ready,
-   no_loop_check(locally(t_l:infInstanceOnly(_), locally(t_l:infAssertedOnly(_),locally(t_l:noRandomValues(_),preq(ireq,/*to_exp*/(C0)))))).
+   no_loop_check(locally_tl(infInstanceOnly(_), locally_tl(infAssertedOnly(_),locally_tl(noRandomValues(_),preq(ireq,/*to_exp*/(C0)))))).
 
 % -  call_props(Obj,QueryPropSpecs)
 
@@ -1185,7 +1185,7 @@ mpred_op(Op,     {H}):- nonvar(H),!, mpred_op(Op,H).
 mpred_op(must,Call):- !,must(mpred_op(call_u,Call)).
 mpred_op(once,Call):- !,once(mpred_op(call_u,Call)).
 
-mpred_op(assertedOnly,Call):- !,locally(t_l:infInstanceOnly(Call),mpred_op(call_u,Call)).
+mpred_op(assertedOnly,Call):- !,locally_tl(infInstanceOnly(Call),mpred_op(call_u,Call)).
 mpred_op(_ , clause(H,B) ):- !, clause_u(H,B).
 mpred_op(_ , clause(H,B,Ref) ):- !,  clause_u(H,B,Ref).
 mpred_op(_ , (H :- B) ):- !, clause_u(H,B).

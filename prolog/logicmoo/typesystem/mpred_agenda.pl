@@ -308,7 +308,7 @@ agenda_rescan_mpred_ops:- agenda_rescan_for_module_ready,!.
 % Agenda Rescan For Module Ready.
 %
 agenda_rescan_for_module_ready:- t_l:in_agenda_rescan_for_module_ready,!.
-agenda_rescan_for_module_ready:- locally(t_l:in_agenda_rescan_for_module_ready,loop_check(do_all_of(mpred_module_ready),true)).
+agenda_rescan_for_module_ready:- locally_tl(in_agenda_rescan_for_module_ready,loop_check(do_all_of(mpred_module_ready),true)).
 
 :- was_export(agenda_slow_op_todo/1).
 :- was_dynamic(agenda_slow_op_todo/1).
@@ -491,7 +491,7 @@ run_database_hooks(Type,HookIn):-run_database_hooks_0(Type,HookIn).
 % run database hooks depth  Secondary Helper.
 %
 run_database_hooks_depth_1(Type,Hook):- trace_or_throw(use_pfc(run_database_hooks(Type,Hook))), t_l:noDBaseHOOKS(_),dmsg(noDBaseHOOKS(Type,Hook)),!.
-run_database_hooks_depth_1(Type,Hook):- locally(t_l:noDBaseHOOKS(_),run_database_hooks_0(Type,Hook)).
+run_database_hooks_depth_1(Type,Hook):- locally_tl(noDBaseHOOKS(_),run_database_hooks_0(Type,Hook)).
 
 
 	 

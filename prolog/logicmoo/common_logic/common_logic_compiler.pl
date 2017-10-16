@@ -307,7 +307,9 @@ to_poss(KB,poss(BDT,X),poss(BDT,X)):-nonvar(BDT),!,share_scopes(KB,BDT),!.
 to_poss(KB,X,poss(BDT,X)):-share_scopes(KB,BDT),!.
 
 % to_nesc(KB,X,nesc(BDT,X)):- is_ftVar(X),share_scopes(KB,BDT),!.
+to_nesc(KB,X,nesc(BDT,X)):- \+ compound(X), share_scopes(KB,BDT),!.
 to_nesc(_KB,nesc(BDT,X),nesc(BDT,X)):-!. % nonvar(BDT),!,share_scopes(KB,BDT),!.
+to_nesc(_KB,nesc(X),nesc(X)):-!. % nonvar(BDT),!,share_scopes(KB,BDT),!.
 to_nesc(KB,X,nesc(BDT,X)):-share_scopes(KB,BDT),!.
 
 
@@ -334,7 +336,7 @@ nnf(KB,FmlNV,NNF):-
 nnf0(KB,Fml,NNF):- 
  copy_term(Fml,Original),
  % ignore(KB='$VAR'('KB')),
-   locally(t_l:current_form(Original),nnf(KB,Fml,[],NNF,_)),!.
+   locally_tl(current_form(Original),nnf(KB,Fml,[],NNF,_)),!.
 
 :- thread_local(t_l:skolem_setting/1).
 
@@ -367,7 +369,7 @@ is_skolem_setting(S):- t_l:skolem_setting(SS)->S=SS;is_skolem_setting_default(S)
 % Negated Normal Form Disjunctive Normal Form.
 %
 nnf_dnf(KB,Fml,DNF):-
- locally(t_l:skolem_setting(ignore),
+ locally_tl(skolem_setting(ignore),
   (removeQ(KB,Fml,FmlUQ),
   nnf(KB,FmlUQ,NNF),
    dnf(KB,NNF,DNF))).
@@ -1627,7 +1629,6 @@ has_modals(P):- quietly((sub_term(A,P),compound(A),(functor(A,poss,_);functor(A,
 atom_compat(F,HF,HHF):- fail,F\=HF, is_sent_op_modality(F),is_sent_op_modality(HF), format(atom(HHF),'~w_~w',[F,HF]).
 
 remove_unused_clauses([],[]):- !.
-remove_unused_clauses(A,A):-!.
 remove_unused_clauses([Unused|FlattenedO4],FlattenedO):- 
    unused_clause(Unused) -> remove_unused_clauses(FlattenedO4,FlattenedO);
      (remove_unused_clauses(FlattenedO4,FlattenedM),FlattenedO=[Unused|FlattenedM]).

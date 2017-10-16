@@ -105,13 +105,14 @@ set_kif_option(N=V):- !, set_kif_option(N,V).
 set_kif_option(N:V):- !, set_kif_option(N,V).
 set_kif_option(Name,Value):- assert_setting01(t_l:kif_option(Name,Value)),!.
 
-kif_option_value(Name,Value):- Value==none,!,(kif_option_value(Name,ValueReally)->ValueReally==Value;true).
-kif_option_value(Name,Value):- t_l:kif_option_list(Dict),atom(Name),
+kif_option_value(Name,Value):- notrace(kif_option_value0(Name,Value)).
+kif_option_value0(Name,Value):- Value==none,!,(kif_option_value(Name,ValueReally)->ValueReally==Value;true).
+kif_option_value0(Name,Value):- t_l:kif_option_list(Dict),atom(Name),
    (is_dict(Dict) -> (get_dict(Key,Dict,Value),atom(Name),atom(Key),atom_concat(Key,_,Name));
     true -> ((member(KeyValue,Dict),as_local_kv(KeyValue,Key,Value),(atom_concat(Key,_,Name);atom_concat(_,Key,Name))))),!.
-kif_option_value(Name,Value):- t_l:kif_option(Name,Value),!.
-kif_option_value(Name,Value):- atom(Name),current_prolog_flag(Name,Value),!.
-kif_option_value(Name,Value):- clause_b(feature_setting(Name,Value)),!.
+kif_option_value0(Name,Value):- t_l:kif_option(Name,Value),!.
+kif_option_value0(Name,Value):- atom(Name),current_prolog_flag(Name,Value),!.
+kif_option_value0(Name,Value):- clause_b(feature_setting(Name,Value)),!.
 
 foption_to_name(Name,Name):- \+ compound(Name),!.
 foption_to_name(_:Jiggler,Name):- !,foption_to_name(Jiggler,Name).
@@ -143,7 +144,7 @@ kif_optionally_e( never ,_  ,_,JIGGLED,JIGGLED):-!.
 kif_optionally_e(Default,Name,Jiggler,KIF,JIGGLED):-
      (kif_option_value(Name,Value)-> true ; Value = Default),
        ((kif_value_false(Value), \+ Default==always) -> KIF=JIGGLED ;
-      ((locally(t_l:kif_option(Name,Value),
+      ((locally_tl(kif_option(Name,Value),
          must(call(Jiggler,KIF,JIGGLED))),
        if_debugging(Name,(KIF \=@= JIGGLED) -> (sdmsg(Name=JIGGLED)); true)))),!.
 
@@ -364,6 +365,7 @@ subst_except_l(  Var, List, NVar ) :- nonvar(NVar),!,subst_except_l(  Var, List,
 subst_except_l(  Var, _,Var ) :- is_ftVar(Var),!.
 % subst_except_l(  Var, _,Var ) :- leave_as_is_logically(Var),!.
 subst_except_l(  N, List,V ) :- memberchk(N=V,List),!.
+subst_except_l(  N, List,V ) :- memberchk(N-V,List),!.
 subst_except_l([H|T],List,[HH|TT]):- !, subst_except_l(H,List,HH), subst_except_l(T,List,TT).
 subst_except_l(   [], _,[] ) :-!.
 subst_except_l(HT,List,HHTT):- compound(HT),
@@ -774,7 +776,7 @@ unnumbervars_with_names(Term,CTerm):-
    put_variable_names(NewCNamedVarsSG))),!.
 
 
-unnumbervars_with_names(Term,CTerm):-
+unnumbervars_with_names_best2(Term,CTerm):-
  must_det_l((
    source_variables_l(NamedVars),!,
    copy_term(Term:NamedVars,CTerm:CNamedVars),
@@ -814,6 +816,9 @@ get_1_var_name(Var,[N=V|_NamedVars],Name=V):-
      (Var == V -> Name = N ; (Var==Name -> Name=Var ; fail )),!.
 get_1_var_name(Var,[_|NamedVars],Name):- get_1_var_name(Var,NamedVars,Name).
 
+
+
+call_l2r(P,X,Y):- var(X) -> freeze(X,call_l2r(P,X,Y)) ; (call(P,X,Z),Y=Z).
 
 
 %% kif_to_boxlog( ?Wff, ?Out) is det.
@@ -883,7 +888,9 @@ kif_to_boxlog_attvars(WffIn0,KB0,Why0,RealOUT):-
    kif_optionally_e(false,rejiggle_quants(KB),NormalOuterQuantKIF,FullQuant),   
    kif_optionally_e(todo,qualify_modality,FullQuant,ModalKIF),
    adjust_kif(KB,ModalKIF,ModalKBKIF),
+   b_setval('$nnf_outermost',FullQuant),
    kif_optionally_e(true,nnf(KB),ModalKBKIF,NNF),
+   term_attvars(NNF,NNFVs), maplist(del_attr_type(skv),NNFVs),
    sanity(NNF \== poss(~t)),
    % sdmsg(nnf=(NNF)),
    % save_wid(Why,kif,DLOGKIF),
@@ -930,7 +937,7 @@ finish_clausify(KB,Why,Datalog,RealOUT):-
   kif_optionally_e(true,from_tlog,Datalog,Datalog11),
   kif_optionally_e(false,interface_to_correct_boxlog(KB,Why),Datalog11,Datalog1),  
   kif_optionally_e(true,demodal_clauses(KB),Datalog1,Datalog12),
-  remove_unused_clauses(Datalog12,Datalog2),
+  kif_optionally_e(true,remove_unused_clauses,Datalog12,Datalog2),
   kif_optionally(false,defunctionalize_each,Datalog2,Datalog3),
   predsort(sort_by_pred_class,Datalog3,Datalog4), 
   kif_optionally(false,vbody_sort,Datalog4,Datalog5),
@@ -985,6 +992,8 @@ to_tlog(_,_KB,Var, Var):- quietly(leave_as_is_logically(Var)),!.
 to_tlog(MD,KB,M:H,M:HH):- !, to_tlog(MD,KB,H,HH).
 to_tlog(MD,KB,[H|T],[HH|TT]):- !, to_tlog(MD,KB,H,HH),to_tlog(MD,KB,T,TT).
 
+
+to_tlog(MD,KB, quant(Q,X,F1), quant(Q,X,F2)):- !, to_tlog(MD,KB,F1,F2).
 to_tlog(MD,KB, nesc(b_d(KB2,X,_),F), HH):- atom(X),KB\=KB2,XF =..[X,KB2,F],!,to_tlog(MD,KB2,XF, HH).
 to_tlog(MD,KB, poss(b_d(KB2,_,X),F), HH):- atom(X),KB\=KB2,XF =..[X,KB2,F],!,to_tlog(MD,KB2,XF, HH).
 to_tlog(MD,KB, nesc(b_d(KB,X,_),F),   HH):- atom(X), XF =..[X,F], !,to_tlog(MD,KB,XF, HH).
@@ -1145,7 +1154,7 @@ check_is_kb(KB):-ignore('$VAR'('KB')=KB).
 add_preconds(X,X):- baseKB:no_rewrites,!.
 add_preconds(X,Z):-
  locally(leave_as_is_db('CollectionS666666666666666ubsetFn'(_,_)),
-   locally(t_l:dont_use_mudEquals,must(defunctionalize('=>',X,Y)))),must(add_preconds2(Y,Z)).
+   locally_tl(dont_use_mudEquals,must(defunctionalize('=>',X,Y)))),must(add_preconds2(Y,Z)).
 
 
 
@@ -1266,7 +1275,7 @@ clauses_to_boxlog_5(_KB,_Why,In,Prolog):-dtrace,In=Prolog.
 % Managed Predicate True Structure Canonicalize And Store Knowledge Interchange Format.
 %
 mpred_t_tell_kif(OP2,RULE):-
- locally(t_l:current_pttp_db_oper(mud_call_store_op(OP2)),
+ locally_tl(current_pttp_db_oper(mud_call_store_op(OP2)),
    (show_call(why,call((must(kif_add(RULE))))))).
 
 
@@ -1532,9 +1541,11 @@ simplify_list(KB,RB,BBS):- list_to_set(RB,BB),must_maplist_det(removeQ(KB),BB,BB
 %
 % Save Well-founded Semantics Version.
 %
-save_wfs(Why,PrologI):- must_det_l((baseKB:as_prolog_hook(PrologI,Prolog),
-   locally(t_l:current_local_why(Why,Prolog),
-   ain_h(save_in_code_buffer,Why,Prolog)))).
+save_wfs(Why,PrologI):- 
+ must_det_l((baseKB:as_prolog_hook(PrologI,Prolog),
+   \+ \+
+    ( b_setval('$current_why',wp(Why,Prolog)),
+      ain_h(save_in_code_buffer,Why,Prolog)))).
 
 
 

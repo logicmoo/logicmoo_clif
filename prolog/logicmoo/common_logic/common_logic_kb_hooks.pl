@@ -587,7 +587,7 @@ with_kb_assertions_matching(PLIST,Proof,Call):- doall((kbp_t_list(PLIST, Proof),
 %
 % Knowledge Base P- Converted To Managed Predicate True Stucture.
 %
-kbp_to_mpred_t:- must_det(locally(t_l:useOnlyExternalDBs,kbp_to_mpred_0)).
+kbp_to_mpred_t:- must_det(locally_tl(useOnlyExternalDBs,kbp_to_mpred_0)).
 
 
 %= 	 	 
@@ -638,7 +638,7 @@ move_implied:-doall((between(2,6,Len),length(PLIST,Len),
 %
 % Hide Term Rewrites.
 %
-hide_term_rewrites :- locally(t_l:useOnlyExternalDBs,
+hide_term_rewrites :- locally_tl(useOnlyExternalDBs,
  % remove badjuju from the KB (that is unbould slots in the middle of GAFs)
  % hl_holds:retractall(assertion_holds(isa, badjuju, 'Thing')),
  % hl_holds:retractall(el_assertions:el_holds(genls, badjuju, 'AerosolStuff',_,_)), 
@@ -656,7 +656,7 @@ hide_term_rewrites :- locally(t_l:useOnlyExternalDBs,
 %
 % Hide Empty Strings.
 %
-hide_empty_strings :- locally(t_l:useOnlyExternalDBs,
+hide_empty_strings :- locally_tl(useOnlyExternalDBs,
  % remove more badjuju from the KB (that is unbould slots in the middle of GAFs)
  % the next few lines will cover the top
  doall((between(2,6,Len),length(PLIST,Len),
