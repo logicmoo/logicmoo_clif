@@ -42,7 +42,7 @@ kif_io:- current_input(In),current_output(Out),!,kif_io(In,Out).
 
 
 load_clif(File):- 
-  notrace(absolute_file_name(File,Found,[extensions(['','.clif','.ikl','.kif','.lisp','.lbase','.pfc','.pl']),access(read),expand(true),solutions(all)])),
+  zotrace(absolute_file_name(File,Found,[extensions(['','.clif','.ikl','.kif','.lisp','.lbase','.pfc','.pl']),access(read),expand(true),solutions(all)])),
   exists_file(Found),!,
   % with_lisp_translation_cached(Found, = , nop).
   file_name_extension(_,Ext,Found), 

@@ -41,12 +41,6 @@
 test_header_include.
 
 :- endif.
-
-:- ensure_loaded(library(script_files)).
-
-
-:- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
-
 %:- set_prolog_flag(runtime_speed,0). % 0 = dont care
 :- set_prolog_flag(runtime_speed, 0). % 1 = default
 :- set_prolog_flag(runtime_debug, 3). % 2 = important but dont sacrifice other features for it
@@ -82,6 +76,35 @@ test_header_include.
 
 
 
+
+dir_from(Rel,Y):-
+    ((getenv('LOGICMOO_WS',Dir);
+     prolog_load_context(directory,Dir);
+     '~/logicmoo_workspace'=Dir;
+     '/home/dmiles/logicmoo_workspace/'=Dir)),
+    absolute_file_name(Rel,Y,[relative_to(Dir),file_type(directory),file_errors(fail)]),
+    exists_directory(Y),!.
+add_pack_path(Rel):-
+   dir_from(Rel,Y),
+   (( \+ user:file_search_path(pack,Y)) ->asserta(user:file_search_path(pack,Y));true).
+:- add_pack_path(packs_sys).
+:- add_pack_path(packs_usr).
+:- add_pack_path(packs_web).
+:- add_pack_path(packs_xtra).
+:- initialization(attach_packs,now).
+:- if(exists_source(library(editline))).
+:- use_module(library(editline)).
+:- else.
+:- if(exists_source(library(readline))).
+:- use_module(library(readline)).
+:- endif.
+:- endif.
+
+:-  '$toplevel':setup_history.
+:- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
+
+
+:- ensure_loaded(library(script_files)).
 :- if(( \+ current_module(pfc_lib) )).
 :- use_module(library(pfc)).
 :- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
@@ -163,7 +186,7 @@ test_header_include.
 
 :- endif. % current_prolog_flag(test_header,_).
 
-:- cls.
+%:- cls.
 
 :- '$current_source_module'(M),install_retry_undefined(M,kbi_define).
 

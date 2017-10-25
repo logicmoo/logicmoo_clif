@@ -4,25 +4,7 @@
 :- module(cute6,[]).
 
 :- include(test_header).
-:- user:use_module(library(editline)).
-:- use_module(library(occurs)). % sub_term/2
-:- use_module(library(sort)). % predsort/3
-:- use_module(library(backcomp)). % concat_atom/2
-:- user:autoload.
 
-:- module_transparent(system: = /2).
-:- module_transparent('$attvar':'$wakeup'/1).
-:- module_transparent('$attvar':'call_all_attr_uhooks'/2).
-:- module_transparent('$attvar':'begin_call_all_attr_uhooks'/2).
-:- module_transparent('$attvar':'uhook'/3).
-
-:- '$current_source_module'(M),install_retry_undefined(M,error).
-:- install_retry_undefined(user,error).
-:- install_retry_undefined(kbii,error).
-:- install_retry_undefined(kbi,error).
-% :- set_prolog_flag(autoload,false).
-:- set_prolog_flag(retry_undefined, false).
-:- set_prolog_flag(access_level, system).
 
 % Option Examples: nesc($sentence),  poss($sentence),  poss($sentence)=>nesc($sentence).
 % ==> feature_setting(default_modality,nesc($sentence)).
@@ -69,20 +51,49 @@ test_sanity0((A,B)):- !, mpred_test(A),test_sanity0(B).
 :- kb_local(isa/2).
 :- kbi_define(poss/1).
 
-
+:- use_module(library(clpfd)).
+% :- debug(_).
+:- set_prolog_flag(gc,false).
+:- set_prolog_flag(toplevel_print_anon,false).
+:- set_prolog_flag(answer_write_options,[quoted(true), portray(false), max_depth(20)]).
+:- set_prolog_flag(write_attributes,ignore).
+:- set_prolog_flag(toplevel_print_factorized, true).
 %===== axioms =======
 
 % there are  exactly 5 puppies total
 :- test_boxlog([+assert],exactly(5, X, puppy(X))).
 
+
 % Ensure we can see them
-:- test_sanity((findall(X,puppy(X),L),length(L,5))).
+% :- test_sanity((findall(X,puppy(X),L),length(L,5))).
+
+% there are 2 (for sure) cute puppies
+:- test_boxlog([+assert],exactly(2, X, puppy(X) & cute(X))).
+
+% there are 3 (for sure) hungry puppies
+:- test_boxlog([+assert],exactly(3, X, puppy(X) & hungry(X))).
+
+end_of_file.
+
+% there are 2 (for sure) ugly puppies
+:- test_boxlog([+assert],exactly(2, X, puppy(X) & ugly(X))).
+
+
+% There is a puppy we call puppy2
+:- test_boxlog([+assert,+existentialize_objs],puppy(puppy2)).
+
+% cute things cannot be ugly things and visa versa
+:- test_boxlog([+assert],forall( X, iff(cute(X),~ugly(X)))).
+
+% all puppies are cute or ugly
+:- test_boxlog([+assert],forall( X, if(puppy(X),(ugly(X) v cute(X))))).
+
+
+end_of_file.
+
 
 % There is a puppy we call puppy1
 :- test_boxlog([+assert],puppy(puppy1)).
-
-% There is a puppy we call puppy2
-:- test_boxlog([+assert,+exist],puppy(puppy2)).
 
 % Ensure we still only see 5
 :- test_sanity((findall(X,puppy(X),L),length(L,5))).
@@ -120,12 +131,6 @@ test_sanity0((A,B)):- !, mpred_test(A),test_sanity0(B).
 
 % there are 2 (for sure) cute puppies
 :- test_boxlog([+assert],exactly(2, X, puppy(X) & cute(X))).
-
-% cute things cannot be ugly things and visa versa
-:- test_boxlog([+assert],forall( X, iff(cute(X),~ugly(X)))).
-
-% all puppies are cute or ugly
-:- test_boxlog([+assert],forall( X, if(puppy(X),(ugly(X) v cute(X))))).
 
 
 % there is at least one puppy

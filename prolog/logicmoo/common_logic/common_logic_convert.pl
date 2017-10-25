@@ -109,8 +109,8 @@ from_kif_string(Wff,Wff).
 
 :- module_transparent(must_map_preds/3).
 must_map_preds([],IO,IO):-!.
-must_map_preds([one(Pred)|ListOfPreds],IO,Out):- !, maybe_notrace(call(Pred,IO)),!,must_map_preds(ListOfPreds,IO,Out).
-must_map_preds([Pred|ListOfPreds],In,Out):- maybe_notrace(call(Pred,In,Mid)),!,must_map_preds(ListOfPreds,Mid,Out),!.
+must_map_preds([one(Pred)|ListOfPreds],IO,Out):- !, quietly(call(Pred,IO)),!,must_map_preds(ListOfPreds,IO,Out).
+must_map_preds([Pred|ListOfPreds],In,Out):- quietly(call(Pred,In,Mid)),!,must_map_preds(ListOfPreds,Mid,Out),!.
 
 
 :- thread_local(t_l:no_db_expand_props/0).

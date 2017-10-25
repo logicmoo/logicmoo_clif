@@ -16,9 +16,12 @@
 
 :- listing(vn:attr_unify_hook/2).
 
-:- test_boxlog(exists(H1,exists(H2,
+:- set_prolog_flag(gc,false).
+
+:- test_boxlog([+assert],exists(H1,exists(H2,
  (leftof(H1, H2))))).
 
+:- break.
 
 :- test_boxlog(exists(H1,exists(H2,
  (leftof(H1, H2) & different(H1, H2))))).

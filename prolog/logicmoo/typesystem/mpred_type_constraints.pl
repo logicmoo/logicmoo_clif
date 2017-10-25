@@ -400,7 +400,7 @@ boxlog_goal_expansion(G,_):- % \+ source_location(_,_),
 */
 
 
-is_iz_or_iza(Var):- notrace((mtc_get_attr(Var,iz,_);mtc_get_attr(Var,iza,_))).
+is_iz_or_iza(Var):- zotrace((mtc_get_attr(Var,iz,_);mtc_get_attr(Var,iza,_))).
 
 %% relax( :GoalG) is det.
 %
@@ -484,9 +484,12 @@ dont_relax(A):- \+ compound(A), \+ atom(A), \+ string(A).
 relax_args(G,N,[A|RGS]):-relax_N(G,N,A),!,N2 is N + 1,relax_args(G,N2,RGS).
 relax_args(_,_,[]).
 
-
+:- set_prolog_flag(verbose_file_search,true).
 :- use_module(user:library(clpfd)).		% Make predicates defined
-:- use_module(user:library(clpr),except([{}/1])).		% Make predicates defined
+:- absolute_file_name(library('clpr.pl'),File),writeln(File).
+:- user:use_module(library('clpr.pl'),except([{}/1])).		% Make predicates defined
+:- set_prolog_flag(verbose_file_search,false).
+
 :- use_module(user:library(simplex)).		% Make predicates defined
 
 :- meta_predicate lazy_pfa(*,+,*).  % arg1 was 0
@@ -606,7 +609,7 @@ call_when_and_save(M,V,When,Cond,Cond):- M:call(When,Cond)-> call_and_save_as_pr
 call_and_save_as_proof(_,_,call(proved,_),_CCond):- !.
 call_and_save_as_proof(M,_,call(call,_),CCond):- !, M:call(CCond),setarg(1,CCond,proved).
 call_and_save_as_proof(M,_V,call(ignore,_),CCond):-  (M:call(CCond)->setarg(1,CCond,proved);true).
-call_and_save_as_proof(_,_V,aoc(_SK,_Fairness,_What),_CCond):-!.
+call_and_save_as_proof(_,_V,aoc(_SK,_What),_CCond):-!.
 call_and_save_as_proof(M,_V,dif_objs(X,Y),_CCond):- !, M:dif_objs(X,Y).
 call_and_save_as_proof(M,_,CCond,CCond):- M:call(CCond),!.
 
@@ -658,7 +661,7 @@ unify_attr_iza_self(Self,Dom1, Y):- is_existential(Y),=(Y,YY),!,
 
 unify_attr_iza_self(Self,Dom1, Y):- nonvar(Y),isNamed(Y,What),!,
   (attvar(Self)-> \+ \+ (((attv_bind(Self,Y),chk_cond(Y,Dom1)))) ; chk_cond(Y,Dom1)),!,
-  add_cond(Self,aoc(isName,Y,What)).
+  add_cond(Self,aoc(isName,What)).
 
 unify_attr_iza_self(Self,Dom1, Y):- 
   must(show_failure(var(Self))),
@@ -719,7 +722,7 @@ dif_objs(A,B):- obtain_object_conds(A,B,Dom1,Dom2),!,
  dif_objs_doms(Dom1,Dom2).
 dif_objs(A,B):- dif(A,B),add_cond(A,dif_objs(A,B)),add_cond(B,dif_objs(B,A)).
 
-dif_objs_doms(Dom1,Dom2):- ((member(aoc(SK,_,N1),Dom1),memberchk(aoc(SK,_,N2),Dom2),N1=@=N2)),!,fail.
+dif_objs_doms(Dom1,Dom2):- ((member(aoc(SK,N1),Dom1),memberchk(aoc(SK,N2),Dom2),N1=@=N2)),!,fail.
 dif_objs_doms(Dom1,Dom2):-
   \+ non_disjoint_conds(Dom1,Dom2),
    disjoint_conds(Dom1,Dom2).
@@ -743,7 +746,7 @@ disjoint_conds(Dom1,Dom2):-
   rejects_cond(Prop,Dom2).
 
 % disjoint skolems
-rejects_cond(aoc(SK,_,W1),Dom2):- !, memberchk(aoc(SK,_,W2),Dom2),W1\==W2,!.
+rejects_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),W1 #\= W2,!.
 rejects_cond(male,Dom2):- !, memberchk(female,Dom2).
 rejects_cond(_,_):- fail.
 
@@ -753,10 +756,10 @@ non_disjoint_conds(Dom1,Dom2):-
   not_rejected_cond(Prop,Dom2).
 
 
-aoc(_,_,_).
+aoc(_,_).
 
 % already same skolems
-not_rejected_cond(aoc(SK,_,W1),Dom2):- !, memberchk(aoc(SK,_,W2),Dom2),W1==W2,!.
+not_rejected_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),W1 #= W2,!.
 not_rejected_cond(male,Dom2):- memberchk(female,Dom2).
 
 as_existential(In,Out):- is_existential(In),!,must(In=Out).
@@ -764,7 +767,7 @@ as_existential(In,Out):- var(In),!,decl_existential(In),must(In=Out).
 % as_existential(In,Out):- strip_module(In,M,X), oo_deref(M,X,Out)->(X\==Out,is_existential(Out)),!.
 as_existential(In,Out):- \+ is_fort(In),!,trace_or_throw(as_existential(In,Out)).
 as_existential(In,Out):- nb_current_value(?('$fort2exist$'),In,Out),!.
-as_existential(In,Out):- decl_existential(Out0),!,add_cond(Out0,aoc(isNamed,_,In)),!,
+as_existential(In,Out):- decl_existential(Out0),!,add_cond(Out0,aoc(isNamed,In)),!,
    must(nb_set_value(?('$fort2exist$'),In,Out0)),!,
    must(nb_current_value(?('$fort2exist$'),In,Out)),
    must(add_var_to_env(In,Out)).
@@ -944,7 +947,7 @@ var_plain(Var):-var(Var), \+ attvar(Var).
 :- module_transparent(isNamed_const_var/2).
 :- module_transparent(isNamed_var/2).
 
-isNamed_impl(Var,Str):- Var=Str,!.
+isNamed_impl(Var,Str):- Var=@=Str,!.
 isNamed_impl(Var,Str):- atom(Str),!,as_existential(Str,SVar),!,SVar=Var.
 isNamed_impl(Var,Str):- var(Var),!,isNamed_var(Var,Str).
 isNamed_impl(Var,Str):- atom(Var),!,as_existential(Var,X),!,isNamed_var(X,Str).
@@ -962,10 +965,10 @@ isNamed_const_var(Var,Str):- term_string(Var,Str).
 
 isNamed_var(Var,Str):- var_plain(Var),var_plain(Str),!,strip_module(_,M,_),
  my_when((nonvar(Str);nonvar(Var);?=(Var,Str)),M:isNamed(Var,Str)).
-isNamed_var(Var,Str):- nonvar(Str),(has_cond(Var,isNamed(Var,V0));has_cond(Var,aoc(isNamed,Var,V0))),!,text_to_string(V0,Str).
+isNamed_var(Var,Str):- nonvar(Str),(has_cond(Var,isNamed(Var,V0));has_cond(Var,aoc(isNamed,V0))),!,text_to_string(V0,Str).
 isNamed_var(Var,Str):- nrlc(proven_tru(isNamed(Var,Str))).
-isNamed_var(Var,Str):- nonvar(Str),!,add_cond(Var,isNamed(Var,Str)),add_cond(Var,aoc(isNamed,Var,Str)),!,add_var_to_env(Str,Var).
-isNamed_var(Var,Str):- var(Str),(has_cond(Var,isNamed(Var,Str));has_cond(Var,aoc(isNamed,Var,Str))),!,
+isNamed_var(Var,Str):- nonvar(Str),!,add_cond(Var,isNamed(Var,Str)),add_cond(Var,aoc(isNamed,Str)),!,add_var_to_env(Str,Var).
+isNamed_var(Var,Str):- var(Str),(has_cond(Var,isNamed(Var,Str));has_cond(Var,aoc(isNamed,Str))),!,
    (nonvar(Str)->add_var_to_env(Str,Var);true).
 
 % isNamed_impl(Var,Str):- proven_tru(isNamed(Var,Str)).
@@ -990,8 +993,10 @@ iza:attribute_goals(X) -->
 %
 % Add Iza.
 %
-as_constraint_for(Arg,isa(AArg,FA),FA):- kif_option_value(iza_atoms,true), atom(FA),AArg==Arg,!.
-as_constraint_for(Arg,ISA,FA):-  kif_option_value(iza_atoms,true), compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
+as_constraint_for(Arg,isa(AArg,FA),FA):- \+ kif_option_value(iza_atoms,false), atom(FA),AArg==Arg,!.
+as_constraint_for(Arg,ISA,FA):- \+ kif_option_value(iza_atoms,false), compound(ISA), ISA=..[FA,AArg],AArg==Arg,!.
+as_constraint_for(Arg,props(AArg,FA),props(FA)):- \+ kif_option_value(iza_atoms,false), atom(FA),AArg==Arg,!.
+as_constraint_for(Arg,PROP,props(ASPROP)):- \+ kif_option_value(iza_atoms,false), compound(PROP), PROP=..[FA,AArg|Rest],AArg==Arg,ASPROP=..[FA|Rest].
 as_constraint_for(_,FA,FA).
 
 
@@ -1004,6 +1009,7 @@ ensure_cond(NonVar,Closure):- nonvar(NonVar),!,call_e_tru(NonVar,Closure).
 ensure_cond(Var,Closure):- is_existential(Var),!,show_failure(add_cond(Var,Closure)).
 ensure_cond(Var,Closure):- attvar(Var),!,show_failure(add_cond(Var,Closure)).
 ensure_cond(Var,Closure):- as_existential(Var,VarX),must(add_cond(VarX,Closure)),!.
+
 add_cond(Var,Prop):- is_list(Prop),!,as_existential(Var,VarX),obtain_conds(VarX,Dom1),!,maplist(add_cond3(VarX,Dom1),Prop).
 add_cond(Var,Prop):- as_existential(Var,VarX),obtain_conds(VarX,Dom1),add_cond3(VarX,Dom1,Prop).
 
@@ -1060,9 +1066,9 @@ cond_call00(_, _).
 
 cond_call0(Y,H):- atom(H),!,nesc(isa(Y,H)).
 cond_call0(_,dif_objs(X,Y)):-!,X\==Y.
+cond_call0(Y,props(H)):- ereq(props(Y,H)).
 cond_call0(Y,H):- arg(_,H,E),Y==E,!,call_u(H).
 cond_call0(_,H):- call_u(H).
-% cond_call0(Y,H):- ereq(props(Y,H)).
 
                      
 
@@ -1503,10 +1509,10 @@ list_to_unique_pairs(List,Obj1,Obj2):-
 :- meta_predicate different_pairs(2,+,?,?,?,?).
 different_pairs(Same2,Tracker,ObjA,ObjB,Obj1,Obj2):- 
  Test = p(TObj1,TObj2),
- notrace(sanity((must_be(compound,Tracker),
+ zotrace(sanity((must_be(compound,Tracker),
     assertion(metapred_plus(Pred2InstsDiff,2))))),
- notrace((\+ call(Same2, ObjA, ObjA))),
- notrace((( ObjA @> ObjB -> (ObjA = Obj1, ObjB = Obj2) ; (ObjA = Obj2, ObjB = Obj1)))),
+ zotrace((\+ call(Same2, ObjA, ObjA))),
+ zotrace((( ObjA @> ObjB -> (ObjA = Obj1, ObjB = Obj2) ; (ObjA = Obj2, ObjB = Obj1)))),
  must(arg(1,Tracker,PrevPairs)),
  (((member(Test,PrevPairs),call(Same2,Obj1,TObj1),call(Same2,Obj2,TObj2)))-> fail ; true),
  must(nb_setarg(1,Tracker,[p(Obj1,Obj2)|PrevPairs])).
@@ -1526,11 +1532,11 @@ different_pairs(Same2,Tracker,ObjA,ObjB,Obj1,Obj2):-
 %   identical.
 
 =@@=(X,Y):-!, ==(X,Y).
-=@@=(X,Y):- (attvar(X);attvar(Y))-> X==Y ;((var(X);var(Y))-> X==Y ; X=@=Y).
+% =@@=(X,Y):- (attvar(X);attvar(Y))-> X==Y ;((var(X);var(Y))-> X==Y ; X=@=Y).
 
 :- op(700,xfx,user:('=@@=')).
 
-difv(_X,_Y):-!.
+% difv(_X,_Y):-!.
 difv(X,Y) :-
     \+ (X =@@= Y),
     difv_c_c(X,Y,_).
@@ -1719,7 +1725,7 @@ filter_dead_orsv([Or-Y|Rest],List) :-
    X, then return a goal, otherwise don''t because someone else will.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-% difv:attribute_goals(Var) --> !.
+difv:attribute_goals(Var) --> !.
 difv:attribute_goals(Var) -->
     (   { get_attr(Var, difv, vardifv(Ors,_)) } ->
         or_nodesv(Ors, Var)

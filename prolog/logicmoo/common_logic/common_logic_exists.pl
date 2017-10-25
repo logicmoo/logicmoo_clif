@@ -18,7 +18,7 @@
 %:- endif.
 %:- use_module(library(dictoo)).
 
-:- '$set_source_module'(baseKB).
+% :- '$set_source_module'(baseKB).
 :- meta_predicate skolem_test(0).
 :- meta_predicate skolem_unify(*,0).
 
@@ -27,6 +27,7 @@
 
 with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_coroutines,true),Goal).
 
+:- use_module(library(tabling)).
 
 :- virtualize_source_file.
 
@@ -156,7 +157,7 @@ get_named_rels(Term,Names):-
 :- meta_predicate quantify_names(2,*,*,*,*).
 quantify_names(_Conv,_Oper,[],P,P).
 quantify_names(Conv,Oper,[Name|TODO],P,
- all(X,(OperC => NewP))):- 
+ exists(X,(OperC & NewP))):- 
    OperC =.. [Oper,X,Str],
    call(Conv,Name,Str)->
    subst(P,Name,X,NextPM),
@@ -189,9 +190,12 @@ modal_functor((nesc)).
 modal_functor((falsify)).
 modal_functor((~)).
 
+
 non_modal_positive(P):- atomic(P),!.
 non_modal_positive(P):- compound(P),functor(P,F,_), \+ modal_functor(F).
+:- export(non_modal_positive/1).
 :- system:import(non_modal_positive/1).
+:- system:export(non_modal_positive/1).
 
 groundoid(P):- term_variables(P,AV), maplist(is_existential,AV).
 % groundoid(P):- term_attvars(P,AV), maplist(is_existential,AV).
@@ -229,25 +233,77 @@ falsify_lc(M,P):-loop_check(falsify(M, P)),groundoid(P).
 :- baseKB:ain(((poss(P)) :- (nesc(P)))).
 :- baseKB:ain(((poss(~P)) :- (non_modal_positive(P),(falsify(poss(P));falsify(P)),groundoid(P)))).
 
+functor_skell(P0,P0):- var(P0),!.
+functor_skell(P0,_):- \+ compound(P0),!.
+functor_skell(P0,P0F):- compound_name_arguments(P0,F,ARGS),maplist(functor_skell,ARGS,ARGSO),!,compound_name_arguments(P0F,F,ARGSO).
+
+
+functor_skell(P0,P0F):- functor(P0,F,A),functor(P0F,F,A).
 
 :- module_transparent(skolem_tru/1).
-skolem_tru(P):-copy_term_nat(P,P0),setof(B,clause(deduce_tru(P0),B),List),List\==[],must(combined_skolem(P,List,Call)),!,P=P0,Call,
-   show_failure(\+ loop_check(deduce_neg(P),fail)).
+
+skolem_tru(MP):- 
+   strip_module(MP,M,P), 
+   term_variables(P,Vs),!,
+   copy_term_nat(P:Vs,P0:VCs),
+   functor_skell(P0,P0F),
+   setof(apb(P0F,B),system:clause(M:deduce_tru(P0F),B),List),
+   List\==[],
+   must(combined_skolem(P0,List,Call)),!,
+   dmsg(sk_set_maker(M,P0,Call)),
+   M:Call,
+   P0=P0F,
+   Vs=VCs,
+   term_variables(P,_RVs),
+
+   nop(ignore(show_failure(\+ (deduce_neg(P))))).
+/*
+skolem_tru(MP):- 
+   strip_module(MP,M,P), 
+   term_variables(P,Vs),
+   copy_term_nat(P:Vs,P0:VCs),
+   sk_set_maker(M,P0),
+   Vs=VCs,
+   term_variables(P,+RVs),
+
+   nop(ignore(show_failure(\+ (deduce_neg(P))))).
+
+sk_set_maker(M,P0):-
+   functor_skell(P0,P0F),
+   setof(apb(P0F,B),system:clause(M:deduce_tru(P0F),B),List),
+   List\==[],
+   must(combined_skolem(P0,List,Call)),!,
+   dmsg(sk_set_maker(M,P0,Call)),
+   M:Call,
+   P0=P0F.
+*/
+
+% skolem_tru(P):- strip_module(P,M,P0),M:deduce_tru(P0).
+
 %:- module_transparent(system:nesc/1).
 %system:nesc(MP):- strip_module(MP,M,P),no_repeats((nesc_lc(M,P))).
 :- module_transparent(nesc_lc/2).
 
+% :- table(nesc_lc/2).
 nesc_lc(M,P):- same_compound(P,proven_tru(PP)),!,nesc(M,PP),show_failure(groundoid(PP)).
-nesc_lc(M,P):- !, loop_check(nesc(M,P)),show_failure(groundoid(P)).
-  
+nesc_lc(M,P):- !, nesc(M,P),ignore(show_failure(groundoid(P))).
+
+first_of([X|Rest]):- X ; first_of(Rest).
 
 :- module_transparent(nesc/2).
-nesc(M,P):- swc, M:skolem_tru(P).
-nesc(M,P):- swc, loop_check(M:proven_tru(P)),
-  nop(nrlc0(call(call,\+ M:proven_neg(P)))).
-nesc(M,P):- swc, M:proven_helper(P),\+ M:proven_helper(~P).
-nesc(M,P):- swc, loop_check((system:clause(M:nesc(P),B),M:B)).
-nesc(M,isNamed(X,Y)):-!,  loop_check(M:isNamed(X,Y)).
+% :- dra_table(nesc/2).
+nesc(_M,isNamed(X,Y)):-!,isNamed_impl(X,Y),!.
+nesc(M,P):- swc, 
+   
+   first_of(
+     [(loop_check(M:proven_tru(P)),nop(nrlc0(call(call, \+ M:proven_neg(P))))),
+      (M:proven_helper(P), \+ M:proven_helper(~P)),
+      
+      M:skolem_tru(P)]).
+%   \+  (loop_check((system:clause(M:nesc(P),B),((B\=nesc_lc(M, _),(M:B)))))).
+
+   % (loop_check(M:isNamed(X,Y)))]).
+
 
 %nesc(M,P):- swc,!,nonvar(P), M:clause((P),B), B \= (_,_), M:B.
 %nesc(_,P):- swc, \+ (var(P);non_modal_positive(P);P=poss(_)),!,fail.
@@ -258,8 +314,8 @@ nesc(M,isNamed(X,Y)):-!,  loop_check(M:isNamed(X,Y)).
 :- system:export(nesc/2).
 
 
-
-proven_helper(~equals(X,Y)):- dif_objs(X,Y),!.
+:-multifile(baseKB:proven_helper/1).
+baseKB:proven_helper(~equals(X,Y)):- dif_objs(X,Y),!.
 
 
 make_identity(I):- make_wrap(identityPred,I,2).
@@ -391,11 +447,10 @@ assert_ex9(P):- guess_varnames(P),portray_clause_w_vars(P).
 
 
 
-at_least_one_of(Which,List):- at_least_one_of1(Which,0,List).
-at_least_one_of1(_Which,N,[P|List]):- ((P,N2 is N+1) ; (N2=N)),at_least_one_of2(N2,List).
+at_least_one_of(X,List):- Possibles=[_|_],at_least_one_of1(List,Possibles),add_cond(X,Possibles).
+at_least_one_of1([P],Possibles):-!,must_be(nonvar,P), (Possibles=[P] ; Possibles=[]).
+at_least_one_of1([P|List],Possibles):-!, ((Possibles=[P|More] ; Possibles=More),at_least_one_of1(List,More)).
 
-at_least_one_of2(N,[P|List]):- ((N2=N);(P,N2 is N+1)),at_least_one_of2(N2,List).
-at_least_one_of2(N,[]):- N>0.
 
 
 sort_body_list(List,SList):-predsort(cmp_cardinality,List,SList).
@@ -403,7 +458,8 @@ sort_body_list(List,SList):-predsort(cmp_cardinality,List,SList).
 cmp_cardinality(Cmp,Body1,Body2):- body_cardinality(Body1,Score1)->body_cardinality(Body2,Score2)->compare(Cmp0,Score1,Score2)->Cmp0 \== (=),!,(Cmp0== (>) -> Cmp= (<) ; Cmp= (>)).
 cmp_cardinality(Cmp,Body1,Body2):- compare(Cmp,Body1,Body2).
 
-body_cardinality(Body,Size):- sub_term(SKF,Body),same_compound(SKF,skolem(_,S,_)),sub_term(Size,S),integer(Size),!.
+body_cardinality(apb(_,Body),Size):- sub_term(SKF,Body),same_compound(SKF,skolem(_,S)),sub_term(Size,S),integer(Size),!.
+body_cardinality(Body,Size):- sub_term(SKF,Body),same_compound(SKF,skolem(_,S)),sub_term(Size,S),integer(Size),!.
 body_cardinality(_,0).
 
 
@@ -411,21 +467,23 @@ new_sk_dict( _:{vs:_,sks:_,more:_}).
 get_sk_props(X,Dict):- attvar(X),get_attr(X,skp,Dict).
 ensure_sk_props(X,Dict):- sanity(var(X)),(get_sk_props(X,Dict)->true;((new_sk_dict(Dict),put_attr(X,skp,Dict)))).
 
-skolem_var_body(B,V):- sub_term(S,B),same_compound(S,skolem(V,_,_)).
+skolem_var_body(B,V):- sub_term(S,B),same_compound(S,skolem(V,_)).
 
-combined_skolem(_,[List],List):-!.
-combined_skolem(SK,List,sk_some(V,SkV,Cardin,[B|SList])):- sort_body_list(List,[B|SList]),member(BB,[B|SList]),skolem_var_body(BB,V),
-   body_cardinality(B,Cardin),Cardin>0,functor(SK,SkV,_),!.
-combined_skolem(_SK,List,B*->freeze(V,maplist(call,SList))):- sort_body_list(List,[B|SList]),member(BB,[B|SList]),skolem_var_body(BB,V),!.
-combined_skolem(_SK,List,maplist(call,SList)):- sort_body_list(List,SList).
+combined_skolem(P,[List],apply_cond(P, List)):-!.
+combined_skolem(P,List,sk_some(P,Cardin,[B|SList])):- sort_body_list(List,[B|SList]),
+   body_cardinality(B,Cardin),Cardin>0,!.
+combined_skolem(_P,List,B*->freeze(V,maplist(call,SList))):- sort_body_list(List,[B|SList]),skolem_var_body([B|SList],V).
+combined_skolem(_P,List,maplist(call,SList)):- sort_body_list(List,SList).
 
 
 
+sk_some(_).
 
 
 
 %:- set_prolog_flag(gvar_skolems,true).
 :- set_prolog_flag(gvar_skolems,true).
+:- set_prolog_flag(gvar_skolem_combine,true).
 
 /*
 
@@ -455,104 +513,100 @@ get_min_count(DATA,6).
 get_min_perms(DATA,...).
 
 */
-set_exists_enum(Key,Value):- quietly(nb_set_value(?('$exist$'),Key,Value)).
-get_exists_enum(Key,Value):- quietly(nb_current_value(?('$exist$'),Key,Value)).
-
-sk_some(X,SkV,_Cardin0,_Conds):- has_cond(X,aoc(SkV,_Cardin,_Which)),!.
-
-sk_some( X,SkV,Cardin,Conds):- kif_option_value(gvar_skolems,true),
-   functor(SkV,Key,_),
-     get_exists_enum(Key,Set),!,
-     sk_some_from_current(Set,X,SkV,Cardin,Conds). 
-
-sk_some(XX,SkV,Cardin,Conds):- kif_option_value(gvar_skolems,true),!,
-    findall(X, (between(1,Cardin,Which),
-     add_cond(X,aoc(SkV,Cardin,_Which)),
-     add_cond(X,at_least_one_of(Which,Conds))),List),
-  functor(SkV,Key,_),
-  List\==[],!,
-  must((set_exists_enum(Key,List),
-  get_exists_enum(Key,Set))),
-  sk_some_from_current(Set,XX,SkV,Cardin,Conds). 
-
-sk_some(X,SkV,Cardin,Conds):- 
-  which_skv(SkV,Cardin,_Which),
-  once((add_cond(X,aoc(SkV,Cardin,_Which2)),
-  add_cond(X,at_least_one_of(_Which3,Conds)))).
+set_exists_enum(SkV,Value):- quietly(nb_set_value(?('$exist$'),SkV,Value)).
+get_exists_enum(SkV,Value):- quietly(nb_current_value(?('$exist$'),SkV,Value)).
+set_some_enum(SkV,Value):- quietly(nb_set_value(?('$some$'),SkV,Value)).
+get_some_enum(SkV,Value):- quietly(nb_current_value(?('$some$'),SkV,Value)).
 
 
-sk_some_from_current(Set,X,SkV,Cardin,Conds):-
+sk_some_from_current(Set,SkV,Conds):-
+  length(Set,Cardin),
   which_skv(SkV,Cardin,Which),
-  nth1(Which,Set,Var),  
-  add_cond(X,at_least_one_of(Which,Conds)),
-  Var=X.
+  nth1(Which,Set,Conds).
 
-use_skf(SKF,Cardin,SkV,Fairness):- var(SKF),!,call(call,clause(make_existential(X,SKF,_),_)),SKF=skF(Cardin,SkV,X,Fairness).
-use_skf(SKF,Cardin,SkV,Fairness):- SKF=skF(Cardin,SkV,_X,Fairness).
+sk_some(P,Cardin,Conds):- nop((Count = count(Cardin))),!,
+   sk_some1(P,Conds),
+   nop((arg(1,Count,N),N1 is N-1,N>1,nb_setarg(1,Count,N1))).
 
-not_in(X,B,_):- current_skolems(B,Set), \+ (member(Z,Set),Z==X).
+sk_some1(P,Conds):-
+   (get_some_enum(P,Set)*-> true ;
+    ((Possibles = [_|_], 
+      bagof(Possibles,at_least_one_of1(Conds,Possibles),Combos),set_some_enum(P,Combos),get_some_enum(P,Set)))),
+   sk_some_from_current(Set,P,NewConds),
+   maplist(apply_cond(P),NewConds).
 
-current_skolems(Key,Set):- atom(Key),!,
-   use_skf(SKF,_Cardin,SkV,_Fairness),
-   functor(SkV,Key,_),
-   current_skolems(Key,SKF,Set).
-current_skolems(SKF,Set):-
-   use_skf(SKF,_Cardin,SkV,_Fairness),
-   functor(SkV,Key,_),
-   current_skolems(Key,SKF,Set).
+% apply_cond(P,Y):-wdmsg(apply_cond(P,Y)),fail.
+apply_cond(P,Y):- var(Y),throw(apply_cond(P,Y)).
+apply_cond(P,(G1,G2)):- !, apply_cond(P,G1),apply_cond(P,G2).
+apply_cond(P,(G1;G2)):- !, apply_cond(P,G1);apply_cond(P,G2).
+apply_cond(P,apb(P,Goal)):-!,apply_cond(P,Goal).
+%TODO check to esures something is shared? 
+apply_cond(_P,Goal):- call(Goal).
 
-current_skolems(Key,SKF,Set):- get_exists_enum(Key,Set)*->true;
-  ((findall(X,skolem(X,SKF,_Which),List),
-  must((set_exists_enum(Key,List),                  
-  get_exists_enum(Key,Set))))).
+apb(X,Y):-wdmsg( apb(X,Y)),!,fail.
 
-:- kb_shared(baseKB:make_existential/3).
-skolem(X, UNKKEY,Which):- var(UNKKEY),!,call(call,clause(make_existential(_,UNKKEY,_),_)),nonvar(UNKKEY),skolem(X, UNKKEY,Which).
-skolem(X, UNKKEY,Which):- attvar(X),!,skolem(V, UNKKEY,Which),V=X.
-skolem(E,SK,Which):- nonvar(E),!,nop(dmsg(warn(nonvar_skolem(E,SK,Which)))),  
+specialize_1(X):- 
+  setof(at_least_one_of(SOME,Conds),(has_cond(X,at_least_one_of(SOME,Conds))),CondSets),
+  maplist(specialize_2(X),CondSets).
+
+specialize_2(X,at_least_one_of(_SOME,Conds)):-
+  ((at_least_one_of1(Conds,Possibles),add_cond(X,Possibles))).
+
+
+use_skf(SKF,Cardin,SkV,DFml):- var(SKF),!,strip_module(SkV,M,_),call(call,clause(M:make_existential(X,SKF),_)),SKF=skF(Cardin,SkV,X,DFml).
+use_skf(SKF,Cardin,SkV,DFml):- SKF=skF(Cardin,SkV,_X,DFml).
+
+not_in(X,B):- current_skolems(B,Set),must(Set\=[]),\+ (member(Z,Set),Z==X).
+
+%current_skolems(In,Set):- current_skolems(In,_SKF,Set)*->true;current_skolems(_SkV,In,Set).
+current_skolems(In,Set):- current_skolems(_,In,Set)*->true;current_skolems(In,_,Set).
+current_skolems(SkV,SKF,Set):- 
+   use_skf(SKF,Cardin,SkV,DFml),
+   (get_exists_enum(SkV,Set)
+          *->true;
+          (make_skolem_list(SkV,SKF,Cardin,SkV,DFml),
+           get_exists_enum(SkV,Set))).
+
+
+:- kb_shared(baseKB:make_existential/2).
+skolem(X, UNKKEY):- var(UNKKEY),!,strip_module(X,M,_),
+  call(call,clause(M:make_existential(_,UNKKEY),_)),nonvar(UNKKEY),
+  M:skolem(X, UNKKEY).
+skolem(E,SK):- nonvar(E),!,nop(dmsg(warn(nonvar_skolem(E,SK)))),  
   isNamed(E,Named),!,
-  (skolem(X,SK,Which),isNamed(X,Named)),
+  (skolem(X,SK),isNamed(X,Named)),
   dmsg(E=X).
-% already has this constraint
-skolem(X, SKF,Which):- sanity(var(Which)), sanity(var(X)),
-  use_skf(SKF,_Cardin,SkV,_Fairness),
-  has_cond(X,aoc(SkV,_,_)),!.
 
+skolem(X, SKF):- sanity(var(X)),
+  use_skf(SKF,_Cardin,SkV,_DFml),
+  ((has_cond(X,aoc(SkV,N)),nonvar(N)) -> ! % already has this constraint 
+  ; ((current_skolems(SKF,Set),
+   must(skolem_from_set(Set,Y,SKF)),
+    attempt_checkout(Y,SkV),
+     X=Y))).
 
-% generate "which"-es
-skolem(X,SKF,Which):- \+ kif_option_value(gvar_skolems,true),!, 
-   use_skf(SKF, Cardin,SkV,Fairness),
-    which_skv(SkV,Cardin,Which),
-  add_cond(X,aoc(SkV,Fairness,_)),
-  make_existential(X,SKF,Which).
+attempt_checkout(Y,SkV):- \+ has_cond(Y,co(SkV)),add_cond(Y,co(SkV)).
 
-skolem(X,SKF,Which):- 
-   use_skf(SKF,Cardin,SkV,Fairness),functor(SkV,Key,_),
-   (get_exists_enum(Key,Set)
-          ->true;
-          (make_skolem_list(Key,SKF,Cardin,SkV,Fairness),
-              get_exists_enum(Key,Set))),!,
-   must(skolem_from_set(Set,X,SKF,Which)).
-
-make_skolem_list(Key,SKF,Cardin,SkV,Fairness):-
-  must((use_skf(SKF, Cardin,SkV,Fairness),functor(SkV,Key,_))),
+make_skolem_list(SkV,SKF,Cardin,SkV,DFml):-
+  must((use_skf(SKF, Cardin,SkV,DFml),
   must((findall(X,((between(1,Cardin,Which),
-  must((once((make_existential(X,SKF,Which))))),
-     Fairness=Fairness,
-     must((once((add_cond(Y,aoc(SkV,[],_)))))),
+  must((once((make_existential(X,SKF))))),
+     must((once((add_cond(Y,aoc(SkV,Which)))))),
      must(X=Y)
      
      )),
    List),List\==[])),
-  all_different_existentials(List),
-  must(show_call(set_exists_enum(Key,List))).
+  % all_different_existentials(List),
+  must(show_call(set_exists_enum(SkV,List))))).
 
 all_different_existentials([_]):-!.
-all_different_existentials([_In|ListIn]):-
-  % maplist(difv(In),ListIn),!,
+all_different_existentials([In|ListIn]):-
+  maplist(difv(In),ListIn),!,
   all_different_existentials(ListIn).
 
 
+:- meta_predicate(no_repeats_ex(0)).
+:- meta_predicate(no_repeats_ex(+,0)).
 no_repeats_ex(G):- term_variables(G,VsIn),no_repeats_ex(VsIn,G).
 no_repeats_ex([],G):-!, once(G).
 no_repeats_ex([X],G):- assigned_label(X),!,copy_term(G:X,G2:X2,_Goals2),call(G2),X=X2.
@@ -560,27 +614,31 @@ no_repeats_ex([X],G):- is_many_values(X),!,call(G).
 no_repeats_ex([X],G):- no_repeats(G),(is_many_values(G)->(true;begin_assign(X));true).
 
 assigned_label(V):-nonvar(V),!,term_variables(V,Vars),maplist(assigned_label,Vars).
-assigned_label(V):-attvar(V),has_cond(V,aoc(_,_,Num)),groundoid(Num),!.
+assigned_label(V):-attvar(V),has_cond(V,aoc(_,Num)),groundoid(Num),!.
 
 begin_assign(V):-nonvar(V),!,term_variables(V,Vars),member(VV,Vars),begin_assign(VV).
 begin_assign(V):- \+ attvar(V),!.
-begin_assign(V):- has_cond(V,aoc(SkV,Cardin,Num)),var(Num),!,which_skv(SkV,Cardin,Num),add_cond(V,aoc(SkV,Cardin,Num)).
-% begin_assign(V):- has_cond(V,aoc(_SkV,_Cardin,Num)),atomic(Num),!.
+begin_assign(V):- has_cond(V,aoc(SkV,Num)),var(Num),!,which_skv(SkV,_Cardin,Num),add_cond(V,aoc(SkV,Num)).
+% begin_assign(V):- has_cond(V,aoc(_SkV,Num)),atomic(Num),!.
 begin_assign(_).
 
 
 is_many_values(V):-nonvar(V),!,term_variables(V,Vars),member(E,Vars),is_many_values(E).
-is_many_values(V):-attvar(V),has_cond(V,aoc(_,Card,Num)),Card\==1, \+ groundoid(Num),!.
+is_many_values(V):-attvar(V),has_cond(V,aoc(_,Num)), \+ groundoid(Num),!.
 
 
-skolem_from_set(Set,X,SKF,Which):-
-  use_skf(SKF,Cardin,SkV,_Fairness), 
+skolem_from_set(Set,X,SKF):-
+  use_skf(SKF,Cardin,SkV,_DFml),  
   which_skv(SkV,Cardin,Which),
   nth1(Which,Set,X),
-  nop(sanity(has_cond(X,aoc(SkV,_,Which)))).
+ %TODO attempt_checkout(X,SkV),
+  nop(sanity(has_cond(X,aoc(SkV ,Which)))).
 
-%which_skv(_SkV,Cardin,Which):- Which in 1 .. Cardin,!.
-which_skv(SkV,Cardin,Which):- 
+range_int(Which,N,Cardin):- Which #>= N, Which #=< Cardin.
+
+which_skv_soft(_SkV,Cardin,Which):- kif_option_value(gvar_skolem_combine,true),!, range_int(Which,1,Cardin),!.
+which_skv(SkV,Cardin,Which):- var(SkV),!, between(1,Cardin,Which).
+which_skv(SkV,Cardin,Which):-
   nb_get_next(SkV,Cardin,Offset),between(1,Cardin,For),
   once((Which1 is For+Offset,
   max_out_at(Which1,Cardin,Which))).
@@ -596,7 +654,7 @@ max_out_at(In,Max,Out):- In =< Max -> In = Out
   
 disp_ex(X):-fmt9(X).
 
-lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/3),
+lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/2),
   doall((current_key(K),recorded(K,P),
     locally(set_prolog_flag(write_attributes,portray),wdmsg(P)))))).
 
@@ -634,7 +692,7 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 % :- meta_predicate call_tru(?).
 % :- ain((mtHybrid(Mt)==> {kb_local(Mt:call_tru/2)})).
 
-system:call_tru(M,X):- M:nesc(X).
+system:call_tru(M,X):- call(M:call,nesc(X)).
 %system:call_tru(M,X):- findall(X,M:nesc(X),L),merge_compatibles(L,LO),!,member(X,LO).
 % call_tru(X):- arg(1,X,E),call_e_tru(E,X).
 
@@ -780,10 +838,10 @@ moveInwardQuants(VarsQ,MayElimAll,KB,PAB,FmlO):- PAB=..[F|AB], must_maplist_det(
 demodal_formua(KB,Fml,DLOG):- demodal_sents(KB,Fml,DFml),as_dlog(DFml,DLOG0),nnf(KB,DLOG0,DLOG).
 
 fairness(KB,X,SkV,Slots,Fml,SFml):-   fail,
-  minus_vars(Slots+Fml+SkV+X,KB,Fairness),
+  minus_vars(Slots+Fml+SkV+X,KB,DFml),
   b_get_value('$nnf_outer',FullQuant),
   member(Form,FullQuant),
-  minus_vars(Fairness,Form,LeftOver),LeftOver==[],!,  
+  minus_vars(DFml,Form,LeftOver),LeftOver==[],!,  
   demodal_formua(KB,Form,DFml),sformat(SFml,'~@',portray_clause_w_vars(DFml,[fullstop(false)])).
 fairness(KB,_X,_SkV,_Slots,_Fml,DFml):-  fail,
   b_get_value('$nnf_outermost',FullQuant),  
@@ -904,8 +962,7 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- fail, !,
     fairness(KB,X,SkV,Slots,Fml,DFml),
     skolem_f(1,KB, DFml, X, Slots, _Fun,SkV),
     put_attr(X,skv,SkV),    
-    add_var_to_env("Which",Which),
-    nnf(KB, Fml <=> skolem(X,skF(1,SkV,X,DFml),Which),FreeV,NNF1,Paths)
+    nnf(KB, Fml <=> skolem(X,skF(1,SkV,X,DFml)),FreeV,NNF1,Paths)
    )),!.
 
 
@@ -928,8 +985,7 @@ nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nn
     fairness(KB,X,SkV,Slots,Fml,DFml),
     skolem_f(N,KB, DFml, X, Slots,_Fun,SkV),
     put_attr(X,skv,SkV),
-    add_var_to_env("Which",Which),
-    nnf(KB, (Fml <=> skolem(X, skF(N,SkV,X,DFml),Which)),FreeV,NNF1,Paths)
+    nnf(KB, (Fml <=> skolem(X, skF(N,SkV,X,DFml))),FreeV,NNF1,Paths)
    )),!.
 
 /*
@@ -971,8 +1027,7 @@ nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf
     fairness(KB,X,SkV,Slots,Fml,DFml),
     skolem_f(N,KB, DFml, X, Slots,_Fun,SkV),
     put_attr(X,skv,SkV),
-    add_var_to_env("Which",Which),
-    nnf(KB, ( skolem(X, if_all_different(N,SkV,DFml),Which) => ~Fml),FreeV,NNF1,Paths)
+    nnf(KB, ( skolem(X, if_all_different(N,SkV,DFml)) => ~Fml),FreeV,NNF1,Paths)
    )),!.
 
 
@@ -995,6 +1050,8 @@ nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
    NEWFORM = (exists(Y, FmlY) => quant(atmost(NewN),X,Fml)),
   nnf(KB,~different(X,Y) v NEWFORM,FreeV,NNF,Paths).
 */
+
+% nnf_ex(KB,t(isNamed,X,Name),FreeV,NNF,Paths):- !,nnf_ex(KB,exactly(1,X,isNamed(X,Name)),FreeV,NNF,Paths).
 
 % =================================
 % ==== Exactly N ========
@@ -1038,7 +1095,7 @@ nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF1,Paths):- fail,
     % add_cond(X,extensional(X)),
     term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
     skolem_f(N,KB, Fml, X, [KB|Slots], SkF),    
-    nnf(KB, Fml <=> skolem(X, co unt(N,N,SkF),_Which),FreeV,NNF1,Paths)
+    nnf(KB, Fml <=> skolem(X, co unt(N,N,SkF)),FreeV,NNF1,Paths)
    )),!.
 */
 
@@ -1163,7 +1220,7 @@ annote(Dom,X,Form2,Form2):- oo_put_attr(X,Dom,Form2).
 is_skolem(Sk):-get_skolem(Sk,_Form).
 get_skolem(Sk,Form):-oo_get_attr(Sk, sk, Form),!.
 
-x_skolem(Sk,skolem(Sk,Form,_)):-get_skolem(Sk,Form),del_attr(Sk,sk).
+x_skolem(Sk,skolem(Sk,Form)):-get_skolem(Sk,Form),del_attr(Sk,sk).
 
 transform_skolem_forms(Sk,Form):- x_skolem(Sk,Form),!.
 transform_skolem_forms(Var,true):- var(Var),!.

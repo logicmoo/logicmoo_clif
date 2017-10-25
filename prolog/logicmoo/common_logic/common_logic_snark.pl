@@ -105,7 +105,7 @@ set_kif_option(N=V):- !, set_kif_option(N,V).
 set_kif_option(N:V):- !, set_kif_option(N,V).
 set_kif_option(Name,Value):- assert_setting01(t_l:kif_option(Name,Value)),!.
 
-kif_option_value(Name,Value):- notrace(kif_option_value0(Name,Value)).
+kif_option_value(Name,Value):- zotrace(kif_option_value0(Name,Value)).
 kif_option_value0(Name,Value):- Value==none,!,(kif_option_value(Name,ValueReally)->ValueReally==Value;true).
 kif_option_value0(Name,Value):- t_l:kif_option_list(Dict),atom(Name),
    (is_dict(Dict) -> (get_dict(Key,Dict,Value),atom(Name),atom(Key),atom_concat(Key,_,Name));
@@ -926,7 +926,7 @@ tlog_nnf(Even,THIN,RULIFY):- th_nnf(THIN,Even,RULIFY).
 finish_clausify(KB,Why,Datalog,FlattenedO):-
   set_prolog_flag(gc,true),
   (current_prolog_flag(runtime_breaks,3)-> 
-       notrace(kif_optionally_e(true,interface_to_correct_boxlog(KB,Why),Datalog,DatalogT));
+       zotrace(kif_optionally_e(true,interface_to_correct_boxlog(KB,Why),Datalog,DatalogT));
    kif_optionally_e(true,interface_to_correct_boxlog(KB,Why),Datalog,DatalogT)),
    demodal_clauses(KB,DatalogT,FlattenedO),!.
 */
@@ -971,8 +971,8 @@ is_4th_order(F):-is_2nd_order_holds(F).
   
 kb_ify(_,FlattenedOUT,FlattenedOUT):- \+ compound(FlattenedOUT),!.
 kb_ify(_,ist(KB,H),ist(KB,H)):-!.
-kb_ify(_KB,skolem(X,SK,Which),skolem(X,SK,Which)).
-kb_ify(_KB,make_existential(X,SK, Which),make_existential(X,SK, Which)).
+kb_ify(_KB,skolem(X,SK),skolem(X,SK)).
+kb_ify(_KB,make_existential(X,SK),make_existential(X,SK)).
 
 kb_ify(KB,H,HH):- H=..[F,ARG1,ARG2|ARGS],is_4th_order(F),HH=..[F,ARG1,ARG2,KB|ARGS],!.
 kb_ify(KB,H,HH):- H=..[F,ARG1],is_4th_order(F),HH=..[F,KB,ARG1],!.

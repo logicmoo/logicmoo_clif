@@ -303,14 +303,14 @@ boxlog_to_pfc_pass_2((:-),~(H),~(H)):-  !.
 boxlog_to_pfc_pass_2((:-),H,H):-  !.
 
 
-boxlog_to_pfc_pass_2(fwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_,_),!.
+boxlog_to_pfc_pass_2(fwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_),!.
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),OUT):- term_slots(H,HV),term_slots(B,BV), HV\==BV,!,boxlog_to_pfc_pass_2(bwc,(~(H):-B),OUT).
 boxlog_to_pfc_pass_2(fwc,(~(H):-B),(BBBHH)):- body_for_pfc(fwc,~(H),HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB),body_head_pfc(BBB,HH,BBBHH).
 boxlog_to_pfc_pass_2(fwc,(H:-B),(BBBHH)):- body_for_pfc(fwc,H,HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB),body_head_pfc(BBB,HH,BBBHH).
 boxlog_to_pfc_pass_2(fwc,~(H),~(H)):-  !.
 boxlog_to_pfc_pass_2(fwc,H,H):-  !.
 
-boxlog_to_pfc_pass_2(bwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_,_),!.
+boxlog_to_pfc_pass_2(bwc,(~(H):-B),unused_true((~(H):-B))):- nonvar(H),H = skolem(_,_),!.
 boxlog_to_pfc_pass_2(bwc,(~(H):-B),(HH<-BBB)):-body_for_pfc(<-,~(H),HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB).
 boxlog_to_pfc_pass_2(bwc,(H:-B),OUT):- a(pfcRHS,H),term_slots(H,HV),term_slots(B,BV),HV==BV,boxlog_to_pfc_pass_2((fwc),(H:-B),OUT),!.
 boxlog_to_pfc_pass_2(bwc,(H:-B),(HH<-BBB)):- body_for_pfc(<-,H,HH,B,BB),make_must_ground(HH,BB,MMG),conjoin_body(BB,MMG,BBB).
@@ -463,7 +463,7 @@ isk_bind(Var,Val,SK):-show_call(add_cond(Var,[Val,SK])).
 %
 % Head For Skolem.
 %
-head_for_skolem(H,if_missing(H,HH),skolem(In,NewOut,Which)):- contains_var(In,H),subst(H,In,NewOut:Which,HH),!.
+head_for_skolem(H,if_missing(H,HH),skolem(In,NewOut)):- contains_var(In,H),subst(H,In,NewOut,HH),!.
 
 is_skolem_arg(Var):- callable(Var),functor(Var,F,_),atom_concat('sk',_,F),atom_concat(_,'Fn',F).
 
@@ -491,9 +491,9 @@ body_for_mpred_2((fwc),HwSk,HEAD,I,O):- HwSk\=if_missing(_,_), sub_term(Sk,HwSk)
    subst(H,Var,NewVar,NewH),head_for_skolem(NewH,SKHEAD,skolem(NewVar,Sk)), !,
    body_for_mpred_2((fwc),SKHEAD,HEAD,I,O).
 
-body_for_mpred_2((fwc),H,HEAD,{skolem(In,NewOut,Which)},true):- head_for_skolem(H,HEAD,skolem(In,NewOut,Which)),!.
-body_for_mpred_2((fwc),H,HEAD,skolem(In,NewOut,Which),true):- head_for_skolem(H,HEAD,skolem(In,NewOut,Which)).
-body_for_mpred_2(_Mode,~(Head),~(Head),skolem(_,_,_),true).
+body_for_mpred_2((fwc),H,HEAD,{skolem(In,NewOut)},true):- head_for_skolem(H,HEAD,skolem(In,NewOut)),!.
+body_for_mpred_2((fwc),H,HEAD,skolem(In,NewOut),true):- head_for_skolem(H,HEAD,skolem(In,NewOut)).
+body_for_mpred_2(_Mode,~(Head),~(Head),skolem(_,_),true).
 %body_for_mpred_2(Mode,H,H,skolem(_,_),true).
 body_for_mpred_2(_Mode,Head,Head,skolem(In,Out),{ignore(In=Out)}).
 
@@ -533,7 +533,7 @@ reduce_literal(A,A):-is_ftVar(A),!.
 reduce_literal(~(A),~(A)):-is_ftVar(A),!.
 reduce_literal(~(different(P3, R3)),not_different(P3, R3)).
 reduce_literal(~(mudEquals(P3, R3)),different(P3, R3)).
-% reduce_literal(~(skolem(P3, R3,_)),different(P3, R3)).
+% reduce_literal(~(skolem(P3, R3)),different(P3, R3)).
 reduce_literal(~(termOfUnit(P3, R3)),different(P3, R3)).
 reduce_literal(~(equals(P3, R3)),different(P3, R3)).
 reduce_literal(termOfUnit(P3, R3),skolem(P3, R3)).

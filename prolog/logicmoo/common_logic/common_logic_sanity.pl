@@ -146,7 +146,7 @@ test_boxlogq(P):- test_boxlog([+qualify],P),!.
 test_boxlog(KV,P):- 
  locally_tl(kif_option_list(KV),(
   mmake,
-  (source_location(_,_) -> add_boxlog_history(test_boxlog(KV,P)) ; true),
+  % ignore(source_location(_,_) -> add_boxlog_history(test_boxlog(KV,P)) ; true),
  \+ \+
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),

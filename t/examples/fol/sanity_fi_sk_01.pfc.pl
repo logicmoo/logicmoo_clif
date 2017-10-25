@@ -93,7 +93,7 @@ N=((min_isa, max_isa),dom,[pred])
 :- leash(+exception).
 %:- ((trace,ls)).
 :- noguitracer.
-:- notrace(leash(+all)).
+:- zotrace(leash(+all)).
 :- notrace.
 */
  

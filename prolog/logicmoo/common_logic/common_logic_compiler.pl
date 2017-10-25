@@ -1647,7 +1647,7 @@ poss_or_skolem(dif_objs(_,_)).
 poss_or_skolem(nesc(X)):-!,poss_or_skolem(X).
 poss_or_skolem(falsify(X)):-!,poss_or_skolem(X).
 % MAYBE? poss_or_skolem(needs(_)).
-poss_or_skolem(skolem(_,_,_)).
+poss_or_skolem(skolem(_,_)).
 % poss_or_skolem(P):-arg(_,P,E),is_list(E).
 
 %%% ***
