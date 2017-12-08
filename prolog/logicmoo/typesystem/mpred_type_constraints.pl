@@ -209,29 +209,7 @@ map_each_argnum(_Modal,_,_,_,_).
 
 
 % non-backtracking attribute updates
-
-nb_put_attr(X,Name,AttVal):- get_attrs(X,Atts),assertion(Atts\==[]),nb_att3_put_attr(Atts,Name,AttVal).
-nb_del_attr(X,Name):- get_attrs(X,Atts),nb_att3_del_attr(Atts,Name).
-nb_put_attrs(X,att(N,V,R)):- get_attrs(X,Atts),assertion(Atts\==[]),nb_set_att3(Atts,N,V,R).
-nb_del_attrs(X):- get_attrs(X,Atts),(Atts==[]->true;nb_set_att3(Atts,'$dead','$dead',[])).
-
-nb_set_att3(Atts,N,V,R):- nb_setarg(1,Atts,N),nb_setarg(2,Atts,V),nb_setarg(3,Atts,R).
-nb_att3_put_attr(Atts,Name,AttVal):- 
-  Atts = att(OldName,_,Rest),
-  (OldName == Name -> nb_setarg(2,Atts,AttVal) ;
-  Rest==[] -> nb_setarg(3,Atts,att(Name,AttVal,[]));
-  nb_att3_put_attr(Rest,Name,AttVal)).
-
-nb_att3_del_attr(Atts,Name):- 
-  Atts = att(OldName,_,Rest),
-  (OldName == Name -> 
-    (Rest=att(N,V,R) -> nb_set_att3(Atts,N,V,R) ;
-         nb_set_att3(Atts,'$dead','$dead',[])) ;     
-  Rest==[] -> true ; 
-  nb_att3_del_attr(Rest,Name)).
-
-nb_att3_get_attr(atts(Name0,Value0,Atts),Name,Value):- Name==Name0 -> Value=Value0; nb_att3_get_attr(Atts,Name,Value).
-  
+ 
 
 demodalfy_outermost(ModalIn,MExpr, Expr, ModalValue):-  MExpr=..[Modal,Expr], modal_value(ModalIn,Modal,ModalValue).
 modal_value(neg(_), Neg , true):- arg(_,v( ( \+ ),'~','-','not'),Neg).
