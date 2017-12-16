@@ -464,17 +464,16 @@ relax_args(_,_,[]).
 
 :- set_prolog_flag(verbose_file_search,true).
 :- use_module(user:library(clpfd)).		% Make predicates defined
-:- absolute_file_name(library('clpr.pl'),File),writeln(File).
-:- user:use_module(library('clpr.pl'),except([{}/1])).		% Make predicates defined
-:- set_prolog_flag(verbose_file_search,false).
-
+%:- absolute_file_name(library('clp/clpr.pl'),File),writeln(File).
+%:- use_module(user:library(clpr)).		% Make predicates defined
+:- use_module(library(clpr),except([{}/1])).		% Make predicates defined
 :- use_module(user:library(simplex)).		% Make predicates defined
+
+:- set_prolog_flag(verbose_file_search,false).
 
 :- meta_predicate lazy_pfa(*,+,*).  % arg1 was 0
 :- meta_predicate #(*).  %  was 0
 '#'(G):- map_lits(lazy,G).
-
-
 
 my_when(If,Goal):- when(If,Goal).
 

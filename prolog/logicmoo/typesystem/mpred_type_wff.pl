@@ -925,11 +925,11 @@ head_singles01(Pre,Post):-
 %
 % Get Kv.
 %
-get_kv(X=Y,X,Y):- !.
+/*get_kv(X=Y,X,Y):- !.
 get_kv(X-Y,X,Y):- !.
 get_kv(KV,X,Y):- functor(KV,_,1),KV=..[X,Y],!.
 get_kv(KV,X,Y):- arg(1,KV,X),arg(2,KV,Y),!.
-
+*/
 
 
 
