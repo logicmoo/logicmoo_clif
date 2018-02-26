@@ -27,6 +27,7 @@
 :- endif.
 
 :- if(app_argv('--www') ; app_argv('--sigma')).
+:- user:load_library_system(xlisting_web).
 :- user:load_library_system(xlisting_www).
 :- endif.
 
@@ -51,9 +52,8 @@ prolog_tn_server:-
    must(ensure_loaded(library(prolog_server))),
    getenv_or('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 1023,
-   catch(
-    (prolog_server(WebPort, [allow(_)]),asserta(lmcache:prolog_tn_server_port(WebPort))),
-     E,(writeq(E),fail)),!.
+   prolog_server(WebPort, [allow(_)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
+%   ,E,(writeq(E),fail)),!.
    
 :- during_net_boot(prolog_tn_server).
 

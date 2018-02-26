@@ -50,6 +50,11 @@
 :- ensure_loaded(library(rtrace)).
 :- ensure_loaded(library(dmsg)).
 
+:- if(app_argv('--all') ; app_argv('--wamcl'); app_argv('--lisp')).
+:- use_module(library(wamcl_runtime)).
+:- endif.
+
+
 /*
 :- flag_call(unsafe_speedups=true).
 :- flag_call(runtime_debug=0).

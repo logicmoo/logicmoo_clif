@@ -10,6 +10,7 @@ Remote SWISH as an IDE for developing a Remote application.
 */
 
 :- use_module(library(must_trace)).
+:- use_module(library(wamcl_runtime)).
 
 :- set_prolog_flag(lm_no_autoload,false).
 :- set_prolog_flag(lm_pfc_lean,false).
@@ -81,6 +82,7 @@ swish_home(AbsDir):- swish_home0(Dir),resolve_symlinks(Dir,AbsDir).
 resolve_symlinks(File,Link):- is_symlink_to(File,AbsLink)-> resolve_symlinks(AbsLink,Link) ; File=Link.
 
 swish_home0(Dir):- absolute_file_name(pack(swish),Dir,[file_type(directory),access(read),file_errors(fail)]).
+swish_home0(Dir):- absolute_file_name(pack('swish-with-filesystem-interaction'),Dir,[file_type(directory),access(read),file_errors(fail)]).
 swish_home0(Dir):- absolute_file_name(cpack(swish),Dir,[file_type(directory),access(read),file_errors(fail)]).
 swish_home0(Dir):- is_symlink_to('./remote_ide.pl',To),file_directory_name(To,Dir).
 
@@ -262,8 +264,6 @@ swish_config:authenticate(Request, User) :-
 %
 %       Start the SWISH server and open the main page in your browser.
 
-:- initialization(swish).
-
 swish :-
         swish('0.0.0.0':3050).
 
@@ -317,13 +317,13 @@ pet:- pengine_rpc("http://prologmoo.com:3050",
    wdmsg(sin_table(X,Y)).
 
 
-:- debug.
-
-:- swish.
-
-
 user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?
      non_swish_file_search_path(What, Alias).
+
+
+:- if(false).
+:- debug.
+
 
 :- listing(swish_config:authenticate/2).
 :- listing(pengines:allowed/2).
@@ -367,6 +367,8 @@ user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?
 
 :- listing(swish_config:authenticate/2).
 
+:- endif.
+
 :- multifile
 	cp_menu:menu_item/2,
 	cp_menu:menu_popup_order/2.
@@ -378,8 +380,8 @@ user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?
 :- asserta(cp_menu:menu_popup_order(swish,       550)).
 :- asserta(cp_menu:menu_item(200=swish/swish,		'SWISH')).
 
-
-
+:- initialization(swish).
+:- swish.
 
 end_of_file.
 

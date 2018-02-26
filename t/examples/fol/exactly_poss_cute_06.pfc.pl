@@ -4,7 +4,25 @@
 :- module(cute6,[]).
 
 :- include(test_header).
+:- user:use_module(library(editline)).
+:- use_module(library(occurs)). % sub_term/2
+:- use_module(library(sort)). % predsort/3
+:- use_module(library(backcomp)). % concat_atom/2
+:- user:autoload.
 
+:- module_transparent(system: = /2).
+:- module_transparent('$attvar':'$wakeup'/1).
+:- module_transparent('$attvar':'call_all_attr_uhooks'/2).
+:- module_transparent('$attvar':'begin_call_all_attr_uhooks'/2).
+:- module_transparent('$attvar':'uhook'/3).
+
+:- '$current_source_module'(M),install_retry_undefined(M,error).
+:- install_retry_undefined(user,error).
+:- install_retry_undefined(kbii,error).
+:- install_retry_undefined(kbi,error).
+% :- set_prolog_flag(autoload,false).
+:- set_prolog_flag(retry_undefined, false).
+:- set_prolog_flag(access_level, system).
 
 % Option Examples: nesc($sentence),  poss($sentence),  poss($sentence)=>nesc($sentence).
 % ==> feature_setting(default_modality,nesc($sentence)).

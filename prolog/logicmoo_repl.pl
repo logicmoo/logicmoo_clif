@@ -171,8 +171,8 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 
 :- after_boot((set_prolog_flag(pfc_booted,true))).
 
-:- nb_setval('$oo_stack',[]).
-:- b_setval('$oo_stack',[]).
+:- thread_initialization(nb_setval('$oo_stack',[])).
+:- thread_initialization(b_setval('$oo_stack',[])).
 
 %
 

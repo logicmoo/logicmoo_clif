@@ -19,7 +19,7 @@
             createByNameMangle_compound/3,
             create_from_type/3,
             create_meta/4,
-            get_source_suffix/1,
+            get_source_suffix/2,
             i_name/2,
             i_name/3,
             i_name_lc/2,
@@ -244,15 +244,17 @@ createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A=
 
 %= 	 	 
 
-%% get_source_suffix( ?SS) is semidet.
+%% get_source_suffix(NameNeedsSuffix, ?SS) is semidet.
 %
 % Get Source Suffix.
 %
-get_source_suffix(SS):- baseKB:current_source_suffix(SS),!.
-get_source_suffix('7').
-%get_source_suffix(SS):- source_location(F,_),!,file_directory_name(F,DN),file_base_name(DN,SS),concat_atom(['-',SS,'7'],SSM),asserta_if_new(baseKB:current_source_suffix(SSM)).
+get_source_suffix(_NameNeedsNum,SS):- baseKB:current_source_suffix(SS),!.
+get_source_suffix(_NameNeedsNum,SS):- source_location(F,_),!,file_directory_name(F,DN),file_base_name(DN,SS),
+  concat_atom(['-',SS,'7'],SSM),!,
+   asserta_if_new(baseKB:current_source_suffix(SSM)).
+get_source_suffix(_NameNeedsNum,'7').
 
-clip_source_suffix(TypeStemNum,TypeStem):- get_source_suffix(SS), atom_concat(TypeStem,SS,TypeStemNum),!.
+clip_source_suffix(TypeStemNum,TypeStem):- get_source_suffix(TypeStem,SS), atom_concat(TypeStem,SS,TypeStemNum),!.
 clip_source_suffix(TypeStem,TypeStem):-!.
 
 %= 	 	 
@@ -276,7 +278,7 @@ guess_type_name(InstOrType,Type):-
 
 guess_inst_name(Type,Type,Name):-
    i_name('i',Type,NameNeedsNum),
-   get_source_suffix(SS),
+   get_source_suffix(NameNeedsNum,SS),
    atom_concat(NameNeedsNum,SS,Name),!.
 guess_inst_name(Inst,_Type,Inst).
 
