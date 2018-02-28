@@ -52,12 +52,12 @@ prolog_tn_server:-
    must(ensure_loaded(library(prolog_server))),
    getenv_or('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 1023,
-   prolog_server(WebPort, [allow(_)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
+   prolog_server(WebPort, [allow(_),call(baseKB:login_and_run)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
 %   ,E,(writeq(E),fail)),!.
    
 :- during_net_boot(prolog_tn_server).
 
-
+:- dynamic(lmcache:prolog_tn_server_port/1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("Various RPC Dangers").
