@@ -1154,9 +1154,9 @@ skolem_f(N,KB, F, X, FreeVIn,Fun,SkV):-
    
     
 :- if(app_argv('--www') ; app_argv('--plweb'); app_argv('--irc')).
-:- if(exists_source(pack(logicmoo_base/t/examples/fol/attvar_existentials))).
-:- user:ensure_loaded((pack(logicmoo_base/t/examples/fol/attvar_existentials))).
-:- endif.
+%:- if(exists_source(pack(logicmoo_base/t/examples/fol/attvar_existentials))).
+%:- user:ensure_loaded((pack(logicmoo_base/t/examples/fol/attvar_existentials))).
+%:- endif.
 :- endif.        
 
 

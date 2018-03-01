@@ -50,7 +50,7 @@
 :- ensure_loaded(library(rtrace)).
 :- ensure_loaded(library(dmsg)).
 
-:- if(app_argv('--all') ; app_argv('--wamcl'); app_argv('--lisp')).
+:- if(app_argv('--wamcl'); app_argv('--lisp')).
 :- use_module(library(wamcl_runtime)).
 :- endif.
 

@@ -36,10 +36,10 @@ Open SWISH as an IDE for developing a remote application.
 
 :- meta_predicate(from_http(0)).
 from_http(G):- with_output_to(main_error,G).
-:- stream_property(X,file_no(2)),
+:- ignore((stream_property(X,file_no(2)),
    stream_property(X,alias(Was)),
    set_stream(X,alias(main_error)),
-   set_stream(X,alias(Was)).
+   set_stream(X,alias(Was)))).
 
 :- use_module(library(aleph),[]).
 

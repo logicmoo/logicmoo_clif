@@ -249,10 +249,17 @@ createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A=
 % Get Source Suffix.
 %
 get_source_suffix(_NameNeedsNum,SS):- baseKB:current_source_suffix(SS),!.
-get_source_suffix(_NameNeedsNum,SS):- source_location(F,_),!,file_directory_name(F,DN),file_base_name(DN,SS),
-  concat_atom(['-',SS,'7'],SSM),!,
-   asserta_if_new(baseKB:current_source_suffix(SSM)).
+get_source_suffix(_NameNeedsNum,SS):- fail,
+  source_location(F,_),!,file_directory_name(F,DN),
+  directory_source_sufix(DN,SS),!,
+  asserta_if_new(baseKB:current_source_suffix(SS)).
 get_source_suffix(_NameNeedsNum,'7').
+
+directory_source_sufix(DN,SSM):- 
+  file_base_name(DN,SS),
+  atomic_list_concat([SS1|_],'_',SS),
+  atomic_list_concat(['-',SS1,'7'],SSM),!.
+
 
 clip_source_suffix(TypeStemNum,TypeStem):- get_source_suffix(TypeStem,SS), atom_concat(TypeStem,SS,TypeStemNum),!.
 clip_source_suffix(TypeStem,TypeStem):-!.
@@ -357,8 +364,9 @@ doSpawn_f_args(Modality,Funct,List):-
 definitional(X):- \+ compound(X),!.
 definitional(isa(_,_)).
 definitional(genls(_,_)).
-definitional(tRegtion(_)).
+definitional(tRegion(_)).
 
+add_on_start(t(TO)):- nonvar(TO),!,add_on_start(TO).
 add_on_start(TO):- definitional(TO),!,ain(TO).
 add_on_start(TO):- call_u(ain(onStart(TO))).
 

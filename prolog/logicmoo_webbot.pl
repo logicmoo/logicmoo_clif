@@ -26,7 +26,7 @@
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
 
-:- if(app_argv('--www') ; app_argv('--sigma')).
+:- if((app_argv('--www') , \+ app_argv('--nosigma'))).
 :- user:load_library_system(xlisting_web).
 :- user:load_library_system(xlisting_www).
 :- endif.
@@ -79,18 +79,20 @@ system:kill_unsafe_preds:- whenever_flag_permits(run_network,system:kill_unsafe_
 
 system:kill_unsafe_preds0:- locally(set_prolog_flag(access_level,system),kill_unsafe_preds1).
 
+system:keep_unsafe_preds1:- \+ if_defined(getuid(0),true),!.
+system:keep_unsafe_preds1:- app_argv1('--unsafe'),!.   
+system:keep_unsafe_preds1:- app_argv('--nonet'),!.   
+system:keep_unsafe_preds1:- \+ app_argv('--irc'), \+ app_argv('--all'),!.
+
+
 system:kill_unsafe_preds1:-
    unlock_predicate(system:halt/0),
    redefine_system_predicate(system:halt/0),
    abolish(system:halt,0),
    asserta((system:halt :- format('the halting problem is now solved!'))),
    lock_predicate(system:halt/0),fail.
-system:kill_unsafe_preds1:- \+ if_defined(getuid(0),true),!.
-system:kill_unsafe_preds1:- app_argv('--unsafe'),!.   
-system:kill_unsafe_preds1:- app_argv('--nonet'),!.   
-system:kill_unsafe_preds1:- \+ app_argv('--irc'), \+ app_argv('--all'),!.
-
-system:kill_unsafe_preds1:-   
+system:kill_unsafe_preds1:- system:keep_unsafe_preds1,!,dmsg("keep_unsafe_preds1!").
+system:kill_unsafe_preds1:- 
    dmsg("kill_unsafe_preds!"),
 % (Thus restoring saved state)
    % [Optionaly] Solve the Halting problem  

@@ -101,7 +101,7 @@ logtalk_home(LTH):- absolute_directory(pack(logtalk), Directory0),
   expand_file_name(Directory1,[LTH]),!.
 
 skip_logtalk:- app_argv('--nologtalk'),!.
-skip_logtalk:- \+ app_argv('--logtalk'),!.
+skip_logtalk:- \+ app_argv1('--logtalk'),!.
 skip_logtalk:- \+ logtalk_home(_), !.
 skip_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!.
 
