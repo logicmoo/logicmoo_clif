@@ -248,7 +248,7 @@ createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A=
 %
 % Get Source Suffix.
 %
-get_source_suffix(_NameNeedsNum,SS):- 
+get_source_suffix(_NameNeedsNum,SS):- fail,
   source_location(F,_),!,file_directory_name(F,DN),
   directory_source_sufix(DN,SS),!,
   asserta_if_new(baseKB:current_source_suffix(SS)).
@@ -366,10 +366,11 @@ doSpawn_f_args(Modality,Funct,List):-
   % call_after_mpred_load_slow(locally(deduceArgTypes(Funct), ain(Later))))),!.
 
 
-definitional(X):- \+ compound(X),!.
+definitional(X):- \+ compound(X),!,fail.
 definitional(isa(_,_)).
 definitional(genls(_,_)).
-definitional(tRegion(_)).
+definitional(t(TO)):- !, definitional(TO).
+definitional(Compound):- functor(Compound,F,A), (A=1;definitionalProp(F)).
 
 add_on_start(t(TO)):- nonvar(TO),!,add_on_start(TO).
 add_on_start(TO):- definitional(TO),!,ain(TO).
