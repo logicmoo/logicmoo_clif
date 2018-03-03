@@ -81,7 +81,6 @@
 :- set_prolog_flag(gc,false).
 :- set_prolog_flag(gc,true).
 :- debug.
-*/
 
 :- set_prolog_flag(report_error,true).
 :- set_prolog_flag(access_level,system).
@@ -89,6 +88,8 @@
 :- set_prolog_flag(debug_on_error,true).
 :- set_prolog_flag(optimise,false).
 :- set_prolog_flag(last_call_optimisation,false).
+
+*/
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,6 +257,7 @@ maybe_save_lm:- qsave_lm(lm_repl4),!.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Mostly Required] logicmoo_clif").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- load_library_system(library(logicmoo_clif)).
 :- use_module(logicmoo_clif).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

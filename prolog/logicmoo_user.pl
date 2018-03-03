@@ -33,5 +33,4 @@
 
 
 
-:- set_prolog_flag(gc,true).
 

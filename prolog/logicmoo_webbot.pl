@@ -10,6 +10,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("Ensure WWW System").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 :- if(app_argv('--www') ; app_argv('--plweb')).
 :- user:load_library_system(logicmoo_plweb).
 :- endif.
@@ -26,9 +30,8 @@
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
 
-:- if((app_argv('--www') , \+ app_argv('--nosigma'))).
-:- user:load_library_system(xlisting_web).
-:- user:load_library_system(xlisting_www).
+:- if((app_argv('--www'), \+ app_argv1('--nosigma'))).
+:- user:load_library_system(library(xlisting_web)).
 :- endif.
 
 
@@ -52,7 +55,7 @@ prolog_tn_server:-
    must(ensure_loaded(library(prolog_server))),
    getenv_or('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 1023,
-   prolog_server(WebPort, [allow(_),call(baseKB:login_and_run)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
+   prolog_server(WebPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
 %   ,E,(writeq(E),fail)),!.
    
 :- during_net_boot(prolog_tn_server).

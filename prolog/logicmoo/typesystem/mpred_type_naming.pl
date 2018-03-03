@@ -248,17 +248,22 @@ createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A=
 %
 % Get Source Suffix.
 %
-get_source_suffix(_NameNeedsNum,SS):- baseKB:current_source_suffix(SS),!.
-get_source_suffix(_NameNeedsNum,SS):- fail,
+get_source_suffix(_NameNeedsNum,SS):- 
   source_location(F,_),!,file_directory_name(F,DN),
   directory_source_sufix(DN,SS),!,
   asserta_if_new(baseKB:current_source_suffix(SS)).
+get_source_suffix(_NameNeedsNum,SS):- baseKB:current_source_suffix(SS),!.
 get_source_suffix(_NameNeedsNum,'7').
 
-directory_source_sufix(DN,SSM):- 
+directory_source_sufix(DN,SSM):- lmcache:tmp_directory_source_sufix(DN,SSM),!.
+directory_source_sufix(DN,SSM):- make_directory_source_sufix(DN,SSM),!,
+  asserta(lmcache:tmp_directory_source_sufix(DN,SSM)),!.
+
+make_directory_source_sufix(DN,SSM):- 
   file_base_name(DN,SS),
-  atomic_list_concat([SS1|_],'_',SS),
-  atomic_list_concat(['-',SS1,'7'],SSM),!.
+  atomic_list_concat(REV,'_',SS),reverse(REV,[SS1|_]),
+  % gensym(SS1,SSGS),
+  atomic_list_concat(['_',SS1,8],SSM),!.
 
 
 clip_source_suffix(TypeStemNum,TypeStem):- get_source_suffix(TypeStem,SS), atom_concat(TypeStem,SS,TypeStemNum),!.
