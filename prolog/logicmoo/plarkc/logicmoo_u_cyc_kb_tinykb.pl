@@ -133,7 +133,7 @@ reallyLoadTiny:- mpred_notrace.
 
 
 
-:-ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))).
+:- (baseKB:(ain((((cycl(X),{must(cyc_to_pdkb(X,Y))}) ==> clif(Y)))))).
 
 %%TODO FIX  :- ain(baseKB:(((cycl('$VAR'('X')),{must(cyc_to_pdkb('$VAR'('X'),'$VAR'('Y')))}) ==> clif('$VAR'('Y'))))).
 % ?-listing(cycl).

@@ -1,7 +1,7 @@
 #!/usr/local/bin/swipl 
 
 :- module(logicmoo_cliop,
-          [ run_clio_now/0
+          [ start_cliop/0
           ]).
 
 :- use_module(library(http/thread_httpd)).
@@ -103,9 +103,14 @@ http:location(swish, root('swish'), [priority(500)]).
 
 :- endif.
 
-run_clio_now :- cp_server.
+:- dmsg("CLIOP Load").
 
-:- initialization(run_clio_now).
+start_cliop :- 
+   dmsg("CLIOP Start"),
+   cp_server.
+
+
+%:- initialization(start_cliop).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This file provides a skeleton startup file.  It can be localized by running
@@ -191,6 +196,13 @@ add_relative_search_path0(Alias, Rel) :-
 :- if(exists_source(rdfql(sparql_csv_result))).
 :- use_module(rdfql(sparql_csv_result)).
 :- endif.
+
+cliop_restore :- app_argv('--nocliop'),!.
+cliop_restore :- must(start_cliop).
+                     
+:- initialization(cliop_restore).
+:- initialization(cliop_restore,now).
+:- initialization(cliop_restore,restore).
 
 
 /*

@@ -6,7 +6,7 @@
           ensure_webserver_p/1]).
 
 kill_3040:- threads,wdmsg(kill_3040),!.
-kill_3040:- whenever_flag_permits(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3040 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
+kill_3040:- whenever_flag_permits(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -31,10 +31,11 @@ really_ensure_webserver_p(Port):-
 
 ensure_webserver_p(WebPort):- whenever_flag_permits(run_network, really_ensure_webserver_p(WebPort)).
 
+
 ensure_webserver_3040:- getenv_or('LOGICMOO_PORT',Was,3000),
    WebPort is Was + 40, ensure_webserver_p('0.0.0.0':WebPort).
 
-:- during_net_boot(ensure_webserver_3040).
+%:- during_net_boot(ensure_webserver_3040).
 
 %:- autoload([verbose(false)]).
 

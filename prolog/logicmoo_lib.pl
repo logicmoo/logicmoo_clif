@@ -13,7 +13,7 @@
 
 /*
 
-:- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- current_prolog_flag(readline,Base),writeln(readline=Base).
 :- if(exists_source(library(editline))).
 :- set_prolog_flag(readline,editline).
 :- endif.
@@ -35,7 +35,7 @@
 :- system:consult(library(readline)).
 :- endif.
 :- endif.
-:- current_prolog_flag(readline,Was),writeln(readline=Was).
+:- current_prolog_flag(readline,Base),writeln(readline=Base).
 */        
 
 
@@ -52,6 +52,7 @@
 
 :- if(app_argv('--wamcl'); app_argv('--lisp')).
 :- use_module(library(wamcl_runtime)).
+:- start_lspsrv(repl,3601,"Lisp Repl").
 :- endif.
 
 
@@ -208,6 +209,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOAD LOGICMOO UTILS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+logicmoo_base_port(Base):- app_argv1(One),\+ is_list(One),
+   (atom(One)-> (atomic_list_concat([_,Atom],'port=',One),atom_number(Atom,Base)) ; 
+      (options(port(Base),[One],fail),One\==fail)),!.
+logicmoo_base_port(Base):- getenv_or('LOGICMOO_BASE_PORT',Base,3000),!.
+
 :- user:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
@@ -219,7 +226,23 @@ maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
 maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
 maybe_save_lm:- qsave_lm(lm_repl4),!.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("Ensure RPC TelnetLib").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- multifile(lmcache:prolog_tn_server_port/1).
+:- dynamic(lmcache:prolog_tn_server_port/1).
+
+prolog_tn_server00:- thread_property(PS,status(running)),PS==prolog_server,!.
+prolog_tn_server00:- 
+   must(ensure_loaded(library(prolog_server))),
+   logicmoo_base_port(Base),
+   TelnetPort is Base + 223,
+   dmsg(TelnetPort= "SWI-PROLOG TelnetLib"),
+   prolog_server(TelnetPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(TelnetPort)),!.
+%   ,E,(writeq(E),fail)),!.
+   
+:- during_net_boot(prolog_tn_server00).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOGICMOO/CYC Alignment util").

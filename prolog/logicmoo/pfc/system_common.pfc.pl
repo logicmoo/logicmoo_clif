@@ -127,8 +127,8 @@ someTimesBuggy2ndOrder ==>
 % tPred
 
 
-==>
-completelyAssertedCollection(isEach(tCol,tPred,pfcControlled)).
+==> completelyAssertedCollection(isEach(tCol,tPred,pfcControlled)).
+
 ttRelationType(C)==>completelyAssertedCollection(C).
 
 % ~genls(meta_argtypes,ftSpec).

@@ -370,7 +370,7 @@ definitional(X):- \+ compound(X),!,fail.
 definitional(isa(_,_)).
 definitional(genls(_,_)).
 definitional(t(TO)):- !, definitional(TO).
-definitional(Compound):- functor(Compound,F,A), (A=1;definitionalProp(F)).
+definitional(Compound):- functor(Compound,F,A), (A=1;if_defined(definitionalProp(F),fail)).
 
 add_on_start(t(TO)):- nonvar(TO),!,add_on_start(TO).
 add_on_start(TO):- definitional(TO),!,ain(TO).

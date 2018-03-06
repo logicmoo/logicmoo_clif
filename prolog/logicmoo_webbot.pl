@@ -3,34 +3,73 @@
 :- module(logicmoo_webbot,[
   prolog_tn_server/0]).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("LOGICMOO WEB&BOT").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- multifile(lmcache:prolog_tn_server_port/1).
+:- dynamic(lmcache:prolog_tn_server_port/1).
+
+prolog_tn_server:- thread_property(PS,status(running)),PS==prolog_server,!.
+prolog_tn_server:- 
+   must(ensure_loaded(library(prolog_server))),
+   logicmoo_base_port(Base),
+   TelnetPort is Base + 223,
+   dmsg(TelnetPort= "SWI-PROLOG Telnet"),
+   prolog_server(TelnetPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(TelnetPort)),!.
+%   ,E,(writeq(E),fail)),!.
+   
+:- during_net_boot(prolog_tn_server).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% START WEBSERVER
+:- dmsg("IRC EGGDROP").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- if(exists_source(library(eggdrop))).
+:- with_no_mpred_expansions(ensure_loaded(library(eggdrop))).
+% :- during_boot((egg_go_fg)).
+:- during_net_boot(egg_go_maybe).
+:- endif.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("Ensure WWW System").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+www_start:- app_argv_off('--www'),!.
+www_start:- app_argv_off('--net'),!.
+www_start:- www_start(3020).
 
-:- if(app_argv('--www') ; app_argv('--plweb')).
+www_start(Port):- dmsg("WWW Server " = Port), http_server_property(Port, goal(_)),!.
+www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16) 
+
+
+:- if(app_argv('--www')).
+
+:- if(app_argv_ok('--plweb')).
+:- dmsg("PLWEB Server").
 :- user:load_library_system(logicmoo_plweb).
 :- endif.
 
-:- if(app_argv('--www') ; app_argv('--swish')).
+:- if(app_argv_ok('--swish')).
+:- dmsg("SWISH Server").
 :- user:load_library_system(logicmoo_swish).
 :- endif.
 
-:- if(app_argv('--www') ; app_argv('--cliop')).
-:- user:load_library_system(logicmoo_cliop).
-:- endif.
-
-:- if(app_argv('--www') ; app_argv('--pldoc')).
+:- if(app_argv_ok('--pldoc')).
+:- dmsg("PLDOC Server").
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
 
-:- if((app_argv('--www'), \+ app_argv1('--nosigma'))).
+:- if(app_argv_ok('--cliop')).
+%W:\opt\logicmoo_workspace\packs_usr\wam_common_lisp\prolog\wam_cl\;W:\opt\logicmoo_workspace\packs_web\plweb\;W:\opt\logicmoo_workspace\packs_web\swish\;W:\opt\logicmoo_workspace\packs_sys\logicmoo_base\prolog\;<Buffers>;W:\opt\logicmoo_workspace\packs_sys\prologmud\prolog\prologmud\;W:\opt\logicmoo_workspace\packs_usr\prologmud_samples\prolog
+:- user:load_library_system(logicmoo_cliop).
+:- endif.
+
+:- use_module(library(http/thread_httpd)).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_parameters)).
+:- use_module(library(http/html_write)).
+:- during_net_boot(www_start).
+:- endif.  % --www
+
+:- if((app_argv_ok('--sigma'))).
 :- user:load_library_system(library(xlisting_web)).
 :- endif.
 
@@ -43,24 +82,6 @@
 %.
 :- endif.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("Ensure RPC Telnet").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- dynamic(lmcache:prolog_tn_server_port/1).
-
-prolog_tn_server:- thread_property(PS,status(running)),PS==prolog_server,!.
-prolog_tn_server:- 
-   must(ensure_loaded(library(prolog_server))),
-   getenv_or('LOGICMOO_PORT',Was,3000),
-   WebPort is Was + 1023,
-   prolog_server(WebPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(WebPort)),!.
-%   ,E,(writeq(E),fail)),!.
-   
-:- during_net_boot(prolog_tn_server).
-
-:- dynamic(lmcache:prolog_tn_server_port/1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("Various RPC Dangers").
@@ -109,12 +130,7 @@ system:kill_unsafe_preds1:-
    dmsg("the halting problem is now solved!"). 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("IRC EGGDROP").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- if(exists_source(library(eggdrop))).
-:- with_no_mpred_expansions(ensure_loaded(library(eggdrop))).
-% :- during_boot((egg_go_fg)).
-:- during_net_boot(egg_go_maybe).
-:- endif.
+
+end_of_file.
+
 

@@ -265,7 +265,7 @@ swish_config:authenticate(Request, User) :-
 %       Start the SWISH server and open the main page in your browser.
 
 swish :-
-        swish('0.0.0.0':3050).
+        swish('0.0.0.0':3020).
 
 swish(Port) :-
         http_server_property(Port, goal(logicmoo_swish:http_dispatch)), !,
@@ -309,7 +309,7 @@ host_port(Port,_, Port):-!.
 :- listing(pengines:allowed/2).
 
 
-pet:- pengine_rpc("http://prologmoo.com:3050",
+pet:- pengine_rpc("http://prologmoo.com:3020",
                        sin_table(X,Y),
                        [ src_text(':- dynamic(sin_table/2). sin_table(1,2).'),
                          application(swish)
@@ -380,8 +380,8 @@ user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?
 :- asserta(cp_menu:menu_popup_order(swish,       550)).
 :- asserta(cp_menu:menu_item(200=swish/swish,		'SWISH')).
 
-:- initialization(swish).
-:- swish.
+%:- initialization(swish).
+%:- swish.
 
 end_of_file.
 
