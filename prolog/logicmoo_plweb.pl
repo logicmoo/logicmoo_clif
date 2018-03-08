@@ -32,7 +32,7 @@ really_ensure_webserver_p(Port):-
 ensure_webserver_p(WebPort):- whenever_flag_permits(run_network, really_ensure_webserver_p(WebPort)).
 
 
-ensure_webserver_3040:- getenv_or('LOGICMOO_PORT',Was,3000),
+ensure_webserver_3040:- getenv_or('LOGICMOO_BASE_PORT',Was,3000),
    WebPort is Was + 40, ensure_webserver_p('0.0.0.0':WebPort).
 
 %:- during_net_boot(ensure_webserver_3040).

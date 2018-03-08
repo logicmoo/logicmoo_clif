@@ -42,25 +42,25 @@ www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16)
 
 :- if(app_argv('--www')).
 
-:- if(app_argv_ok('--plweb')).
-:- dmsg("PLWEB Server").
-:- user:load_library_system(logicmoo_plweb).
-:- endif.
-
 :- if(app_argv_ok('--swish')).
 :- dmsg("SWISH Server").
 :- user:load_library_system(logicmoo_swish).
 :- endif.
 
-:- if(app_argv_ok('--pldoc')).
+:- if(app_argv_ok('--cliop')).
+:- user:load_library_system(logicmoo_cliop).
+:- endif.
+
+:- if(app_argv_ok('--plweb')).
+:- dmsg("PLWEB Server").
+:- user:load_library_system(logicmoo_plweb).
+:- endif.
+
+:- if(app_argv_ok('--docs')).
 :- dmsg("PLDOC Server").
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
 
-:- if(app_argv_ok('--cliop')).
-%W:\opt\logicmoo_workspace\packs_usr\wam_common_lisp\prolog\wam_cl\;W:\opt\logicmoo_workspace\packs_web\plweb\;W:\opt\logicmoo_workspace\packs_web\swish\;W:\opt\logicmoo_workspace\packs_sys\logicmoo_base\prolog\;<Buffers>;W:\opt\logicmoo_workspace\packs_sys\prologmud\prolog\prologmud\;W:\opt\logicmoo_workspace\packs_usr\prologmud_samples\prolog
-:- user:load_library_system(logicmoo_cliop).
-:- endif.
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -128,6 +128,7 @@ system:kill_unsafe_preds1:-
    (dmsg("kill_unsafe_preds!"),locally(set_prolog_flag(access_level,system),
      forall(unsafe_preds_init(M,F,A),bugger:remove_pred(M,F,A)))),
    dmsg("the halting problem is now solved!"). 
+
 
 
 

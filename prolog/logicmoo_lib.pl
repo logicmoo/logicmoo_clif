@@ -55,7 +55,6 @@
 :- start_lspsrv(repl,3601,"Lisp Repl").
 :- endif.
 
-
 /*
 :- flag_call(unsafe_speedups=true).
 :- flag_call(runtime_debug=0).

@@ -10,12 +10,8 @@
 :- if(exists_source(library(pldoc))).
 % Must be loaded before doc_process
 :- user:use_module(library(pldoc), []).
-	
 :- user:use_module(library(pldoc/doc_process)).
 :- endif.
-
-%:- user:use_module(library(pldoc/doc_library)).
-%:- doc_load_library.
 
 :- user:use_module(library(pldoc/doc_access)).
 :- user:use_module(library(pldoc/doc_pack)).
@@ -26,7 +22,7 @@
 :- user:use_module(library(pldoc/doc_search)).
 :- user:use_module(library(pldoc/doc_util)).
 :- user:use_module(library(pldoc/doc_library)).
-
+%:- doc_load_library.
 
 
 
