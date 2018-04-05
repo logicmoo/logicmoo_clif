@@ -55,6 +55,11 @@
 :- start_lspsrv(repl,3601,"Lisp Repl").
 :- endif.
 
+:- if(app_argv('--pdt')).
+:- use_module(library(logicmoo_pdt)).
+:- endif.
+
+
 /*
 :- flag_call(unsafe_speedups=true).
 :- flag_call(runtime_debug=0).

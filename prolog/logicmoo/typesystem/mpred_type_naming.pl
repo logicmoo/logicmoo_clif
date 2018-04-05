@@ -44,8 +44,8 @@
 
 :- virtualize_source_file.
 
-:- thread_local(baseKB:current_source_suffix/1).
-:- dynamic(baseKB:current_source_suffix/1).
+:- thread_local(t_l:current_source_suffix/1).
+
 
 % ================================================
 % Naming System
@@ -239,7 +239,6 @@ createByNameMangle_compound(Name,Name,Type):- Name=..[Type|Props],assert_isa(Nam
 createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A==1),assert_isa(Name,Type),Name=Inst.
 
 
-:- was_dynamic(baseKB:current_source_suffix/1).
 
 
 %= 	 	 
@@ -251,8 +250,8 @@ createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A=
 get_source_suffix(_NameNeedsNum,SS):- fail,
   source_location(F,_),!,file_directory_name(F,DN),
   directory_source_sufix(DN,SS),!,
-  asserta_if_new(baseKB:current_source_suffix(SS)).
-get_source_suffix(_NameNeedsNum,SS):- baseKB:current_source_suffix(SS),!.
+  asserta_if_new(t_l:current_source_suffix(SS)).
+get_source_suffix(_NameNeedsNum,SS):- t_l:current_source_suffix(SS),!.
 get_source_suffix(_NameNeedsNum,'7').
 
 directory_source_sufix(DN,SSM):- lmcache:tmp_directory_source_sufix(DN,SSM),!.

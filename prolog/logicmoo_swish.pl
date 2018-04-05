@@ -255,7 +255,9 @@ swish_config:authenticate(Request, User) :-
 
 :- maplist(  ( [F] >> (ensure_loaded('config-enabled-swish'/F))),
   [auth_google,  auth_stackoverflow,  data,   email,  hdt,
-          rlimit,  r_serve,  user_profile, % network,
+          % rlimit,
+            % r_serve,
+              user_profile, % network,
    auth_unity,          debug,      logging,  notifications,
     rpc , auth_http]).
 
