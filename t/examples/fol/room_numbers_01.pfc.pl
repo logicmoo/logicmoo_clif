@@ -4,6 +4,8 @@
 :- include(test_header).
 :- set_kif_option(+assert).
 
+% must_be_satifiable(P):- kif_to_boxlog(P,BoxLog),all_asserted(BoxLog).
+
 % Version A - Two rooms
 exists(R1,room_number(R1,22)).
 exists(R1,room_number(R1,77)).
