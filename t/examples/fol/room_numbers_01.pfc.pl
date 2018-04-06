@@ -4,7 +4,7 @@
 :- include(test_header).
 :- set_kif_option(+assert).
 
-% Version A - Simpler
+% Version A - Two rooms
 exists(R1,room_number(R1,22)).
 exists(R1,room_number(R1,77)).
 all(R, (room_number(R,22) => (room(R) & ~big(R)))) .
