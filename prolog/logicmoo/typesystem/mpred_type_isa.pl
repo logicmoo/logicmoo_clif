@@ -98,7 +98,7 @@
          is_typef/1 , % (still imported into mpred_type_wff)
          isa_asserted_0/2 , % (still imported into mpred_type_wff)
          isa_asserted_compound/2 , % (still imported into mpred_type_wff)
-         isa_backchaing/2 , % (still imported into mpred_type_wff)
+         isa_backchaing_0/2 , % (still imported into mpred_type_wff)
          isa_backchaing_1/2 , % (still imported into mpred_type_wff)
          isa_w_type_atom/2 , % (still imported into mpred_type_wff)
          map_list_conj/2 , % (still imported into mpred_type_wff)
@@ -185,7 +185,7 @@ baseKB:prologBuiltin(is_typef/1).
 is_typef(C):-is_ftVar(C),!,fail.
 is_typef(prologSingleValued):-!.
 is_typef(prologSideEffects):-!.
-is_typef(F):- isa_backchaing(F,tCol),!.
+is_typef(F):- isa_backchaing_0(F,tCol),!.
 is_typef(F):- (a(functorDeclares,F);a(tCol,F);clause(isa(F,tCol),true)),!.
 is_typef(F):- atom(F),current_predicate(isa_from_morphology/2),isa_from_morphology(F,TT),!,atom_concat(_,'Type',TT).
 
@@ -823,7 +823,7 @@ main_type2(_,vtValue).
 
 
 % ==========================
-% isa_backchaing(i,c)
+% isa_backchaing_0(i,c)
 % ==========================
 
 % isa_module_local_init(+ABox,+TBox) is semidet.
@@ -833,7 +833,7 @@ main_type2(_,vtValue).
 %
 
 :- discontiguous isa_module_local_init/2.
-isa_module_local_init(_UserModule,_SystemModule):- ain((isa(I,T):- cwc,isa_backchaing(I,T))).
+isa_module_local_init(_UserModule,_SystemModule):- ain((isa(I,T):- cwc,isa_backchaing_0(I,T))).
 %a(P,F):-loop_check(isa(F,P)).
 %a(T,I):- baseKB:pfcManageHybrids,clause_safe(isa(I,T),true).
 baseKB:prologBuiltin(isa_asserted/2).
@@ -925,14 +925,14 @@ subcache(X,Z):-nonvar(Z)-> (genls(Y,Z),isa(X,Y)) ; isa(X,Y),genls(Y,Z).
 
 %= 	 	 
 
-%% isa_backchaing( ?I, ?T) is nondet.
+%% isa_backchaing_0( ?I, ?T) is nondet.
 %
 %  (isa/2) backchaing.
 %
-isa_backchaing(I,C):- C==ftVar,!,is_ftVar(I).
-isa_backchaing(I,C):- nonvar(I),is_ftVar(I),!,C=ftVar.
-isa_backchaing(_,C):- C==ftProlog,!.
-isa_backchaing(I,C):- no_repeats((isa_asserted(I,C)*->true;(var(C),tSet(C),isa_asserted(I,C)))).
+isa_backchaing_0(I,C):- C==ftVar,!,is_ftVar(I).
+isa_backchaing_0(I,C):- nonvar(I),is_ftVar(I),!,C=ftVar.
+isa_backchaing_0(_,C):- C==ftProlog,!.
+isa_backchaing_0(I,C):- no_repeats((isa_asserted(I,C)*->true;(var(C),tSet(C),isa_asserted(I,C)))).
 
 %:- table(isa_backchaing_1/2).
 isa_backchaing_1(I,C):- fail,
@@ -952,7 +952,9 @@ isa_asserted(I,C):-  no_repeats(loop_check(isa_asserted_0(I,C))).
 %isa_asserted(I,C):- ((lc_tcall(isa(I,C),no_repeats(loop_check(isa_asserted_0(I,C)))))).
 %isa_asserted(I,CC):-no_repeats((isa_asserted_0(I,C),call_u(genls(C,CC)))).
 
-isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing(I,C).
+isa_backchaing(I,C):- isa_complete(I,C).
+
+isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
 isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
 isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
 
@@ -1020,9 +1022,9 @@ isa_asserted_3(I,SType,C):- vwc, var(C),genls(C,SType),nonvar(C),SType\==C,isa_a
 isa_asserted_compound(I,T):- \+ compound(T),!, isa_w_type_atom(I,T).
 %isa_asserted_compound(_,T):- a(completelyAssertedCollection,T),!,fail.
 %isa_asserted_compound(I,T):- append_term(T,I,HEAD),ruleBackward(HEAD,BODY),call_mpred_body(HEAD,BODY).
-isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),is_ftVar(T2),!,dif:dif(T1,T2),isa_backchaing(I,T1),call_u(genls(T1,T2)),isa_backchaing(I,T2).
-isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing(I,T1),isa_backchaing(I,T2).
-isa_asserted_compound(I,(T1 ; T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing(I,T1),isa_backchaing(I,T2).
+isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),is_ftVar(T2),!,dif:dif(T1,T2),isa_backchaing_0(I,T1),call_u(genls(T1,T2)),isa_backchaing_0(I,T2).
+isa_asserted_compound(I,'&'(T1 , T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing_0(I,T1),isa_backchaing_0(I,T2).
+isa_asserted_compound(I,(T1 ; T2)):-!,nonvar(T1),!,dif:dif(T1,T2),isa_backchaing_0(I,T1),isa_backchaing_0(I,T2).
 
 
 %= 	 	 
@@ -1213,7 +1215,7 @@ isa_lmconf:mpred_provide_storage_op(change(assert,_),G):- was_isa(G,I,C),!,dmsg(
 % ISA MODIFY
 isa_lmconf:mpred_provide_storage_op(change(retract,How),G):- was_isa(G,I,C),!,show_call(why,(with_assert_op_override(change(retract,How),((dmsg(retract_isa(G,I,C)),!, assert_isa(I,C)))))).
 % ISA CALL
-isa_lmconf:mpred_provide_storage_op(call(_),G):- was_isa(G,I,C),!, (isa_backchaing(I,C);a(C,I)).
+isa_lmconf:mpred_provide_storage_op(call(_),G):- was_isa(G,I,C),!, (isa_backchaing_0(I,C);a(C,I)).
 % ISA CLAUSES
 
 %= 	 	 
@@ -1598,7 +1600,7 @@ impliedSubClass(T,ST):-predicate_property(transitive_subclass(T,ST),_),!,lc_tcal
 % assert_isa_hooked_creation(I,T):- doall((ttTemporalType(ST),impliedSubClass(T,ST),call_after_mpred_load((create_instance(I,ST,[isa(T)]))))).
 
 
-% :- ain((baseKB:isa(I,C):-loop_check(isa_backchaing(I,C)))).
+% :- ain((baseKB:isa(I,C):-loop_check(isa_backchaing_0(I,C)))).
 % isa_module_local_init:- ain(('$toplevel':isa(I,C):-baseKB:isa(I,C))).
 
 

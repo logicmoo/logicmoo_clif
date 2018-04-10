@@ -50,14 +50,24 @@
 :- ensure_loaded(library(rtrace)).
 :- ensure_loaded(library(dmsg)).
 
+:- if(app_argv('--pdt')).
+:- if(\+ app_argv('-nopce')).
+:- if(\+ (getenv('DISPLAY',X) -> \+ atom_string(X,""))).
+:- guitracer.
+:- endif.
+:- endif.
+:- endif.
+
 :- if(app_argv('--wamcl'); app_argv('--lisp')).
 :- use_module(library(wamcl_runtime)).
 :- start_lspsrv(repl,3601,"Lisp Repl").
 :- endif.
 
-:- if(app_argv('--pdt')).
+
+
+%:- if(app_argv('--pdt')).
 :- use_module(library(logicmoo_pdt)).
-:- endif.
+%:- endif.
 
 
 /*

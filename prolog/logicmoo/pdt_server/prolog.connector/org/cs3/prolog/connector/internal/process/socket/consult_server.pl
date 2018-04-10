@@ -13,7 +13,6 @@
  ****************************************************************************/
 
 % Date: 23.10.2004
-%:- if(\+ current_module(consult_server)).
 
 :- module(consult_server,[
 	consult_server/1,
@@ -62,10 +61,9 @@ clear_options:-
 
 
 create_lock_file(Filename):-
-  delete_lock_file(Filename),
 	(	exists_file(Filename)
 	->	debug(consult_server(init), 'Found existing lock file ~w.~n Shutting down...~n', [Filename]),		
-		dmsg(thread_signal(main,halt))
+		thread_signal(main,halt)
 	;	open(Filename, write, Stream),
 		call_cleanup(
 			(	write(Stream,Filename),
@@ -103,7 +101,7 @@ do_shutdown:-
        	fail
 	;	debug(consult_server(shutdown), 'shutdown complete~n',[]),
 		threads,
-		dmsg(halt)
+		halt
 	).
 do_shutdown_X(Id):-
     Id\==main,
@@ -782,6 +780,3 @@ list_2_comma_separated_list([Element],Element) :- !.
 list_2_comma_separated_list([Element|[H|T]],ElementComma) :-
 	list_2_comma_separated_list([H|T],RestAtom),
 	format(atom(ElementComma),'~w,~w',[Element,RestAtom]).
-
-%:- endif.
-

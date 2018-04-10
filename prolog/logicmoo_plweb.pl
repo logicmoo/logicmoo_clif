@@ -5,6 +5,18 @@
           recursive_directory_files/2,
           ensure_webserver_p/1]).
 
+
+/*
+ERROR: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:56:
+        source_sink `library(http/recaptcha)' does not exist
+Warning: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:56:
+        Goal (directive) failed: plweb_openid:use_module(library(http/recaptcha))
+ERROR: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:66:
+        source_sink `library(google_client)' does not exist
+Warning: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:66:
+        Goal (directive) failed: plweb_openid:use_module(library(google_client))
+
+*/
 kill_3040:- threads,wdmsg(kill_3040),!.
 kill_3040:- whenever_flag_permits(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
 
