@@ -109,7 +109,7 @@ xlisting_web]).
 :- reexport(library('with_thread_local')).
 
 %:- reexport(library('varnames')).
-%:- reexport(library('xlisting')).
+:- reexport(library('xlisting')).
 
 :- reexport(library('filestreams')).
 :- reexport(library('filesystem')).

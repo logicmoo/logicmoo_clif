@@ -929,10 +929,17 @@ subcache(X,Z):-nonvar(Z)-> (genls(Y,Z),isa(X,Y)) ; isa(X,Y),genls(Y,Z).
 %
 %  (isa/2) backchaing.
 %
-isa_backchaing_0(I,C):- C==ftVar,!,is_ftVar(I).
-isa_backchaing_0(I,C):- nonvar(I),is_ftVar(I),!,C=ftVar.
-isa_backchaing_0(_,C):- C==ftProlog,!.
+isa_backchaing(I,C):- C==ftVar,!,is_ftVar(I).
+isa_backchaing(I,C):- nonvar(I),is_ftVar(I),!,C=ftVar.
+isa_backchaing(_,C):- C==ftProlog,!.
+isa_backchaing(I,C):- isa_complete(I,C).
+%isa_backchaing_0(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
 isa_backchaing_0(I,C):- no_repeats((isa_asserted(I,C)*->true;(var(C),tSet(C),isa_asserted(I,C)))).
+
+isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
+isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
+isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
+
 
 %:- table(isa_backchaing_1/2).
 isa_backchaing_1(I,C):- fail,
@@ -951,12 +958,6 @@ isa_asserted(I,C):-  no_repeats(loop_check(isa_asserted_0(I,C))).
 % isa_asserted(I,C):- !, call_u(isa(I,C)).
 %isa_asserted(I,C):- ((lc_tcall(isa(I,C),no_repeats(loop_check(isa_asserted_0(I,C)))))).
 %isa_asserted(I,CC):-no_repeats((isa_asserted_0(I,C),call_u(genls(C,CC)))).
-
-isa_backchaing(I,C):- isa_complete(I,C).
-
-isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
-isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
-isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
 
 
 

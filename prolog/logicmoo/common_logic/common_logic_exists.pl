@@ -634,7 +634,7 @@ skolem_from_set(Set,X,SKF):-
  %TODO attempt_checkout(X,SkV),
   nop(sanity(has_cond(X,aoc(SkV ,Which)))).
 
-range_int(Which,N,Cardin):- Which #>= N, Which #=< Cardin.
+range_int(Which,N,Cardin):- '#>='(Which,N), '#=<'(Which, Cardin).
 
 which_skv_soft(_SkV,Cardin,Which):- kif_option_value(gvar_skolem_combine,true),!, range_int(Which,1,Cardin),!.
 which_skv(SkV,Cardin,Which):- var(SkV),!, between(1,Cardin,Which).

@@ -463,7 +463,7 @@ relax_args(G,N,[A|RGS]):-relax_N(G,N,A),!,N2 is N + 1,relax_args(G,N2,RGS).
 relax_args(_,_,[]).
 
 :- set_prolog_flag(verbose_file_search,true).
-:- use_module(user:library(clpfd)).		% Make predicates defined
+:- user:use_module(library(clpfd),except([sum/3,op(_,_,_)])).		% Make predicates defined
 %:- absolute_file_name(library('clp/clpr.pl'),File),writeln(File).
 %:- use_module(user:library(clpr)).		% Make predicates defined
 :- use_module(library(clpr),except([{}/1])).		% Make predicates defined
@@ -723,7 +723,7 @@ disjoint_conds(Dom1,Dom2):-
   rejects_cond(Prop,Dom2).
 
 % disjoint skolems
-rejects_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),W1 #\= W2,!.
+rejects_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),'#\\='(W1,W2),!.
 rejects_cond(male,Dom2):- !, memberchk(female,Dom2).
 rejects_cond(_,_):- fail.
 
@@ -736,7 +736,7 @@ non_disjoint_conds(Dom1,Dom2):-
 aoc(_,_).
 
 % already same skolems
-not_rejected_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),W1 #= W2,!.
+not_rejected_cond(aoc(SK,W1),Dom2):- !, memberchk(aoc(SK,W2),Dom2),'#='(W1 , W2),!.
 not_rejected_cond(male,Dom2):- memberchk(female,Dom2).
 
 as_existential(In,Out):- is_existential(In),!,must(In=Out).
