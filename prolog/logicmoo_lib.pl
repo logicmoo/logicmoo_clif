@@ -8,7 +8,7 @@
 :- module(logicmoo_lib,
  [
  % logicmoo_user_stacks/0, 
-  maybe_save_lm/0
+  libhook:maybe_save_lm/0
  ]).
 
 /*
@@ -53,14 +53,16 @@
 :- if(app_argv('--pdt')).
 :- if(\+ app_argv('-nopce')).
 :- if(\+ (getenv('DISPLAY',X) -> \+ atom_string(X,""))).
-:- guitracer.
+%:- guitracer.
+:- else.
+:- noguitracer.
 :- endif.
 :- endif.
 :- endif.
 
 :- if(app_argv('--wamcl'); app_argv('--lisp')).
 :- use_module(library(wamcl_runtime)).
-:- start_lspsrv(repl,3601,"Lisp Repl").
+:- start_lspsrv(repl,3301,"Lisp Repl").
 :- endif.
 
 
@@ -224,21 +226,25 @@
 :- dmsg("LOAD LOGICMOO UTILS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- use_module(library(option)).
+
 logicmoo_base_port(Base):- app_argv1(One),\+ is_list(One),
    (atom(One)-> (atomic_list_concat([_,Atom],'port=',One),atom_number(Atom,Base)) ; 
       (options(port(Base),[One],fail),One\==fail)),!.
 logicmoo_base_port(Base):- getenv_or('LOGICMOO_BASE_PORT',Base,3000),!.
+:- export(logicmoo_base_port/1).
+:- system:import(logicmoo_base_port/1).
 
 :- user:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
 :- dynamic(prolog:make_hook/2).
 prolog:make_hook(before, C):- wdmsg(prolog:make_hook(before, C)),fail.
-prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),maybe_save_lm,fail.
+prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),libhook:maybe_save_lm,fail.
 
-maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
-maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
-maybe_save_lm:- qsave_lm(lm_repl4),!.
+libhook:maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
+libhook:maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
+libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("Ensure RPC TelnetLib").

@@ -1,7 +1,7 @@
 %#!/usr/bin/swipl 
 
 :- module(logicmoo_webbot,[
-  prolog_tn_server/0]).
+  prolog_tn_server/0,www_start/0,www_start/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOGICMOO WEB&BOT").
@@ -66,13 +66,19 @@ www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16)
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/html_write)).
-:- during_net_boot(www_start).
 :- endif.  % --www
 
 :- if((app_argv_ok('--sigma'))).
-:- user:load_library_system(library(xlisting_web)).
+:- dmsg("SIGMA-KE Server").
+:- user:use_module(library(xlisting_web)).
+:- user:listing(baseKB:shared_hide_data/1).
 :- endif.
 
+:- if(app_argv('--www')).
+:- during_net_boot(www_start).
+:- endif.
+
+% :- break.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Sanity tests that first run whenever a person stats the MUD to see if there are regressions in the system

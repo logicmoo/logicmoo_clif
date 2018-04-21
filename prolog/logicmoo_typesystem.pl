@@ -162,7 +162,7 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 % Module Secondary Helper.
 %
 %:- add_library_search_path('./mpred_online/',[ '*.pl']).
-checkKB:m1:- gripe_time(40,wsce(logicmoo(mpred_online/xlisting_web))),if_defined(ensure_webserver), make,list_undefined.
+checkKB:m1:- gripe_time(40,wsce(library(xlisting_web))),if_defined(ensure_webserver), make,list_undefined.
 
 % :- hook_message_hook.
 % :- set_prolog_flag(verbose_autoload,false).

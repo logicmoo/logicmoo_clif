@@ -1393,9 +1393,9 @@ pnf(KB, H,Vars,FOO ):- fail,  compound(H),H=..[F|ARGS], is_sentence_functor(F), 
 pnf(_KB,          PNF, _,       PNF ).
 
 
-:- meta_predicate if_debugging(*,0).
-% if_debugging(_,_):- !.
-if_debugging(_,G):- call(G).
+:- meta_predicate if_debugging2(*,0).
+% if_debugging2(_,_):- !.
+if_debugging2(_,G):- call(G).
 %=%  Clausal Form (CF) : assumes Fml in PNF and
 %                                 each quantified variable is unique
 

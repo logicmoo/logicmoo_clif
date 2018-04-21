@@ -280,8 +280,14 @@ sk_set_maker(M,P0):-
 
 % skolem_tru(P):- strip_module(P,M,P0),M:deduce_tru(P0).
 
+:- dynamic(baseKB:nesc/1).
+:- export(baseKB:nesc/1).
+:- public(baseKB:nesc/1).
+:- system:import(baseKB:nesc/1).                                                                                
+:- system:export(baseKB:nesc/1).
 %:- module_transparent(system:nesc/1).
-%system:nesc(MP):- strip_module(MP,M,P),no_repeats((nesc_lc(M,P))).
+%:- module_transparent(system:nesc/1).
+%baseKB:nesc(MP):- strip_module(MP,M,P),no_repeats((nesc_lc(M,P))).
 :- module_transparent(nesc_lc/2).
 
 % :- table(nesc_lc/2).
@@ -683,10 +689,16 @@ exists([R,X,Y,T], ((subRelation(R,loves), is_a(T,time), is_a(T,context),exists_d
 
 attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 
-:- ain((mtHybrid(Mt)==> {kb_local(Mt:nesc/1)})).
-:- ain((mtHybrid(Mt)==> {kb_local(Mt:proven_helper/1)})).
-:- ain((mtHybrid(Mt)==> {Mt\==baseKB, assert_if_new((Mt:nesc(P):- nesc_lc(Mt, P)))})).
-:- ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_local(Mt:F/A)}).
+/*
+:- kbe:import(baseKB:never_assert_u/1).
+:- kbe:import(baseKB:never_assert_u/2).
+:- kbe:import(baseKB:mpred_is_spying_pred/2).
+:- system:import(baseKB:que/2).
+*/
+:- baseKB:ain((mtHybrid(Mt)==> {kb_local(Mt:nesc/1)})).
+:- baseKB:ain((mtHybrid(Mt)==> {kb_local(Mt:proven_helper/1)})).
+:- baseKB:ain((mtHybrid(Mt)==> {Mt\==baseKB, assert_if_new((Mt:nesc(P):- nesc_lc(Mt, P)))})).
+:- baseKB:ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_local(Mt:F/A)}).
 
 %:- kb_local(call_tru/2).
 % :- meta_predicate call_tru(?).

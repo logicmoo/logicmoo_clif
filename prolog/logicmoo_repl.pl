@@ -45,7 +45,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 
 % forward chaining state browser
 :- if(exists_source(library(xlisting_web))).
-:- ensure_loaded(library(xlisting_web)).
+:- user:ensure_loaded(library(xlisting_web)).
 :- endif.
 
 :- during_boot(add_history_ideas).
@@ -72,7 +72,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % [Optionaly] Load the EXTRA Logicmoo WWW System
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% :- baseKB:ensure_loaded(library(xlisting_web)).
+% :- user:ensure_loaded(library(xlisting_web)).
 % :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_pldoc))).
 % :- if_file_exists(ensure_loaded(library(logicmoo/logicmoo_run_swish))).
 

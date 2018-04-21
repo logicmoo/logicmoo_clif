@@ -26,7 +26,7 @@ write_pdt_startup_error_messages_to_file(File) :-
     close(Stream).
 
 :- (current_prolog_flag(xpce_threaded, _) -> set_prolog_flag(xpce_threaded, true) ; true).
-:- (current_prolog_flag(dialect, swi) -> guitracer ; true).
+%:- (current_prolog_flag(dialect, swi) -> guitracer ; true).
 :- (  (current_prolog_flag(dialect, swi), current_prolog_flag(windows, true))  -> win_window_pos([show(false)]) ; true).
 :- (current_prolog_flag(windows,_T) -> set_pro(tty_control,false) ; true).
 :- ['./consult_server.pl'].

@@ -146,7 +146,7 @@ kif_optionally_e(Default,Name,Jiggler,KIF,JIGGLED):-
        ((kif_value_false(Value), \+ Default==always) -> KIF=JIGGLED ;
       ((locally_tl(kif_option(Name,Value),
          must(call(Jiggler,KIF,JIGGLED))),
-       if_debugging(Name,(KIF \=@= JIGGLED) -> (sdmsg(Name=JIGGLED)); true)))),!.
+       if_debugging2(Name,(KIF \=@= JIGGLED) -> (sdmsg(Name=JIGGLED)); true)))),!.
 
 :- fixup_exports.
 
