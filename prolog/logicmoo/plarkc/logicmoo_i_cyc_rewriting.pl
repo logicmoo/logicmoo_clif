@@ -1660,8 +1660,8 @@ list_to_ops(Pred,[H|T],Body):-!,
 convert_string(A,A):- \+ atom_contains(A,' '),!.
 convert_string(A,B):- logicmoo_util_strings:convert_to_cycString(A,B),!.
 
-:-nb_setval('$has_kw',[]).
-:-nb_setval('$has_var',[]).
+:-thread_initialization(nb_setval('$has_kw',[])).
+:-thread_initialization(nb_setval('$has_var',[])).
 
 do_renames(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 do_renames(A,B):- var(A),!,A=B,!,nb_setval('$has_var',t),!.

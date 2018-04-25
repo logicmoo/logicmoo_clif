@@ -55,7 +55,7 @@
 :- if(\+ (getenv('DISPLAY',X) -> \+ atom_string(X,""))).
 %:- guitracer.
 :- else.
-:- noguitracer.
+%:- noguitracer.
 :- endif.
 :- endif.
 :- endif.
