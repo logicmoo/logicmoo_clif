@@ -96,8 +96,9 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 
 :- create_prolog_flag(mpred_te,true,[type(term),keep(false)]).
 
+:- kb_shared(baseKB:prologSingleValued/1).
 :- kb_shared(baseKB:never_assert_u/1).
-:- kb_shared(baseKB:never_assert_u/2).
+:- kb_shared(baseKB:never_assert_u/1).
 :- kb_shared(baseKB:never_retract_u/1).
 :- kb_shared(baseKB:never_retract_u/2).
 :- kb_shared(baseKB:mpred_prop/4).

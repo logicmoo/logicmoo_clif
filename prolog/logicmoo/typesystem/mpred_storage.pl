@@ -1003,7 +1003,7 @@ prop_or(Obj,Prop,Value,OrElse):- one_must(ireq(t(Prop,Obj,Value)),Value=OrElse).
 % ================================================
 
 /*
-update_single_valued_arg(P,N):- arg(N,P,UPDATE),replace_arg(P,N,OLD,Q),
+% update_single_valued_arg(P,N):- arg(N,P,UPDATE),replace_arg(P,N,OLD,Q),
   (is_relative(UPDATE)->
      must_det_l((Q,update_value(OLD,UPDATE,NEW),\+ is_relative(NEW), replace_arg(Q,N,NEW,R),enqueue(\+Q),enqueue(R)));
      forall((Q,UPDATE\=OLD),mpred_enqueue(\+Q))),!.
