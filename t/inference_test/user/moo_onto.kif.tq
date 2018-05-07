@@ -97,7 +97,7 @@
 (subclass-of Grasper Bpart)
 (subclass-of Organs Bpart)
 
-(Implies (And (Isa ?Avatar Avatar ) (Part-Of ?Avatar ?Thing )  ) (Isa ?Thing ?Bpart ) )
+(Implies (And (Isa ?Avatar Avatar ) (Part-Of ?Avatar ?Thing )  ) (Isa ?Thing Bpart ) )
 
 (subclass-of Room Location)
 (subclass-of Pthing Location)
