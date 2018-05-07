@@ -1,31 +1,33 @@
 (note TQC52)
 
+; English: "After Day 16, what risks would Saudi Arabia face in attacking targets in Iran with chemical weapons?"
+
 (increasesCausally HYP-MilitaryAttack-64413153 
- (thereExists ?DESTROY 
+ (exists ?DESTROY 
  (inputsDestroyed ?DESTROY HYP-ChemicalWeapon-13134070)) likelihood) 
 
 (possesses SaudiArabia HYP-ChemicalWeapon-13134070) 
 
-(implies 
+(=> 
  (possesses ?AGT ?THING) 
  (desires ?AGT 
  (not 
- (thereExists ?EVT 
+ (exists ?EVT 
  (inputsDestroyed ?EVT ?THING))))) 
 
 (increasesCausally HYP-MilitaryAttack-64413153 
- (thereExists ?RETALIATION 
+ (exists ?RETALIATION 
  (and 
  (instance ?RETALIATION AttackOnTangible) 
  (maleficiary ?RETALIATION SaudiArabia))) likelihood) 
 
 (instance SaudiArabia Agent) 
 
-(implies 
+(=> 
  (instance ?AGT Agent) 
  (desires ?AGT 
  (not 
- (thereExists ?ATTACK 
+ (exists ?ATTACK 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (maleficiary ?ATTACK ?AGT)))))) 
@@ -40,7 +42,7 @@
 
 (subrelation increasesImmediatelyCausally increasesCausally) 
 
-(implies 
+(=> 
  (agent ?ACT ?AGT) 
  (desires ?AGT 
  (not 
@@ -50,7 +52,7 @@
 
 
 (increasesCausally HYP-MilitaryAttack-64413153 
- (thereExists ?MIL-OP 
+ (exists ?MIL-OP 
  (and 
  (instance ?MIL-OP MilitaryOperation) 
  (directingAgent ?MIL-OP OrganizationForTheProhibitionOfChemicalWeapons) 
@@ -58,7 +60,7 @@
 
 (desires SaudiArabia 
  (not 
- (thereExists ?MIL-OP 
+ (exists ?MIL-OP 
  (and 
  (instance ?MIL-OP MilitaryOperation) 
  (directingAgent ?MIL-OP OrganizationForTheProhibitionOfChemicalWeapons) 
@@ -68,7 +70,7 @@
 
 
 (increasesCausally HYP-MilitaryAttack-64413153 
- (thereExists ?SANCTION 
+ (exists ?SANCTION 
  (and 
  (instance ?SANCTION ImposingSanctions) 
  (directingAgent ?SANCTION OrganizationForTheProhibitionOfChemicalWeapons) 
@@ -76,7 +78,7 @@
 
 (desires SaudiArabia 
  (not 
- (thereExists ?SANCTION 
+ (exists (?SANCTION)
  (and 
  (instance ?SANCTION ImposingSanctions) 
  (directingAgent ?SANCTION OrganizationForTheProhibitionOfChemicalWeapons) 
@@ -85,12 +87,12 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK MilitaryAttack) 
  (deviceUsed ?ATTACK ?WEAPON)) 
  (increasesCausally ?ATTACK 
- (thereExists ?DESTROY 
+ (exists ?DESTROY 
  (inputsDestroyed ?DESTROY ?WEAPON)) likelihood)) 
 
 (instance HYP-MilitaryAttack-64413153 MilitaryAttack) 
@@ -100,14 +102,14 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (maleficiary ?ATTACK ?AGT2) 
  (instance ?AGT2 Agent) 
  (agent ?ATTACK ?AGT1)) 
  (increasesCausally ?ATTACK 
- (thereExists ?RETALIATION 
+ (exists ?RETALIATION 
  (and 
  (instance ?RETALIATION AttackOnTangible) 
  (maleficiary ?RETALIATION ?AGT1))) likelihood)) 
@@ -125,7 +127,7 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?AGREE CodeOfConduct) 
  (instance ?AGREE InternationalAgreement) 
@@ -134,7 +136,7 @@
  (agent ?ACT ?GEOPOL) 
  (instance ?GEOPOL GeopoliticalEntity)) 
  (increasesCausally ?ACT 
- (thereExists ?MIL-OP 
+ (exists ?MIL-OP 
  (and 
  (instance ?MIL-OP MilitaryOperation) 
  (directingAgent ?MIL-OP ?GROUP) 
@@ -155,7 +157,7 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?AGREE CodeOfConduct) 
  (instance ?AGREE InternationalAgreement) 
@@ -164,14 +166,14 @@
  (agent ?ACT ?GEOPOL) 
  (instance ?GEOPOL GeopoliticalEntity)) 
  (increasesCausally ?ACT 
- (thereExists ?SANCTION 
+ (exists ?SANCTION 
  (and 
  (instance ?SANCTION ImposingSanctions) 
  (directingAgent ?SANCTION ?GROUP) 
  (maleficiary ?SANCTION ?GEOPOL))) likelihood)) 
 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (agent ?ATTACK ?AGT) 
@@ -179,7 +181,7 @@
  (possesses ?AGT ?DEVICE)) 
 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (deviceUsed ?ATTACK ?WEAPON) 
@@ -195,33 +197,33 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?GEOPOL GeopoliticalEntity) 
  (obligatedAgent ?OBL ?GEOPOL) 
  (enforcingAgent ?OBL ?ENFORCER)) 
  (desires ?GEOPOL 
  (not 
- (thereExists ?MIL-OP 
+ (exists ?MIL-OP 
  (and 
  (instance ?MIL-OP MilitaryOperation) 
  (directingAgent ?MIL-OP ?ENFORCER) 
  (maleficiary ?MIL-OP ?GEOPOL)))))) 
 
-(implies 
+(=> 
  (and 
  (instance ?GEOPOL GeopoliticalEntity) 
  (obligatedAgent ?OBL ?GEOPOL) 
  (enforcingAgent ?OBL ?ENFORCER)) 
  (desires ?GEOPOL 
  (not 
- (thereExists ?SANCTION 
+ (exists ?SANCTION 
  (and 
  (instance ?SANCTION ImposingSanctions) 
  (directingAgent ?SANCTION ?ENFORCER) 
  (maleficiary ?SANCTION ?GEOPOL)))))) 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (agent ?ATTACK ?COUNTRY2) 
@@ -244,7 +246,7 @@
 
 
 
-(implies 
+(=> 
  (and 
  (instance ?ATTACK AttackOnTangible) 
  (deviceUsed ?ATTACK ?CHEM) 
@@ -263,7 +265,7 @@
 
 (query (findall ?PROP 
 
- (implies 
+ (=> 
  (and 
  (agent ?ACT SaudiArabia) 
  (instance ?ACT MilitaryAttack) 
@@ -283,10 +285,10 @@
  (increasesCausally ?ACT ?PROP likelihood))))))
 
 (answer (list 
-   (thereExists ?DESTROY 
+   (exists ?DESTROY 
        (inputsDestroyed ?DESTROY #$HYP-ChemicalWeapon-13134070))  ))
 
-(answer (list (thereExists ?RETALIATION 
+(answer (list (exists ?RETALIATION 
        (and 
            (instance ?RETALIATION AttackOnTangible) 
            (maleficiary ?RETALIATION SaudiArabia))) ))
@@ -294,14 +296,14 @@
 (answer (list  (failureForAgents #$HYP-MilitaryAttack-64413153 SaudiArabia) ))
 
 (answer (list 
-(thereExists ?MIL-OP 
+(exists ?MIL-OP 
        (and 
            (instance ?MIL-OP MilitaryOperation) 
            (directingAgent ?MIL-OP OrganizationForTheProhibitionOfChemicalWeapons) 
            (maleficiary ?MIL-OP SaudiArabia)))
 ))
 
-(answer (list (thereExists ?SANCTION 
+(answer (list (exists ?SANCTION 
        (and 
            (instance ?SANCTION ImposingSanctions) 
            (directingAgent ?SANCTION OrganizationForTheProhibitionOfChemicalWeapons) 

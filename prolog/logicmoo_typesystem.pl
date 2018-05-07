@@ -137,7 +137,6 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 
 
 
-:- must_not_be_pfc_file.
 
 :-  call(prolog_statistics:time,((ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
 

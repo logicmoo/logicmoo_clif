@@ -359,7 +359,7 @@ elmt:exactlyAssertedELMT(not,What,MT,STR):- assertedTinyKB_not(What,MT,STR),true
 :- install_constant_renamer_until_eof.
 :- discontiguous exactlyAssertedEL_first/5.
 
-:- must_not_be_pfc_file.
+%:- must_not_be_pfc_file.
 
 exactlyAssertedEL_first(isa, xor, 'LogicalConnective', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', vStrDef).
