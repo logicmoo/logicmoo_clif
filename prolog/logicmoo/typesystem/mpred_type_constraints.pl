@@ -462,14 +462,14 @@ dont_relax(A):- \+ compound(A), \+ atom(A), \+ string(A).
 relax_args(G,N,[A|RGS]):-relax_N(G,N,A),!,N2 is N + 1,relax_args(G,N2,RGS).
 relax_args(_,_,[]).
 
-:- set_prolog_flag(verbose_file_search,true).
+%:- set_prolog_flag(verbose_file_search,true).
 :- user:use_module(library(clpfd),except([sum/3,op(_,_,_)])).		% Make predicates defined
 %:- absolute_file_name(library('clp/clpr.pl'),File),writeln(File).
 %:- use_module(user:library(clpr)).		% Make predicates defined
 :- use_module(library(clpr),except([{}/1])).		% Make predicates defined
 :- use_module(user:library(simplex)).		% Make predicates defined
 
-:- set_prolog_flag(verbose_file_search,false).
+%:- set_prolog_flag(verbose_file_search,false).
 
 :- meta_predicate lazy_pfa(*,+,*).  % arg1 was 0
 :- meta_predicate #(*).  %  was 0

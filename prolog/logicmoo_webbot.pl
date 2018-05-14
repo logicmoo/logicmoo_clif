@@ -65,7 +65,7 @@ www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16)
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
-:- use_module(library(http/html_write)).
+:- use_module(swi(library/http/html_write)).
 :- endif.  % --www
 
 :- if((app_argv_ok('--sigma'))).

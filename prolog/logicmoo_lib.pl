@@ -247,37 +247,21 @@ libhook:maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call
 libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("Ensure RPC TelnetLib").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:- multifile(lmcache:prolog_tn_server_port/1).
-:- dynamic(lmcache:prolog_tn_server_port/1).
-
-prolog_tn_server00:- thread_property(PS,status(running)),PS==prolog_server,!.
-prolog_tn_server00:- 
-   must(ensure_loaded(library(prolog_server))),
-   logicmoo_base_port(Base),
-   TelnetPort is Base + 223,
-   dmsg(TelnetPort= "SWI-PROLOG TelnetLib"),
-   prolog_server(TelnetPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(TelnetPort)),!.
-%   ,E,(writeq(E),fail)),!.
-   
-:- during_net_boot(prolog_tn_server00).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOGICMOO/CYC Alignment util").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- set_prolog_flag(do_renames,restore).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
+/*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("[Required] Load the Logicmoo Web System").
+:- dmsg("[Optional] Load the Logicmoo Web System").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- user:use_module(library(logicmoo_util_common)).
 
 :- if(\+ app_argv('--nonet')).
 :- whenever_flag_permits(load_network,load_library_system(library(logicmoo_webbot))).
 :- endif.
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Required] Load the Logicmoo Type System").

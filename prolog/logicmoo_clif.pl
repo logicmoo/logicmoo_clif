@@ -12,6 +12,8 @@
 :- set_prolog_flag(verbose_autoload,true).
 */
 
+:- ensure_loaded(library(logicmoo_lib)).
+
 
 :- set_fileAssertMt(baseKB).
 

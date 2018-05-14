@@ -8,6 +8,7 @@
 */
 :- module(logicmoo_plarkc,[]).
 
+:- ensure_loaded(library(logicmoo_lib)).
 
 :- multifile(baseKB:cycBetween/3).
 :- dynamic(baseKB:cycBetween/3).

@@ -3,13 +3,17 @@
  Basic startup
 
 */
+:- set_module(class(system)).
+:- set_module(baseKB:class(development)).
+:- ensure_loaded(library(xlisting)).
+:- ensure_loaded(library(xlisting_web)).
+:- ensure_loaded(library(logicmoo_lib)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- whenever_flag_permits(load_network,with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot))).
-:- set_module(baseKB:class(development)).
+logicmoo_web :- whenever_flag_permits(load_network,with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot))).
 :- set_prolog_flag(access_level,system).
 
 :- set_prolog_flag(toplevel_print_anon,true).
@@ -137,8 +141,10 @@ system:iRR7_test:-
 % KIF READER SANITY TESTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
+:- use_module(library(wam_cl/sreader)).
 
+show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
+:- export(show_kif/1).
 
 :- add_history((input_to_forms("
 (=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) 

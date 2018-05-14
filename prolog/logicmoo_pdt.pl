@@ -10,7 +10,8 @@
 
 % :- absolute_file_name(swi(xpce/prolog/lib),X), assert_if_new(user:library_directory(X)).
 
-ensure_guitracer:-
+ensure_guitracer:-!.
+ensure_guitracer:- break,
  absolute_file_name(swi(xpce/prolog/lib),X), assert_if_new(user:library_directory(X)), 
  user:use_module(library(pce_prolog_xref)),
  user:use_module(library(emacs_extend)),

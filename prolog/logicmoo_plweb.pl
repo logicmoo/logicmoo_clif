@@ -6,6 +6,25 @@
           ensure_webserver_p/1]).
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("Ensure RPC TelnetLib").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- multifile(lmcache:prolog_tn_server_port/1).
+:- dynamic(lmcache:prolog_tn_server_port/1).
+
+prolog_tn_server00:- thread_property(PS,status(running)),PS==prolog_server,!.
+prolog_tn_server00:- 
+   must(ensure_loaded(library(prolog_server))),
+   logicmoo_base_port(Base),
+   TelnetPort is Base + 223,
+   dmsg(TelnetPort= "SWI-PROLOG TelnetLib"),
+   prolog_server(TelnetPort, [allow(_),call(prolog)]),asserta(lmcache:prolog_tn_server_port(TelnetPort)),!.
+%   ,E,(writeq(E),fail)),!.
+   
+:- during_net_boot(prolog_tn_server00).
+
+
 /*
 ERROR: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:56:
         source_sink `library(http/recaptcha)' does not exist
