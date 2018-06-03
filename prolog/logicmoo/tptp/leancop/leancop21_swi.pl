@@ -86,3 +86,5 @@ assert_renvar([],[]).
 assert_renvar([F|FunL],[F1|FunL1]) :-
     ( var(F) -> true ; F=..[Fu|Arg], assert_renvar(Arg,Arg1),
       F1=..[Fu|Arg1] ), assert_renvar(FunL,FunL1).
+
+:- break.

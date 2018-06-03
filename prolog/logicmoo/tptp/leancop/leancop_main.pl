@@ -71,3 +71,5 @@ output_result(File,Matrix,Proof,Result,Conj) :-
     ( var(Out) -> true ; print('Start of proof'), print(Out),
       print(File), nl, leancop_proof(Matrix,Proof),
       print('End of proof'), print(Out), print(File), nl ).
+
+:- break.

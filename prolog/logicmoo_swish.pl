@@ -11,9 +11,6 @@ Remote SWISH as an IDE for developing a Remote application.
 
 :- use_module(library(must_trace)).
 
-:- if((\+ app_argv_off('--wamcl'), \+ app_argv_off('--lisp'))).
-:- use_module(library(wamcl_runtime)).
-:- endif.
 
 :- set_prolog_flag(lm_no_autoload,false).
 :- set_prolog_flag(lm_pfc_lean,false).

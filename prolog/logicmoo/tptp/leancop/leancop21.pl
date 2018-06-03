@@ -82,3 +82,5 @@ assert_clauses2([],_,_).
 assert_clauses2([L|C],C1,G) :-
     append(C1,C,C2), assert(lit(L,C2,G)), append(C1,[L],C3),
     assert_clauses2(C,C3,G).
+
+

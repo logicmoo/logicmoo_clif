@@ -226,15 +226,6 @@
 :- dmsg("LOAD LOGICMOO UTILS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(option)).
-
-logicmoo_base_port(Base):- app_argv1(One),\+ is_list(One),
-   (atom(One)-> (atomic_list_concat([_,Atom],'port=',One),atom_number(Atom,Base)) ; 
-      (options(port(Base),[One],fail),One\==fail)),!.
-logicmoo_base_port(Base):- getenv_or('LOGICMOO_BASE_PORT',Base,3000),!.
-:- export(logicmoo_base_port/1).
-:- system:import(logicmoo_base_port/1).
-
 :- user:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
@@ -252,6 +243,7 @@ libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
 :- set_prolog_flag(do_renames,restore).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
+logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library(logicmoo_webbot))).
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Optional] Load the Logicmoo Web System").
@@ -259,7 +251,7 @@ libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
 :- user:use_module(library(logicmoo_util_common)).
 
 :- if(\+ app_argv('--nonet')).
-:- whenever_flag_permits(load_network,load_library_system(library(logicmoo_webbot))).
+:- logicmoo_webbot.
 :- endif.
 */
 

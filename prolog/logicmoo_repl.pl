@@ -13,7 +13,10 @@
 % LOAD WEB HOOKS AND LOGTALK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+logicmoo_web_s:- whenever_flag_permits(load_network,load_library_system(library(logicmoo_webbot))).
+
 logicmoo_web :- whenever_flag_permits(load_network,with_no_mpred_expansions(user:ensure_loaded(logicmoo_webbot))).
+
 :- set_prolog_flag(access_level,system).
 
 :- set_prolog_flag(toplevel_print_anon,true).

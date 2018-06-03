@@ -567,7 +567,7 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 %:- rtrace.
 %:- kb_shared(mpred_prop/4).
-:- kb_shared(mpred_prop/4).
+:- kb_global(baseKB:mpred_prop/4).
 %:- nortrace.
 
 

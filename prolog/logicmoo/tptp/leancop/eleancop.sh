@@ -16,17 +16,18 @@
 # Parameters
 
 # set leanCoP prover path
-PROVER_PATH=$(pwd)
+PROVER_PATH=.
 
 # set Prolog system, path, and options
 
-#PROLOG=swipl
-#PROLOG_PATH=$(which $PROLOG)
-#PROLOG_OPTIONS='-e'
+PROLOG=eclipse
+PROLOG_PATH=/usr/bin/eclipse
+PROLOG_OPTIONS='-e'
 
-PROLOG=swi
-PROLOG_PATH=swipl
-PROLOG_OPTIONS='-f /dev/null -g assert((print(A):-write(A)))'
+#PROLOG=swi
+#PROLOG_PATH=/usr/bin/swipl
+#PROLOG_OPTIONS='-g assert((print(A):-write(A)))
+#                -nodebug -L120M -G120M -T100M -q -t'
 
 #PROLOG=sicstus
 #PROLOG_PATH=/usr/bin/sicstus
@@ -40,7 +41,7 @@ SAVE_PROOF=no
 PROOF_LAYOUT=readable
 
 # set TPTP library path
-TPTP=/opt/logicmoo_workspace/packs_sys/logicmoo_base/t/inference_test/TPTP-v7.1.0
+# TPTP=.
 
 #----------
 # Functions

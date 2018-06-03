@@ -205,7 +205,9 @@ onSpawn(State)/mpred_literal(State) ==> {doSpawn(State)}.
 %==>(((onSpawn(Idea)==> ((isLoadedType(tSourceData),isRuntime) ==> {ain_expanded(Idea,())})))).
 
 onStart(Idea)/definitional(Idea) ==> Idea.
-((onStart(Idea)/ ( \+ definitional(Idea))) ==> (isRuntime ==> {get_startup_uu(UU),ain_expanded(Idea,UU)})).
+
+((onStart(Idea)/ ( \+ definitional(Idea))) ==> 
+  (isRuntime ==> {get_startup_uu(UU),ain_expanded(Idea,UU)})).
 
 pfcControlled(prologArity(tRelation,ftInt)).
 pfcControlled(isa(ftTerm,tCol)).

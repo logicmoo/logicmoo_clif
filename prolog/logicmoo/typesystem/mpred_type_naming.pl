@@ -254,6 +254,8 @@ get_source_suffix(_NameNeedsNum,SS):- fail,
 get_source_suffix(_NameNeedsNum,SS):- t_l:current_source_suffix(SS),!.
 get_source_suffix(_NameNeedsNum,'7').
 
+:- volatile(lmcache:tmp_directory_source_sufix/2).
+:- dynamic(lmcache:tmp_directory_source_sufix/2).
 directory_source_sufix(DN,SSM):- lmcache:tmp_directory_source_sufix(DN,SSM),!.
 directory_source_sufix(DN,SSM):- make_directory_source_sufix(DN,SSM),!,
   asserta(lmcache:tmp_directory_source_sufix(DN,SSM)),!.
@@ -320,7 +322,7 @@ modality(~,[never],[]).
 % Spawn. 
 
 doSpawn((A,B)):- must_be(nonvar,A),!,doSpawn(A),doSpawn(B). 
-doSpawn(Class==>Fact):-!,ain(Class==>{doSpawn(Fact)}). 
+doSpawn(Class==>Fact):-!,mpred_post(Class==>{doSpawn(Fact)}). 
 doSpawn(ClassFact):-   
    fully_expand(clause(assert,doSpawn),ClassFact,ClassFactO),!,  
    doSpawn_modal(t,ClassFactO).
@@ -362,7 +364,7 @@ doSpawn_f_args(Modality,Funct,List):-
    Later =.. [Funct|NewList],
    fully_expand(clause(assert,doSpawn),t(Modality,Later),TO),
    add_on_start(TO))),!. 
-  % call_after_mpred_load_slow(locally(deduceArgTypes(Funct), ain(Later))))),!.
+  % call_after_mpred_load_slow(locally(deduceArgTypes(Funct), mpred_post(Later))))),!.
 
 
 definitional(X):- \+ compound(X),!,fail.
@@ -372,8 +374,8 @@ definitional(t(TO)):- !, definitional(TO).
 definitional(Compound):- functor(Compound,F,A), (A=1;if_defined(definitionalProp(F),fail)).
 
 add_on_start(t(TO)):- nonvar(TO),!,add_on_start(TO).
-add_on_start(TO):- definitional(TO),!,ain(TO).
-add_on_start(TO):- call_u(ain(onStart(TO))).
+add_on_start(TO):- definitional(TO),!,mpred_post(TO).
+add_on_start(TO):- call_u(mpred_post(onStart(TO))).
 
 %= 	 	 
 
@@ -427,7 +429,7 @@ convertToInstance(Name,COLTHING,TypeA):- a(ttTypeType,COLTHING),createByNameMang
 convertToInstance(Name,COLTHING,TypeA):- call_u(genls(COLTHING,tCol)),createByNameMangle(Name,_,TypeA),assert_isa(TypeA,COLTHING).
 convertToInstance(Name,FunctArgType,Inst):- createByNameMangle(Name,Inst,TypeA),
     assert_isa(Inst,FunctArgType),
-    call_u(ain(genls(TypeA,FunctArgType))),!.
+    call_u(mpred_post(genls(TypeA,FunctArgType))),!.
 
 :- fixup_exports.
 
