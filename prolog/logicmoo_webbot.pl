@@ -16,36 +16,41 @@ www_start:- www_start(3020).
 www_start(Port):- dmsg("WWW Server " = Port), http_server_property(Port, goal(_)),!.
 www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16) 
 
+app_argv_www(Flag):- app_argv1(Flag),!.
+app_argv_www(Flag):- app_argv_off(Flag),!,fail.
+app_argv_www(Flag):- app_argv_ok(Flag),app_argv('--www').
 
-:- if(app_argv('--www')).
 
-:- if(app_argv_ok('--swish')).
+:- if(app_argv_www('--swish')).
 :- dmsg("SWISH Server").
 :- user:load_library_system(logicmoo_swish).
 :- endif.
 
-:- if(app_argv_ok('--cliop')).
+:- if(app_argv_www('--cliop')).
 :- user:load_library_system(logicmoo_cliop).
 :- endif.
 
-:- if(app_argv_ok('--plweb')).
+:- if(app_argv_www('--plweb')).
 :- dmsg("PLWEB Server").
 :- user:load_library_system(logicmoo_plweb).
 :- endif.
 
-:- if(app_argv_ok('--docs')).
+:- if(app_argv_www('--docs')).
 :- dmsg("PLDOC Server").
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
 
 
+/*
+:- if(app_argv_www('--www')).
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
 :- use_module(swi(library/http/html_write)).
 :- endif.  % --www
+*/
 
-:- if((app_argv_ok('--sigma'))).
+:- if((app_argv_www('--sigma'))).
 :- dmsg("SIGMA-KE Server").
 :- user:use_module(library(xlisting_web)).
 :- user:listing(baseKB:shared_hide_data/1).

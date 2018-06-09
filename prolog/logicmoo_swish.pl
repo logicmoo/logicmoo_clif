@@ -13,7 +13,7 @@ Remote SWISH as an IDE for developing a Remote application.
 
 
 :- set_prolog_flag(lm_no_autoload,false).
-:- set_prolog_flag(lm_pfc_lean,false).
+%:- set_prolog_flag(lm_pfc_lean,false).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -25,7 +25,7 @@ Remote SWISH as an IDE for developing a Remote application.
 
 :- multifile(owl2_model:datatype/2).
 :- dynamic(owl2_model:datatype/2).
-
+                                  -
 
 /** <module>
 

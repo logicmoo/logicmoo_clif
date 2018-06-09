@@ -22,6 +22,7 @@
 :- set_prolog_flag_until_eof(retry_undefine,false).
 
 :- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(wam_cl/sreader)).
 
 :- dynamic   user:file_search_path/2.
 :- multifile user:file_search_path/2.

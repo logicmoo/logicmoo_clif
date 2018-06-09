@@ -181,8 +181,8 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 
 
 
-:- kb_local(baseKB:proven_tru/1).
-:- kb_local(baseKB:proven_helper/1).
+:- kb_shared(baseKB:proven_tru/1).
+:- kb_shared(baseKB:proven_helper/1).
 % :- kb_shared(baseKB:proven_tru/1).
 
 modal_functor((poss)).
@@ -695,14 +695,14 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 :- kbe:import(baseKB:mpred_is_spying_pred/2).
 :- system:import(baseKB:que/2).
 */
-:- baseKB:ain((mtHybrid(Mt)==> {kb_local(Mt:nesc/1)})).
-:- baseKB:ain((mtHybrid(Mt)==> {kb_local(Mt:proven_helper/1)})).
+:- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:nesc/1)})).
+:- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:proven_helper/1)})).
 :- baseKB:ain((mtHybrid(Mt)==> {Mt\==baseKB, assert_if_new((Mt:nesc(P):- nesc_lc(Mt, P)))})).
-:- baseKB:ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_local(Mt:F/A)}).
+:- baseKB:ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_shared(Mt:F/A)}).
 
-%:- kb_local(call_tru/2).
+%:- kb_shared(call_tru/2).
 % :- meta_predicate call_tru(?).
-% :- ain((mtHybrid(Mt)==> {kb_local(Mt:call_tru/2)})).
+% :- ain((mtHybrid(Mt)==> {kb_shared(Mt:call_tru/2)})).
 
 system:call_tru(M,X):- call(M:call,nesc(X)).
 %system:call_tru(M,X):- findall(X,M:nesc(X),L),merge_compatibles(L,LO),!,member(X,LO).
@@ -1429,7 +1429,7 @@ kbi_define(M,F,A):- M:ain(mpred_prop(M,F,A,kbi_define)),
 
 :- module_transparent(kbi_define_now/3).
 kbi_define_now(M,F,A,P):-
-  M:kb_local(M:F/A),
+  M:kb_shared(M:F/A),
   dmsg(kbi_define(M:F/A)),
   % ((M:ain(P:- (findall(P,call_tru(M, P),L),merge_compatibles(L,LO),!,member(P,LO))))),
   ((M:ain(P:- call_tru(M, P)))),

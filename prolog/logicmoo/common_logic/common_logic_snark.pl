@@ -915,7 +915,7 @@ kif_to_boxlog_theorist(_Wff666,UnQ,KB,Why,RealOUT):-
    % unless_ignore(THIN\==UnQ, sdmsg(tlog_nnf_in=THIN)),
    with_no_dmsg(kif_optionally_e(always,tlog_nnf(even),THIN,RULIFY)),
    unless_ignore(THIN\== ~ RULIFY,((as_dlog(RULIFY,DRULIFY), sdmsg(tlog_nnf_out_negated= DRULIFY)))),
-   once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
+   trace,once((rulify(constraint,RULIFY,SideEffectsList),SideEffectsList\==[])),
    list_to_set(SideEffectsList,SetList),
    finish_clausify(KB,Why,SetList,RealOUT)]).
 
