@@ -6,7 +6,6 @@
 
 :- set_prolog_flag(retry_undefined,false).
 
-:- ensure_loaded(library(script_files)).
 
 
 %:- ensure_abox(kbii).

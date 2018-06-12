@@ -1665,6 +1665,7 @@ convert_string(A,B):- logicmoo_util_strings:convert_to_cycString(A,B),!.
 
 do_renames(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 do_renames(A,B):- var(A),!,A=B,!,nb_setval('$has_var',t),!.
+do_renames(rnc(X,Y),rnc(X,Y)):-!.
 do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),cnas(B,uT,List)).
 do_renames(uU('SubLQuoteFn',A),uSubLQuoteFn(A)):-var(A),!,nb_setval('$has_var',t),!.
 do_renames(uU('SubLQuoteFn','$VAR'(A)),uSubLQuoteFn(A)):-!,nb_setval('$has_quote',t),!,nb_setval('$has_var',t),!.
@@ -1768,6 +1769,7 @@ makeCycRenames:- forall(makeCycRenames_real,true).
 
 makeCycRenames_real:- call_cleanup(makeCycRenames1, (nl,told)).
 
+makeCycRenames1:-!.
 makeCycRenames1:- 
   tell('e2c/renames.lisp'),
    writeln('
@@ -1786,7 +1788,8 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- catch(quietly(nodebugx(if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)).
+:- catch(((
+  if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
