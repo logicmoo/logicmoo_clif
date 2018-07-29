@@ -13,12 +13,13 @@ www_start:- app_argv_off('--www'),!.
 www_start:- app_argv_off('--net'),!.
 www_start:- www_start(3020).
 
+:- use_module(library(http/thread_httpd)).
 www_start(Port):- dmsg("WWW Server " = Port), http_server_property(Port, goal(_)),!.
 www_start(Port):- http_server(http_dispatch,[ port(Port)]). % workers(16) 
 
-app_argv_www(Flag):- app_argv1(Flag),!.
 app_argv_www(Flag):- app_argv_off(Flag),!,fail.
-app_argv_www(Flag):- app_argv_ok(Flag),app_argv('--www').
+app_argv_www(Flag):- app_argv1(Flag),!.
+app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 
 
 :- if(app_argv_www('--swish')).
@@ -50,11 +51,21 @@ app_argv_www(Flag):- app_argv_ok(Flag),app_argv('--www').
 :- endif.  % --www
 */
 
+
 :- if((app_argv_www('--sigma'))).
 :- dmsg("SIGMA-KE Server").
 :- user:use_module(library(xlisting_web)).
 :- user:listing(baseKB:shared_hide_data/1).
 :- endif.
+
+:- if((app_argv('--irc'))).
+:- if(exists_source(library(eggdrop))).
+:- dmsg("Eggdrop Server").
+:- user:use_module(library(eggdrop)).
+:- egg_go.
+:- endif.
+:- endif.
+
 
 :- if(app_argv('--www')).
 :- during_net_boot(www_start).

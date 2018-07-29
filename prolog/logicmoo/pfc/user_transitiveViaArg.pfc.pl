@@ -20,11 +20,11 @@ functor_any(CONSQ,F,A):- cwc, length(IST,A),apply_term(F,IST,CONSQ),!.
 fa_replace_arg(F,A,N,CONSQ,CSLOT,ASLOT,ANTE):-cwc, functor_any(CONSQ,F,A),arg(N,CONSQ,CSLOT),replace_arg(CONSQ,N,ASLOT,ANTE),!.
 
 % Example generalized
-(((transitiveViaArg(P,B,N) ),arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B)) ==>  
-  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),t(B,CSLOT,ASLOT),argumentsConstrained(ANTE),ANTE))).
+(((transitiveViaArg(P,B,N) ),   arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,CSLOT,ASLOT])) ==>  
+  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),BExpr, argumentsConstrained(ANTE),ANTE))).
 
-transitiveViaArgInverse(P,B,N),arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B)==> 
-  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),t(B,ASLOT,CSLOT),argumentsConstrained(ANTE),ANTE)).
+(transitiveViaArgInverse(P,B,N),arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,ASLOT,CSLOT]))==> 
+  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),BExpr, argumentsConstrained(ANTE),ANTE)).
 
 
 coExtensional(A,B)==> 
@@ -37,10 +37,12 @@ coExtensional(A,B)==>
 :- dynamic(anatomicallyCapableOf/3).
 
 ttRelationType('rtCapabilityPredicate').
-isa(CAP_PRED,'rtCapabilityPredicate') ==> transitiveViaArg(CAP_PRED,genls,2).
+isa(CAP_PRED,'rtCapabilityPredicate') ==> 
+  transitiveViaArg(CAP_PRED,genls,2).
 
 
-'rtCapabilityPredicate'(anatomicallyCapableOf('mobEmbodiedAgent','ttFirstOrderCollection','rtBinaryRolePredicate')).
+==> rtCapabilityPredicate(
+ anatomicallyCapableOf('mobEmbodiedAgent','ttFirstOrderCollection','rtBinaryRolePredicate')).
 
 % disjointWith(A,B)==> (isa(I,A)==>~isa(I,B)).
 

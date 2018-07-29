@@ -21,7 +21,10 @@ flatTrans(G)==>
 flatTrans(G)==> (((t(G,A,B)/(A\=B,dif(A,C)),t(G,B,C)/(B\=C)))  ==> t(G,A,C)).
 
 */
-((flatTrans(G)==> (((t(G,A,B)/(A\=B),t(G,B,C)/(B\=C,A\=C)))  ==> t(G,A,C)))).
+flatTrans(F)==>transIxyz(F,F,F).
+
+((transIxyz(X,Y,Z)/(maplist(into_mpred_form,[t(X,A,B),t(Y,B,C),t(Z,A,C)],[AB,BC,AC])))
+  ==> ((AB/dif(A,C),BC/(B\=C))==>AC)).
 
 tooSlow==> flatTrans(genls).
 flatTrans(subFormat).

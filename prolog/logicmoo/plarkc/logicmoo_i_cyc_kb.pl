@@ -251,11 +251,11 @@ test_kb_boxlog:- asserted_id(P,ID),nl,nl,compound(ID),wdmsg(asserted_id(P,ID)),t
 :- dynamic(kb7166:assertion_content/3).
 :- multifile(kb7166:assertion_content/4).
 :- dynamic(kb7166:assertion_content/4).
-:- baseKB:ain(tAsserted(isa(F,rtLogicalConnective))==>rtLogicalConnective(F)).
+:- baseKB:ain((tAsserted(rtLogicalConnective(F))==>rtLogicalConnective(F))).
 
 :- baseKB:ain(rtArgsVerbatum(tAsserted)).
 
-:- baseKB:ain((tAsserted(isa(MT,mtCycInternalAnthropacity))==> mtUndressedMt(MT))).
+:- baseKB:ain(((tAsserted(mtCycInternalAnthropacity(MT))==> mtUndressedMt(MT)))).
 
 :- ain((baseKB:mtUndressedMt(iEnglishParaphraseMt))).
 

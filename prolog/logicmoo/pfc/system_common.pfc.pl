@@ -209,8 +209,8 @@ onStart(Idea)/definitional(Idea) ==> Idea.
 ((onStart(Idea)/ ( \+ definitional(Idea))) ==> 
   (isRuntime ==> {get_startup_uu(UU),ain_expanded(Idea,UU)})).
 
-pfcControlled(prologArity(tRelation,ftInt)).
-pfcControlled(isa(ftTerm,tCol)).
+==>pfcControlled(prologArity(tRelation,ftInt)).
+==>pfcControlled(isa(ftTerm,tCol)).
 
 tSet(tSet).
 tSet(tCol).
@@ -777,18 +777,18 @@ prologIsFlag(tDeleted(ftID)).
 % FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxx
 
 ==>prologHybrid(genlInverse/2).
-prologHybrid(genlPreds/2).
-prologHybrid(argIsa/3).
-prologHybrid(predProxyAssert,2).
-prologHybrid(predProxyQuery, 2).
-prologHybrid(predProxyRetract, 2).
+==>prologHybrid(genlPreds/2).
+==>prologHybrid(argIsa/3).
+==>prologHybrid(predProxyAssert,2).
+==>prologHybrid(predProxyQuery, 2).
+==>prologHybrid(predProxyRetract, 2).
 
 %assumed prologHybrid(disjointWith/2).
-prologHybrid(instTypeProps/3).
-prologHybrid(predTypeMax/3).
-prologHybrid(resultIsa/2).
+==>prologHybrid(instTypeProps/3).
+==>prologHybrid(predTypeMax/3).
+==>prologHybrid(resultIsa/2).
 %assumed prologHybrid(isa/2).
-prologDynamic(arg/3).
+==>prologDynamic(arg/3).
 ~tSet(meta_argtypes).
 tSet(tInferInstanceFromArgType).
 % tCol(tPathway).
@@ -1011,13 +1011,13 @@ prologMultiValued(predProxyAssert(prologMultiValued,ftTerm)).
 prologMultiValued(predProxyQuery(prologMultiValued,ftTerm)).
 
 :- if(true).
-prologHybrid(instTypeProps(ftID,tCol,ftRest(ftVoprop))).
-functorIsMacro(macroSomethingDescription(ftTerm,ftListFn(ftString))).
-functorIsMacro(pddlObjects(tCol,ftListFn(ftID))).
-functorIsMacro(pddlDescription(ftID,ftListFn(ftString))).
-functorIsMacro(pddlPredicates(ftListFn(ftVoprop))).
-functorIsMacro(pddlSorts(tCol,ftListFn(tCol))).
-functorIsMacro(pddlTypes(ftListFn(tCol))).
+==> prologHybrid(instTypeProps(ftID,tCol,ftRest(ftVoprop))).
+==> functorIsMacro(macroSomethingDescription(ftTerm,ftListFn(ftString))).
+==> functorIsMacro(pddlObjects(tCol,ftListFn(ftID))).
+==> functorIsMacro(pddlDescription(ftID,ftListFn(ftString))).
+==> functorIsMacro(pddlPredicates(ftListFn(ftVoprop))).
+==> functorIsMacro(pddlSorts(tCol,ftListFn(tCol))).
+==> functorIsMacro(pddlTypes(ftListFn(tCol))).
 :- endif.
 
 
@@ -1051,7 +1051,7 @@ subFormat(ftString,ftText).
 subFormat(ftTerm,ftProlog).
 subFormat(ftText,ftTerm).
 subFormat(ftVar,ftProlog).
-subFormat(ftVoprop,ftRest(ftVoprop)).
+==> subFormat(ftVoprop,ftRest(ftVoprop)).
 subFormat(ftVoprop,ftTerm).
 
 subFormat(COL1,COL2)/(atom(COL1);atom(COL2))==>(ttExpressionType(COL1),ttExpressionType(COL2)).
@@ -1127,9 +1127,11 @@ quotedDefnIff(ftList,is_list).
 % quotedDefnIff(ftRest,is_rest).
 quotedDefnIff(ftBoolean,is_boolean).
 quotedDefnIff(ftText,is_ftText).
-quotedDefnIff(ftRest(Type),is_rest_of(Type)):- cwc, is_ftNonvar(Type).
-quotedDefnIff(ftListFn(Type),is_list_of(Type)):- cwc, is_ftNonvar(Type).
-quotedDefnIff(ftCodeIs(SomeCode),SomeCode):- cwc, is_ftNonvar(SomeCode).
+
+==> ((
+ (quotedDefnIff(ftRest(Type),is_rest_of(Type)):- cwc, is_ftNonvar(Type)),
+ (quotedDefnIff(ftListFn(Type),is_list_of(Type)):- cwc, is_ftNonvar(Type)),
+ (quotedDefnIff(ftCodeIs(SomeCode),SomeCode):- cwc, is_ftNonvar(SomeCode)))).
 % :- listing(quotedDefnIff).
 
 :- kb_global(baseKB:ftText/1).

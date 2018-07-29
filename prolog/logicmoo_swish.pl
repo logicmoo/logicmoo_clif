@@ -19,15 +19,16 @@ Remote SWISH as an IDE for developing a Remote application.
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_path)).
 :- use_module(library(www_browser)).
+
 :- if(exists_source(library(uid))).
 :- use_module(library(uid)).
 :- endif.
 
-:- multifile(owl2_model:datatype/2).
-:- dynamic(owl2_model:datatype/2).
-                                  -
+%:- multifile(owl2_model:datatype/2).
+%:- dynamic(owl2_model:datatype/2).
+                                  
 
-/** <module>
+/* < module>
 
 Open SWISH as an IDE for developing a remote application.
 */

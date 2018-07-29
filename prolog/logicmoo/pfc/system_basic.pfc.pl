@@ -183,7 +183,7 @@ meta_argtypes(support_hilog(tRelation,ftInt)).
 ((codeTooSlow,(support_hilog(F,A)
   /(is_ftNameArity(F,A),
     \+ is_static_predicate(F/A), \+ prologDynamic(F)))) ==>
-   (prop_mpred(pfcVisible,F,A), 
+   (prop_mpred(_,F,A,pfcVisible), 
     {% functor(Head,F,A) ,Head=..[F|TTs], TT=..[t,F|TTs],
     %  (CL = (Head :- cwc, call(second_order(TT,CuttedCall)), ((CuttedCall=(C1,!,C2)) -> (C1,!,C2);CuttedCall)))
     CL = arity(F,A)
@@ -330,7 +330,7 @@ typeType(ttAgentType/1).
 % ======================================================================================= %
 % Sub-instance caching
 % ======================================================================================= %
-(typeGenls(TT,ST) ==>
+==>(typeGenls(TT,ST) ==>
   (ttTypeType(TT) , tSet(ST) , (isa(Inst,TT) ==> genls(Inst,ST)))).
 
 
@@ -347,6 +347,7 @@ tooSlow ==> ((genls(C,P)/(C\=P, \+ ttExpressionType(C) , \+ ttExpressionType(P) 
 tooSlow ==>  ((genlsFwd(C,P)/(C\=P) ==> ((isa(I,C) ==> isa(I,P))))).
 
 %(\+ tooSlow) ==>  ((genls(C,P)/sanity(C\=P) ==> ((isa(I,C) ==> isa(I,P))))).
+==>
 (\+ tooSlow) ==>  ((genls(C,P)/(C\=P) ==> ((isa(I,C) ==> isa(I,P))))).
 
 
@@ -437,25 +438,19 @@ disjointWith(C,D)==> tCol(C),tCol(D).
 % disjointWith(ttRelationType,ttTypeType).
 
 ((typeGenls(COLTYPE1,COL1),disjointWith(COL1,COL2),
-  typeGenls(COLTYPE2,COL2)/dif(COLTYPE1,COLTYPE2)) ==> disjointWith(COLTYPE1,COLTYPE2)).
+  typeGenls(COLTYPE2,COL2)/dif(COLTYPE1,COLTYPE2)) ==> ((disjointWith(COLTYPE1,COLTYPE2)))).
 
 ((typeGenls(COLTYPE1,COL1),disjointWith(COLTYPE1,COLTYPE2)/(ttTypeType(COLTYPE2)),
-  typeGenls(COLTYPE2,COL2)/dif(COL1,COL2)) ==> disjointWith(COL1,COL2)).
+  typeGenls(COLTYPE2,COL2)/dif(COL1,COL2)) ==> (disjointWith(COL1,COL2))).
 
 rtArgsVerbatum(disjointPartition).
 arity(disjointPartition,1).
 
 
 % disjointWith(P1,P2) ==> ((~isa(C,P2):- loop_check(isa(C,P1))), (~isa(C,P1):- loop_check(isa(C,P2)))).
-disjointWith(P1,P2) ==> ((~isa(C,P2):- is_ftNonvar(C),loop_check(isa(C,P1)))).
+disjointWith(P1,P2) ==> (expand((~isa(C,P2):- is_ftNonvar(C),loop_check(isa(C,P1))))).
 
 disjointWith(ttRelationType,ttTypeType).
-
-:- if(false). % true,false
-:- listing(disjointWith/2).
-:- listing( ( ~ )/1).
-:- mpred_notrace_exec.
-:- endif.
 
 % :- ain((disjointWith(P1,P2) , genls(C1,P1)) ==>  disjointWith(C1,P2)).
 disjointWith(C1,P2):- cwc, C1\=P2,disjointWith(P1,P2),C1\=P1,genls(C1,P1),!.
@@ -487,6 +482,12 @@ disjointPartition(
   ttTopicType, 
   % ttTypeFacet,
   ttValueType]).
+
+:- if(false). % true,false
+:- listing(disjointWith/2).
+:- listing( ( ~ )/1).
+:- mpred_notrace_exec.
+:- endif.                    
 
 ttAgentType(tHuman).
 
@@ -794,7 +795,7 @@ isa(iBar,tFoo).
 
 :- scan_missed_source.
 
-vtValue(Val)/(atom(Val),i_name_lc(Val,KW))==>mudKeyword(Val,KW).
+(vtValue(Val)/(atom(Val),i_name_lc(Val,KW)))==>mudKeyword(Val,KW).
 
 ttPredAndValueType(Str)/
   (i_name('mud',Str,Pred),
