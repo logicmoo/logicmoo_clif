@@ -125,6 +125,7 @@ wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))
 :- wsce(library('logicmoo/typesystem/mpred_type_wff.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_type_naming.pl')).
 
+
 :- set_prolog_flag(pfc_booted,false).
 
 

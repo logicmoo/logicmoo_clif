@@ -53,16 +53,12 @@ test_header_include.
 
 :- ensure_loaded(library(pfc_test)).
 
-:- use_module(library(logicmoo_clif)).
-
-:- cls.
-
 %:- endif. % current_prolog_flag(test_header,_).
 
-check_filename:- prolog_load_context(source,File),!,
+
+:- prolog_load_context(source,File),!,
    ignore((((atom_contains(File,'.pfc') 
-  -> must_or_rtrace(pfc_lib:is_pfc_file0); 
-     must_or_rtrace(\+ pfc_lib:is_pfc_file0))))).
+  -> sanity(pfc_lib:is_pfc_file) ; sanity( \+ pfc_lib:is_pfc_file))))),!.
 
 :- mpred_trace_exec.
 
@@ -83,5 +79,54 @@ check_filename:- prolog_load_context(source,File),!,
 
 
 
+:- fav_debug.
+:- set_prolog_flag(gc, true).
+
+% :- endif.
+
+
+:-
+ op(1199,fx,('==>')), 
+ op(1190,xfx,('::::')),
+ op(1180,xfx,('==>')),
+ op(1170,xfx,'<==>'),  
+ op(1160,xfx,('<-')),
+ op(1150,xfx,'=>'),
+ op(1140,xfx,'<='),
+ op(1130,xfx,'<=>'), 
+ op(600,yfx,'&'), 
+ op(600,yfx,'v'),
+ op(350,xfx,'xor'),
+ op(300,fx,'~'),
+ op(300,fx,'-').
+
+:- fixup_exports.
+
+
+% :- set_prolog_IO(user_input,user_output,user_error).
+
+:- if((prolog_load_context(source,File),(atom_contains(File,'.clif')))).
+
+:-assert(t_l:each_file_term(must_kif_process_after_rename)).
+
+% install_constant_renamer_until_eof:-  
+  %call_on_eof(show_missing_renames), 
+%  set_prolog_flag_until_eof(do_renames,term_expansion).
+
+:- set_prolog_flag(runtime_debug, 0). 
+:- use_module(library(logicmoo_clif)).
+:- set_prolog_flag(runtime_debug, 3). 
+
+:- set_prolog_flag(do_renames,term_expansion).
+:- ((prolog_load_context(source,File), atom_contains(File,'.clif')) ->
+   (current_stream(File, read, Stream),with_lisp_translation(Stream,must_kif_process_after_rename)); true).
+
+%:- call(call,((asserta(((system:goal_expansion(Here,Loc,_,_):- dmsg(s_goal_expansion(Here,Loc)),trace,fail))),
+%   asserta(((system:term_expansion(Here,Loc,_,_):- dmsg(s_term_expansion(Here,Loc)),trace,fail)))))).
+
+:- else.       % end clif file
+
+
+:- endif.
 
 

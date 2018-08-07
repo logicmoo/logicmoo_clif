@@ -504,9 +504,9 @@ disjointPartition([
 
 
 
-
 isa(iExplorer2,C):- cwc, C==rtArgsVerbatum,!,fail.
-isa(I,C):- cwc, no_repeats(loop_check(isa_backchaing(I,C))), \+ isa(C,ttExpressionType).
+% isa(I,C):- isa_complete(I,C).
+isa(I,C):- cwc, isa_complete(I,C), \+ isa(C,ttExpressionType).
 
 
 %  % :- mpred_trace_exec.

@@ -29,7 +29,7 @@ feature_setting(make_wff,true)==>
           (admittedArgument(P, N, E)/nonvar(E)==> isa(E,T)),
           (poss(admittedArgument(P, N, E))/nonvar(E)==> (isa(E,T))))).
 
-% make_wff(true)==> (P/(compound(P),\+is_ftVar(P)) ==> {with_current_why(P,ignore(\+ deduceEachArgType(P)))}).
+make_wff(true)==> (P/(compound(P),\+is_ftVar(P)) ==> {with_current_why(P,ignore(\+ deduceEachArgType(P)))}).
 
 % default is false
 % ==> feature_setting(add_admitted_arguments,true).

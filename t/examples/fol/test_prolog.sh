@@ -1,9 +1,46 @@
 #!/bin/bash
 
-[[ $_ != "$0" ]] && echo "Script is being sourced" && exit 9
+
+SWIPL=swipl
+if [ -z `which swipl` ]; then
+    # default locations on OS X
+    SWIPL=/Applications/SWI-Prolog.app/Contents/MacOS/swipl;
+    if [ ! -e $SWIPL ]; then
+        SWIPL=~/bin/swipl;
+    fi
+    if [ ! -e $SWIPL ]; then
+        echo PFC requires SWI-Prolog. Please download from http://www.swi-prolog.org/
+        exit 1
+    fi
+fi
+
+# Symlink resolution: http://stackoverflow.com/a/697552/726581
+
+# get the absolute path of the executable
+SELF_PATH=$(cd -P -- "$(dirname -- "$0")" && pwd -P) && SELF_PATH=$SELF_PATH/$(basename -- "$0")
+
+# resolve symlinks
+while [[ -h $SELF_PATH ]]; do
+    # 1) cd to directory of the symlink
+    # 2) cd to the directory of where the symlink points
+    # 3) get the pwd
+    # 4) append the basename
+    DIR=$(dirname -- "$SELF_PATH")
+    SYM=$(readlink "$SELF_PATH")
+    SELF_PATH=$(cd "$DIR" && cd "$(dirname -- "$SYM")" && pwd)/$(basename -- "$SYM")
+done
+
+PATH_TO_ME=`dirname $SELF_PATH`;
+if [ -z "$BIOMAKE_PATH" ]; then
+    BIOMAKE_PATH=$PATH_TO_ME/../prolog;
+fi
+
+#$PATH_TO_ME/swipl_wrap -L0 -G0 -T0 -q -p library=$BIOMAKE_PATH  -g 'assert(biomake_prog("'$0'")),main,halt' -t halt -s $BIOMAKE_PATH/biomake/cli -- "$@"
+
+#[[ $_ != "$0" ]] && echo "Script is being sourced" && exit 9
 
 me="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-good_exit=4
+good_exit=7
 exitcode=$good_exit
 
 keep_going=""
@@ -51,7 +88,8 @@ then
    listOfNames=( "$@" )
    if [ $# -eq 1 ]
    then
-      on_complete=true
+      echo on_complete=true
+      on_complete=test_completed
    else
       cls
    fi
@@ -75,10 +113,11 @@ for ele2 in "${listOfNames[@]}"
 	   do
 	    retry=0
 		
-   		#// Runs the test
-        export TEST_CMD="swipl -f .swiplrc -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"use_module(library(editline))\" -g \"['${ele}']\" -g $on_complete --unsafe"
-        echo TEST_CMD=$TEST_CMD
-        eval $TEST_CMD
+   		#// Runs the test -f .swiplrc 
+        %CMD="swipl -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"thread_create(['${ele}'],Id),thread_join(Id),$on_complete\" "
+        CMD="swipl -g 'set_prolog_flag(runtime_testing,${runtime_testing})' -g \"(['${ele}'])\" -g \"$on_complete\" "
+        echo $CMD
+        eval $CMD
         
 		exitcode=$?                 
         if [ $exitcode -eq $good_exit ]; then

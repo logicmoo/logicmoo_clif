@@ -1788,8 +1788,9 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- catch(((
-  if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+:- catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+%:- baseKB:catch(ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames.qlf')),_,
+%   catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).

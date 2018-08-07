@@ -259,7 +259,7 @@ baseKB:mtUndressedMt('iCoreCycLImplementationMt').
 baseKB:mtUndressedMt('iUniversalVocabularyMt').
 baseKB:mtUndressedMt('iLogicalTruthMt').
 baseKB:mtUndressedMt('iCoreCycLMt').
-baseKB:mtUndressedMt('iBaseKB').
+baseKB:mtUndressedMt('baseKB').
 
 baseKB:mtDressedMt('iBookkeepingMt').
 baseKB:mtDressedMt('iEnglishParaphraseMt').

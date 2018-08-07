@@ -287,7 +287,7 @@ get_pifunctor(Head,PHead,F,A):-get_functor(Head,F,A),functor(PHead,F,A),ignore(P
 %
 % Rescan Meta Argument Types.
 %
-rescan_meta_argtypes(MT):- functor(MT,F,A),functor(M,F,A),MT=..[F|ARGST],M=..[F|ARGS],forall(clause_asserted(M,_),
+rescan_meta_argtypes(MT):- functor(MT,F,A),functor(M,F,A),MT=..[F|ARGST],M=..[F|ARGS],forall(clause_u(M,_),
   maplist(admit_str_type(t),ARGS,ARGST)),!.
 
 %= 	 	 
@@ -296,7 +296,7 @@ rescan_meta_argtypes(MT):- functor(MT,F,A),functor(M,F,A),MT=..[F|ARGST],M=..[F|
 %
 % rescan Argument  (isa/2).
 %
-rescan_argIsa(F,N,Type):- ignore(( arity_no_bc(F,A), functor(M,F,A),forall((clause_asserted(M,_),arg(N,M,E)),admit_str_type(t,E,Type)))),!.
+rescan_argIsa(F,N,Type):- ignore(( arity_no_bc(F,A), functor(M,F,A),forall((clause_u(M,_),arg(N,M,E)),admit_str_type(t,E,Type)))),!.
 
 
 %= 	 	 
@@ -307,7 +307,7 @@ rescan_argIsa(F,N,Type):- ignore(( arity_no_bc(F,A), functor(M,F,A),forall((clau
 %
 deduceEachArgType(P):- doArgType(t,deduceEachArgType,P).
 
-deduceEachArgType(Str,F,N,A):- ignore((clause_asserted(argIsa(F,N,Type)),\+ \+ admit_str_type(Str,A,Type))).
+deduceEachArgType(Str,F,N,A):- ignore((clause_u(argIsa(F,N,Type)),\+ \+ admit_str_type(Str,A,Type), fail)).
 
 %% admit_type(Str, ?M, ?VALUE2) is semidet.
 %
@@ -1465,14 +1465,14 @@ use_if_modify_new:- current_predicate(assert_if_new/1).
 %
 prolog_op(change(AR,Op), G):-ensure_dynamic(G),!,prolog_modify(change(AR,Op), G).
 
-prolog_op(_,clause(G,B)):-!,clause_asserted(G,B).
+prolog_op(_,clause(G,B)):-!,clause_u(G,B).
 prolog_op(_,clause(G,B,Ref)):-!,clause(G,B,Ref).
 
 prolog_op(query(_,Op),G):-!,prolog_op(Op,G).
 prolog_op(call(Op),G):-!, prolog_op(Op,G).
 prolog_op(clauses(Op),G):-!, prolog_op(Op,G).
-prolog_op(clause_u,(G:-B)):-!,clause_asserted(G,B).
-prolog_op(clause_u,(G)):-!,clause_asserted(G,true).
+prolog_op(clause_u,(G:-B)):-!,clause_u(G,B).
+prolog_op(clause_u,(G)):-!,clause_u(G,true).
 
 prolog_op(conjecture,G):-!, call_u(G).
 prolog_op(call,G):-!, call_u(G).

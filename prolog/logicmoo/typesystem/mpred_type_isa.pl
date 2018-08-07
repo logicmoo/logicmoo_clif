@@ -76,7 +76,7 @@
             not_mud_isa/2,
             not_mud_isa/3,
             not_mud_isa0/2,
-            onLoadPfcRule/1,
+            %onLoadPfcRule/1,
             pfcNeverTrue/1,
             col_gen/2,
             tSetOrdered/1,
@@ -174,7 +174,6 @@ assert_hasInstance(T,I):-  sanity(ground(T:I)),ain_expanded(isa(I,T)),!,expire_t
 % is_typef(F).
 % Checks F for isa(F,tCol).
 % ========================================
-:-ain(baseKB:prologBuiltin(is_typef/1)).
 
 %= 	 	 
 
@@ -410,7 +409,6 @@ typ_prfx(macro,ttMacroType).
 % was_isa(Goal,I,C) recognises isa/2 and its many alternative forms
 % ========================================
 :- kb_global(baseKB:decided_not_was_isa/2).
-:-ain(baseKB:prologBuiltin(was_isa/3)).
 
 %= 	 	 
 
@@ -878,11 +876,6 @@ atom_type_prefix_other(Inst,Type,Suffix,Other):-atom(Inst),type_suffix(Suffix,Ty
 
 %= 	 	 
 
-%% onLoadPfcRule( :TermInst) is nondet.
-%
-% Whenever Load Prolog Forward Chaining Rule.
-%
-onLoadPfcRule('==>'(a(tCol,Inst), {isa_from_morphology(Inst,Type)} , isa(Inst,Type))).
 
 
 
@@ -932,14 +925,17 @@ subcache(X,Z):-nonvar(Z)-> (genls(Y,Z),isa(X,Y)) ; isa(X,Y),genls(Y,Z).
 isa_backchaing(I,C):- C==ftVar,!,is_ftVar(I).
 isa_backchaing(I,C):- nonvar(I),is_ftVar(I),!,C=ftVar.
 isa_backchaing(_,C):- C==ftProlog,!.
-isa_backchaing(I,C):- isa_complete(I,C).
+isa_backchaing(I,C):- no_repeats(isa_complete_0(I,C)).
 %isa_backchaing_0(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
+
+isa_complete_0(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_complete_0(I,C).
+isa_complete_0(I,C):- nonvar(I),nonvar(C),isa_backchaing_0(I,C).
+isa_complete_0(I,C):- callable(C),C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
+isa_complete_0(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
+
+isa_complete(I,C):- no_repeats(isa_complete_0(I,C)).
+
 isa_backchaing_0(I,C):- no_repeats((isa_asserted(I,C)*->true;(var(C),tSet(C),isa_asserted(I,C)))).
-
-isa_complete(I,C):- nonvar(I),var(C),!,tSetOrdered(C),isa_backchaing_0(I,C).
-isa_complete(I,C):- C=..[P|ARGS],G=..[P,I|ARGS],quietly(current_predicate(P,G)),!,on_x_fail(call_u(G)).
-isa_complete(I,C):- compound(I),is_non_unit(I),is_non_skolem(I),!,get_functor(I,F),compound_isa(F,I,C).
-
 
 %:- table(isa_backchaing_1/2).
 isa_backchaing_1(I,C):- fail,
@@ -1637,5 +1633,16 @@ call_u_t(DB,P):-call_u(call(DB,P)).
 % TODO decide if still needed 
 mpred_univ(C,I,Head):- atom(C),!,Head=..[C,I],predicate_property(Head,number_of_clauses(_)).
 
-
+onLoadPfcRule('==>'(a(tCol,Inst), {isa_from_morphology(Inst,Type)} , isa(Inst,Type))).
+:-ain(baseKB:prologBuiltin(was_isa/3)).
+:-ain(baseKB:prologBuiltin(is_typef/1)).
+:- abolish(mpred_type_isa:spft/3).
 :- fixup_exports.
+
+/*
+%% onLoadPfcRule( :TermInst) is nondet.
+%
+% Whenever Load Prolog Forward Chaining Rule.
+%
+
+*/
