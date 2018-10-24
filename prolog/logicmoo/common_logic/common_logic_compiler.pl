@@ -236,7 +236,7 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 :- prolog_load_context(source,File),file_directory_name(File,Dir),directory_file_path(_,Short,Dir),asserta_if_new(user:file_search_path(Short,Dir)).
 
 
-:-
+:-  system:((
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),
@@ -249,7 +249,8 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
- op(300,fx,'-').
+ op(300,fx,'-'))).
+
 
 
 % :- use_module(logicmoo(pttp/dbase_i_mpred_pttp_testing)). 

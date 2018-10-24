@@ -15,9 +15,10 @@
 :- ensure_loaded(library(logicmoo_lib)).
 
 
+:- pfc_lib:use_module(library(pfc_lib)).
 :- set_fileAssertMt(baseKB).
 
-:- set_defaultAssertMt(baseKB).
+%:- set_defaultAssertMt(baseKB).
 
 :- set_prolog_flag_until_eof(retry_undefine,false).
 

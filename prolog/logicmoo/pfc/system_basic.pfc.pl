@@ -508,6 +508,7 @@ isa(iExplorer2,C):- cwc, C==rtArgsVerbatum,!,fail.
 % isa(I,C):- isa_complete(I,C).
 isa(I,C):- cwc, isa_complete(I,C), \+ isa(C,ttExpressionType).
 
+never_assert_u(genls(tPinkBook,tAgent)).
 
 %  % :- mpred_trace_exec.
 :- mpred_notrace_exec.

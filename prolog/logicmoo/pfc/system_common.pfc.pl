@@ -1011,6 +1011,13 @@ prologMultiValued(genlPreds(tPred,tPred)).
 prologMultiValued(predProxyAssert(prologMultiValued,ftTerm)).
 prologMultiValued(predProxyQuery(prologMultiValued,ftTerm)).
 
+genlInverse(P1,P2) ==> ( t(P1,A,B) ==> t(P2,B,A)).
+
+/*
+(((P/(has_functor(P),get_functor(P,F,A),A>1,ground(P), \+ (arg(_,P,E),(number(E);is_list(E))), mpred_literal_nonvar(P), \+ prologSideEffects(F)) 
+  ==> {wdmsg(P),deduceEachArgType(P)}))).
+*/
+
 :- if(true).
 ==> prologHybrid(instTypeProps(ftID,tCol,ftRest(ftVoprop))).
 ==> functorIsMacro(macroSomethingDescription(ftTerm,ftListFn(ftString))).

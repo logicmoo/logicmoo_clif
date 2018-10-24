@@ -40,7 +40,7 @@
 
 :- virtualize_source_file.
 
-:-
+:-  system:((
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),
@@ -53,7 +53,7 @@
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
- op(300,fx,'-').
+ op(300,fx,'-'))).
 
 
 :- module_transparent(( are_clauses_entailed/1,

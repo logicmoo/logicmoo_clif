@@ -69,6 +69,7 @@
 
 % :- endif.
 
+:- use_module(library(logicmoo/common_logic/common_logic_snark)).
 
 :- user:use_module(library(globals_api)).
 
@@ -749,8 +750,11 @@ as_existential(In,Out):- decl_existential(Out0),!,add_cond(Out0,aoc(isNamed,In))
    must(nb_current_value(?('$fort2exist$'),In,Out)),
    must(add_var_to_env(In,Out)).
 
+:- ensure_loaded(library(multivar)).
+l_xvarx(Var):- xvarx(Var).
+
 decl_existential(Var):- is_existential(Var),!.
-decl_existential(Var):- var(Var),!,xvarx(Var),put_attr(Var,x,Var),mtc_put_iza(Var,[iza_id(Var)]).
+decl_existential(Var):- var(Var),!,l_xvarx(Var),put_attr(Var,x,Var),mtc_put_iza(Var,[iza_id(Var)]).
 decl_existential(Atomic):- trace_or_throw(\+ decl_existential(Atomic)).
 
 is_existential(Var):- var(Var),!,get_attr(Var,x,V),var(V).
@@ -802,7 +806,7 @@ xnr_var(Var):-
    ((prolog_current_choice(clause_or_top,CP),prolog_choice_attribute(CP,frame,Frame))->true;prolog_current_frame(Frame)),
    % show_frame_and_goal(xnr_var,Frame),
    put_attr(Var,xnr,old_vals(Var,xnr_dif,Id,[],Frame,State)),
-   xvarx(Var),
+   l_xvarx(Var),
    nop(setup_call_cleanup(true,(true;(State=state(redoing))),setarg(1,State,exited)))))).
 
 xnr_var(Cmp,Var):- nonvar(Var) ->true; (get_attr(Var,xnr,_)->true;(gensym(xnr_,Id),put_attr(Var,xnr,old_vals(Var,Cmp,Id,[])))).

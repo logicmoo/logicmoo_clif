@@ -978,7 +978,7 @@ constrain_args(A,B):- if_defined(constrain_args_pttp(A,B),fail).
 
 body_req_isa(I,C):-isa_backchaing(I,C).
 
-body_call_cyckb(HEAD_T):- if_defined(el_holds_DISABLED_KB), HEAD_T =.. [t|PLIST], baseKB:use_cyc_database,!, no_repeats(if_defined(kbp_t(PLIST))).
+body_call_cyckb(HEAD_T):- if_defined(t_l:el_holds_DISABLED_KB), HEAD_T =.. [t|PLIST], baseKB:use_cyc_database,!, no_repeats(if_defined(kbp_t(PLIST))).
 
 % =====================================
 % = body_req

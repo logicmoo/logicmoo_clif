@@ -24,11 +24,11 @@ app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 
 :- if(app_argv_www('--swish')).
 :- dmsg("SWISH Server").
-:- user:load_library_system(logicmoo_swish).
+%:- user:load_library_system(logicmoo_swish).
 :- endif.
 
 :- if(app_argv_www('--cliop')).
-:- user:load_library_system(logicmoo_cliop).
+% :- user:load_library_system(logicmoo_cliop).
 :- endif.
 
 :- if(app_argv_www('--plweb')).

@@ -19,10 +19,8 @@
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/common_logic_sanity.pl
 :- module(common_logic_sanity,[kif_test/1,test_boxlog/1,test_boxlog/2,test_defunctionalize/1]).
 
-
-:-
- op(1199,fy,('==>')), 
- op(1198,fy,('=>')), 
+:-  system:((
+ op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),
  op(1170,xfx,'<==>'),  
@@ -34,7 +32,7 @@
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
- op(300,fx,'-').
+ op(300,fx,'-'))).
 
 :- ensure_loaded(library(logicmoo_clif)).
 

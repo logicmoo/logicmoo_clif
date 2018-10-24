@@ -3,7 +3,7 @@
 :- dynamic pdt_startup_error_message/1.
 :- dynamic collect_pdt_startup_error_messages/0.
 collect_pdt_startup_error_messages.
-user:message_hook(_,Level,Lines):-
+user:message_hook(_,Level,Lines):- 
     collect_pdt_startup_error_messages,
     (Level == error; Level == warning),
     prolog_load_context(term_position, T),

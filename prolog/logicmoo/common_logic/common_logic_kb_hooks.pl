@@ -7,8 +7,7 @@
   big_kb_ASSERTION/2,
   convert_easy_strings/0,
   convert_easy_strings2/0,
-  cyckb_t/1,
-  cyckb_t/3,
+  cyckb_t/1,cyckb_t/2,cyckb_t/3,cyckb_t/4,cyckb_t/5,cyckb_t/6,cyckb_t/7,cyckb_t/8,
   cyckb_t_call/1,
   cyckb_t_implies/2,
   cyckb_t_via_genlPreds/1,
@@ -349,7 +348,6 @@ cyckb_t(P,A1):- t([P,A1]).
 :- was_export(el_holds_DISABLED_KB/0).
 :- asserta(el_holds_DISABLED_KB).
 
-:- meta_predicate(with_el_holds_enabled(0)).
 
 %= 	 	 
 
@@ -357,8 +355,8 @@ cyckb_t(P,A1):- t([P,A1]).
 %
 % Using El Holds Enabled.
 %
+:- meta_predicate(with_el_holds_enabled(0)).
 with_el_holds_enabled(Goal):-locally_hide(el_holds_DISABLED_KB,Goal).
-:- meta_predicate(with_el_holds_disabled(0)).
 
 %= 	 	 
 
@@ -366,6 +364,7 @@ with_el_holds_enabled(Goal):-locally_hide(el_holds_DISABLED_KB,Goal).
 %
 % Using El Holds Disabled.
 %
+:- meta_predicate(with_el_holds_disabled(0)).
 with_el_holds_disabled(Goal):-locally(el_holds_DISABLED_KB,Goal).
 
 %:- link_to_holds_DYNAMIC(cyckb_t,el_holds_DISABLED_KB).

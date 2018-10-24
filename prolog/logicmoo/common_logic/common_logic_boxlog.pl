@@ -111,23 +111,20 @@ Per-Litteral features
 
 :- virtualize_source_file.
 
-ensure_op(P,FXY,OP):-
-  locally(set_prolog_flag(access_level,system),op(P,FXY,OP)).
-
-:- 
- ensure_op(1199,fx,user:('==>')), 
- ensure_op(1190,xfx,user:('::::')),
- ensure_op(1180,xfx,user:('==>')),
- ensure_op(1170,xfx,user:('<==>')),  
- ensure_op(1160,xfx,user:('<-')),
- ensure_op(1150,xfx,user:('=>')),
- ensure_op(1140,xfx,user:('<=')),
- ensure_op(1130,xfx,user:('<=>')), 
- ensure_op(600,yfx,user:('&')), 
- ensure_op(600,yfx,user:('v')),
- ensure_op(350,xfx,user:('xor')),
- ensure_op(300,fx,user:('~')),
- ensure_op(300,fx,user:('-')).
+:-  system:((
+ op(1199,fx,('==>')), 
+ op(1190,xfx,('::::')),
+ op(1180,xfx,('==>')),
+ op(1170,xfx,'<==>'),  
+ op(1160,xfx,('<-')),
+ op(1150,xfx,'=>'),
+ op(1140,xfx,'<='),
+ op(1130,xfx,'<=>'), 
+ op(600,yfx,'&'), 
+ op(600,yfx,'v'),
+ op(350,xfx,'xor'),
+ op(300,fx,'~'),
+ op(300,fx,'-'))).
 
 %= 	 	 
 

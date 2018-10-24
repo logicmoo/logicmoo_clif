@@ -16,7 +16,7 @@
 :- system:import(baseKB:cycBetween/3).
 
 :- system:reexport(library(logicmoo_clif)).
-:- '$set_source_module'(baseKB).
+:- set_fileAssertMt(baseKB).
 
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).
 :- asserta_new(user:file_search_path(pldata,library(pldata))).

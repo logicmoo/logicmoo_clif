@@ -68,7 +68,7 @@ show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).
 :- export(install_constant_renamer_until_eof/0).
-install_constant_renamer_until_eof:-  call_on_eof(show_missing_renames), 
+install_constant_renamer_until_eof:-  call_on_eof(show_missing_renames),call_on_eof(set_prolog_flag(do_renames_sumo,maybe)),
   set_prolog_flag_until_eof(do_renames,term_expansion).
 
 
@@ -1604,6 +1604,13 @@ cyc_to_clif_notify(B,A):- cyc_to_pdkb(B,A) -> B\=@=A, nop(dmsg(B==A)).
 
 re_convert_string(H,H).
 
+really_convert_to_cycString(A,B):- logicmoo_util_strings:convert_to_cycString(A,B).
+
+% a7166_4139461
+convert_string(A,A):- \+ atom_contains(A,' '),!.
+convert_string(A,B):- really_convert_to_cycString(A,B),!.
+
+
 :-export(cyc_to_pdkb/2).
 cyc_to_pdkb(V,V):-is_ftVar(V),!.
 cyc_to_pdkb([],[]):-!.
@@ -1632,11 +1639,13 @@ fix_var_name(A,B):- atomic_list_concat(AB,'-',A),atomic_list_concat(AB,'_',B).
 % rename_atom(A,B):- atom_contains(A,'~'),!,convert_to_cycString(A,B),nb_setval('$has_quote',t),!.
 rename_atom(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 rename_atom(A,B):- builtin_rn_or_rn(A,B),!.
-rename_atom(A,A):- upcase_atom(A,A),!.
+rename_atom(A,B):- upcase_atom(A,B),A==B,!.
 rename_atom(A,B):- atom_contains(A,' '),!,A=B.
+rename_atom(A,B):- atom_concat('?',_,A),!,A=B.
+rename_atom(A,B):- atom_concat(':',_,A),!,A=B.
 %rename_atom(A,B):- current_prolog_flag(logicmoo_break_atoms,true),atom_contains(A,' '),!,convert_to_cycString(A,B),nb_setval('$has_quote',t),!.
 rename_atom(A,B):-  must(cyc_to_mpred_create(A,B)),A\==B,azzert_rename(A,B),!.
-rename_atom(A,B):- starts_upper(A),atom_concat('tSumo',A,B),azzert_rename(A,B),!.
+rename_atom(A,B):- starts_upper(A),(current_prolog_flag(do_renames_sumo,never)-> A=B ;(atom_concat('tSumo',A,B),azzert_rename(A,B))),!.
 rename_atom(A,A):- azzert_rename(A,A),!.
 
 cyc_to_mpred_sent_idiom_2(and,(','),trueSentence).
@@ -1656,28 +1665,27 @@ list_to_ops(Pred,[H|T],Body):-!,
     (is_list(TT)-> Body=..[Pred,HH|TT]; Body=..[Pred,HH,TT]).
 
 
-% a7166_4139461
-convert_string(A,A):- \+ atom_contains(A,' '),!.
-convert_string(A,B):- logicmoo_util_strings:convert_to_cycString(A,B),!.
 
 :-thread_initialization(nb_setval('$has_kw',[])).
 :-thread_initialization(nb_setval('$has_var',[])).
 
 do_renames(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 do_renames(A,B):- var(A),!,A=B,!,nb_setval('$has_var',t),!.
+%do_renames('$VAR'(A),B):- catch((fix_var_name(A,B),!,nb_setval('$has_var',t)),E,(dtrace(dmsg(E)))),!.
+do_renames(A,B):- number(A),!,A=B.
+do_renames(A,B):- atom(A),!,must(rename_atom(A,B)),!.
+do_renames(A,B):- string(A),!,re_convert_string(A,B).
+do_renames(A,B):- \+ compound(A),!,A=B.
+do_renames(A,B):- compound_name_arity(A,P,0),!,do_renames(P,BP),compound_name_arguments(B,BP,0),!.
 do_renames(rnc(X,Y),rnc(X,Y)):-!.
 do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),cnas(B,uT,List)).
 do_renames(uU('SubLQuoteFn',A),uSubLQuoteFn(A)):-var(A),!,nb_setval('$has_var',t),!.
 do_renames(uU('SubLQuoteFn','$VAR'(A)),uSubLQuoteFn(A)):-!,nb_setval('$has_quote',t),!,nb_setval('$has_var',t),!.
 do_renames('$KW'(A),'$VAR'(B)):- catch((fix_var_name(A,B),!,nb_setval('$has_kw',t)),E,(dtrace(dmsg(E)))),!.
 do_renames('$VAR'(A),'$VAR'(B)):- catch((fix_var_name(A,B),!,nb_setval('$has_var',t)),E,(dtrace(dmsg(E)))),!.
-%do_renames('$VAR'(A),B):- catch((fix_var_name(A,B),!,nb_setval('$has_var',t)),E,(dtrace(dmsg(E)))),!.
-do_renames(A,B):- atom(A),!,must(rename_atom(A,B)),!.
-do_renames(A,B):- string(A),!,re_convert_string(A,B).
-%do_renames(A,B):- number(A),!,A=B.
-do_renames(A,B):- \+ compound(A),!,A=B.
-do_renames([A|Rest],[B|List]):- !, do_renames(A,B),do_renames(Rest,List).
-do_renames(A,B):- compound_name_arity(A,P,0),!,do_renames(P,B).
+do_renames([A|String],[A|StringO]):- A == txt,!, (ground(String) -> convert_to_sel_string(fail,a,=,String,StringO) ; String=StringO).
+do_renames(X,String):- X=..[s|SS],!,(ground(SS)->convert_to_s_string(SS,String);String=X),!. 
+do_renames([A|Rest],[B|List]):- do_renames(A,B),!,do_renames(Rest,List).
 do_renames(A,B):- 
   compound_name_arguments(A,P,ARGS),
    must_maplist(do_renames,[P|ARGS],[T|L]),
@@ -1788,7 +1796,8 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-:- catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+%:- catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+:- catch(((if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
 %:- baseKB:catch(ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames.qlf')),_,
 %   catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
@@ -1824,6 +1833,9 @@ re_symbolize(N,V):- ignore(V='?'(N)).
 
 /*
 :- export(do_vname/1).
+?- module(test_abcd).
+?- mpred_ain([aa(x), b(x,z), cc(t), ((aa(A),b(A,C),cc(C)) ==> dd(A,C)), aa(y), b(y,x), cc(y), aa(y), b(y,t), cc(z), b(z,y), cc(x)]),listing(dd/2).
+
 
 do_vname(Wff):-
   do_vname(Wff,PO),

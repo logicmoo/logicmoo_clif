@@ -1,10 +1,10 @@
 :- module(common_logic_modalization,[qualify_nesc/2]).
 
-:-
- op(1199,fx,(' ==>')), 
+:-  system:((
+ op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
- op(1180,xfx,(' ==>')),
- op(1170,xfx,'< ==>'),  
+ op(1180,xfx,('==>')),
+ op(1170,xfx,'<==>'),  
  op(1160,xfx,('<-')),
  op(1150,xfx,'=>'),
  op(1140,xfx,'<='),
@@ -13,7 +13,7 @@
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
- op(300,fx,'-').
+ op(300,fx,'-'))).
 
 :- op(800,xfx,'=<>=').
 

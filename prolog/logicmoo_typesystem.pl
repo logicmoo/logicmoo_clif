@@ -62,7 +62,7 @@
 :- debug.
 */
 
-:- '$set_source_module'(baseKB).
+%:- '$set_source_module'(baseKB).
 use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 
 :- set_prolog_flag(pfc_booted,false).

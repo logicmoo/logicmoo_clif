@@ -360,9 +360,9 @@ never_assert_u(pt(_,
 on_modules_changed:-!.
 on_modules_changed :-
   forall((current_module(M),M\=user,M\=system,M\=baseKB,M\=abox,\+ baseKB:mtHybrid(M)),
-      (default_module(abox,M)->true;catch(add_import_module(M,abox,start),E1,dmsg(E1:add_import_module(M,abox,start))))),
+      (default_module(abox,M)->true;catch(nop(add_import_module(M,abox,start)),E1,dmsg(E1:nop(add_import_module(M,abox,start)))))),
   forall((current_module(M),M\=user,M\=system,M\=baseKB),
-     (default_module(baseKB,M)->true;catch(add_import_module(M,baseKB,end),E2,dmsg(E2:add_import_module(M,baseKB,end))))).
+     (default_module(baseKB,M)->true;catch(nop(add_import_module(M,baseKB,end)),E2,dmsg(E2:add_import_module(M,baseKB,end))))).
 
 %:- on_modules_changed.
 %:- initialization(on_modules_changed).

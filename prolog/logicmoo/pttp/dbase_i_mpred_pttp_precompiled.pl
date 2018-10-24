@@ -196,7 +196,7 @@ pttp_logic(logicmoo_kb_refution,
            (( askable_t(P,A,B) => true_t(P,A,B) v unknown_t(P,A,B) v not_true_t(P,A,B)  )),
            (( answerable_t(P,A,B) <=> askable_t(P,A,B) & -unknown_t(P,A,B) )),
            (( askable_t(P,A,B) <=> -fallacy_t(P,A,B) )),
-           (( answerable_t(P,A,B) => true_t(P,A,B) v not_true_t(P,A,B)  )),
+           (( answerable_t(P,A,B) => true_t(P,A,B) v -true_t(P,A,B)  )),
            (( true_t(P,A,B) v unknown_t(P,A,B) v not_true_t(P,A,B)  ))
 
 

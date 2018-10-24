@@ -27,9 +27,11 @@
 
 with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_coroutines,true),Goal).
 
-:- use_module(library(tabling)).
+% :- use_module(library(tabling)).
 
-:- virtualize_source_file.
+:- use_module(library(must_trace)).
+:- use_module(library(loop_check)).
+:- use_module(library(logicmoo_typesystem)).
 
 
  :- meta_predicate query_ex(?).
@@ -39,11 +41,7 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
  :- meta_predicate test_count(0,*).
  :- meta_predicate undo(0).
 
-:- use_module(library(must_trace)).
-:- use_module(library(loop_check)).
-:- use_module(library(logicmoo_typesystem)).
-
-:-
+:-  system:((
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),
@@ -56,7 +54,10 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
  op(600,yfx,'v'),
  op(350,xfx,'xor'),
  op(300,fx,'~'),
- op(300,fx,'-').
+ op(300,fx,'-'))).
+
+
+:- virtualize_source_file.
 
 /*
 
@@ -904,6 +905,7 @@ subst_except_copy(Fml,X,Y,FmlY):- subst(Fml,X,Y,FmlY).
 % =================================
 % Typed (Exactly/AtMost/AtLeast 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
 % =================================
+:- discontiguous(nnf_ex/5).
 
 nnf_ex(KB,quant(exactly(N),XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
     (get_quantifier_isa(XL,X,Col) -> 
@@ -977,6 +979,7 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- fail, !,
     nnf(KB, Fml <=> skolem(X,skF(1,SkV,X,DFml)),FreeV,NNF1,Paths)
    )),!.
 
+skv:attr_unify_hook(A,V):- dmsg(skv:attr_unify_hook(A,V)).
 
 % =================================
 % ==== AtLeast N ========

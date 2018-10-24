@@ -67,9 +67,9 @@
 
 
 
-%:- if(app_argv('--pdt')).
+:- if(app_argv('--pdt')).
 :- use_module(library(logicmoo_pdt)).
-%:- endif.
+:- endif.
 
 
 /*
@@ -113,8 +113,8 @@
 :- dmsg("SETUP KB EXTENSIONS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- '$set_typein_module'(baseKB).
-:- '$set_source_module'(baseKB).
+%:- '$set_typein_module'(baseKB).
+%:- '$set_source_module'(baseKB).
 
 :- use_module(library(plunit)).
 :- kb_global(plunit:loading_unit/4).
@@ -160,8 +160,11 @@
 :- endif.
 
 
-:- current_prolog_flag(os_argv,[swipl])->
-   set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']); true.
+set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
+   set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
+
+:- (current_prolog_flag(os_argv,[swipl]) ; current_prolog_flag(argv,[])) ->
+   set_default_argv; true.
 
    
 
@@ -294,13 +297,6 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- dmsg("[Mostly Required] Load the Logicmoo Parser/Generator System").
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- load_library_system(library(parser_all)).
-%:- load_library_system(library(parser_e2c)).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Required] Load the CYC Network Client and Logicmoo CycServer Emulator (currently server is disabled)").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % :- load_library_system(library(plark/logicmoo/logicmoo_u_cyc_api)).
@@ -322,6 +318,16 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 
 % :- sanity(doall(printAll(current_prolog_flag(_N,_V)))).
 % :- after_boot(during_net_boot(kill_unsafe_preds)).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- dmsg("[Mostly Required] Load the Logicmoo Parser/Generator System").
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%:- load_library_system(library(parser_all)).
+:- if(\+ current_module(logicmoo_nlu)).
+:- load_library_system(library(logicmoo_nlu)).
+%:- noguitracer.
+:- endif.
+%:- load_library_system(library(parser_e2c)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("MAYBE QSAVE THIS").
