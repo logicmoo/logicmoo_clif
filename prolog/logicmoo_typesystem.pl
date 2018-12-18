@@ -114,9 +114,9 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- kb_shared(baseKB:spft/3).
 :- kb_shared(baseKB:tms/1).
 
-:- use_module(library(expand_finer/subclause_expansion)).
-:- use_module(library(hybrid_db/virtualize_source)).
-:- use_module(library(file_utils/filesystem)).
+:- use_module(library(logicmoo/subclause_expansion)).
+:- use_module(library(logicmoo/virtualize_source)).
+:- use_module(library(logicmoo/filesystem)).
 
 wsce(W):- with_subclause_expansion((virtualize_source_file(W),baseKB:consult(W))).
 :- wsce(library('logicmoo/typesystem/mpred_agenda.pl')).

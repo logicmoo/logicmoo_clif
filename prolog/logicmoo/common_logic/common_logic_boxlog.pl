@@ -107,7 +107,7 @@ Per-Litteral features
 :- common_logic_boxlog:use_module(library(dialect/hprolog),[]).
 
 %:- use_module(library(lockable_vars)).
-%:- use_module(library(listing_vars)).
+%:- use_module(library(util_varnames)).
 
 :- virtualize_source_file.
 
