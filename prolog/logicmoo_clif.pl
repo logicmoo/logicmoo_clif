@@ -22,7 +22,7 @@
 
 :- set_prolog_flag_until_eof(retry_undefine,false).
 
-:- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_common)).
 :- user:use_module(library(wam_cl/sreader)).
 
 :- dynamic   user:file_search_path/2.
@@ -76,7 +76,7 @@ maybe_load_clif_file(Spec, Options):-
 
 :- dynamic user:prolog_load_file/2.
 :- multifile user:prolog_load_file/2.
-:- use_module(library(must_trace)).
+:- use_module(library(logicmoo_common)).
 user:prolog_load_file(Spec, Options):- maybe_load_clif_file(Spec, Options),!.
 
 :- kif_compile.

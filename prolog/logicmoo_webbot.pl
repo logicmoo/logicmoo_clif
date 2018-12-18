@@ -54,7 +54,7 @@ app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 
 :- if((app_argv_www('--sigma'))).
 :- dmsg("SIGMA-KE Server").
-:- user:use_module(library(xlisting_web)).
+:- user:use_module(library(xlisting/xlisting_web)).
 :- user:listing(baseKB:shared_hide_data/1).
 :- endif.
 

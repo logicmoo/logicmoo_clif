@@ -9,7 +9,7 @@
 Remote SWISH as an IDE for developing a Remote application.
 */
 
-:- use_module(library(must_trace)).
+:- use_module(library(sanity_must)).
 
 
 :- set_prolog_flag(lm_no_autoload,false).
@@ -45,7 +45,7 @@ from_http(G):- with_output_to(main_error,G).
 :- use_module(library(aleph),[]).
 
 
-:- use_module(library(must_trace)).
+:- use_module(library(sanity_must)).
 
 reexport_from(ReExporter,From:P):-
     From:export(From:P),

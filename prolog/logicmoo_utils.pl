@@ -16,6 +16,8 @@
     License:       Lesser GNU Public License
 % ===================================================================
 */
+end_of_file.
+
 :- if( \+ exists_source(library(logicmoo_utils))).
 
 :- if((prolog_load_context(directory,Dir),
@@ -35,30 +37,17 @@ pack_ensure(_).
 
 packs_ensure :- maplist([W]>>pack_ensure(W),
 [
-clause_attvars,
 dictoo,
-each_call_cleanup,
 eggdrop,
-file_scope,
 gvar_syntax,
-hook_hybrid,
 instant_prolog_docs,
 logicmoo_base,
 logicmoo_utils,
-loop_check,
-multimodal_dcg,
-must_trace,
-no_repeats,
 predicate_streams,
 prologmud,
 s_expression,
 slack_prolog,
-subclause_expansion,
-tabling_dra,
-with_open_options,
-with_thread_local,
-xlisting,
-xlisting_web]).
+tabling_dra]).
 
 
 % ======================================================
@@ -94,26 +83,8 @@ xlisting_web]).
 :- set_prolog_flag(generate_debug_info, true).
  % :- set_prolog_flag(subclause_expansion,false).
 
-:- system:reexport(library(logicmoo_util_common)).
-:- reexport(library('logicmoo_util_terms')).
-:- reexport(library('logicmoo_util_strings')).
-
-
-:- reexport(library('hook_hybrid')).
-:- reexport(library('must_trace')).
-
-:- reexport(library('loop_check')).
-
-:- reexport(library('no_repeats')).
-
-:- reexport(library('with_thread_local')).
-
-%:- reexport(library('varnames')).
-:- reexport(library('xlisting')).
-
-:- reexport(library('filestreams')).
-:- reexport(library('filesystem')).
-
+:- system:reexport(library(logicmoo_common)).
+:- reexport(library(logicmoo_utils_all)).
 :- reexport(library('predicate_streams')).
 %%:- reexport(library('engines')).
 %%:- reexport(library('help')).

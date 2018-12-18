@@ -66,7 +66,7 @@ skipped(G):- nop(G).
 :-  system:op(350,xfx,('xor')).
 :-  system:op(300,fx,('~')).
 :-  system:op(300,fx,('-')).
-:- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_common)).
 :- user:use_module(library(logicmoo_utils)).
 
 /*	

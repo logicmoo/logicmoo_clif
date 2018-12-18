@@ -47,8 +47,6 @@
 % prolog:message_hook(T,warning,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 
 :- user:ensure_loaded(library(logicmoo_utils)).
-:- ensure_loaded(library(rtrace)).
-:- ensure_loaded(library(dmsg)).
 
 :- if(app_argv('--pdt')).
 :- if(\+ app_argv('-nopce')).
@@ -149,7 +147,7 @@
 :- multifile user:file_search_path/2.
 :- dynamic   user:file_search_path/2.
 
-:- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_common)).
 
 
 :- if(exists_source(library(yall))).
@@ -251,7 +249,7 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Optional] Load the Logicmoo Web System").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- user:use_module(library(logicmoo_util_common)).
+:- user:use_module(library(logicmoo_common)).
 
 :- if(\+ app_argv('--nonet')).
 :- logicmoo_webbot.
@@ -336,7 +334,7 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 :- set_prolog_flag(logicmoo_qsave,false).
 
 :- if( \+ current_prolog_flag(address_bits, 32)).
-:- during_boot(set_prolog_stack_gb(16)).
+%:- during_boot(set_prolog_stack_gb(16)).
 :- endif.
 
 :- fixup_exports.

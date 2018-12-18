@@ -19,7 +19,7 @@
 :- if(current_prolog_flag(dialect, swi)).
 
 :- use_module(library(lists)).
-:- use_module(library(helpidx)).
+%:- use_module(library(helpidx)).
 :- use_module(library(memfile)).
 :- use_module(library(quintus)).
 

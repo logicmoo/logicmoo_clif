@@ -1,7 +1,6 @@
 :- module(system_common,[]).
 :- set_module(class(development)).
 :- '$set_source_module'(baseKB).
-:- use_module(library(rtrace)).
 :- use_module(library(pfc_lib)).
 :- mpred_unload_file.
 :- ensure_abox(baseKB).
@@ -79,7 +78,7 @@ without_depth_limit(G):-
 */
 
 
-:- use_module(library(rtrace)).
+%:- use_module(library(rtrace)).
 :- mpred_unload_file.
 :- begin_pfc.
 % :- '$set_source_module'(baseKB).

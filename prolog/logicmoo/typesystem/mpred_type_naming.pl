@@ -20,22 +20,23 @@
             create_from_type/3,
             create_meta/4,
             get_source_suffix/2,
+            /*
             i_name/2,
             i_name/3,
-            i_name_lc/2,
+            i_name_lc/2,*/
             modality/3,
             doSpawn/1,
             doSpawn_modal/2,
             doSpawn_f_args/3,
             spawnOneSpawnArg/4,
-            split_name_type/3,
+            /*split_name_type/3,
             split_name_type_0/3,
             toCamelAtom0/2,
             toUpperCamelcase/2,
             to_atomic_name/3,
             to_iname/2,
             to_prefixed/3,
-            typename_to_iname0/3,
+            typename_to_iname0/3,*/
             mpred_type_naming_file/0
           ]).
 
@@ -68,6 +69,16 @@ create_meta(SuggestedName,SuggestedClass,BaseClass,SystemName):-
    assert_isa_safe(SystemName,BaseClass),
    assert_isa_safe(SystemName,NewSuggestedClass),
    assert_isa_safe(SystemName,SuggestedClass).
+
+
+
+
+
+
+:- if(false).
+
+
+
 
 
 
@@ -199,6 +210,10 @@ to_atomic_name(I,Pred,O):-string(I),!,string_to_atom(I,A),!,to_atomic_name(A,Pre
 to_atomic_name(Name,Pred,O):-atomic(Name),ereq(mudKeyword(W,KW)),string_equal_ci(Name,KW),!,to_atomic_name(W,Pred,O).
 to_atomic_name(Name,Pred,_):- not(atom(Name)),!,trace_or_throw(todo(not_atom_to_atomic_name(Name,Pred))).
 to_atomic_name(Name,Pred,O):- call(Pred,Name,O).
+
+
+:- endif.
+
 
 
 

@@ -36,7 +36,7 @@
 
 :- ensure_loaded(library(logicmoo_clif)).
 
-:- use_module(library(script_files)).
+%:- use_module(library(script_files)).
 
 fst:-  set_prolog_flag(write_attributes,ignore),freeze(X,(\+ is_ftVar(X),X==[]->(dumpST,break);true)),rtrace((trace,test_boxlog(~ &(human(X), male(X))))).
 

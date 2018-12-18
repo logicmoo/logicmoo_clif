@@ -56,7 +56,7 @@
 :- kb_global(rdf_rewrite:arity/2).
 %:- endif.
 
-:- use_module(library('filestreams')).
+%:- use_module(library('filestreams')).
 % ===================================================================
 % OPERATOR PRECEDANCE
 % ===================================================================

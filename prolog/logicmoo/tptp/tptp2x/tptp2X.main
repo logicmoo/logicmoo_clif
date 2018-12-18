@@ -1659,3 +1659,30 @@ GenerationSpecification,Transformation,OutputFormat,OutputDirectory).
 tptp2X(TPTPFileName,Transformation,OutputFormat,OutputDirectory):-
     tptp2X(TPTPFileName,none,Transformation,OutputFormat,OutputDirectory).
 %------------------------------------------------------------------------------
+
+/*
+
+Warning: The predicates below are not defined. If these are defined
+Warning: at runtime using assert/1, use :- dynamic Name/Arity.
+Warning:
+Warning: delete/1, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.main:1004:4: 8-th clause of tptp2X_delete_file_for_dialect/2
+Warning: environ/2, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:18:4: 2-nd clause of get_environment_variable/2
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:23:4: 3-th clause of get_environment_variable/2
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:28:4: 4-th clause of get_environment_variable/2
+Warning: exists/1, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:41:4: 1-st clause of tptp_file_exists/1
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:66:4: 6-th clause of tptp_file_exists/1
+Warning: file_exists/1, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:51:4: 3-th clause of tptp_file_exists/1
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:56:4: 4-th clause of tptp_file_exists/1
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:61:4: 5-th clause of tptp_file_exists/1
+Warning: output_tptp_formula/4, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/format.tptp:355:4: 1-st clause of output_tptp_clause/4
+Warning: readvar/3, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:459:4: 6-th clause of real_read_for_dialect/3
+Warning: tptp2X_cwd/1, which is referenced by
+Warning:        /opt/logicmoo_workspace/packs_sys/MKM/prolog/tptp2x/tptp2X.read:134:4: 4-th clause of tptp_find_file/3
+
+*/

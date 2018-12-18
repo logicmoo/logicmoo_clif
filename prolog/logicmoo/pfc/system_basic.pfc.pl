@@ -3,7 +3,7 @@
 %:- mpred_unload_file.
 :- '$set_source_module'(baseKB).
 :- ensure_abox(baseKB).
-:- use_module(library(rtrace)).
+%:- use_module(library(rtrace)).
 :- use_module(library(pfc_lib)).
 :- set_fileAssertMt(baseKB).
 % ensure this file does not get unloaded with mpred_reset
@@ -100,6 +100,7 @@ tPred(P) :- cwc, tRelation(P), \+ tFunction(P).
 
 
 :- kb_shared(disjointWith/2).
+
 rtSymmetricBinaryPredicate(disjointWith).
 
 % @TODO decide how to best impl the next line
@@ -123,7 +124,7 @@ rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleto
 %((prop_mpred(pfcWatches,F,A)/is_ftNameArity(F,A),prologHybrid(F)))==>prop_mpred(pfcVisible,F,A).
 
 
-:- set_prolog_flag_until_eof(gc,true).
+%:- set_prolog_flag_until_eof(gc,true).
 
 
 

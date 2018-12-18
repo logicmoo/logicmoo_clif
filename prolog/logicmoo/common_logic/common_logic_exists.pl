@@ -29,8 +29,8 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
 
 % :- use_module(library(tabling)).
 
-:- use_module(library(must_trace)).
-:- use_module(library(loop_check)).
+:- use_module(library(logicmoo_common)).
+%:- use_module(library(loop_check)).
 :- use_module(library(logicmoo_typesystem)).
 
 
