@@ -12,7 +12,11 @@ Remote SWISH as an IDE for developing a Remote application.
 :- use_module(library(sanity_must)).
 
 
+:- if(\+ current_prolog_flag(lm_no_autoload,_)).
 :- set_prolog_flag(lm_no_autoload,false).
+:- wdmsg("WARNING: PFC_AUTOLOAD").
+:- endif.
+
 %:- set_prolog_flag(lm_pfc_lean,false).
 
 :- use_module(library(http/thread_httpd)).
