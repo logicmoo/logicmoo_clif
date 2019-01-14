@@ -57,7 +57,6 @@
 /*
 :- set_prolog_flag(fileerrors,false).
 :- set_prolog_flag(debug,true).
-:- set_prolog_flag(gc,false).
 :- set_prolog_flag(gc,true).
 :- debug.
 */

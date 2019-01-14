@@ -335,7 +335,7 @@ example_unknown(G):- example_known_is_failure(G),example_impossible_is_failure(G
 :- garbage_collect_clauses.
 :- garbage_collect.
 :- statistics.
-:- set_prolog_flag(gc,false).
+%:- set_prolog_flag(gc,false).
 :- endif.
 
    

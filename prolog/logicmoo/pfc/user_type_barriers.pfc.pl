@@ -26,7 +26,7 @@ ttBarrierStr(A),{atomic_list_concat([A,"Type"],AType0),
 :- garbage_collect_clauses.
 :- garbage_collect.
 :- statistics.
-:- set_prolog_flag(gc,false).
+% :- set_prolog_flag(gc,false).
 :- endif.
 
 

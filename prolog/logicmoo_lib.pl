@@ -93,8 +93,8 @@
 /*
 :- set_prolog_flag(fileerrors,false).
 :- set_prolog_flag(debug,true).
-:- set_prolog_flag(gc,false).
-:- set_prolog_flag(gc,true).
+%:- set_prolog_flag(gc,false).
+%:- set_prolog_flag(gc,true).
 :- debug.
 
 :- set_prolog_flag(report_error,true).
