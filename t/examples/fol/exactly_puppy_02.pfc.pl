@@ -80,7 +80,7 @@ test_sanity(G):- sanity(mpred_test(G)).
 % There is a puppy we call puppy3
 :- test_boxlog([+assert,+exist],puppy(puppy3)).
 
-% there is 1 possibly cute puppy
+% there is exactly two objects that are pupplies that are possibly cute
 :- test_boxlog([+assert],exactly(2, X, puppy(X) & poss(cute(X)))).
 
 end_of_file.
