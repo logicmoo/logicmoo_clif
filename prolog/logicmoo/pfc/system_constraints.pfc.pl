@@ -1,4 +1,4 @@
-:- module(system_constraints,[]).
+%:- module(system_constraints,[]).
 :- set_module(class(development)).
 :- '$set_source_module'(baseKB).
 :- use_module(library(pfc_lib)).
@@ -55,6 +55,12 @@
 predicate_relaxed(MSpec),{ strip_module(MSpec,M,Spec),mpred_functor(Spec,F,A),functor(P,F,A)} ==>  
    macroExpandExact(P, relax_goal(P,Q),M:Q).
        
+predicate_relaxed(MSpec),
+ { strip_module(MSpec,M,Spec), mpred_functor(Spec,F,A),functor(LOOP,F,A),kb_shared(M:F/A),LOOP=..[F|ARGS]} 
+ ==>  
+ (((M:LOOP:- awc, \+ maplist(is_iz_or_iza,ARGS), LOOPY=LOOP,!,M:relax(LOOPY),!,M:call(LOOPY))),
+ prologOrdered(F)).  % Prolog Ordered is secondary insurance new assertions use assertz
+
 :- else.
 
 predicate_relaxed(MSpec),
@@ -90,6 +96,7 @@ prologOrdered(F),predSingleValued(F) ==> {trace_or_throw(unsupported(prologOrder
 
 
 :- if((current_prolog_flag(runtime_safety,D),D>2)).
+
 predicate_relaxed(weak_test/2).
 
 weak_test("Weak1","Weak2").
@@ -101,6 +108,7 @@ weak_test("Weak0","weAk2").
 :- listing(weak_test/2).
 :- endif.
 
+:- listing(weak_test/2).
 
 :- if(\+ current_predicate(mpred_test/1)).
 :- use_module(library(pfc_test)).
@@ -114,5 +122,29 @@ weak_test("Weak0","weAk2").
 :- endif.
 :- endif.
 
+
+% =======================================================
+% =======================================================
+weac_test("Weac1","Weac2").
+weac_test("Weac0","weAc2").
+
+:- export(weac_test/2).
+:- public(weac_test/2).
+
+:- listing(weac_test/2).
+
+predicate_relaxed(weac_test/2).
+
+:- listing(weac_test/2).
+
+:- mpred_test(weac_test("Weac1","Weac2")).
+:- mpred_test(weac_test("Weac1","wEac2")).
+:- mpred_test((weac_test(weac1,"WeAC2")))->true;(writeln(mpred_test(weac_test(weac1,"WeAC2"))),break).
+
+% =======================================================
+% =======================================================
+
+
 :- endif.
+
 

@@ -52,10 +52,18 @@ app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 */
 
 
-:- if((app_argv_www('--sigma'))).
+:- if(( false  , app_argv_www('--sigma'))).
 :- dmsg("SIGMA-KE Server").
 :- user:use_module(library(xlisting/xlisting_web)).
+foo_broken.
+:- listing(foo_broken).
+:- break.
 :- user:listing(baseKB:shared_hide_data/1).
+:- set_fileAssertMt(baseKB).
+foo_broken2.
+:- listing(foo_broken2).
+:- break.
+%#:- set_current_module(baseKB).
 :- endif.
 
 :- if((app_argv('--irc'))).

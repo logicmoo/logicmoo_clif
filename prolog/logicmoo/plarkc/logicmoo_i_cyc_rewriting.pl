@@ -68,10 +68,11 @@ show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).
 :- export(install_constant_renamer_until_eof/0).
-install_constant_renamer_until_eof:-  call_on_eof(show_missing_renames),call_on_eof(set_prolog_flag(do_renames_sumo,maybe)),
+
+install_constant_renamer_until_eof:-  
+  call_on_eof(show_missing_renames),  
+  call_on_eof(set_prolog_flag(do_renames_sumo,maybe)),
   set_prolog_flag_until_eof(do_renames,term_expansion).
-
-
 
 
 :- dynamic(baseKB:cycPrepending/2).
@@ -1816,8 +1817,8 @@ azzert_rename(C,P):- baseKB:rnc(C,P),!.
 azzert_rename(C,P):- baseKB:rn_new(C,P),!.
 azzert_rename(C,P):- asserta(baseKB:rn_new(C,P)),dmsg_rename(C,P).
 
-dmsg_rename(C,P):-C\=P,dmsg((azzert_rename(C,P))).
-dmsg_rename(C,_):-downcase_atom(C,C),!.
+dmsg_rename(C,P):- C\=P,dmsg((azzert_rename(C,P))).
+dmsg_rename(C,_):- downcase_atom(C,C),!.
 dmsg_rename(C,_):- starts_lower(C),!.
 dmsg_rename(C,P):- dmsg(warn(azzert_rename(C,P))).
 
@@ -1986,15 +1987,18 @@ kb_7166_assertions:- ensure_loaded_with(library('pldata/kb_7166_assertions.pl'),
 % :- kb_7166_ensure_translated_2.
 
 
+:- multifile(system:term_expansion/2).
 
-system:term_expansion(I, O):- compound(I), 
+system:term_expansion(I,Pos,O,Pos2):- compound(I), 
    current_prolog_flag(do_renames,term_expansion),
-   b_getval('$term', Term),Term==I, 
-   (nb_current('$term_exp_skip', Was)->Was\==I;true),
-   must(do_renames(I,O))->I\==O -> 
+   (b_getval('$term', Term),(Term==I;Term==[])),
+   (nb_current('$term_exp_skip', Was)->(Was\==I;Term==[]);true),
+   must(do_renames(I,O)) -> 
+   I\==O -> 
    b_setval('$term', O),
    b_setval('$term_exp_skip', Term),
-   nop(dmsg(do_renames(I)-->O)).
+   nop(dmsg(do_renames(I)-->O)),
+   Pos=Pos2.
 /*
 system_clause_expansion(I, O):- compound(I), 
    current_prolog_flag(do_renames,term_expansion),

@@ -38,6 +38,8 @@
 
 
 
+:- create_prolog_flag(logicmoo_modality,none,[keep(true)]).
+
 :- thread_local(t_l:qualify_modally/0).
 %% qualify_modality( ?P, ?Q) is det.
 qualify_modality(OuterQuantKIF,OuterQuantKIF):- current_prolog_flag(logicmoo_modality,none),!.

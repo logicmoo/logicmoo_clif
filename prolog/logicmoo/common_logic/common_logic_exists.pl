@@ -698,7 +698,7 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 */
 :- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:nesc/1)})).
 :- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:proven_helper/1)})).
-:- baseKB:ain((mtHybrid(Mt)==> {Mt\==baseKB, assert_if_new((Mt:nesc(P):- nesc_lc(Mt, P)))})).
+:- baseKB:ain((mtHybrid(Mt)==> {assert_if_new((Mt:nesc(P):- (zwc, nesc_lc(Mt, P))))})).
 :- baseKB:ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_shared(Mt:F/A)}).
 
 %:- kb_shared(call_tru/2).

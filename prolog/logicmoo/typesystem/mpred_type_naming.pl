@@ -72,152 +72,6 @@ create_meta(SuggestedName,SuggestedClass,BaseClass,SystemName):-
 
 
 
-
-
-
-:- if(false).
-
-
-
-
-
-
-:- was_export(i_name_lc/2).
-
-%= 	 	 
-
-%% i_name_lc( ?OType, ?IType) is semidet.
-%
-% Instance Name Not Loop Checked.
-%
-i_name_lc(OType,IType):-typename_to_iname0('',OType,IOType),!,string_equal_ci(IOType,IType).
-
-
-
-%= 	 	 
-
-%% to_iname( ?T, ?T) is semidet.
-%
-% Converted To Iname.
-%
-to_iname(T,TT):- var(T),!,freeze(T,to_iname(T,TT)).
-to_iname(T,TT):- not(current_predicate(i_name/3)),!,T=TT.
-to_iname(T,TT):- (not_log_op(T),i_name(t,T,TT))->true;TT=T.
-
-
-
-%= 	 	 
-
-%% toUpperCamelcase( ?Type, ?TypeUC) is semidet.
-%
-% Converted To Upper Camelcase.
-%
-toUpperCamelcase(Type,TypeUC):-toCamelcase(Type,TypeUC). % ,toPropercase(TypeC,TypeUC),!.
-:- was_export(i_name/2).
-
-
-icn_tcn(I,IC):-atom(I),i_name('t',I,IC)->I\==IC.
-
-%= 	 	 
-
-%% i_name( ?OType, ?IType) is semidet.
-%
-% Instance Name.
-%
-i_name(OType,IType):-typename_to_iname0('',OType,IOType),!,IOType=IType.
-:- was_export(i_name/3).
-
-%= 	 	 
-
-%% i_name( ?I, ?OType, ?IType) is semidet.
-%
-% Instance Name.
-%
-i_name(I,OType,IType):-typename_to_iname0(I,OType,IOType),!,IOType=IType.
-
-:- was_export(typename_to_iname0/3).
-
-
-%= 	 	 
-
-%% typename_to_iname0( ?I, ?OType, ?IType) is semidet.
-%
-% Typename Converted To Iname Primary Helper.
-%
-typename_to_iname0(I, [], O):- trace_or_throw(bad_typename_to_iname0(I, [], O)).
-typename_to_iname0(I,OType,IType):- call_u(type_prefix(Prefix,_)),atom_concat(Prefix,Type,OType),capitalized(Type),!,typename_to_iname0(I,Type,IType).
-typename_to_iname0(I,Type,IType):-nonvar(Type),toUpperCamelcase(Type,UType),atom_concat(I,UType,IType).
-
-:- was_export(split_name_type/3).
-:- '$hide'(split_name_type/3).
-
-%= 	 	 
-
-%% split_name_type( ?Suggest, ?InstName, ?Type) is semidet.
-%
-% Split Name Type.
-%
-split_name_type(Suggest,InstName,Type):- maybe_notrace(split_name_type_0(Suggest,NewInstName,NewType)),!,must((NewInstName=InstName,NewType=Type)),!.
-
-
-%= 	 	 
-
-%% split_name_type_0( ?S, ?P, ?C) is semidet.
-%
-% split name type  Primary Helper.
-%
-split_name_type_0(S,P,C):- string(S),!,atom_string(A,S),split_name_type_0(A,P,C),!.
-split_name_type_0(FT,FT,ttExpressionType):-a(ttExpressionType,FT),!,dmsg(trace_or_throw(ttExpressionType(FT))),fail.
-split_name_type_0(T,T,C):- compound(T),functor(T,C,_),!.
-split_name_type_0(T,T,C):- quietly((once(atomic_list_concat_safe([CO,'-'|_],T)),atom_string(C,CO))).
-split_name_type_0(T,T,C):- quietly((atom(T),atom_codes(T,AC),last(AC,LC),is_digit(LC),append(Type,Digits,AC),catch(number_codes(_,Digits),_,fail),atom_codes(CC,Type),!,i_name(t,CC,C))).
-split_name_type_0(C,P,C):- var(P),atom(C),i_name(i,C,I),gensym(I,P),!.
-
-
-
-
-
-%= 	 	 
-
-%% toCamelAtom0( :TermA, ?O) is semidet.
-%
-% Converted To Camel Atom Primary Helper.
-%
-toCamelAtom0([A],O):-nonvar(A),!,toPropercase(A,O),!.
-toCamelAtom0([A|List],O):-!,toPropercase(A,AO),toCamelAtom0(List,LO),atom_concat(AO,LO,O).
-toCamelAtom0(A,O):-toPropercase(A,O),!.
-
-
-
-%= 	 	 
-
-%% to_prefixed( ?Prefix, ?I, ?O) is semidet.
-%
-% Converted To Prefixed.
-%
-to_prefixed(Prefix,I,O):-to_atomic_name(I,i_name(Prefix),O).
-
-:- meta_predicate to_atomic_name(?,2,?).
-
-%= 	 	 
-
-%% to_atomic_name( ?I, :PRED2Pred, ?O) is semidet.
-%
-% Converted To Atomic Name.
-%
-to_atomic_name(I,Pred,O):-is_list(I),toCamelAtom0(I,A),!,to_atomic_name(A,Pred,O).
-to_atomic_name(I,Pred,O):-string(I),!,string_to_atom(I,A),!,to_atomic_name(A,Pred,O).
-to_atomic_name(Name,Pred,O):-atomic(Name),ereq(mudKeyword(W,KW)),string_equal_ci(Name,KW),!,to_atomic_name(W,Pred,O).
-to_atomic_name(Name,Pred,_):- not(atom(Name)),!,trace_or_throw(todo(not_atom_to_atomic_name(Name,Pred))).
-to_atomic_name(Name,Pred,O):- call(Pred,Name,O).
-
-
-:- endif.
-
-
-
-
-
 %= 	 	 
 
 %% createByNameMangle( ?Name, ?IDA, ?InstAO) is semidet.
@@ -236,11 +90,11 @@ createByNameMangle(Name,IDA,InstAO):-must(createByNameMangle0(Name,IDA,InstAO)),
 createByNameMangle0(S,I,C):-is_list(S),toCamelAtom0(S,A),!,createByNameMangle0(A,I,C).
 createByNameMangle0(S,I,C):-string(S),!,string_to_atom(S,A),!,createByNameMangle0(A,I,C).
 createByNameMangle0(OType,Name,Type):-compound(OType),!,must(createByNameMangle_compound(OType,Name,Type)),!.
-createByNameMangle0(Name,_,_Type):- not(atom(Name)),!,trace_or_throw(todo(not_atom_createByNameMangle(Name))).
-createByNameMangle0(OType,Name,Type):- isa_asserted(OType,tCol),!,create_from_type(OType,Name,Type).
-createByNameMangle0(Suggest,Name,Type):- once(split_name_type(Suggest,Name,Type)),Suggest==Name,assert_isa(Name,Type).
-createByNameMangle0(Name,I,C):-ereq(mudKeyword(W,KW)),string_equal_ci(Name,KW),!,createByNameMangle0(W,I,C).
+createByNameMangle0(Name,_,_Type):- \+ atom(Name),!,trace_or_throw(todo(not_atom_createByNameMangle(Name))).
+%createByNameMangle0(OType,Name,Type):- isa_asserted(OType,tCol),!,create_from_type(OType,Name,Type).
 createByNameMangle0(OType,Name,Type):-create_from_type(OType,Name,Type),!.
+createByNameMangle0(Suggest,Name,Type):- once(split_name_type(Suggest,Name,Type)),(Suggest==Name;Suggest==Type),assert_isa(Name,Type),!.
+createByNameMangle0(Name,I,C):-ereq(mudKeyword(W,KW)),string_equal_ci(Name,KW),!,createByNameMangle0(W,I,C).
 createByNameMangle0(Name,IDA,Name):- gensym(Name,IDA), englishServerInterface([actCreate,Name,IDA]).
 
 
@@ -295,15 +149,17 @@ create_from_type(InstOrType,Name,Type):- sanity(var(Name)),
   must_det_l(( 
    guess_type_name(InstOrType,Type),
    guess_inst_name(InstOrType,Type,Name),
-   assert_isa(Type,tCol),
+   assert_isa(Type,tSet),
    assert_isa(Name,Type))),!.
 
 guess_type_name(InstOrType,InstOrType):- isa_asserted(InstOrType,tCol),!.
+guess_type_name(InstOrType,InstOrType):- atom_concat('t',_,InstOrType),!.
 guess_type_name(InstOrType,Type):-
    i_name(InstOrType,TypeStemNum),
    clip_source_suffix(TypeStemNum,TypeStem),
    atom_concat('t',TypeStem,Type).
 
+guess_inst_name(InstOrType,Type,InstOrType):- atom_concat('t',Type,InstOrType),!.
 guess_inst_name(Type,Type,Name):-
    i_name('i',Type,NameNeedsNum),
    get_source_suffix(NameNeedsNum,SS),
@@ -355,7 +211,7 @@ doSpawn_modal(_Modality,ClassFact):-
  must(doSpawn_modal(FunctArgType,Name)).
    
 doSpawn_modal(Modality,ClassFact):-  ClassFact=..[FunctArgType,Name],
- call_u(tCol(FunctArgType)),
+ call_u(tSet(FunctArgType)),
  must_det((
  createByNameMangle(Name,Inst,TypeA),
  assert_isa(TypeA,tCol),assert_isa(Inst,FunctArgType),assert_isa(Inst,TypeA),

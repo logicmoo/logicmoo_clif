@@ -124,7 +124,7 @@ baseKB:logicmoo_pre_release.
 
 :- if(current_prolog_flag(gui,true)).
 :- guitracer.
-:- notrace(trace).
+%:- notrace(trace).
 :- notrace.
 :- endif.
 

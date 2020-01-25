@@ -1,4 +1,4 @@
-:- module(system_common,[]).
+%:- module(system_common,[]).
 :- set_module(class(development)).
 :- '$set_source_module'(baseKB).
 :- use_module(library(pfc_lib)).
@@ -1143,7 +1143,7 @@ quotedDefnIff(ftText,is_ftText).
 
 :- kb_global(baseKB:ftText/1).
 
-((ttExpressionType(FT)/append_term(FT,Arg,Head)) ==> 
+((ttExpressionType(FT)/(append_term(FT,Arg,Head),predicate_property(Head,undefined))) ==> 
     ({OO = (Head:- !, term_is_ft(Arg,FT))},OO)).
 
 % tCol(Type),(rtBinaryPredicate(Pred)/(functor(G,Pred,2),G=..[Pred,isInstFn(Type),Value])), G ==> relationMostInstance(Pred,Type,Value).
