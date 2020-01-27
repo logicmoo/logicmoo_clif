@@ -18,7 +18,7 @@ add_pack_path1(Rel):-
    dir_from1(Rel,Y),
    (( \+ user:file_search_path(pack,Y)) ->asserta(user:file_search_path(pack,Y));true).
 
-:- if( \+ exists_source(library(logicmoo_hyhtn))).
+:- if( \+ exists_source(library('logicmoo_nlu/nl_pipeline.pl'))).
 :- add_pack_path1(packs_xtra).
 :- endif.
 
@@ -32,7 +32,7 @@ add_pack_path1(Rel):-
 
 :- current_prolog_flag(access_level,WAS),!,
    set_prolog_flag(access_level,user),
-   reexport(library(parser_all)),
+   reexport(library('logicmoo_nlu/nl_pipeline.pl')),
    set_prolog_flag(access_level,WAS).
 
 

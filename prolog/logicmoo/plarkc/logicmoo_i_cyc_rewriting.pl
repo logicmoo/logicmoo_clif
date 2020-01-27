@@ -58,6 +58,9 @@
 :- use_module(library(sexpr_reader)).
 :- set_module(class(library)).
 
+:- absolute_file_name(library('../ext/pldata/'),Dir,[file_type(directory)]),
+   asserta_new(user:file_search_path(pldata,Dir)).
+
 :- set_prolog_flag_until_eof(subclause_expansion,false).
 
 
@@ -1646,7 +1649,8 @@ rename_atom(A,B):- atom_concat('?',_,A),!,A=B.
 rename_atom(A,B):- atom_concat(':',_,A),!,A=B.
 %rename_atom(A,B):- current_prolog_flag(logicmoo_break_atoms,true),atom_contains(A,' '),!,convert_to_cycString(A,B),nb_setval('$has_quote',t),!.
 rename_atom(A,B):-  must(cyc_to_mpred_create(A,B)),A\==B,azzert_rename(A,B),!.
-rename_atom(A,B):- starts_upper(A),(current_prolog_flag(do_renames_sumo,never)-> A=B ;(atom_concat('tSumo',A,B),azzert_rename(A,B))),!.
+rename_atom(A,B):- starts_upper(A),(\+ current_prolog_flag(do_renames_sumo,true)-> A=B ;(atom_concat('tSumo',A,B),azzert_rename(A,B))),!.
+rename_atom(A,B):- downcase_atom(A,B),A==B,!.
 rename_atom(A,A):- azzert_rename(A,A),!.
 
 cyc_to_mpred_sent_idiom_2(and,(','),trueSentence).
@@ -1760,7 +1764,7 @@ make_functor_h(CycL,F,A):- length(Args,A),CycL=..[F|Args].
 
 saveRenames:-
    retractall(baseKB:rn_new(N,N)),
-    absolute_file_name(pack('logicmoo_nlu/prolog/pldata/plkb7166/kb7166_pt7_constant_renames_NEW.pl'),O),
+    absolute_file_name(pldata('plkb7166/kb7166_pt7_constant_renames_NEW.pl'),O),
          tell(O),
          listing(baseKB:rn_new/2),
          told.
@@ -1797,15 +1801,15 @@ makeCycRenames1:-
 
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-%:- catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
-:- catch(((if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
-%:- baseKB:catch(ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames.qlf')),_,
-%   catch(((if_file_exists(baseKB:qcompile(library('pldata/plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
+%:- catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+:- catch(((if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+%:- baseKB:catch(ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames.qlf')),_,
+%   catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(library('pldata/plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
 :- dmsg("I am here").
@@ -1831,6 +1835,7 @@ re_symbolize(N,V):- ignore(V='?'(N)).
 %:- set_prolog_flag(runtime_speed,3).
 
 :- nb_linkval('$ra5_often',1).
+
 
 /*
 :- export(do_vname/1).
@@ -1876,7 +1881,7 @@ do_vname(Wff,PO):- b_getval('$variable_names',Vs),
 
 :- gripe_time(7.0,makeRenames).
 
-%:- gripe_time(60,load_files(library('pldata/kb_7166_assertions.pl'), [if(not_loaded),redefine_module(false),qcompile(auto)])).
+%:- gripe_time(60,load_files(pldata('kb_7166_assertions.pl'), [if(not_loaded),redefine_module(false),qcompile(auto)])).
 
 gaf_rename(NCMPD,NEW):- \+ compound(NCMPD),!,do_renames(NCMPD,NEW).
 gaf_rename([P|ARGS],NEW):- !,
@@ -1980,10 +1985,10 @@ make_assert_prop(ID,TYPE,A4S):-atom(TYPE),!,atom_concat(assertion_,TYPE,ATYPE),A
 make_assert_prop(ID,TYPE=VALUE,A4S):-atom(TYPE),atom_concat(assertion_,TYPE,ATYPE),gaf_rename(VALUE,VALUEO),A4S=..[ATYPE,ID,VALUEO].
 make_assert_prop(ID,TYPE:VALUE,A4S):-atom(TYPE),atom_concat(assertion_,TYPE,ATYPE),gaf_rename(VALUE,VALUEO),A4S=..[ATYPE,ID,VALUEO].
 
-%kb_7166_ensure_translated_1:- ensure_translated_with(library('pldata/kb7166_assertions.pl'),kb_transposer,_).
-%kb_7166_ensure_translated_2:- ensure_translated_with(library('pldata/kb_7166_assertions-trans.pl'),kb_transposer_pt2,_).
-kb_7166_assertions:- ensure_loaded_with(library('pldata/kb_7166_assertions.pl'),kb_transposer).
-% :- (baseKB:load_files([library('pldata/kb_7166_assertions-trans.pl')],[if(not_loaded),redefine_module(false),qcompile(auto)])).
+%kb_7166_ensure_translated_1:- ensure_translated_with(pldata('kb7166_assertions.pl'),kb_transposer,_).
+%kb_7166_ensure_translated_2:- ensure_translated_with(pldata('kb_7166_assertions-trans.pl'),kb_transposer_pt2,_).
+kb_7166_assertions:- ensure_loaded_with(pldata('kb_7166_assertions.pl'),kb_transposer).
+% :- (baseKB:load_files([pldata('kb_7166_assertions-trans.pl')],[if(not_loaded),redefine_module(false),qcompile(auto)])).
 % :- kb_7166_ensure_translated_2.
 
 
@@ -2009,8 +2014,6 @@ system_clause_expansion(I, O):- compound(I),
 */
 
 :- fixup_exports.
-
-
 
 
 % inform_new(X,Y):- builtin_rn_or_rn_new(X,New),(New==Y-> true; ( writeq(builtin_rn(X,New)),writeln('.'))).

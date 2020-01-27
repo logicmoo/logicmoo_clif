@@ -562,7 +562,7 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 % :-  abolish(yall:'/' / 2).
 
-% :- expand_file_search_path(pack(logicmoo_nlu/prolog/pldata),X),exists_directory(X),!,assert_if_new(user:file_search_path(pldata,X)).
+% :- expand_file_search_path(pack(logicmoo_nlu/ext/pldata),X),exists_directory(X),!,assert_if_new(user:file_search_path(pldata,X)).
 
 %^ :- ensure_loaded(logicmoo(logicmoo_plarkc)).
 

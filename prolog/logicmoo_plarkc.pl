@@ -21,6 +21,13 @@
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
 :- asserta_new(user:file_search_path(logicmoo,library('.'))).
+
+:- absolute_file_name(library('../ext/pldata/'),Dir,[file_type(directory)]),
+   asserta_new(user:file_search_path(pldata,Dir)).
+
+:- absolute_file_name(library('../ext/'),Dir,[file_type(directory)]),
+   asserta_new(user:file_search_path(logicmoo,Dir)).
+
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
@@ -189,7 +196,7 @@ end_of_file.
 :- endif.
 
 :- wdmsg("loading current_renames").
-% :- time((user:load_files(library('pldata/kb_7166_current_renames'),[module(baseKB),redefine_module(false),qcompile(auto)]))).
+% :- time((user:load_files(pldata('kb_7166_current_renames'),[module(baseKB),redefine_module(false),qcompile(auto)]))).
 :- retractall(renames(_)).
 :- enable_mpred_expansion.
  % :- set_prolog_flag(subclause_expansion,true).
@@ -241,3 +248,4 @@ load_later:- quietly((transfer_predicate(tinyK8(Form),writeq(Form),ignore(on_x_l
 :- in_cmt(listing(cwtdl_failed/1)).
 
 */
+

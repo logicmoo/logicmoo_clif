@@ -33,7 +33,6 @@
 :- op(1150,xfx,('::::')).
 
 :- include(logicmoo('pfc2.0'/'mpred_header.pi')).
-:- install_constant_renamer_until_eof.
 /*
 
 genls(_Sub, Super) ==> tCol(Super).
@@ -56,6 +55,7 @@ resultIsa(aAssertionFn(tMicrotheory,ftAssertable),vtAssertion).
 
 :-asserta((mudEquals(aAssertionFn(MT,Sent),ist(MT,Sent)):-must(assert_if_new(MT:Sent)))).
 
+:- install_constant_renamer_until_eof.
 
 :-ain((isa(X,'SecondOrderCollection')<==>isa(X,'ttTypeType'))).
 isa(X,'FirstOrderCollection')==>isa(X,'tCol').

@@ -556,7 +556,6 @@ completelyAssertedCollection(completelyAssertedCollection).
 tSet(ttExpressionType).
 
 
-% :- install_constant_renamer_until_eof.
 
 %assumed genls(ttSpatialType,ttTemporalType).
 %assumed genls(tSpatialThing,tTemporalThing).
@@ -1256,8 +1255,6 @@ isa(iPlato7,mobPhilosopher).
 
 tCol(ttAbstractType).
 
-
-% :- install_constant_renamer_until_eof.
 
 
 % :- listing(disjointWith/2).

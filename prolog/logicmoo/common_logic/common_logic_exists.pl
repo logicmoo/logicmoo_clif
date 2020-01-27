@@ -29,9 +29,9 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
 
 % :- use_module(library(tabling)).
 
-:- use_module(library(logicmoo_common)).
+%:- use_module(library(logicmoo_common)).
 %:- use_module(library(loop_check)).
-:- use_module(library(logicmoo_typesystem)).
+%:- use_module(library(logicmoo_typesystem)).
 
 
  :- meta_predicate query_ex(?).
@@ -1429,7 +1429,7 @@ same_var_sk(X,Y):-X==Y.
 kbi_define(M,F,A):- M:clause_b(mpred_prop(M,F,A,kbi_define)),!.
 kbi_define(M,F,A):- M:ain(mpred_prop(M,F,A,kbi_define)),
  functor(P,F,A),(predicate_property(M:P,static)->true;kbi_define_now(M,F,A,P)).
-
+                           
 :- module_transparent(kbi_define_now/3).
 kbi_define_now(M,F,A,P):-
   M:kb_shared(M:F/A),
