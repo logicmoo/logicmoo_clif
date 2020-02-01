@@ -225,6 +225,14 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
         baseKB:feature_test/0,
         baseKB:regression_test/0,
         baseKB:sanity_test/0)).
+:- multifile((        
+        baseKB:feature_test/1,
+        baseKB:regression_test/1,
+        baseKB:sanity_test/1)).
+:- dynamic((        
+        baseKB:feature_test/1,
+        baseKB:regression_test/1,
+        baseKB:sanity_test/1)).
 
 % % :- '$set_source_module'(common_logic_compiler).
 

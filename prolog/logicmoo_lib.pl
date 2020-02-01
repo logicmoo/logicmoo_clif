@@ -11,6 +11,13 @@
   libhook:maybe_save_lm/0
  ]).
 
+
+% ==============================================
+% SETUP KB EXTENSIONS
+% ==============================================
+
+:- use_module(library(logicmoo_utils_all)).
+
 /*
 
 :- current_prolog_flag(readline,Base),writeln(readline=Base).
