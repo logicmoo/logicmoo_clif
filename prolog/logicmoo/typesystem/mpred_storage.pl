@@ -169,7 +169,7 @@
 :- meta_predicate if_main(*).
 
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 
 %% not_asserted( ?X) is semidet.

@@ -109,7 +109,7 @@ Per-Litteral features
 %:- use_module(library(lockable_vars)).
 %:- use_module(library(util_varnames)).
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 :-  system:((
  op(1199,fx,('==>')), 

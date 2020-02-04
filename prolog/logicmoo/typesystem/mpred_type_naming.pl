@@ -43,7 +43,7 @@
 %:- include('mpred_header.pi').
 :- endif.
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 :- thread_local(t_l:current_source_suffix/1).
 

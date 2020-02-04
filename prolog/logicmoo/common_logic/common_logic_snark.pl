@@ -38,7 +38,7 @@
 
 :- load_library_system(library(logicmoo_typesystem)).
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 :-  system:((
  op(1199,fx,('==>')), 

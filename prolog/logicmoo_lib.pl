@@ -179,6 +179,8 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
  % :- set_prolog_flag(subclause_expansion,default).
  % :- set_prolog_flag(subclause_expansion,false).
  % :- set_prolog_flag(dialect_pfc,default).
+
+
 :- user:load_library_system(logicmoo_swilib).
 
 

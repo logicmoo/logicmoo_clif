@@ -393,7 +393,7 @@ update_value/3,
 %
 */
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 
 % %%% :- kb_shared(create_random_fact/1).

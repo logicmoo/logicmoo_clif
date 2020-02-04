@@ -17,7 +17,7 @@
         call_last_is_var(0).
 
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 :- kb_shared(functionCorrespondingPredicate/3).
 

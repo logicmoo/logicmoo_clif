@@ -258,9 +258,7 @@ kb_shared_m(E):- must(with_source_module(baseKB,decl_as(kb_shared,E))).
       resolverConflict_robot(+).
 
 
-:- multifile(baseKB:ignore_file_mpreds/1).
-:- dynamic(baseKB:ignore_file_mpreds/1).
-:- source_location(F,_),ain(baseKB:ignore_file_mpreds(F)).
+:- source_location(F,_),set_how_virtualize_file(false,F).
 %:- '$set_source_module'(baseKB).
 
 

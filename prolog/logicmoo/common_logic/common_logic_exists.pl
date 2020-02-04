@@ -57,7 +57,7 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
  op(300,fx,'-'))).
 
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 /*
 

@@ -30,7 +30,7 @@
 % Dec 13, 2035
 % Douglas Miles
 */
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 /*
 (formatSumo('vEnglishLanguage',Term,String):- "%2 is %n a &%melting point of %1")
 formatSumo(Word,String)==>{format_string_to_dcg(String,DCG} 

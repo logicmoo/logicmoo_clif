@@ -42,7 +42,8 @@
 :- reexport(library('logicmoo/common_logic/common_logic_utils.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_modal.pl')).
-:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
+%:- consult(library('logicmoo/common_logic/common_logic_exists.pl')).
+:- reexport(system:library('logicmoo/common_logic/common_logic_exists.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
@@ -50,8 +51,6 @@
 :- reexport(library('logicmoo/common_logic/common_logic_reordering.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
 :- reexport(system:library('logicmoo/common_logic/common_logic_sanity.pl')).
-
-:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 
 % 
 
@@ -76,7 +75,7 @@ maybe_load_clif_file(Spec, Options):-
 
 :- dynamic user:prolog_load_file/2.
 :- multifile user:prolog_load_file/2.
-:- use_module(library(logicmoo_common)).
+%:- use_module(library(logicmoo_common)).
 user:prolog_load_file(Spec, Options):- maybe_load_clif_file(Spec, Options),!.
 
 :- kif_compile.
@@ -299,5 +298,7 @@ int_assumed_t(P, X, Y, E, F, A, B, C, G, D):- t(P,X,Y),
 */
 
 :- fixup_exports.
+
+:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 
 :- kif_compile.

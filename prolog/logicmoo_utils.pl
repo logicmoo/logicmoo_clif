@@ -183,7 +183,7 @@ logicmoo_utils_test_msg:- locally((
 % :- rtrace.
 % :- logicmoo_utils_test_msg.
  % :- set_prolog_flag(subclause_expansion,true).
-%:- virtualize_source_file.
+%:- set_how_virtualize_file(bodies).
 % .
 
 

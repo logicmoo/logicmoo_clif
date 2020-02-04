@@ -75,7 +75,7 @@
 
 % autoloading user:portray_clause_pi/2 from /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/util/logicmoo_util_first
 
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 
 

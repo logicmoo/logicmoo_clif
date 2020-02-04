@@ -155,7 +155,7 @@ transitive_P_r_l(3,?,?,?),
             guess_typetypes_0/1)).
 
 :- set_prolog_flag(mpred_te,true).
-:- virtualize_source_file.
+:- set_how_virtualize_file(bodies).
 
 :- multifile(baseKB:use_cyc_database/0).
 :- thread_local(baseKB:use_cyc_database/0).
@@ -992,7 +992,8 @@ isa_asserted_2(I,C):- atom(I),isa_from_morphology(I,C).
 
 % isa_asserted_3(I,tCol,C):- (atom(I);atom(C)),type_isa(I,C).
 isa_asserted_3(_,C,C).
-:- on_f_rtrace(could_safe_virtualize).
+
+:- on_f_rtrace((prolog_load_context(file,File),is_file_virtualize_allowed(File))).
 %:- rtrace.
 isa_asserted_3(I,SType,C):- vwc, var(C),genls(C,SType),nonvar(C),SType\==C,isa_asserted_0(I,C).
 /*
