@@ -1446,7 +1446,10 @@ kbi:kbi_define(MFA):-
   get_mfa(MFA,M,F,A),
   M:kbi_define(M,F,A).
 
+
 :- fixup_exports.
+
+:- ignore(abolish(kbe:spft,3)).
 
 
 end_of_file.
