@@ -23,7 +23,10 @@
 :- set_prolog_flag_until_eof(retry_undefine,false).
 
 :- user:use_module(library(logicmoo_common)).
+
+:- if(exists_source(library(wam_cl/sreader))).
 :- user:use_module(library(wam_cl/sreader)).
+:- endif.
 
 :- dynamic   user:file_search_path/2.
 :- multifile user:file_search_path/2.

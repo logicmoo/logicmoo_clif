@@ -750,7 +750,7 @@ as_existential(In,Out):- decl_existential(Out0),!,add_cond(Out0,aoc(isNamed,In))
    must(nb_current_value(?('$fort2exist$'),In,Out)),
    must(add_var_to_env(In,Out)).
 
-:- ensure_loaded(library(multivar)).
+% :- ensure_loaded(library(multivar)).
 l_xvarx(Var):- xvarx(Var).
 
 decl_existential(Var):- is_existential(Var),!.
