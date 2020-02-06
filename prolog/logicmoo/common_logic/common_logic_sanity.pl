@@ -19,6 +19,7 @@
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/common_logic_sanity.pl
 :- module(common_logic_sanity,[kif_test/1,test_boxlog/1,test_boxlog/2,test_defunctionalize/1]).
 
+
 :-  system:((
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
@@ -301,10 +302,10 @@ show_call_test(G):- defaultAssertMt(KB),must(show_call(KB:G)).
 
 %= define the example language
 % :- fully_expand_real(change(assert,ain),(example_known_is_success(_30487686):-_30487686),O),writeln(O).
-example_known_is_success(G):-  G.
-example_impossible_is_success(G):-  ~(G).
-example_known_is_failure(G):-  \+ G.
-example_impossible_is_failure(G):- \+  ~(G).
+example_known_is_success(G):-  call_u(G).
+example_impossible_is_success(G):-  call_u(~(G)).
+example_known_is_failure(G):-  \+ call_u(G).
+example_impossible_is_failure(G):- \+  call_u(~(G)).
 
 %= define the four truth values
 example_proven_true(G):- example_known_is_success(G),example_impossible_is_failure(G).

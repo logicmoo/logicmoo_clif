@@ -33,6 +33,10 @@
 :- thread_local(t_l:kif_reader_mode/1).
 :- asserta_if_new(t_l:kif_reader_mode(lisp)).
 
+:- if(exists_source(library(wam_cl/sreader))).
+:- use_module(library(wam_cl/sreader)).
+:- endif.
+
 :- public(kif_io/0).
 %% kif_io is det.
 %

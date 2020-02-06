@@ -4,6 +4,7 @@
 
 */
 :- set_module(class(system)).
+:- '$set_source_module'(baseKB).
 :- set_module(baseKB:class(development)).
 :- ensure_loaded(library(xlisting)).
 :- ensure_loaded(library(xlisting_web)).
@@ -144,7 +145,9 @@ system:iRR7_test:-
 % KIF READER SANITY TESTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(wam_cl/sreader)).
+:- if(exists_source(library(wam_cl/sreader))).
+:- system:use_module(library(wam_cl/sreader)).
+:- endif.
 
 show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 :- export(show_kif/1).

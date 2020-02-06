@@ -789,9 +789,10 @@ isa(iBar,tFoo).
 
 /*
 :- locally(set_prolog_flag_until_eof(expect_pfc_file,always),autoload([verbose(true)]))).
-:- xlisting(tFoo).
 */
-:- sanity(isa(iBar,tFoo)).
+:- xlisting(tFoo).
+
+:- (rtrace(isa(iBar,tFoo))-> true; (break, rtrace(isa(iBar,tFoo)))).
 
 
 :- mpred_notrace_exec.

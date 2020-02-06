@@ -12,6 +12,8 @@
 :- set_prolog_flag(verbose_autoload,true).
 */
 
+:- '$set_source_module'(baseKB).
+
 :- ensure_loaded(library(logicmoo_lib)).
 
 
@@ -24,8 +26,8 @@
 
 :- user:use_module(library(logicmoo_common)).
 
-:- if(exists_source(library(wam_cl/sreader))).
-:- user:use_module(library(wam_cl/sreader)).
+:- if((exists_source(library(wam_cl/sreader)))).
+:- use_module(library(wam_cl/sreader)).
 :- endif.
 
 :- dynamic   user:file_search_path/2.
@@ -37,7 +39,8 @@
 :- '$set_source_module'(baseKB).
 
 :- asserta_new(user:file_search_path(logicmoo,library('logicmoo/.'))).
-:- asserta_new(user:file_search_path(logicmoo,library('.'))).
+:- prolog_load_context(directory,Dir), asserta_new(user:file_search_path(logicmoo,Dir)).
+% :- asserta_new(user:file_search_path(logicmoo,library('.'))).
 
 % :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
@@ -45,15 +48,15 @@
 :- reexport(library('logicmoo/common_logic/common_logic_utils.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_modal.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
 %:- consult(library('logicmoo/common_logic/common_logic_exists.pl')).
-:- reexport(system:library('logicmoo/common_logic/common_logic_exists.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_compiler.pl')). 
 :- reexport(library('logicmoo/common_logic/common_logic_kb_hooks.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_loader.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_theorist.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_reordering.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_snark.pl')). 
-:- reexport(system:library('logicmoo/common_logic/common_logic_sanity.pl')).
+:- reexport(library('logicmoo/common_logic/common_logic_sanity.pl')).
 
 % 
 

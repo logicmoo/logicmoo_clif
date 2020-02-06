@@ -744,7 +744,7 @@ get_isa(Lit,I,TT):- compound(Lit),get_isa0(Lit,I,TT).
 %
 % get  (isa/2) Primary Helper.
 %
-get_isa0(isa(I,T),I,TT):- to_iname(T,TT),!.
+get_isa0(isa(I,T),I,TT):- guess_type_name(T,TT),!.
 get_isa0(IT,I,TT):- IT=..[T,I],is_colection_name(IT,T,TT),!.
 
 
@@ -755,7 +755,7 @@ get_isa0(IT,I,TT):- IT=..[T,I],is_colection_name(IT,T,TT),!.
 % If Is A Colection Name.
 %
 is_colection_name(_,-,_):- !,fail.
-is_colection_name(IT,T,TT):- atom(T),atom_length(T,TL),TL>2,not(atom_contains(T,'_')),not(predicate_property(IT,_)),to_iname(T,TT).
+is_colection_name(IT,T,TT):- atom(T),atom_length(T,TL),TL>2,not(atom_contains(T,'_')),not(predicate_property(IT,_)),guess_type_name(T,TT).
 
 
 

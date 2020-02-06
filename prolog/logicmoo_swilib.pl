@@ -27,17 +27,28 @@
  % :- set_prolog_flag(dialect_pfc,default).
 :- set_prolog_flag(double_quotes,string).
 :- set_prolog_flag(autoload_logicmoo,false).
+
 :- if( \+ current_module(prolog_stack)).
 :- use_module(library(prolog_stack)).
  prolog_stack:stack_guard(none).
 :- endif.
 
+:- if(current_prolog_flag(xpce,false)).
+:- set_prolog_flag(xpce,true).
+:- use_module(library(gui_tracer)).
+:- use_module(library(swi_ide)).
+:- use_module(library(pce)).
+:- set_prolog_flag(xpce,false).
+:- else.
+:- use_module(library(gui_tracer)).
+:- use_module(library(swi_ide)).
+:- use_module(library(pce)).
+:- endif.
 
-
-:- if( (set_prolog_flag(xpce,false); set_prolog_flag(logicmoo_headless,true); ( \+ getenv('DISPLAY',_)) ; ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
+:- if( (current_prolog_flag(xpce,false); current_prolog_flag(logicmoo_headless, true); ( \+ getenv('DISPLAY',_)) ; ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
 :- set_prolog_flag(logicmoo_headless,true).
 :- set_prolog_flag(xpce,false).
-% :- unsetenv('DISPLAY').
+:- unsetenv('DISPLAY').
 :- endif.
 
 /*

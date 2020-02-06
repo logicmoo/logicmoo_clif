@@ -760,6 +760,10 @@ decl_existential(Atomic):- trace_or_throw(\+ decl_existential(Atomic)).
 is_existential(Var):- var(Var),!,get_attr(Var,x,V),var(V).
 is_existential(the(_)):-!.
 
+:- if(\+ current_predicate(attv_bind/2)).
+attv_bind(Var,Value):- Var=Value -> true; put_value(Var,Value).
+:- endif.
+
 x:attr_unify_hook(_Was,_Becoming):-!.
 x:attr_unify_hook(Was,Becoming):- (attvar(Was),attvar(Becoming)) ->  attv_bind(Was,Becoming) ; true.
 x:attribute_goals(Var) --> 
@@ -912,7 +916,7 @@ never_cond(Var,nesc(b_d(_,nesc,poss), ~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,nesc(~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,(~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(NonVar,Closure):- nonvar(NonVar),!, \+ call_e_tru(NonVar,Closure).
-never_cond(_Var,Closure):- ground(Closure),!, ~Closure.
+never_cond(_Var,Closure):- ground(Closure),!, call_u(~Closure).
 never_cond(Var,Closure):- attvar(Var),!,add_cond(Var,~Closure).
 %never_cond(Var,Closure):- add_cond(Var,Closure).
 

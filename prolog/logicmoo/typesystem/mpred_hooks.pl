@@ -131,7 +131,7 @@ compute_value_no_dice/2,
 flatten_append/3,
 %fskel/7,
 %hooked_random_instance/3,
-if_result/2,
+%if_result/2,
 insert_into/4,
 into_plist/2,
 into_plist_arities/4,
@@ -142,7 +142,7 @@ list_update_op/3,
 
 mpred_fact_arity/2,
 %mpred_module_ready/0,
-mpred_fa_call/3,
+%mpred_fa_call/3,
 %mpred_plist_t/2,
 never_mpred_tcall/1,
 prologHybridFact/1,
@@ -177,9 +177,9 @@ verb_after_arg/3
         holds_f(*,?,?,?,?,?),
         holds_f(*,?,?,?,?,?,?),
         holds_t(*,?,?,?,?,?),
-        holds_t(*,?,?,?,?,?,?),
-        if_result(0, 0),
-        mpred_fa_call(?, ?, 0).
+        holds_t(*,?,?,?,?,?,?).
+        % if_result(0, 0),
+        % mpred_fa_call(?, ?, 0).
         
 
 
@@ -215,7 +215,7 @@ verb_after_arg/3
 % XXXXXXXXXXXXXXXXXXXXXXXXXx
 % XXXXXXXXXXXXXXXXXXXXXXXXXx
 % XXXXXXXXXXXXXXXXXXXXXXXXXx
-
+                                                                        
 :- meta_predicate 
 
         call_f(?,*,?),
@@ -1051,7 +1051,7 @@ holds_f_p2(P,LIST):- CALL=..[holds_f,P|LIST],call(CALL).
 %
 % Managed Predicate False.
 %
-mpred_f(List):- is_list(List),!,Call=..[mpred_f|List],Call.
+mpred_f(List):- is_list(List),!,Call=..[mpred_f|List],call_u(Call).
 mpred_f(List):- holds_f(List).
 
 
@@ -1070,7 +1070,7 @@ call_f(_,P,A1,A2,A3,A4,A5,A6,A7):- callable_tf(P,7),List= [P,A1,A2,A3,A4,A5,A6,A
 %
 % Call False.
 %
-call_f(dac(d,_,_,_),P,A1,A2,A3,A4,A5,A6):- mpred_f([P,A1,A2,A3,A4,A5,A6]).
+call_f(dac(d,_,_,_),P,A1,A2,A3,A4,A5,A6):- call_u(mpred_f([P,A1,A2,A3,A4,A5,A6])).
 call_f(dac(_,a,_,_),P,A1,A2,A3,A4,A5,A6):- assertion_f([P,A1,A2,A3,A4,A5,A6]).
 call_f(dac(_,_,c,_),P,A1,A2,A3,A4,A5,A6):- callable_tf(P,6),xcall_f(P,A1,A2,A3,A4,A5,A6).
 
@@ -1080,7 +1080,7 @@ call_f(dac(_,_,c,_),P,A1,A2,A3,A4,A5,A6):- callable_tf(P,6),xcall_f(P,A1,A2,A3,A
 %
 % Call False.
 %
-call_f(dac(d,_,_,_),P,A1,A2,A3,A4,A5):- mpred_f(P,A1,A2,A3,A4,A5).
+call_f(dac(d,_,_,_),P,A1,A2,A3,A4,A5):- call_u(mpred_f(P,A1,A2,A3,A4,A5)).
 call_f(dac(_,a,_,_),P,A1,A2,A3,A4,A5):- assertion_f([P,A1,A2,A3,A4,A5]).
 call_f(dac(_,_,c,_),P,A1,A2,A3,A4,A5):- callable_tf(P,5),xcall_f(P,A1,A2,A3,A4,A5).
 
@@ -1090,7 +1090,7 @@ call_f(dac(_,_,c,_),P,A1,A2,A3,A4,A5):- callable_tf(P,5),xcall_f(P,A1,A2,A3,A4,A
 %
 % Call False.
 %
-call_f(dac(d,_,_,_),P,A1,A2,A3,A4):- mpred_f(P,A1,A2,A3,A4).
+call_f(dac(d,_,_,_),P,A1,A2,A3,A4):- call_u(mpred_f(P,A1,A2,A3,A4)).
 call_f(dac(_,a,_,_),P,A1,A2,A3,A4):- assertion_f([P,A1,A2,A3,A4]).
 call_f(dac(_,_,c,_),P,A1,A2,A3,A4):- callable_tf(P,4),xcall_f(P,A1,A2,A3,A4).
 

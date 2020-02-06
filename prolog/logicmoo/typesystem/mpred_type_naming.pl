@@ -31,7 +31,7 @@
             spawnOneSpawnArg/4,
             /*split_name_type/3,
             split_name_type_0/3,
-            toCamelAtom0/2,
+            toCamelAtom1/2,
             toUpperCamelcase/2,
             to_atomic_name/3,
             to_iname/2,
@@ -87,7 +87,7 @@ createByNameMangle(Name,IDA,InstAO):-must(createByNameMangle0(Name,IDA,InstAO)),
 %
 % Create By Name Mangle Primary Helper.
 %
-createByNameMangle0(S,I,C):-is_list(S),toCamelAtom0(S,A),!,createByNameMangle0(A,I,C).
+createByNameMangle0(S,I,C):-is_list(S),toCamelAtom1(S,A),!,createByNameMangle0(A,I,C).
 createByNameMangle0(S,I,C):-string(S),!,string_to_atom(S,A),!,createByNameMangle0(A,I,C).
 createByNameMangle0(OType,Name,Type):-compound(OType),!,must(createByNameMangle_compound(OType,Name,Type)),!.
 createByNameMangle0(Name,_,_Type):- \+ atom(Name),!,trace_or_throw(todo(not_atom_createByNameMangle(Name))).
@@ -96,6 +96,11 @@ createByNameMangle0(OType,Name,Type):-create_from_type(OType,Name,Type),!.
 createByNameMangle0(Suggest,Name,Type):- once(split_name_type(Suggest,Name,Type)),(Suggest==Name;Suggest==Type),assert_isa(Name,Type),!.
 createByNameMangle0(Name,I,C):-ereq(mudKeyword(W,KW)),string_equal_ci(Name,KW),!,createByNameMangle0(W,I,C).
 createByNameMangle0(Name,IDA,Name):- gensym(Name,IDA), englishServerInterface([actCreate,Name,IDA]).
+
+
+toCamelAtom1([A],O):-nonvar(A),!,toPropercase(A,O),!.
+toCamelAtom1([A|List],O):-!,toPropercase(A,AO),toCamelAtom1(List,LO),atom_concat(AO,LO,O).
+toCamelAtom1(A,O):-toPropercase(A,O),!.
 
 
 %= 	 	 

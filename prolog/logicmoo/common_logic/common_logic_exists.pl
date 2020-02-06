@@ -15,6 +15,10 @@
 */
 % NEW
 :- include(library('pfc2.0/mpred_header.pi')).
+:- baseKB:export(baseKB:spft/3).
+:- kbe:import(baseKB:spft/3).
+:- '$set_source_module'(baseKB).
+
 %:- endif.
 %:- use_module(library(dictoo)).
 
@@ -57,7 +61,7 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
  op(300,fx,'-'))).
 
 
-:- set_how_virtualize_file(bodies).
+:- set_how_virtualize_file(false).
 
 /*
 
@@ -295,7 +299,7 @@ sk_set_maker(M,P0):-
 nesc_lc(M,P):- same_compound(P,proven_tru(PP)),!,nesc(M,PP),show_failure(groundoid(PP)).
 nesc_lc(M,P):- !, nesc(M,P),ignore(show_failure(groundoid(P))).
 
-first_of([X|Rest]):- X ; first_of(Rest).
+first_of([X|Rest]):- call(X) ; first_of(Rest).
 
 :- module_transparent(nesc/2).
 % :- dra_table(nesc/2).
@@ -322,8 +326,12 @@ nesc(M,P):- swc,
 
 
 :-multifile(baseKB:proven_helper/1).
+%:- rtrace.
 baseKB:proven_helper(~equals(X,Y)):- dif_objs(X,Y),!.
+%:- (nortrace,break).
+%:- xlisting(dif_objs/2).
 
+%:- break.
 
 make_identity(I):- make_wrap(identityPred,I,2).
 
@@ -1449,7 +1457,6 @@ kbi:kbi_define(MFA):-
 
 :- fixup_exports.
 
-:- ignore(abolish(kbe:spft,3)).
 
 
 end_of_file.
