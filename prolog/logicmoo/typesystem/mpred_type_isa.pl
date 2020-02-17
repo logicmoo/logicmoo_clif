@@ -1612,7 +1612,7 @@ mpred_types_loaded.
 
 % ISA QUERY
 isa_module_local_init(_UserModule,_SystemModule):- 
-  asserta_if_new((system:goal_expansion(ISA,GO) :- \+ t_l:disable_px, \+current_predicate(_,ISA),
+  asserta_if_new((system:goal_expansion(ISA,GO) :- \+ (t_l:disable_px, false ), \+current_predicate(_,ISA),
   once((is_ftCompound(ISA),was_isa(ISA,I,C))),t_l:is_calling,show_call(why,GO=no_repeats(isa(I,C))))).
 % ISA GOAL
 % mpred_system_goal_expansion(G,GO):-G\=isa(_,_),was_isa(G,I,C),GO=isa(I,C).

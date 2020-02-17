@@ -50,8 +50,8 @@
 */
 
 :- set_prolog_flag(report_error,true).
-:- set_prolog_flag(access_level,system).
-:- set_prolog_flag(debug_on_error,true).
+%:- set_prolog_flag(access_level,system).
+%:- set_prolog_flag(debug_on_error,true).
 :- set_prolog_flag(optimise,false).
 :- set_prolog_flag(last_call_optimisation,false).
 /*
@@ -61,7 +61,7 @@
 :- debug.
 */
 
-%:- '$set_source_module'(baseKB).
+:- '$set_source_module'(baseKB).
 use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 
 :- set_prolog_flag(pfc_booted,false).
@@ -113,11 +113,11 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- kb_shared(baseKB:spft/3).
 :- kb_shared(baseKB:tms/1).
 
-:- use_module(library(logicmoo/subclause_expansion)).
-:- use_module(library(logicmoo/virtualize_source)).
-:- use_module(library(logicmoo/filesystem)).
+:- system:use_module(library(logicmoo/subclause_expansion)).
+:- system:use_module(library(logicmoo/virtualize_source)).
+:- system:use_module(library(logicmoo/filesystem)).
 
-wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W),baseKB:consult(W))).
+wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),baseKB:consult(W))).
 :- wsce(library('logicmoo/typesystem/mpred_agenda.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_hooks.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_storage.pl')).

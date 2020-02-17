@@ -2087,9 +2087,10 @@ id_member(A,[B|R]) :-
 \begin{verbatim} */
 
 
-same_length([],[]).
+/*same_length([],[]).
 same_length([_|L1],[_|L2]) :-
    same_length(L1,L2).
+*/
 
 
 /* \end{verbatim}

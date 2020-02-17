@@ -55,7 +55,7 @@
             ]).
 
 :- use_module(library(file_scope)).
-:- use_module(library(sexpr_reader)).
+:- use_module(library(wam_cl/sreader)).
 :- set_module(class(library)).
 
 :- absolute_file_name(library('../ext/pldata/'),Dir,[file_type(directory)]),
@@ -71,6 +71,8 @@ show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).
 :- export(install_constant_renamer_until_eof/0).
+
+:- create_prolog_flag(do_renames_sumo,maybe,[keep(true)]).
 
 install_constant_renamer_until_eof:-  
   call_on_eof(show_missing_renames),  
@@ -1644,14 +1646,22 @@ fix_var_name(A,B):- atomic_list_concat(AB,'-',A),atomic_list_concat(AB,'_',B).
 rename_atom(A,B):- current_prolog_flag(do_renames,never),!,A=B.
 rename_atom(A,B):- builtin_rn_or_rn(A,B),!.
 rename_atom(A,B):- upcase_atom(A,B),A==B,!.
-rename_atom(A,B):- atom_contains(A,' '),!,A=B.
-rename_atom(A,B):- atom_concat('?',_,A),!,A=B.
-rename_atom(A,B):- atom_concat(':',_,A),!,A=B.
+
+rename_atom(A,B):- is_file_atom(A),!,A=B.
+
 %rename_atom(A,B):- current_prolog_flag(logicmoo_break_atoms,true),atom_contains(A,' '),!,convert_to_cycString(A,B),nb_setval('$has_quote',t),!.
 rename_atom(A,B):-  must(cyc_to_mpred_create(A,B)),A\==B,azzert_rename(A,B),!.
 rename_atom(A,B):- starts_upper(A),(\+ current_prolog_flag(do_renames_sumo,true)-> A=B ;(atom_concat('tSumo',A,B),azzert_rename(A,B))),!.
 rename_atom(A,B):- downcase_atom(A,B),A==B,!.
 rename_atom(A,A):- azzert_rename(A,A),!.
+
+
+is_file_atom(A):- atom_contains(A,' ').
+is_file_atom(A):- atom_concat(_,'-',A).
+is_file_atom(A):- atom_concat('-',_,A).
+is_file_atom(A):- atom_concat('_',_,A).
+is_file_atom(A):- atom_concat('?',_,A).
+is_file_atom(A):- atom_concat(':',_,A).
 
 cyc_to_mpred_sent_idiom_2(and,(','),trueSentence).
 
@@ -1879,7 +1889,8 @@ do_vname(Wff,PO):- b_getval('$variable_names',Vs),
   
 */
 
-:- gripe_time(7.0,makeRenames).
+:- fixup_exports.
+:- gripe_time(7.0, makeRenames).
 
 %:- gripe_time(60,load_files(pldata('kb_7166_assertions.pl'), [if(not_loaded),redefine_module(false),qcompile(auto)])).
 

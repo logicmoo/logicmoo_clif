@@ -701,7 +701,6 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 /*
 :- kbe:import(baseKB:never_assert_u/1).
 :- kbe:import(baseKB:never_assert_u/2).
-:- kbe:import(baseKB:mpred_is_spying_pred/2).
 :- system:import(baseKB:que/2).
 */
 :- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:nesc/1)})).

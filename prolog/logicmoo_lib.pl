@@ -154,7 +154,7 @@
 :- multifile user:file_search_path/2.
 :- dynamic   user:file_search_path/2.
 
-:- user:use_module(library(logicmoo_common)).
+:- user:use_module(library(logicmoo_utils)).
 
 
 :- if(exists_source(library(yall))).
@@ -236,16 +236,16 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 :- dmsg("LOAD LOGICMOO UTILS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+libhook:maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
+libhook:maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
+libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
+
 :- user:ensure_loaded(library(logicmoo_utils)).
 
 :- multifile(prolog:make_hook/2).
 :- dynamic(prolog:make_hook/2).
-prolog:make_hook(before, C):- wdmsg(prolog:make_hook(before, C)),fail.
-prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),libhook:maybe_save_lm,fail.
-
-libhook:maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
-libhook:maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
-libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
+% prolog:make_hook(before, C):- wdmsg(prolog:make_hook(before, C)),fail.
+% prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),libhook:maybe_save_lm,fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOGICMOO/CYC Alignment util").
