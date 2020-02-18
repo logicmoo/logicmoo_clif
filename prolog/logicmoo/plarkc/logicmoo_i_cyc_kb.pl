@@ -158,6 +158,7 @@ inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
 :- kb_global(baseKB:istAsserted/2).
 
 :- assert(((istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail)))).
+:- assert(((istAsserted(MT,P):- if_defined(nlkb7166:acnl(ist,MT,P,_),fail)))).
 %istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
 :- assert(((istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT))))).
 

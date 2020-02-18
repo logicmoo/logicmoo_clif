@@ -1812,14 +1812,18 @@ makeCycRenames1:-
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
 %:- catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
-:- catch(((if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
+:- catch(((if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames.pldata'))))),E,dmsg(E)),!.
 %:- baseKB:catch(ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames.qlf')),_,
 %   catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames_NEW'))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames_NEW.pldata'))))),E,dmsg(E)).
+:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('sumo_renames.pldata'))))),E,dmsg(E)).
+% :- load_with_asserter(pldata(sumo_renames),assert_at_line_count(baseKB,Pos),AFile,[stream_postion(Pos)]).   
+
+
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
 :- dmsg("I am here").
