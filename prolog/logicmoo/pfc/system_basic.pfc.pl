@@ -150,7 +150,7 @@ completelyAssertedCollection(ttRelationType).  % Or they might be a predciate de
 tSet(ttTypeType).
 tSet(ttExpressionType).
 
-:- mpred_trace_exec.
+% :- mpred_trace_exec.
 ttTypeType(F)==>tSet(F).
 ttTypeType(ttTypeType).
 

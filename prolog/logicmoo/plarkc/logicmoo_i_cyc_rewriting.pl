@@ -1512,18 +1512,23 @@ never_idiom((:-)).
 never_idiom((,)).
 never_idiom(Atom):-atom_length(Atom,Len),Len<3.
 never_idiom(A):- upcase_atom(A,U),downcase_atom(A,U).
+never_idiom(Atom):- atom_chars(Atom,[S|Codes]),last(Codes,E),never_idiom(S,Codes,E).
+
+never_idiom( S,_Codes,_E):- char_type(S,punct),!,S\=='?'.
+never_idiom(_S,_Codes, E):- char_type(E,punct),!.
+never_idiom(_S, Codes,_E):- member(M,Codes),char_type(M,period),!.
 
 
 
 
 cyc_to_mpred_create(X,_):- \+ atom(X),!,fail.
-cyc_to_mpred_create(X,X):- never_idiom(X),!.
-cyc_to_mpred_create(X,Y):- starts_lower(X),!,dehyphenize_const(X,Y),!.
+cyc_to_mpred_create(equiv,(<=>)).
+cyc_to_mpred_create(implies,(=>)). 
 % cyc_to_mpred_create(KW,SYMBOL):-name(KW,[58,LETTER|REST]),char_type(LETTER,alpha),!,name(SYMBOL,[LETTER|REST]).
 cyc_to_mpred_create(KW,KW):-name(KW,[58,LETTER|_]),char_type(LETTER,alpha),char_type(LETTER,upper).
 cyc_to_mpred_create(KW,'$VAR'(VAR)):-name(KW,[63,LETTER|REST]),char_type(LETTER,alpha),!,name(SYMBOL,[LETTER|REST]),fix_var_name(SYMBOL,VAR),!.
-cyc_to_mpred_create(equiv,(<=>)).
-cyc_to_mpred_create(implies,(=>)). 
+cyc_to_mpred_create(X,X):- never_idiom(X),!.
+cyc_to_mpred_create(X,Y):- starts_lower(X),!,dehyphenize_const(X,Y),!.
 % cyc_to_mpred_create(not,(~)).
 % cyc_to_mpred_create(X,Y):- starts_lower(X), rename(X,Y),!.
 cyc_to_mpred_create(X,Y):- starts_lower(X),!,dehyphenize_const(X,Y).
@@ -1809,26 +1814,25 @@ makeCycRenames1:-
     forall(builtin_rn_or_rn_new(C,P),format('(safely-rename-or-merge "~w" "~w")~n',[C,P])),
     told.
 
+add_rename(KB,MRNCP):- strip_module(MRNCP,_,RNCP),asserta(KB:RNCP).
+
+load_renames(File):- \+ exists_source(File), !, dmsg(warning(missing_file(File))).
+load_renames(File):- load_with_asserter(File,_,add_rename(baseKB),[]).
+% load_renames(File):- catch(((if_file_exists(baseKB:qcompile(File)))),E,dmsg(E)),!.
+% load_renames(File):- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(FILE)))),E,dmsg(E)).
+% load_renames(File):- load_with_asserter(pldata(sumo_renames),_AFile,assert_at_line_count(baseKB,Pos),[stream_postion(Pos)]).   
+
 :- multifile(baseKB:rnc/2).
 :- dynamic(baseKB:rnc/2).
-%:- catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E)),!.
-:- catch(((if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames.pldata'))))),E,dmsg(E)),!.
-%:- baseKB:catch(ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames.qlf')),_,
-%   catch(((if_file_exists(baseKB:qcompile(pldata('plkb7166/kb7166_pt7_constant_renames'))))),E,dmsg(E))),!.
-:- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
-
 :- multifile(baseKB:rn_new/2).
 :- dynamic(baseKB:rn_new/2).
-:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('plkb7166/kb7166_pt7_constant_renames_NEW.pldata'))))),E,dmsg(E)).
-:- catch(quietly(nodebugx(if_file_exists(baseKB:ensure_loaded(pldata('sumo_renames.pldata'))))),E,dmsg(E)).
-% :- load_with_asserter(pldata(sumo_renames),assert_at_line_count(baseKB,Pos),AFile,[stream_postion(Pos)]).   
 
+:- load_renames(pldata('plkb7166/kb7166_pt7_constant_renames.pldata')).
+:- load_renames(pldata('plkb7166/kb7166_pt7_constant_renames_NEW.pldata')).
+:- load_renames(pldata('sumo_renames.pldata')).
 
+:- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
-
-:- dmsg("I am here").
-:- multifile(baseKB:rnc/2).
-:- dynamic(baseKB:rnc/2).
 
 azzert_rename(C,P):- builtin_rn(C,P),!.
 azzert_rename(C,P):- baseKB:rnc(C,P),!.

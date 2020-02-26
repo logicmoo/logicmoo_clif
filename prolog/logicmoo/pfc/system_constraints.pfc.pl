@@ -108,7 +108,7 @@ weak_test("Weak0","weAk2").
 :- listing(weak_test/2).
 :- endif.
 
-:- listing(weak_test/2).
+%:- listing(weak_test/2).
 
 :- if(\+ current_predicate(mpred_test/1)).
 :- use_module(library(pfc_test)).
@@ -131,11 +131,11 @@ weac_test("Weac0","weAc2").
 :- export(weac_test/2).
 :- public(weac_test/2).
 
-:- listing(weac_test/2).
+%:- listing(weac_test/2).
 
 predicate_relaxed(weac_test/2).
 
-:- listing(weac_test/2).
+%:- listing(weac_test/2).
 
 :- mpred_test(weac_test("Weac1","Weac2")).
 :- mpred_test(weac_test("Weac1","wEac2")).

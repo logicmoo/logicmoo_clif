@@ -15,8 +15,6 @@
 */
 % NEW
 :- include(library('pfc2.0/mpred_header.pi')).
-:- baseKB:export(baseKB:spft/3).
-:- kbe:import(baseKB:spft/3).
 :- '$set_source_module'(baseKB).
 
 %:- endif.

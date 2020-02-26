@@ -17,14 +17,16 @@ argumentsConstrained(G):- cwc,ground(G),!.
 %((transitiveViaArgInverse(P,PT,2)/ \+(P==PT)),arity(P,2))==> (t(P,I,Sub):- (cwc, dif(Sub,Super),t(PT,Super,Sub),t(P,I,Super))).
 
 functor_any(CONSQ,F,A):- cwc, length(IST,A),apply_term(F,IST,CONSQ),!.
-fa_replace_arg(F,A,N,CONSQ,CSLOT,ASLOT,ANTE):-cwc, functor_any(CONSQ,F,A),arg(N,CONSQ,CSLOT),replace_arg(CONSQ,N,ASLOT,ANTE),!.
+
+fa_replace_arg(F,A,N,CONSQ,CSLOT,ASLOT,ANTE):-cwc, 
+   functor_any(CONSQ,F,A),arg(N,CONSQ,CSLOT),replace_arg(CONSQ,N,ASLOT,ANTE),!.
 
 % Example generalized
-(((transitiveViaArg(P,B,N) ),   arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,CSLOT,ASLOT])) ==>  
-  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),BExpr, argumentsConstrained(ANTE),ANTE))).
+(((transitiveViaArg(P,B,N) ),   arity(P,A),{fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,CSLOT,ASLOT]}) ==>  
+  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),call(BExpr), argumentsConstrained(ANTE),call(ANTE)))).
 
-(transitiveViaArgInverse(P,B,N),arity(P,A)/(fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,ASLOT,CSLOT]))==> 
-  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),BExpr, argumentsConstrained(ANTE),ANTE)).
+(transitiveViaArgInverse(P,B,N),arity(P,A),{fa_replace_arg(P,A,N,CONSQ,CSLOT,ASLOT,ANTE), P\=B,BExpr =..[B,ASLOT,CSLOT]})==> 
+  (CONSQ:- (cwc,argumentsConstrained(CONSQ),dif(CSLOT,ASLOT),call(BExpr), argumentsConstrained(ANTE),call(ANTE))).
 
 
 coExtensional(A,B)==> 

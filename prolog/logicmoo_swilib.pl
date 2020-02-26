@@ -16,8 +16,7 @@
 % ===================================================================
 */
 
-:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0,
-  ensure_LOGTALKUSER/0,load_logtalk/0]).
+:- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT PROLOG FLAGS
@@ -57,7 +56,7 @@
 */
 
 :- user:use_module(library(base32)).
-
+/*
 % :- user:use_module(library(http/http_dispatch)).
 :- use_module(library(http/thread_httpd)).
 :- use_module(thread_httpd:library(http/http_dispatch)).
@@ -82,7 +81,7 @@
 :- user:use_module(library(statistics)).
 :- baseKB:use_module(library(statistics),[time/1]).
 %:- autoload([verbose(false)]).
-
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MISC UTILS
@@ -101,74 +100,6 @@ setup_for_debug :-
 
 :- during_boot(setup_for_debug).
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LOAD LOGTALK
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-logtalk_home(LTH):- getenv('LOGTALKHOME',LTH),!.
-logtalk_home(LTH):- absolute_directory(pack(logtalk), Directory0),
-  atom_concat(Directory0,'/logtalk-*',Directory1),
-  expand_file_name(Directory1,[LTH]),!.
-
-skip_logtalk:- app_argv('--nologtalk'),!.
-skip_logtalk:- \+ app_argv1('--logtalk'),!.
-skip_logtalk:- \+ logtalk_home(_), !.
-skip_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!.
-
-had_LOGTALKUSER :- getenv('LOGTALKUSER', _Location),getenv('LOGTALKHOME', _Location2).
-
-ensure_LOGTALKUSER:- had_LOGTALKUSER,!.
-ensure_LOGTALKUSER:- skip_logtalk, !, dmsg("Skipping logtalk").
-% ensure_LOGTALKUSER:- user:use_module(library(logtalk)).
-ensure_LOGTALKUSER:- logtalk_home(LTH),
-   setenv('LOGTALKHOME', LTH),
-   setenv('LOGTALKUSER', LTH),!.
-
-:- multifile(logtalk:'$lgt_current_engine_'/4).
-:- volatile(logtalk:'$lgt_current_engine_'/4).
-load_logtalk(system):- load_logtalk('/usr/share/logtalk').
-load_logtalk(LTH):- atom_concat(LTH,'/integration/logtalk_swi',Init),
-  exists_source(Init),!,logtalk:ensure_loaded(Init),!,listing(logtalk:'$lgt_default_flag'/2).
-load_logtalk(LTH):-  dmsg("Skipping logtalk="+LTH).
-
-load_logtalk:- current_predicate(logtalk:'$lgt_default_flag'/2).
-load_logtalk:- skip_logtalk, !, dmsg("Skipping logtalk").
-load_logtalk:- logtalk_home(LTH), \+ exists_directory(LTH),!,dmsg("Skipping logtalk").
-load_logtalk:- had_LOGTALKUSER,!,
-   dmsg("Installing logtalk"),
-   load_logtalk(system).
-load_logtalk:- ensure_LOGTALKUSER,
-   logtalk_home(LTH),
-   dmsg("Logtalk installed"=LTH),
-   load_logtalk(LTH).
-
-:- dmsg("Loading logtalk").
-:- during_boot(ensure_LOGTALKUSER).
-:- during_boot(load_logtalk).
-
-% :- if( (( \+ prolog_load_context(reload,true) ))).
-
-:- module_transparent(logtalk:'::'/1).
-:- logtalk:export(logtalk:'::'/1).
-:- user:import(logtalk:'::'/1).
-
-:- module_transparent(logtalk:'::'/2).
-:- logtalk:export(logtalk:'::'/2).
-:- user:import(logtalk:'::'/2).
-:- baseKB:import(logtalk:'::'/2).
-
-%user:'::'(X,Y):- logtalk:'::'(X,Y).
-%user:'::'(X):- logtalk:'::'(X).
-
-:-op(200,fy,user:'--').
-:-op(600,fy,user:'::').
-:-op(600,xfy,user:'::').
-:-op(200,fy,user:'++').
-:-op(600,fy,user:'^^').
-
-
-% :- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT HISTORY
@@ -605,7 +536,7 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
 :- user:use_module(library(pldoc/doc_pack)).
 
 :- user:use_module(library(doc_http)).
-:- reexport(library(pldoc/doc_html)).
+% :- reexport(library(pldoc/doc_html)).
 :- user:use_module(library(pldoc/doc_wiki)).
 :- user:use_module(library(pldoc/doc_search)).
 :- user:use_module(library(pldoc/doc_util)).

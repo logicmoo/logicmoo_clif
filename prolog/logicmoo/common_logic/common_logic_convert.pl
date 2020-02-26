@@ -85,7 +85,7 @@ is_kif_string(String):-atomic(String),name(String,Codes), memberchk(40,Codes),me
 convert_if_kif_string(I, O):-is_kif_string(I),sumo_to_pdkb(I,O),!, \+ is_list(O).
 
 
-last_chance_doc(Wff0,WffO):- atomic(Wff0),atom_contains(Wff0,' '),string_to_mws(Wff0,MWS),last_chance_doc(MWS,WffO),!.
+last_chance_doc(Wff0,WffO):- will_mws(Wff0),string_to_mws(Wff0,MWS),last_chance_doc(MWS,WffO),!.
 last_chance_doc(Wff0,comment(Atom,NewStr)):- 
    Wff0=..[s,"(", "documentation",AntisymmetricRelation, "EnglishLanguage", "\""|REST],
          append(NOQUOTES,[_,_],REST),

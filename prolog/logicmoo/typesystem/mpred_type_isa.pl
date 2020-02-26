@@ -1637,7 +1637,6 @@ mpred_univ(C,I,Head):- atom(C),!,Head=..[C,I],predicate_property(Head,number_of_
 onLoadPfcRule('==>'(a(tCol,Inst), {isa_from_morphology(Inst,Type)} , isa(Inst,Type))).
 :-ain(baseKB:prologBuiltin(was_isa/3)).
 :-ain(baseKB:prologBuiltin(is_typef/1)).
-:- abolish(mpred_type_isa:spft/3).
 :- fixup_exports.
 
 /*

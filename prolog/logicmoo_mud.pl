@@ -8,6 +8,13 @@
 :- module(logicmoo_mud, [ ]).
 
 
+
+:- if(\+ exists_source(prologmud(mud_loader))).
+:- must((absolute_file_name(pack('prologmud/prolog/prologmud'),Dir,[file_type(directory),access(read)]),asserta(user:file_search_path(prologmud,Dir)))).
+:- sanity(exists_source(prologmud(mud_loader))).
+:- endif.
+
+
 % ==============================================
 % [Required] Load the Logicmoo User System
 % ==============================================
