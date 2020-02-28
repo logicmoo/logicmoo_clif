@@ -63,9 +63,9 @@ must_kif_process_after_rename(Sent):-  if_defined(sumo_to_pdkb(Sent,SentM),=(Sen
 
 :- public(kif_process/1).
 
-get_atom_or_kw(ModeIn,Mode):- trim_off(':',ModeIn,Mode).
-   trim_off(Left,ModeIn,Mode):-atom_concat(Left,Mode,ModeIn),!.
-   trim_off(_,ModeIn,ModeIn).
+get_atom_or_kw(ModeIn,Mode):- trim_off_cll(':',ModeIn,Mode).
+   trim_off_cll(Left,ModeIn,Mode):-atom_concat(Left,Mode,ModeIn),!.
+   trim_off_cll(_,ModeIn,ModeIn).
 
 %% kif_process( :GoalAssert) is det.
 %

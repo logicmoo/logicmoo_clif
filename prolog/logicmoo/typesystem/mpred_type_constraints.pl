@@ -1452,16 +1452,16 @@ cmp_memberchk_00(Item, [X1]) :-
 	Item = X1.
 
 
-:- meta_predicate(call_engine(?,0,-,-)).
-call_engine(Templ,Goal,Engine,Det):-
+:- meta_predicate(call_engine_m(?,0,-,-)).
+call_engine_m(Templ,Goal,Engine,Det):-
   call_engine_start(Templ,Goal,Engine),
   call_engine_next(Engine,Templ,Det).
 
-:- meta_predicate(call_engine_start(?,0,-)).
-call_engine_start(Templ,Goal,Engine):-
+:- meta_predicate(call_engine_start_m(?,0,-)).
+call_engine_start_m(Templ,Goal,Engine):-
    engine_create(Templ-TF0,(Goal,deterministic(TF0)),Engine).
 
-call_engine_next(Engine,Templ,Det):-
+call_engine_next_m(Engine,Templ,Det):-
    repeat,
     engine_next(Engine,Templ-Det),
      (Det==true->!;true).

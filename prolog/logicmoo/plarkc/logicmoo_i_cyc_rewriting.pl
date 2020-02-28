@@ -1685,6 +1685,9 @@ list_to_ops(Pred,[H|T],Body):-!,
     (is_list(TT)-> Body=..[Pred,HH|TT]; Body=..[Pred,HH,TT]).
 
 
+dont_touch_this(mfl4).
+dont_touch_this(rnc).
+dont_touch_this(rnc_new).
 
 :-thread_initialization(nb_setval('$has_kw',[])).
 :-thread_initialization(nb_setval('$has_var',[])).
@@ -1697,7 +1700,7 @@ do_renames(A,B):- atom(A),!,must(rename_atom(A,B)),!.
 do_renames(A,B):- string(A),!,re_convert_string(A,B).
 do_renames(A,B):- \+ compound(A),!,A=B.
 do_renames(A,B):- compound_name_arity(A,P,0),!,do_renames(P,BP),compound_name_arguments(B,BP,0),!.
-do_renames(rnc(X,Y),rnc(X,Y)):-!.
+do_renames(A,B):- functor(A,F,_),dont_touch_this(F),!,A=B.
 do_renames(uN(P,ARGS),B):- \+ is_list(ARGS) -> (uN(P,ARGS)= B) ; (do_renames([P|ARGS],List),cnas(B,uT,List)).
 do_renames(uU('SubLQuoteFn',A),uSubLQuoteFn(A)):-var(A),!,nb_setval('$has_var',t),!.
 do_renames(uU('SubLQuoteFn','$VAR'(A)),uSubLQuoteFn(A)):-!,nb_setval('$has_quote',t),!,nb_setval('$has_var',t),!.
