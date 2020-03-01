@@ -16,6 +16,7 @@
 :- pack_list_installed.
 :- endif.
 
+
          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("AUTOLOAD PACKAGES").
@@ -41,6 +42,7 @@ rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
  dmsg(".. AUTOLOADING COMPLETE"),!.
 
 :- during_boot(rescan_pack_autoload_packages).
+
 
 %:- reload_library_index.
 %:- autoload([verbose(true)]).
