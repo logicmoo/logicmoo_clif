@@ -67,6 +67,10 @@ MLTT = is an extension to control the u ability to
 
 */
 
+:- dynamic(baseKB:tinyKB/3).
+:- multifile(baseKB:tinyKB/3).
+:- system:import(baseKB:tinyKB/3).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP CYC KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -83,12 +87,13 @@ loadNewTiny:-  \+ exists_file(tiny_kb_cache),
          ignore((C\=@=CycLOut,dmsg(tiny_kb(CycLOut,MT,STR)))))))),
   told,
   consult(tiny_kb_cache).
+
 loadNewTiny:- consult(tiny_kb_cache).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SAVE CYC KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- after_boot(loadNewTiny).
+%:- after_boot(loadNewTiny).
 
 :- after_boot(baseKB:qsave_lm(lm_repl3)).
 

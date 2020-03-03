@@ -55,6 +55,10 @@
  op(350,xfx,'xor'),
  op(300,fx,'~'))).
 
+:- dynamic(baseKB:tinyKB/3).
+:- multifile(baseKB:tinyKB/3).
+:- system:import(baseKB:tinyKB/3).
+
 is_simple_gaf(V):-not(compound(V)),!.
 is_simple_gaf(V):-needs_canoncalization(V),!,fail.
 is_simple_gaf(V):-functor(V,F,A),member(F/A,[isa/2,genls/2,argQuotedIsa/3,afterAdding/2,afterRemoving/2]),!.
