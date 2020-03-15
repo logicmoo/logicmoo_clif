@@ -13,6 +13,7 @@
 :- user:use_module(library(pldoc/doc_process)).
 :- endif.
 
+/*
 :- user:use_module(library(pldoc/doc_access)).
 :- user:use_module(library(pldoc/doc_pack)).
 
@@ -24,7 +25,7 @@
 :- user:use_module(library(pldoc/doc_library)).
 %:- doc_load_library.
 
-
+*/
 
 end_of_file.
 

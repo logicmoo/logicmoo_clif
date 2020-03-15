@@ -456,7 +456,7 @@ kbp_t_list_prehook(PLIST,PLIST).
 % Knowledge Base P- True Structure List.
 %
 
-kbp_t_list(PLIST):- t_l:useDbase_t, t(PLIST).
+kbp_t_list(PLIST):- t_l:useDbase_t, call_u(t(PLIST)).
 kbp_t_list(PLIST):- apply(cyckb_t,PLIST).
 
 
@@ -526,7 +526,7 @@ prove_calllist(Functor,CallList,Proof):- dif(Body,true), Head =.. [Functor|CallL
 % Knowledge Base User Microtheory.
 %
 kb_mt(C,MT):- into_plist(C,PLIST),!,  append([el_assertions:el_holds|PLIST],[MT,_PropsV],CallList),Call=..CallList,Call.
-kb_mt(C,t):- t_l:useDbase_t, t(C).
+kb_mt(C,t):- t_l:useDbase_t, call_u(t(C)).
 
 
 

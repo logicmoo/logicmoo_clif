@@ -1454,8 +1454,8 @@ cmp_memberchk_00(Item, [X1]) :-
 
 :- meta_predicate(call_engine_m(?,0,-,-)).
 call_engine_m(Templ,Goal,Engine,Det):-
-  call_engine_start(Templ,Goal,Engine),
-  call_engine_next(Engine,Templ,Det).
+  call_engine_start_m(Templ,Goal,Engine),
+  call_engine_next_m(Engine,Templ,Det).
 
 :- meta_predicate(call_engine_start_m(?,0,-)).
 call_engine_start_m(Templ,Goal,Engine):-

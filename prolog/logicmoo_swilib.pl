@@ -532,6 +532,7 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
 %:- user:use_module(library(pldoc/doc_library)).
 %:- doc_load_library.
 
+/*
 :- user:use_module(library(pldoc/doc_access)).
 :- user:use_module(library(pldoc/doc_pack)).
 
@@ -562,6 +563,7 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
 
 
 :- user:use_module(library(http/http_wrapper)).
+*/
 
 :- if(exists_source(library(yall))).
 :-  multifile(yall:lambda_functor/1),

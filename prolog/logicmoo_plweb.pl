@@ -39,8 +39,8 @@ Warning: /opt/logicmoo_workspace/packs_web/plweb/openid.pl:66:
 kill_3040:- threads,wdmsg(kill_3040),!.
 kill_3040:- whenever_flag_permits(run_network,ignore(catch(shell('kill -9 $(lsof -t -i:3020 -sTCP:LISTEN) &>2 ||:'),E,dmsg(E)))).
 
-:- use_module(library(http/thread_httpd)).
-:- use_module(library(http/http_dispatch)).
+%:- use_module(library(http/thread_httpd)).
+%:- use_module(library(http/http_dispatch)).
 
 
 :- add_file_search_path_safe(plweb,pack(plweb)).
