@@ -3,7 +3,7 @@
 :- module(common_logic_compiler,         
           [ 
       nnf/3, 
-           pnf/3, cf/5,
+           pfn4/3, cf/5,
           % op(300,fx,'-'),
           /*op(1150,xfx,'=>'),
           op(1150,xfx,'<=>'),
@@ -71,8 +71,8 @@
             nonvar_unify/2,
             notin/2,
             nowrap_one/3,
-            pnf/3,
-            pnf/4,
+            pfn4/3,
+            pfn4/4,
             putin/3,
             removeQ/3,
             removeQ/4,
@@ -1328,78 +1328,78 @@ simplify_cheap_must(IN,IN).
 %=  Prenex Normal Form (PNF)
 %=
 
-% Usage: pnf(+KB, +Fml, ?PNF ) : assumes Fml in NNF
+% Usage: pfn4(+KB, +Fml, ?PNF ) : assumes Fml in NNF
 
 
 
 %= 	 	 
 
-%% pnf( ?KB, ?F, ?PNF) is det.
+%% pfn4( ?KB, ?F, ?PNF) is det.
 %
 % Pnf.
 %
-pnf(KB, F,PNF):- pnf(KB,F,[],PNF),!.
+pfn4(KB, F,PNF):- pfn4(KB,F,[],PNF),!.
 
-% pnf(+KB, +Fml, +Vars, ?PNF)
+% pfn4(+KB, +Fml, +Vars, ?PNF)
 
 
 %= 	 	 
 
-%% pnf( ?A, ?B, ?C, ?D) is det.
+%% pfn4( ?A, ?B, ?C, ?D) is det.
 %
 % Pnf.
 %
-pnf(A,B,C,D):- convertAndCall(as_dlog,pnf(A,B,C,D)),!.
+pfn4(A,B,C,D):- convertAndCall(as_dlog,pfn4(A,B,C,D)),!.
 
-pnf(_,Var,_ ,Var):- leave_as_is_logically(Var),!.
+pfn4(_,Var,_ ,Var):- leave_as_is_logically(Var),!.
 
-pnf(_, [],  _,           []):- !.
+pfn4(_, [],  _,           []):- !.
 
-pnf(KB, IN,  _,              OUT):- is_list(IN),!, must_maplist_det(pnf(KB),IN,OUT).
+pfn4(KB, IN,  _,              OUT):- is_list(IN),!, must_maplist_det(pfn4(KB),IN,OUT).
 
-%pnf(KB, IN, FreeV,              OUT):- once(mnf(IN,MID)),IN\=@=MID, pnf(KB,MID,FreeV,OUT).
-%pnf(KB, IN, FreeV,              OUT):- simplify_cheap(IN,MID), pnf(KB,MID,FreeV,OUT).
+%pfn4(KB, IN, FreeV,              OUT):- once(mnf(IN,MID)),IN\=@=MID, pfn4(KB,MID,FreeV,OUT).
+%pfn4(KB, IN, FreeV,              OUT):- simplify_cheap(IN,MID), pfn4(KB,MID,FreeV,OUT).
 
-pnf(KB,   nesc(BDT,F),Vs,   nesc(BDT,PNF)):- !, pnf(KB,F,Vs, PNF),!.
+pfn4(KB,   nesc(BDT,F),Vs,   nesc(BDT,PNF)):- !, pfn4(KB,F,Vs, PNF),!.
 
-pnf(KB,   poss(BDT,F),Vs,   poss(BDT,PNF)):- !, pnf(KB,F,Vs, PNF),!.
+pfn4(KB,   poss(BDT,F),Vs,   poss(BDT,PNF)):- !, pfn4(KB,F,Vs, PNF),!.
 
-pnf(KB,   all(X,F),Vs,   all(X,PNF)):- list_to_set([X|Vs],VVs), !, pnf(KB,F, VVs, PNF),!.
+pfn4(KB,   all(X,F),Vs,   all(X,PNF)):- list_to_set([X|Vs],VVs), !, pfn4(KB,F, VVs, PNF),!.
 
-pnf(KB,  exists(X,F),Vs,exists(X,PNF)):- list_to_set([X|Vs],VVs), !, pnf(KB,F, VVs, PNF),!.
+pfn4(KB,  exists(X,F),Vs,exists(X,PNF)):- list_to_set([X|Vs],VVs), !, pfn4(KB,F, VVs, PNF),!.
 
-pnf(KB,  (&(exists(X,A) , B)),Vs,  exists(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pnf(KB,&(Ay,B),[Y|Vs], PNF),!.
+pfn4(KB,  (&(exists(X,A) , B)),Vs,  exists(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pfn4(KB,&(Ay,B),[Y|Vs], PNF),!.
 
-pnf(KB,   ( v(exists(X,A)), B),Vs,  exists(Y,PNF)):- !, copy_term((X+A+Vs),(Y+Ay+Vs)), pnf(KB,(v(Ay,B)),[Y|Vs], PNF).!.
+pfn4(KB,   ( v(exists(X,A)), B),Vs,  exists(Y,PNF)):- !, copy_term((X+A+Vs),(Y+Ay+Vs)), pfn4(KB,(v(Ay,B)),[Y|Vs], PNF).!.
 
-pnf(KB, &(all(X,A), B),Vs, all(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pnf(KB,&(Ay , B),[Y|Vs], PNF),!.
+pfn4(KB, &(all(X,A), B),Vs, all(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pfn4(KB,&(Ay , B),[Y|Vs], PNF),!.
 
-pnf(KB, v(all(X,A), B),Vs, all(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pnf(KB,v(Ay,B),[Y|Vs], PNF),!.
+pfn4(KB, v(all(X,A), B),Vs, all(Y,PNF)):- !, copy_term((X,A,Vs),(Y,Ay,Vs)), pfn4(KB,v(Ay,B),[Y|Vs], PNF),!.
 
-pnf(KB, &(A,exists(X,B)),Vs,  exists(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
-                                        pnf(KB,&(A, By),[Y|Vs], PNF),!.
-pnf(KB, v(A,exists(X,B)),Vs,  exists(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
-                                        pnf(KB,v(A,By),[Y|Vs], PNF),!.
-pnf(KB, &(A,all(X,B)),Vs, all(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
-                                        pnf(KB,&(A,By),[Y|Vs], PNF),!.
-pnf(KB, v(A,all(X,B)),Vs, all(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
-                                        pnf(KB,v(A,By),[Y|Vs], PNF),!.
+pfn4(KB, &(A,exists(X,B)),Vs,  exists(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
+                                        pfn4(KB,&(A, By),[Y|Vs], PNF),!.
+pfn4(KB, v(A,exists(X,B)),Vs,  exists(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
+                                        pfn4(KB,v(A,By),[Y|Vs], PNF),!.
+pfn4(KB, &(A,all(X,B)),Vs, all(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
+                                        pfn4(KB,&(A,By),[Y|Vs], PNF),!.
+pfn4(KB, v(A,all(X,B)),Vs, all(Y,PNF)):- !, copy_term((X,B,Vs),(Y,By,Vs)),
+                                        pfn4(KB,v(A,By),[Y|Vs], PNF),!.
 
-pnf(KB, &(A, B),Vs,       PNF ):- pnf(KB,A,Vs,Ap), pnf(KB,B,Vs,Bp), 
-                                     (A\=Ap; B\=Bp), pnf(KB,&(Ap,Bp),Vs,PNF),!.
+pfn4(KB, &(A, B),Vs,       PNF ):- pfn4(KB,A,Vs,Ap), pfn4(KB,B,Vs,Bp), 
+                                     (A\=Ap; B\=Bp), pfn4(KB,&(Ap,Bp),Vs,PNF),!.
 
-pnf(KB, v(A, B),Vs,       PNF ):- pnf(KB,A,Vs,Ap), pnf(KB,B,Vs,Bp), 
-                                     (A\=Ap; B\=Bp), pnf(KB,v(Ap,Bp),Vs,PNF),!.
+pfn4(KB, v(A, B),Vs,       PNF ):- pfn4(KB,A,Vs,Ap), pfn4(KB,B,Vs,Bp), 
+                                     (A\=Ap; B\=Bp), pfn4(KB,v(Ap,Bp),Vs,PNF),!.
 
 
-pnf(KB, [A|B], Vs,       PNF ):- !, pnf(KB,A,Vs,Ap), pnf(KB,B,Vs,Bp), 
-                                     (A\=Ap; B\=Bp), pnf(KB,[Ap|Bp],Vs,PNF),!.
+pfn4(KB, [A|B], Vs,       PNF ):- !, pfn4(KB,A,Vs,Ap), pfn4(KB,B,Vs,Bp), 
+                                     (A\=Ap; B\=Bp), pfn4(KB,[Ap|Bp],Vs,PNF),!.
 
 
 % disabled
-pnf(KB, H,Vars,FOO ):- fail,  compound(H),H=..[F|ARGS], is_sentence_functor(F), !, pnf(KB, [F|ARGS],Vars,FOOL ),FOO=..FOOL.
+pfn4(KB, H,Vars,FOO ):- fail,  compound(H),H=..[F|ARGS], is_sentence_functor(F), !, pfn4(KB, [F|ARGS],Vars,FOOL ),FOO=..FOOL.
 
-pnf(_KB,          PNF, _,       PNF ).
+pfn4(_KB,          PNF, _,       PNF ).
 
 
 :- meta_predicate if_debugging2(*,0).
