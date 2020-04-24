@@ -618,6 +618,7 @@ all_different_existentials([In|ListIn]):-
   all_different_existentials(ListIn).
 
 
+
 :- meta_predicate(no_repeats_ex(0)).
 :- meta_predicate(no_repeats_ex(+,0)).
 no_repeats_ex(G):- term_variables(G,VsIn),no_repeats_ex(VsIn,G).
