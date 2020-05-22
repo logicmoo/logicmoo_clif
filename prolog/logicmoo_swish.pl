@@ -9,6 +9,7 @@
 Remote SWISH as an IDE for developing a Remote application.
 */
 
+/*
 :- use_module(library(sanity_must)).
 
 
@@ -27,7 +28,7 @@ Remote SWISH as an IDE for developing a Remote application.
 :- if(exists_source(library(uid))).
 :- use_module(library(uid)).
 :- endif.
-
+*/
 %:- multifile(owl2_model:datatype/2).
 %:- dynamic(owl2_model:datatype/2).
                                   

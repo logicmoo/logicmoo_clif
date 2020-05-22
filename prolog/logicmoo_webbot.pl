@@ -26,9 +26,12 @@ app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 :- dmsg("SWISH Server").
 %:- user:load_library_system(logicmoo_swish).
 :- endif.
+%:- user:['lps_corner/swish/user_module_file.pl'].
+%:- user:['swish/daemon.pl'].
+
 
 :- if(app_argv_www('--cliop')).
-% :- user:load_library_system(logicmoo_cliop).
+%:- user:load_library_system(logicmoo_cliop).
 :- endif.
 
 :- if(app_argv_www('--plweb')).
@@ -36,7 +39,7 @@ app_argv_www(Flag):- app_argv_ok(Flag),(app_argv('--www');app_argv('--all')),!.
 :- user:load_library_system(logicmoo_plweb).
 :- endif.
 
-:- if(app_argv_www('--docs')).
+:- if(app_argv_www('--docs');app_argv_www('--pldoc')).
 :- dmsg("PLDOC Server").
 :- user:load_library_system(logicmoo_pldoc).
 :- endif.
@@ -88,6 +91,9 @@ foo_broken2.
 :- if(( ( \+ ((current_prolog_flag(logicmoo_include,Call),Call))) )).
 %.
 :- endif.
+
+
+:- logicmoo_webbot:import(http_dispatch:http_dispatch/1).
 
 
 
