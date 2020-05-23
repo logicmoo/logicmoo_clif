@@ -32,6 +32,9 @@
  prolog_stack:stack_guard(none).
 :- endif.
 
+
+:- if(current_prolog_flag(xpce,true) ).
+
 :- if(current_prolog_flag(xpce,false)).
 :- set_prolog_flag(xpce,true).
 :- use_module(library(gui_tracer)).
@@ -42,6 +45,8 @@
 :- use_module(library(gui_tracer)).
 :- use_module(library(swi_ide)).
 :- use_module(library(pce)).
+:- endif.
+
 :- endif.
 
 :- if( (current_prolog_flag(xpce,false); current_prolog_flag(logicmoo_headless, true); ( \+ getenv('DISPLAY',_)) ; ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
