@@ -183,10 +183,12 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 
 :- user:load_library_system(logicmoo_swilib).
 
-
+:- if( current_prolog_flag(xpce,true) ).
 :- if(exists_source(library(pce_emacs))).
 :- user:use_module(library(pce_emacs)).
 :- endif.
+:- endif.
+
 
 :- multifile(swish_trace:installed/1).
 :-   dynamic(swish_trace:installed/1).
