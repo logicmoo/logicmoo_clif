@@ -854,7 +854,6 @@ type_isa(Type,ttExpressionType):-chk_ft(Type),!. % text
 %  from name
 
 
-
 %= 	 	 
 
 %% atom_prefix_other( ?Inst, ?Prefix, ?Other) is nondet.

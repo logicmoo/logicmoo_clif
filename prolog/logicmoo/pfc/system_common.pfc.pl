@@ -236,8 +236,7 @@ col_as_unary(X)==>tFixedArityRelation(X),arity(X,1).
 tSet(ttExpressionType).
 tSet(completelyAssertedCollection).
 
-
-ttExpressionType(C) ==> ( \+ completelyAssertedCollection(C), ~ tSet(C), tCol(C)).
+ttExpressionType(C) ==> ( \+ completelyAssertedCollection(C), \+ tSet(C), ~ tSet(C), tCol(C)).
 
 
 :- sanity(get_lang(pfc)).
@@ -580,6 +579,9 @@ isa('tThing',rtAvoidForwardChain).
 prologHybrid(quotedIsa(ftTerm,ttExpressionType)).
 
 :- kb_shared(quotedIsa/2).
+
+isa_or_type(X,Y):- cwc, quotedIsa(X,Y).
+isa_or_type(X,Y):- cwc, isa(X,Y).
 
 /*
   ftSpec
@@ -1052,16 +1054,25 @@ subFormat(ftInt,ftNumber).
 subFormat(ftInteger,ftNumber). 
 subFormat(ftNumber,ftPercent).
 subFormat(ftPercent,ftNumber).
-subFormat(ftString,ftTerm).
-subFormat(ftString,ftText).
+subFormat(ftString,ftTerm). %  "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
+subFormat(ftString,ftText). %  "hello world" 
 subFormat(ftTerm,ftProlog).
-subFormat(ftText,ftTerm).
+subFormat(ftText,ftTerm). % s("hello","world").
 subFormat(ftVar,ftProlog).
 ==> subFormat(ftVoprop,ftRest(ftVoprop)).
 subFormat(ftVoprop,ftTerm).
 
-subFormat(COL1,COL2)/(atom(COL1);atom(COL2))==>(ttExpressionType(COL1),ttExpressionType(COL2)).
+%ttExpressionType(C) ==> {cls,wdmsg(ttExpressionTypeB1(C)),dumpST,wdmsg(ttExpressionTypeC1(C)),break}.
+ttExpressionType(C) ==> {wdmsg(ttExpressionType3(C))}.
+subFormat(_,COL)/(atom(COL))==>ttExpressionType(COL).
+%:- break.
+subFormat(COL,_)/(atom(COL))==>ttExpressionType(COL).
+%:- break.
 % tCol(W)==>{quietly(guess_supertypes(W))}.
+
+%:- cls.
+%:- mpred_trace_exec.
+%:- break.
 
 
 :- sanity(ttRelationType(prologMultiValued)).
@@ -1120,6 +1131,7 @@ quotedDefnIff(ftInt,integer).
 quotedDefnIff(ftFloat,float).
 quotedDefnIff(ftAtom,atom).
 quotedDefnIff(ftString,is_ftString2).
+% ftString(X):- cwc, is_ftString2(X).
 quotedDefnIff(ftSimpleString,string).
 quotedDefnIff(ftCallable,is_callable).
 quotedDefnIff(ftCompound,is_ftCompound).
@@ -1142,7 +1154,9 @@ quotedDefnIff(ftText,is_ftText).
 
 :- kb_global(baseKB:ftText/1).
 
-((ttExpressionType(FT)/(append_term(FT,Arg,Head),predicate_property(Head,undefined))) ==> 
+((ttExpressionType(FT)/(append_term(FT,Arg,Head),
+  (predicate_property(Head,undefined);predicate_property(Head,number_of_clauses(0)))
+    )) ==> 
     ({OO = (Head:- !, term_is_ft(Arg,FT))},OO)).
 
 % tCol(Type),(rtBinaryPredicate(Pred)/(functor(G,Pred,2),G=..[Pred,isInstFn(Type),Value])), G ==> relationMostInstance(Pred,Type,Value).
