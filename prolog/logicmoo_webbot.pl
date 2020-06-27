@@ -73,7 +73,7 @@ foo_broken2.
 :- if(exists_source(library(eggdrop))).
 :- dmsg("Eggdrop Server").
 :- user:use_module(library(eggdrop)).
-:- egg_go.
+%:- egg_go_fg.
 :- endif.
 :- endif.
 

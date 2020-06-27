@@ -1,3 +1,4 @@
+
 :- multifile user:message_hook/3.
 :- dynamic user:message_hook/3.
 :- dynamic pdt_startup_error_message/1.

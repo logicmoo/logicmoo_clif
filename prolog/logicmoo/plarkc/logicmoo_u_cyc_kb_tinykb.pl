@@ -253,6 +253,7 @@ print_assertion(P,MT,STR):- P=..PL,append([exactlyAssertedELMT|PL],[MT,STR],PPL)
  portray_clause(current_output,elmt:PP,[numbervars(false)]).
 
 
+:- set_prolog_flag(expect_pfc_file,some_preds).
 baseKB:mtUndressedMt('iUniversalVocabularyImplementationMt').
 baseKB:mtUndressedMt('iLogicalTruthImplementationMt').
 baseKB:mtUndressedMt('iCoreCycLImplementationMt').
@@ -267,6 +268,8 @@ baseKB:mtDressedMt('iGeneralEnglishMt').
 baseKB:mtDressedMt('iTemporaryEnglishParaphraseMt').
 baseKB:mtDressedMt('iAct_GeneralCycKE').
 baseKB:mtDressedMt('iTechnicalEnglishLexicalMt').
+
+:- set_prolog_flag(expect_pfc_file,never).
 
 into_mpred_form_tiny(V,V):- current_prolog_flag(logicmoo_load_state,making_renames),!.
 into_mpred_form_tiny(V,R):- into_mpred_form(V,R),!. 

@@ -6,12 +6,12 @@
 % Dec 13, 2035
 %
 */
-:- module(logicmoo_pdt,[start_pdt/0]).
+:- module(logicmoo_pdt,[start_pdt/0,ensure_guitracer/0]).
 
 % :- absolute_file_name(swi(xpce/prolog/lib),X), assert_if_new(user:library_directory(X)).
 
 ensure_guitracer:-!.
-ensure_guitracer:- break,
+ensure_guitracer:- % break,
  absolute_file_name(swi(xpce/prolog/lib),X), assert_if_new(user:library_directory(X)), 
  user:use_module(library(pce_prolog_xref)),
  user:use_module(library(emacs_extend)),
@@ -21,6 +21,7 @@ ensure_guitracer:- break,
  reload_library_index.
 
 %:- abolish(start_pdt/0).
+start_pdt:-!.
 start_pdt:-
  % ensure_guitracer, 
  % user:use_module('/opt/logicmoo_workspace/lib/swipl/xpce/prolog/lib/gui_tracer.pl'),

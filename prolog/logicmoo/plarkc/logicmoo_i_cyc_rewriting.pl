@@ -66,7 +66,7 @@
 
 :- module_transparent(show_missing_renames/0).
 :- export(show_missing_renames/0).
-show_missing_renames:- !.
+% show_missing_renames:- !.
 show_missing_renames:- listing(baseKB:rn_new(I,I)).
   
 :- module_transparent(install_constant_renamer_until_eof/0).

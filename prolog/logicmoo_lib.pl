@@ -333,7 +333,7 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %:- load_library_system(library(parser_all)).
 :- if(\+ current_module(logicmoo_nlu)).
-:- load_library_system(library(logicmoo_nlu)).
+% :- load_library_system(library(logicmoo_nlu)).
 %:- noguitracer.
 :- endif.
 %:- load_library_system(library(parser_e2c)).

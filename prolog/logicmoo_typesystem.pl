@@ -141,8 +141,9 @@ wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),baseKB:c
 
 
 
-
+:- set_prolog_flag(expect_pfc_file,soon).
 :-  call(prolog_statistics:time,((ensure_loaded(baseKB:library(logicmoo/pfc/'autoexec.pfc'))))).
+:- set_prolog_flag(expect_pfc_file,never).
 
 
 :- sanity(\+ is_pfc_file).

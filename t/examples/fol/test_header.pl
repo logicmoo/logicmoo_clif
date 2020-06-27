@@ -4,7 +4,9 @@
 
 :- wdmsg(reload_of_test_header).
 
-:- mpred_reset.
+
+
+% :- mpred_reset.
 
 :- else.
 
@@ -21,6 +23,9 @@
 :- module(header_sane,[test_header_include/0]).
 test_header_include.
 :- endif.
+
+:- '$set_source_module'(baseKB).
+:- 'module'(baseKB).
 
 %:- set_prolog_flag(runtime_speed,0). % 0 = dont care
 :- set_prolog_flag(runtime_speed, 0). % 1 = default
@@ -55,7 +60,7 @@ test_header_include.
 
 :- use_module(library(logicmoo_clif)).
 
-:- cls.
+%:- cls.
 
 %:- endif. % current_prolog_flag(test_header,_).
 
@@ -82,6 +87,7 @@ check_filename:- prolog_load_context(source,File),!,
 
 
 
+:- prolog_load_context(source,File),unload_file(File).
 
 
 

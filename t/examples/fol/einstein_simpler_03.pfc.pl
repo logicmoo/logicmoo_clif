@@ -1,3 +1,5 @@
+%:-consult('/opt/logicmoo_workspace/packs_sys/logicmoo_base/t/examples/fol/einstein_simpler_03.pfc.pl').
+
 :- include(test_header).
 
 /* 
@@ -40,7 +42,7 @@
 
 */
 
-% swipl -g "ensure_loaded(pack(logicmoo_base/t/examples/csp/'einstein_simpler.pfc'))."
+% swipl -g "[(pack(logicmoo_base/t/examples/fol/'einstein_simpler_03.pfc')]."
 
 
 
@@ -49,6 +51,8 @@
 :- op(600,xfy, (/\)).
 :- op(0,xfx,'=>').
 :- op(1150,xfy,'=>').
+
+:- wdmsg([pack(logicmoo_base/t/examples/fol/'einstein_simpler_03.pfc')]).
 
 never_assert_u(boxlog((lives(A, _):-neighbor(A, _))),singletons).
 
@@ -86,12 +90,10 @@ exists([P1,I1,I2,P2,H1,H2],
 %= 1. The Brit lives in the red house. 
 lives(englishman, red).
 
-:- break.
 
 % forward chain these into houses
 leftof(HA, HB) ==> (house(HA) , house(HB)).
 
-:- break.
 
 %= 2. The Swede keeps dogs as pets. 
 pet(swede, dogs).
@@ -143,6 +145,7 @@ exists(X,exists(Y,smokes(X, blends) /\ neighbor(X,Y) /\ drinks(Y, water))).
 trait(drinks). trait(smokes). trait(pet).
 trait(position). % we add position 
 
+
 :- if(true).  % No HiLog
 
 all(P,
@@ -175,7 +178,7 @@ different_insts(person,PA,PB) /\ trait(Trait) /\ Trait(PA,What) => ~Trait(PB,Wha
 %
 % same representation, (tested with quotedIsa/2) they may be eaier compared
 same_repr(HA,HB) <- quotedIsa(HA, QCLASS) /\ quotedIsa(HB, QCLASS).
-
+                       
 % different is when two terms of the same class using the same representation
 different_insts(HCLASS,HA,HB) <- {dif:dif(HA , HB)} /\ isa(HA, HCLASS) /\ same_repr(HA,HB) /\ isa(HB, HCLASS).
 
@@ -185,6 +188,8 @@ different(HA,HB) <- different_insts(_HCLASS, HA,HB).
 %= no two houses are the same color
 % five different colors
 house(red). house(green). house(white). house(yellow). house(blue).
+
+:- listing(house).
 
 /* 
  other examples might be...
@@ -197,6 +202,6 @@ house(red). house(green). house(white). house(yellow). house(blue).
 
 % The question is: who owns the fish?
 
-:- forall((C <== A) ,  (dynamic(C),ain(A ==> C))).
+%:- forall((C <== A) ,  (dynamic(C),ain(A ==> C))).
 
 

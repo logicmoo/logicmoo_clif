@@ -192,8 +192,9 @@ is_typef(F):- atom(F),current_predicate(isa_from_morphology/2),isa_from_morpholo
 % is_never_type(F).
 % Checks F for not_mudIsa(F,tCol).
 % ========================================
+:- set_prolog_flag(expect_pfc_file,some_preds).
 baseKB:prologBuiltin(is_never_type/1).
-
+:- set_prolog_flag(expect_pfc_file,never).
 
 %= 	 	 
 
@@ -310,7 +311,7 @@ was_isa0(G,I,C):-G=..[C,I],!,is_typef(C),!,\+ (is_never_type(C)).
 % was_isa0(t(C,I),I,C):- new_was_isa, atom(C),!.
 
 
-
+:- set_prolog_flag(expect_pfc_file,some_preds).
 baseKB:prologBuiltin(to_isa_out/2).
 
 %% to_isa_out( ?I, ?C, ?OUT) is nondet.
@@ -1276,6 +1277,8 @@ baseKB:prologBuiltin(assert_isa_safe/2).
 baseKB:prologBuiltin(assert_isa/2).
   
 
+:- set_prolog_flag(expect_pfc_file,never).
+
 %% assert_isa_safe( ?O, ?T) is nondet.
 %
 % assert  (isa/2) Safely Paying Attention To Corner Cases.
@@ -1638,7 +1641,7 @@ onLoadPfcRule('==>'(a(tCol,Inst), {isa_from_morphology(Inst,Type)} , isa(Inst,Ty
 :-ain(baseKB:prologBuiltin(is_typef/1)).
 :- fixup_exports.
 
-/*
+/*                       
 %% onLoadPfcRule( :TermInst) is nondet.
 %
 % Whenever Load Prolog Forward Chaining Rule.
