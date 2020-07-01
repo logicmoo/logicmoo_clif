@@ -105,7 +105,7 @@
 %:- set_fileAssertMt(baseKB).
 :- set_prolog_flag(expect_pfc_file,always).
 
-:- baseKB:ensure_loaded('pfclib/system_autoexec.pfc').
+%:- baseKB:ensure_loaded(library('pfclib/system_autoexec.pfc')).
 
 %:- mpred_unload_file.
 :- set_fileAssertMt(baseKB).

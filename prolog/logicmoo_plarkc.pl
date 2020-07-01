@@ -16,7 +16,8 @@
 :- system:import(baseKB:cycBetween/3).
 
 :- system:reexport(library(logicmoo_clif)).
-:- set_fileAssertMt(baseKB).
+
+%:- set_fileAssertMt(baseKB).
 
 :- asserta_new(user:file_search_path(pldata,'/opt/cyc/')).
 :- asserta_new(user:file_search_path(pldata,library(pldata))).
@@ -93,9 +94,9 @@ loadNewTiny:- consult(tiny_kb_cache).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SAVE CYC KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%:- after_boot(loadNewTiny).
+%:- after_init(loadNewTiny).
 
-:- after_boot(baseKB:qsave_lm(lm_repl3)).
+%:- after_init(baseKB:qsave_lm(lm_repl3)).
 
 
 

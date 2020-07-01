@@ -1,5 +1,7 @@
 #!/usr/local/bin/swipl 
 
+end_of_file.
+
 :- module(logicmoo_cliop,
           [ start_cliop/0
           ]).
@@ -32,7 +34,13 @@
 
 
 
-from_http(G):- with_output_to(main_error,G).
+:- meta_predicate(from_http(0)).
+from_http(G):- stream_property(Main_error,file_no(2)), with_output_to(Main_error, G).
+
+:- ignore((stream_property(X,file_no(2)),
+   stream_property(X,alias(Was)),
+   set_stream(X,alias(main_error)),
+   set_stream(X,alias(Was)))).
 
 :- meta_predicate(from_http(0)).
 

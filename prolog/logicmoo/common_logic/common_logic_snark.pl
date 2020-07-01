@@ -22,6 +22,9 @@
 %
 */
 
+:- meta_predicate call_l2r(2,?,?).
+
+
 :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- user:reexport(library('logicmoo_pttp')).
 
@@ -832,7 +835,7 @@ call_l2r(P,X,Y):- var(X) -> freeze(X,call_l2r(P,X,Y)) ; (call(P,X,Z),Y=Z).
 %
 % Knowledge Interchange Format Converted To Datalog.
 %
-kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog(Wff,Out,Why)),!.
+kif_to_boxlog(Wff,Out):- Wff\=(_:-_), why_to_id(rule,Wff,Why),!,must(kif_to_boxlog(Wff,Out,Why)),!.
 % kif_to_boxlog(Wff,Out):- loop_check(kif_to_boxlog(Wff,Out),Out=looped_kb(Wff)). % kif_to_boxlog('=>'(WffIn,enables(Rule)),'$VAR'('MT2'),complete,Out1), % kif_to_boxlog('=>'(enabled(Rule),WffIn),'$VAR'('KB'),complete,Out).
 
 %% kif_to_boxlog( +Fml, +Why, -Datalog) is det.
@@ -840,7 +843,7 @@ kif_to_boxlog(Wff,Out):- why_to_id(rule,Wff,Why),!,must(kif_to_boxlog(Wff,Out,Wh
 % Knowledge Interchange Format Converted To Datalog.
 %
 :- export(kif_to_boxlog/3).
-kif_to_boxlog(Wff,Out,Why):- kif_to_boxlog(Wff,'$VAR'('KB'),Why,Out),!.
+kif_to_boxlog(Wff,Out,Why):- Wff\=(_:-_), kif_to_boxlog(Wff,'$VAR'('KB'),Why,Out),!.
 
 
 %% kif_to_boxlog( +Fml, ?KB, +Why, -Datalog) is det.

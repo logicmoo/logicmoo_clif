@@ -39,7 +39,7 @@ test_header_include.
 :- if(exists_source(library(editline))).
 :- use_module(library(editline)).
 :- else.
-:- if(exists_source(library(editline))).
+:- if(exists_source(library(readline))).
 :- use_module(library(readline)).
 :- endif.
 :- endif.

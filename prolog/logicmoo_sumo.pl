@@ -62,11 +62,11 @@ loadSumo3:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SAVE SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- after_boot(loadSumo1).
+:- during_boot(loadSumo1).
 
-:- after_boot(loadSumo2).
+:- during_boot(loadSumo2).
 
-:- after_boot(loadSumo3).
+:- during_boot(loadSumo3).
 
 
 :- fixup_exports.

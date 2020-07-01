@@ -79,7 +79,7 @@ foo_broken2.
 
 
 :- if(app_argv('--www')).
-:- during_net_boot(www_start).
+%:- during_net_boot(www_start).
 :- endif.
 
 % :- break.
@@ -96,6 +96,7 @@ foo_broken2.
 :- logicmoo_webbot:import(http_dispatch:http_dispatch/1).
 
 
+:- threads.
 
 end_of_file.
 

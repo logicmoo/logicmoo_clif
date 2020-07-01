@@ -34,7 +34,7 @@
 :- multifile user:file_search_path/2.
 :- prolog_load_context(directory,Dir),
    DirFor = library,
-   during_boot((( \+ user:file_search_path(DirFor,Dir)) ->asserta(user:file_search_path(DirFor,Dir));true)),!.
+   before_boot((( \+ user:file_search_path(DirFor,Dir)) ->asserta(user:file_search_path(DirFor,Dir));true)),!.
 
 :- '$set_source_module'(baseKB).
 

@@ -104,9 +104,13 @@
 %:- include('mpred_header.pi').
 
 :- endif.
+
+:- meta_predicate  with_fail_is_asserted(*,0).
 /*
+
+
 :- meta_predicate 
-        % ain(-),
+         % ain(-),
         clr(-),
         del(-),
         fact_checked(?, 0),
@@ -117,6 +121,7 @@
         del(+),
         clr(+),
 	    */
+   with_fail_is_asserted(*,0),
         with_fallbacks(0),
         with_fallbacksg(0),
         with_no_db_hooks(0),

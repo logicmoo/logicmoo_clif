@@ -804,7 +804,9 @@ ttExpressionType(ftVar).
 ttExpressionType(ftCallable).
 ttExpressionType(ftPercent).
 
+
 :- dynamic(vtColor/1).
+% :- rtrace, visible(-all),visible(+exception).
 isa(vRed,vtColor).
 
 completelyAssertedCollection(vtValue).

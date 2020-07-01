@@ -1292,7 +1292,7 @@ sk:attr_portray_hook(Form, SkVar) :- writeq(sk(SkVar,Form)).
 %sk:project_attributes(QueryVars, ResidualVars):- fail,nop(wdmsg(sk:proj_attrs(skolem,QueryVars, ResidualVars))).
 
 :- module_transparent(portray_sk/1).
-portray_sk(Sk) :- dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk,Name), format('sk_avar(~w,~p)',[Name,Form]).
+portray_sk(Sk) :- not_debugging, dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk,Name), format('sk_avar(~w,~p)',[Name,Form]).
 
 :- system:import(portray_sk/1).
 

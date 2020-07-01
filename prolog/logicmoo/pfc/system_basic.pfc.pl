@@ -735,7 +735,7 @@ isRegisteredCycPred(apply,maplist,3).
 
 % ~(tCol({})).
 
-:- unload_file(library(yall)).
+%:- unload_file(library(yall)).
 
 
 

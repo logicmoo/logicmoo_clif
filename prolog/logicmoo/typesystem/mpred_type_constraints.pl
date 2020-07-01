@@ -65,6 +65,13 @@
           ]).
 
 :- set_prolog_flag(generate_debug_info, true).
+
+:- meta_predicate my_when(+,0).
+:- meta_predicate nrlc(0).
+:- meta_predicate prolog_current_choice(1,*).
+:- meta_predicate prolog_current_choice(1,*,*).
+:- meta_predicate xnr(0).
+:- meta_predicate xnr(*,0).
 %:- include('mpred_header.pi').
 
 % :- endif.

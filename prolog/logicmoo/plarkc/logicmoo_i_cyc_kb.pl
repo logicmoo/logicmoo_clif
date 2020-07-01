@@ -57,6 +57,7 @@
 
 :- dynamic(baseKB:tinyKB/3).
 :- multifile(baseKB:tinyKB/3).
+:- baseKB:export(baseKB:tinyKB/3).
 :- system:import(baseKB:tinyKB/3).
 
 is_simple_gaf(V):-not(compound(V)),!.

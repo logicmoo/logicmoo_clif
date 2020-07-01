@@ -65,15 +65,18 @@
 :- endif.
 :- endif.
 
-:- if(app_argv('--wamcl'); app_argv('--lisp')).
-:- use_module(library(wamcl_runtime)).
-:- start_lspsrv(repl,3301,"Lisp Repl").
+:- if(app_argv('--wamcl');app_argv('--lispsock')).
+:- user:use_module(library(wamcl_runtime)).
 :- endif.
+
+%:- if(app_argv('--lispsock 3301')).
+%:- start_lspsrv(repl,3301,"Lisp Repl").
+%:- endif.
 
 
 
 :- if(app_argv('--pdt')).
-:- use_module(library(logicmoo_pdt)).
+:- user:use_module(library(logicmoo_pdt)).
 :- endif.
 
 
@@ -92,7 +95,7 @@
 
 % :- set_prolog_flag(toplevel_print_factorized,true). % default false
 %:- set_prolog_flag(toplevel_mode,backtracking). % OR recursive 
-%:- after_boot(dmsg(qconsult_kb7166)).
+%:- after_init(dmsg(qconsult_kb7166)).
 % :- use_listing_vars.
 %:- set_prolog_flag(write_attributes,portray).
 % :- debug.
@@ -137,7 +140,7 @@
 :- dmsg("AUTOLOAD PACKAGES").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- during_boot(rescan_pack_autoload_packages).
+:- before_boot(rescan_pack_autoload_packages).
 
 %:- reload_library_index.
 %:- autoload([verbose(true)]).
@@ -156,14 +159,14 @@
 
 :- user:use_module(library(logicmoo_utils)).
 
-
+/*
 :- if(exists_source(library(yall))).
 :-  multifile(yall:lambda_functor/1),
    dynamic(yall:lambda_functor/1),
    with_no_mpred_expansions(use_module(yall:library(yall),[])),
    show_call(retractall(yall:lambda_functor('/'))).
 :- endif.
-
+*/
 
 set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
    set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
@@ -185,7 +188,7 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 
 :- if( current_prolog_flag(xpce,true) ).
 :- if(exists_source(library(pce_emacs))).
-:- user:use_module(library(pce_emacs)).
+% :- user:use_module(library(pce_emacs)).
 :- endif.
 :- endif.
 
@@ -225,7 +228,7 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 :- dmsg("SETUP PATHS FOR PROLOGMUD/LOGICMOO").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% :- during_boot((user:ensure_loaded(setup_paths))).
+% :- before_boot((user:ensure_loaded(setup_paths))).
 
 :- user:use_module(library('file_scope')).
 % :- use_module(library('clause_expansion')).
@@ -275,7 +278,11 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Mostly Required] Load the Logicmoo Plan Generator System").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- if(app_argv('--planner')).
+:- if(exists_source(library(logicmoo_planner))).
 :- load_library_system(library(logicmoo_planner)).
+:- endif.
+:- endif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("[Mostly Required] Load the Prolog LarKC System").
@@ -294,8 +301,9 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SETUP CYC KB EXTENSIONS (TINYKB)").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- during_boot(set_prolog_flag(do_renames,restore)).
-:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb.pl'))).
+:- before_boot(
+    (set_prolog_flag(do_renames,restore),
+      gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb.pl'))))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SETUP CYC KB EXTENSIONS (FULLKB)").
@@ -345,7 +353,7 @@ logicmoo_webbot:- whenever_flag_permits(load_network,load_library_system(library
 :- set_prolog_flag(logicmoo_qsave,false).
 
 :- if( \+ current_prolog_flag(address_bits, 32)).
-%:- during_boot(set_prolog_stack_gb(16)).
+%:- before_boot(set_prolog_stack_gb(16)).
 :- endif.
 
 :- fixup_exports.

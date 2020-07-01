@@ -29,7 +29,7 @@ pack_autoload_packages(NeedExistingIndex):-
    make_library_index(Dir, ['*.pl']) -> 
   (user:library_directory(Dir) -> true ; (asserta(user:library_directory(Dir)) , reload_library_index))))).
 
-:- during_boot(pack_autoload_packages(true)).
+:- before_boot(pack_autoload_packages(true)).
 */
 
 
@@ -41,6 +41,7 @@ rescan_pack_autoload_packages:- dmsg("AUTOLOADING PACKAGES..."),
   (access_file(PackDir,write) -> prolog_pack:post_install_autoload(PackDir, [autoload(true)]) ; true))),
  dmsg(".. AUTOLOADING COMPLETE"),!.
 
+:- before_boot(rescan_pack_autoload_packages).
 :- during_boot(rescan_pack_autoload_packages).
 
 

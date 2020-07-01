@@ -1,4 +1,7 @@
 #!/usr/local/bin/swipl
+
+end_of_file.
+
 :- module(logicmoo_swish,
           [ swish/0,
             swish/1                     % ?Port
@@ -41,7 +44,8 @@ Open SWISH as an IDE for developing a remote application.
 
 
 :- meta_predicate(from_http(0)).
-from_http(G):- with_output_to(main_error,G).
+from_http(G):- stream_property(Main_error,file_no(2)), with_output_to(Main_error, G).
+
 :- ignore((stream_property(X,file_no(2)),
    stream_property(X,alias(Was)),
    set_stream(X,alias(main_error)),
@@ -87,7 +91,7 @@ swish_home(AbsDir):- swish_home0(Dir),resolve_symlinks(Dir,AbsDir).
 
 resolve_symlinks(File,Link):- is_symlink_to(File,AbsLink)-> resolve_symlinks(AbsLink,Link) ; File=Link.
 
-swish_home0(Dir):- absolute_file_name(pack(swish),Dir,[file_type(directory),access(read),file_errors(fail)]).
+swish_home0(Dir):- absolute_file_name(pack(swish),Dir,[file_type(directory),access(read),file_errors(fail)]),!.
 swish_home0(Dir):- absolute_file_name(pack('swish-with-filesystem-interaction'),Dir,[file_type(directory),access(read),file_errors(fail)]).
 swish_home0(Dir):- absolute_file_name(cpack(swish),Dir,[file_type(directory),access(read),file_errors(fail)]).
 swish_home0(Dir):- is_symlink_to('./remote_ide.pl',To),file_directory_name(To,Dir).

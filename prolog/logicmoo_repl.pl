@@ -56,7 +56,7 @@ run_mud_server:- consult(library(prologmud_sample_games/run_mud_server)).
 :- user:ensure_loaded(library(xlisting_web)).
 :- endif.
 
-:- during_boot(add_history_ideas).
+:- before_boot(add_history_ideas).
 
 %:- '$set_source_module'(baseKB).
 %:- '$set_typein_module'(baseKB).
@@ -138,7 +138,7 @@ system:iRR7_test:-
 
 % :- iRR7_test.
 
-:- after_boot_sanity_test(iRR7_test).
+:- runtime_sanity_test(iRR7_test).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

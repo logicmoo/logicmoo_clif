@@ -57,19 +57,24 @@ workflow_holder_queue(Atom) ==>
   % (t(Atom,Arg) ==> {write('%             ='),write(Atom),write(=),nl,flush_output,wdmsg((Arg))}).
 
 
+%:- rtrace.
+
 % we create code syntax listeners for [if,iff,clif_forall,all,exists]/2s
 % {kif_hook_skel(CLIF),functor(CLIF,F,A),kb_shared(F/A)} ==> 
 (CLIF/is_kif_clause(CLIF) ==> clif( CLIF)).
+
+% compile_clif ==> 
+(clif(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % %% compile_clif ==> 
-(clif(CLIF)/ (\+ is_kif_clause(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+%(clif(CLIF)/ (\+ is_kif_clause(CLIF)) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % %% compile_clif==> 
-(clif(CLIF)/is_kif_clause(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
+%(clif(CLIF)/is_kif_clause(CLIF) ==> ({delistify_last_arg(CLIF,kif_to_boxlog,BOXLOG)},boxlog(BOXLOG))).
 % %% compile_clif==> 
 % Remove negations probably
 (clif(~CLIF)/is_kif_clause(CLIF) ==> (\+ clif(CLIF))).
 % {sanity(is_entailed_u(CLIF))}
 
-% %% compile_boxlog ==> 
+compile_boxlog ==> 
 % (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_pfc,PROLOG),must_be_unqualified(PROLOG)} ==> pfclog(PROLOG)).
 % (boxlog(BOXLOG),{delistify_last_arg(BOXLOG,boxlog_to_prolog,PROLOG),must_be_unqualified(PROLOG)} ==> PROLOG).
 (boxlog(BOXLOG)  ==> BOXLOG).
@@ -78,7 +83,7 @@ workflow_holder_queue(Atom) ==>
 %compilerDirective(compile_pfclog).
 % :- listing(compile_pfclog/0).
 %:- break.
-%compile_pfclog ==> 
+compile_pfclog ==> 
 (pfclog(PROLOG) ==> PROLOG).
 % {(sanity(is_pfc_entailed(PROLOG)))}
 % or maybe

@@ -42,8 +42,8 @@ load_logtalk:- ensure_LOGTALKUSER,
    load_logtalk(LTH).
 
 :- dmsg("Loading logtalk").
-:- during_boot(ensure_LOGTALKUSER).
-:- during_boot(load_logtalk).
+:- before_boot(ensure_LOGTALKUSER).
+:- before_boot(load_logtalk).
 
 % :- if( (( \+ prolog_load_context(reload,true) ))).
 

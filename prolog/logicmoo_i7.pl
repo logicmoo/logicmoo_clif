@@ -28,7 +28,7 @@
    use_module(library(nomic_mu)),   
    set_prolog_flag(access_level,WAS).
 
-:- after_boot(srv_mu).
+:- during_runtime(mu:srv_mu).
 
 :- endif.
 

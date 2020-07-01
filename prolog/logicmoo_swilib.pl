@@ -103,7 +103,7 @@ setup_for_debug :-
    % set_prolog_flag(debugger_write_options,[quoted(true), portray(true), max_depth(1000), attributes(portray)]),
    set_prolog_flag(generate_debug_info,true).
 
-:- during_boot(setup_for_debug).
+%:- before_boot(setup_for_debug).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,14 +122,14 @@ add_history_ideas:-
         add_history(start_telnet),
         add_history(help(match_regex/2)),
         add_history(list_undefined),
-        add_history(listing(lmconf:at_restore_goal/1)),
+        add_history(listing(lmconf:at_restore_goal/2)),
 	add_history(ensure_loaded(run_mud_game)),
 	add_history(statistics),        
         add_history(qsave_lm(lm_repl)),        
         add_history(make),        
         add_history(mmake),
         add_history(login_and_run),        
-        forall(lmconf:at_restore_goal(G),add_history(G)),
+        forall(lmconf:at_restore_goal(_,G),add_history(G)),
         add_history(loadSumo),
         add_history(loadTinyKB),
         add_history(threads),
@@ -150,7 +150,7 @@ add_history_ideas:-
         add_history(consult(library(prologmud_sample_games/run_mud_server))),
         !.
 
-:- during_boot(add_history_ideas).
+:- before_boot(add_history_ideas).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT GOALS
@@ -173,7 +173,7 @@ logicmoo_toplevel:- dmsg("logicmoo_toplevel"),
  dmsg("  [user:run_mud_server]."),!,
  dmsg("?- make:make_no_trace."), 
  % make:make_no_trace,
- listing(lmconf:at_restore_goal/1),
+ listing(lmconf:at_restore_goal/2),
  logicmoo_run_goal,
  dmsg("Press Ctrl-D to Start"),
  prolog.
@@ -570,14 +570,14 @@ system:'$term_in_file'(In, Read, RLayout, Term, TLayout, Stream, Parents, Option
 
 :- user:use_module(library(http/http_wrapper)).
 */
-
+/*
 :- if(exists_source(library(yall))).
 :-  multifile(yall:lambda_functor/1),
    dynamic(yall:lambda_functor/1),
    with_no_mpred_expansions(use_module(yall:library(yall),[])),
    retractall(yall:lambda_functor('/')).
 :- endif.
-
+*/
 /*
 
 :- M=pldoc_process,ignore((module_property(M,file(S)),
