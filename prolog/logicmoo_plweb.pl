@@ -2,6 +2,20 @@
 
 :- module(logicmoo_plweb,[]).
 
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("Ensure PLWEB").

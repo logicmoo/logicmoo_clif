@@ -636,7 +636,7 @@ completelyAssertedCollection(tCol).
 % :-rtrace.
      
 
-:- ensure_loaded('system_domains.pfc').
+%:- ensure_loaded('system_domains.pfc').
 
 
 /*
@@ -1065,7 +1065,7 @@ subFormat(ftVar,ftProlog).
 subFormat(ftVoprop,ftTerm).
 
 %ttExpressionType(C) ==> {cls,wdmsg(ttExpressionTypeB1(C)),dumpST,wdmsg(ttExpressionTypeC1(C)),break}.
-ttExpressionType(C) ==> {wdmsg(ttExpressionType3(C))}.
+%ttExpressionType(C) ==> {wdmsg(ttExpressionType3(C))}.
 subFormat(_,COL)/(atom(COL))==>ttExpressionType(COL).
 %:- break.
 subFormat(COL,_)/(atom(COL))==>ttExpressionType(COL).

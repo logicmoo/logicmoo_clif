@@ -305,6 +305,6 @@ int_assumed_t(P, X, Y, E, F, A, B, C, G, D):- t(P,X,Y),
 
 :- fixup_exports.
 
-:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
+:- baseKB:ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
 
 :- kif_compile.

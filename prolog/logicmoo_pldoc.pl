@@ -1,5 +1,19 @@
 %#!/usr/bin/swipl 
 
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+
 :- module(logicmoo_pldoc,[]).
 
 :- multifile user:file_search_path/2.

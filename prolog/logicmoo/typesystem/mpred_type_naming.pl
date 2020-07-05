@@ -109,7 +109,7 @@ toCamelAtom1(A,O):-toPropercase(A,O),!.
 %
 % Create By Name Mangle Compound.
 %
-createByNameMangle_compound(Name,Name,Type):- Name=..[Type|Props],assert_isa(Name,Type),locally(deduceArgTypes(_),padd(Name,Props)).
+createByNameMangle_compound(Name,Name,Type):- Name=..[Type|Props],assert_isa(Name,Type),locally(t_l:deduceArgTypes(_),padd(Name,Props)).
 createByNameMangle_compound(Name,Inst,Type):- functor_catch(Name,Type,A),must(A==1),assert_isa(Name,Type),Name=Inst.
 
 
@@ -240,7 +240,7 @@ doSpawn_f_args(Modality,Funct,List):-
    Later =.. [Funct|NewList],
    fully_expand(clause(assert,doSpawn),t(Modality,Later),TO),
    add_on_start(TO))),!. 
-  % call_after_mpred_load_slow(locally(deduceArgTypes(Funct), mpred_post(Later))))),!.
+  % call_after_mpred_load_slow(locally(t_l:deduceArgTypes(Funct), mpred_post(Later))))),!.
 
 
 definitional(X):- \+ compound(X),!,fail.

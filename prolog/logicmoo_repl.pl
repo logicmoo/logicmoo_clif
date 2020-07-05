@@ -138,7 +138,7 @@ system:iRR7_test:-
 
 % :- iRR7_test.
 
-:- runtime_sanity_test(iRR7_test).
+:- test_runtime_boot(iRR7_test).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

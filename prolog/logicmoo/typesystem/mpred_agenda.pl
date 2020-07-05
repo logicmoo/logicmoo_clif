@@ -296,7 +296,7 @@ agenda_slow_op_restart:-
 %
 % Agenda Rescan Managed Predicate Oper.s.
 %
-agenda_rescan_mpred_ops:- test_tl(agenda_suspend_scans),!.
+agenda_rescan_mpred_ops:- test_tl(t_l:agenda_suspend_scans),!.
 agenda_rescan_mpred_ops:- agenda_rescan_for_module_ready,!.
 
 :- thread_local(t_l:in_agenda_rescan_for_module_ready/0).
@@ -560,11 +560,11 @@ ensure_at_least_one_region:- call_u(isa(_,tRegion)->true;ain(isa(iRegion1,tRegio
 % Finish Processing Dbase.
 %
 finish_processing_dbase:- do_gc,dmsginfo(begin_finish_processing_dbase),fail.
-finish_processing_dbase:- (doall_and_fail(rescan_all)).
+%finish_processing_dbase:- (doall_and_fail(rescan_all)).
 finish_processing_dbase:- doall_and_fail(ensure_at_least_one_region).
 finish_processing_dbase:- (doall_and_fail(do_call_OnEachLoad)).
 finish_processing_dbase:- dmsginfo(saving_finish_processing_dbase),fail.
-finish_processing_dbase:- savedb,fail.
+%finish_processing_dbase:- savedb,fail.
 finish_processing_dbase:- do_gc,dmsginfo(end_finish_processing_dbase),fail.
 finish_processing_dbase.
 
@@ -721,6 +721,8 @@ onLoad(C):-call_after_mpred_load(C).
 
 	 
 
+:- kb_shared(baseKB:call_OnEachLoad/1).
+
 %% onEachLoad( ?C) is semidet.
 %
 % Whenever Each Load.
@@ -744,7 +746,7 @@ call_after_mpred_load_slow(A):-dmsg(call_after_mpred_load_slow(A)).
 %
 % Do Call On Each Load.
 %
-do_call_OnEachLoad:-forall(ereq(call_OnEachLoad(C)),doall(C)).
+do_call_OnEachLoad:-forall(ereq(baseKB:call_OnEachLoad(C)),doall(C)).
 
 
 

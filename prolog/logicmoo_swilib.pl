@@ -133,7 +133,6 @@ add_history_ideas:-
         add_history(loadSumo),
         add_history(loadTinyKB),
         add_history(threads),
-        add_history(run_pending_inits(must_det)),
         add_history(run_pending_inits),
         add_history(use_module(library(sexpr_reader))),
         add_history(input_to_forms("( #\\a #\\u0009 . #\\bell )",'$VAR'('O'),'$VAR'('Vs'))),

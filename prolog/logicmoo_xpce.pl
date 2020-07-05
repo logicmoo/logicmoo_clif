@@ -88,5 +88,5 @@ pce_setup_ :-
         load_files(user:library(pce), [silent(true)]).
 pce_setup_.
 
-:- initialization pce_setup_.
+% :- initialization pce_setup_.
 

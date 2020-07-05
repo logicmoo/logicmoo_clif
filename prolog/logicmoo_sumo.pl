@@ -13,9 +13,8 @@
 
 :- ensure_loaded(library(logicmoo_clif)).
 
-:- ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')).
+:- baseKB:ensure_loaded(library('logicmoo/common_logic/common_logic_sumo.pfc')),
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -31,6 +30,7 @@ sumo_ain2(CycLOut):-
 
 loadSumo(File):- \+ exists_file(File),!,wdmsg(no_such_file(File)),!.
 loadSumo(File):- with_lisp_translation_cached(File,sumo_to_pdkb,nop).
+
 
 skip_sumo:- app_argv('--nosumo'),!.
 skip_sumo:- app_argv(List), \+ member('--sumo',List), \+ member('--snark',List), \+ member('--all',List),!.
@@ -62,12 +62,11 @@ loadSumo3:-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SAVE SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- during_boot(loadSumo1).
+%:- during_boot(loadSumo1).
 
-:- during_boot(loadSumo2).
+%:- during_boot(loadSumo2).
 
-:- during_boot(loadSumo3).
-
+%:- during_boot(loadSumo3).
 
 :- fixup_exports.
 

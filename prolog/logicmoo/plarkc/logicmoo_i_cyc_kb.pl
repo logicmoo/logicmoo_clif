@@ -232,9 +232,9 @@ get_guard(ID,_,_,Guard):- assertion_variable_guard(ID,Guard).
 skip_guard(_,'quotedIsa'(_,EXPR)):-EXPR='ftExpression'.
 skip_guard(I,Var):- sub_var(Var,I).
 
-maybe_add_guard(G):- skip_guard(G),!.
+maybe_add_guard(G):- skip_guard(_,G),!.
 maybe_add_guard(G):- term_variables(G,Vars),maplist(maybe_add_guard_2(G),Vars).
-maybe_add_guard_2(G,Var):-add_dom(Var,G).
+maybe_add_guard_2(G,Var):-add_cond(Var,G).
 
 and_conj_to_list(C,[C]):- var(C),!.
 and_conj_to_list([],[]):- !.

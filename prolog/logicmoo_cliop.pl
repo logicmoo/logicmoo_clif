@@ -1,6 +1,18 @@
 #!/usr/local/bin/swipl 
 
 end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
 
 :- module(logicmoo_cliop,
           [ start_cliop/0

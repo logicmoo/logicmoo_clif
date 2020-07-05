@@ -107,7 +107,7 @@ rtSymmetricBinaryPredicate(disjointWith).
 % @TODO decide how to best impl the next line
 
 % propagate and query swapped args - @TODO find a way to enforce as last pred
-rtSymmetricBinaryPredicate(F)==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleton(X,Y))}, 
+rtSymmetricBinaryPredicate(F) ==> {fxy_args_swapped(F,X,Y,P1,P2),nop(was_singleton(X,Y))}, 
                                                                 % ( P1 ==>{loop_check(mpred_fwc1( P2),true)}),
                                                                 % (~P1 ==>{loop_check(mpred_fwc1(~P2),true)}),
                                                                   ( P1/ (X @< Y) ==>{mpred_fwc1( P2)}),

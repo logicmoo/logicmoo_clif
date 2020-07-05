@@ -1,6 +1,19 @@
 #!/usr/local/bin/swipl
 
 end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
+end_of_file.
 
 :- module(logicmoo_swish,
           [ swish/0,
@@ -333,55 +346,7 @@ pet:- pengine_rpc("http://prologmoo.com:3020",
 user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?
      non_swish_file_search_path(What, Alias).
 
-
-:- if(false).
-:- debug.
-
-
-:- listing(swish_config:authenticate/2).
-:- listing(pengines:allowed/2).
-
-:- debug(authenticate).
-:- debug(chat(_)).
-:- debug(cm(change)).
-:- debug(dot).
-:- debug(html(script)).
-:- debug(http(authenticate)).
-:- debug(http(error)).
-:- debug(http(redirect)).
-:- debug(http(request)).
-:- debug(http_authenticate).
-:- debug(http_path).
-:- debug(http_session).
-:- debug(hub(_)).
-:- debug(login).
-% :- debug(modules).
-:- debug(notify(_)).
-:- debug(notify).
-:- debug(openid(_)).
-:- debug(openid).
-:- debug(openid_fake(_)).
-:- debug(pack(mirror)).
-:- debug(pengine(abort)).
-:- debug(pldoc).
-:- debug(plweb).
-:- debug(predicate_options).
-:- debug(setting).
-:- debug(settings).
-:- debug(stats).
-:- debug(storage).
-:- debug(swish(search)).
-:- debug(websocket(_)).
-% :- prolog_ide(debug_monitor).
-
-
-
-% :- initialization(user:ensure_loaded(run_clio)).
-
-:- listing(swish_config:authenticate/2).
-
-:- endif.
-
+   
 :- multifile
 	cp_menu:menu_item/2,
 	cp_menu:menu_popup_order/2.

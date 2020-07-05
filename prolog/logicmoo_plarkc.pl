@@ -220,8 +220,7 @@ end_of_file.
 :- endif.
 
 :- if(current_predicate(setup7166/0)).
-:- initialization(setup7166,after_load).
-:- initialization(setup7166,restore).
+:- during_boot(setup7166).
 :- endif.
 
 
