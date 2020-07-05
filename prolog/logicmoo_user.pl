@@ -17,7 +17,7 @@ use_pfc_mod.
 :- if((prolog_load_context(file,X),prolog_load_context(source,X))).
  :- module(pfc_mod,[use_pfc_mod/0]).
  :- abolish(use_pfc_mod/0).
- :- prolog_load_context(file,File),unload_file(File).
+ %:- prolog_load_context(file,File),unload_file(File).
  :- asserta(use_pfc_mod).
 :- endif.
 
@@ -106,7 +106,7 @@ end_of_file.
 
 
 :- abolish(use_logicmoo_mod/0).
-:- prolog_load_context(file,File),unload_file(File).
+%:- prolog_load_context(file,File),unload_file(File).
 :- asserta(use_logicmoo_mod).
 :- endif.
 

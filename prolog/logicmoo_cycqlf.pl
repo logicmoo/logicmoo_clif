@@ -1,6 +1,6 @@
 :- module(logicmoo_cycqlf,[]).
 
-:- unload_file(logicmoo_cycqlf).
+% :- unload_file(logicmoo_cycqlf).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PACK LOADER
