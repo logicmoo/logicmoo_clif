@@ -13,7 +13,7 @@
 
 :- ensure_loaded(library(logicmoo_clif)).
 
-:- baseKB:ensure_loaded(library('logicmoo/common_logic/common_logic_sumo.pfc')),
+:- baseKB:ensure_loaded(library('logicmoo/common_logic/common_logic_sumo.pfc')).
 
 % SETUP SUMO KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,7 +56,7 @@ loadSumo2:-
 
 loadSumo3:- skip_sumo,!.
 loadSumo3:- 
-   % ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
+   ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_sumo.pfc')),
    !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

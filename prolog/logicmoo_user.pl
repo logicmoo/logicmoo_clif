@@ -53,7 +53,7 @@ use_pfc_mod.
 
 :- retractall(t_l:disable_px).
 :- set_prolog_flag(mpred_te,true).
-:- baseKB:ensure_loaded('pfclib/system_autoexec.pfc').
+%:- baseKB:ensure_loaded('pfclib/system_autoexec.pfc').
 :- set_prolog_flag(pfc_booted,true).
 :- set_prolog_flag(pfc_ready, true).
 

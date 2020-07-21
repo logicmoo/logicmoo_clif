@@ -22,6 +22,8 @@
  op(300,fx,'~'),
  op(300,fx,'-')*/  ]).
 
+:- set_module(class(library)).
+
 /*
 
 :- current_prolog_flag(readline,Was),writeln(readline=Was).
@@ -62,13 +64,15 @@
 */
 
 :- '$set_source_module'(baseKB).
+:- use_module(library(pfc)).
+
 use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 
 :- set_prolog_flag(pfc_booted,false).
 :- current_prolog_flag(unsafe_speedups,_)->true;set_prolog_flag(unsafe_speedups,true).
 :- use_shared_module(library(gvar_syntax)).
 :- use_shared_module(library(dictoo)).
-:- use_shared_module(library(pfc_lib)).
+%:- use_shared_module(library(pfc_lib)).
 %:- use_shared_module(library(xlisting)).
 :- with_no_mpred_expansions(use_shared_module(logicmoo_swilib)).
 
@@ -94,7 +98,10 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
 :- create_prolog_flag(mpred_te,true,[type(term),keep(false)]).
+%:- use_module(library(pfc_lib)).
+%:- pfc_load_lib.
 
+/*
 :- kb_shared(baseKB:prologSingleValued/1).
 :- kb_shared(baseKB:never_assert_u/1).
 :- kb_shared(baseKB:never_assert_u/1).
@@ -112,7 +119,7 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- kb_shared(baseKB:pm/1).
 :- kb_shared(baseKB:spft/3).
 :- kb_shared(baseKB:tms/1).
-
+*/
 :- system:use_module(library(logicmoo/subclause_expansion)).
 :- system:use_module(library(logicmoo/virtualize_source)).
 :- system:use_module(library(logicmoo/filesystem)).

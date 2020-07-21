@@ -54,9 +54,9 @@
             mpred_prepend_type/2
             ]).
 
+:- set_module(class(library)).
 :- use_module(library(file_scope)).
 :- use_module(library(wam_cl/sreader)).
-:- set_module(class(library)).
 
 :- absolute_file_name(library('../ext/pldata/'),Dir,[file_type(directory)]),
    asserta_new(user:file_search_path(pldata,Dir)).

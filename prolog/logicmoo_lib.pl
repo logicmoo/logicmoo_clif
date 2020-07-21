@@ -5,18 +5,16 @@
 % Douglas Miles
 
 */
-:- module(logicmoo_lib,
- [
- % logicmoo_user_stacks/0, 
-  libhook:maybe_save_lm/0
- ]).
+:- module(logicmoo_lib, [logicmoo_webbot/0,setup_logicmoo_operators/0]).
+:- set_module(class(library)).
+
 
 
 % ==============================================
 % SETUP KB EXTENSIONS
 % ==============================================
 
-:- use_module(library(logicmoo_utils_all)).
+:- use_module(library(logicmoo_utils)).
 
 /*
 
@@ -53,8 +51,6 @@
 % prolog:message_hook(T,error,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 % prolog:message_hook(T,warning,Warn):- dtrace(wdmsg(nessage_hook(T,warning,Warn))),fail.
 
-:- user:ensure_loaded(library(logicmoo_utils)).
-
 :- if(app_argv('--pdt')).
 :- if(\+ app_argv('-nopce')).
 :- if(\+ (getenv('DISPLAY',X) -> \+ atom_string(X,""))).
@@ -72,8 +68,6 @@
 %:- if(app_argv('--lispsock 3301')).
 %:- start_lspsrv(repl,3301,"Lisp Repl").
 %:- endif.
-
-
 
 :- if(app_argv('--pdt')).
 :- user:use_module(library(logicmoo_pdt)).
@@ -144,20 +138,13 @@
 
 %:- reload_library_index.
 %:- autoload([verbose(true)]).
-:- reload_library_index.
+%:- reload_library_index.
 
 :- if(\+ current_module(baseKB)).
 :- set_prolog_flag(logicmoo_qsave,true).
 :- else.
 :- set_prolog_flag(logicmoo_qsave,false).
 :- endif.
-
-:-set_prolog_flag(access_level,system).
-
-:- multifile user:file_search_path/2.
-:- dynamic   user:file_search_path/2.
-
-:- user:use_module(library(logicmoo_utils)).
 
 /*
 :- if(exists_source(library(yall))).
@@ -171,8 +158,7 @@
 set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
    set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
 
-:- (current_prolog_flag(os_argv,[swipl]) ; current_prolog_flag(argv,[])) ->
-   set_default_argv; true.
+:- (current_prolog_flag(os_argv,[swipl]) ; current_prolog_flag(argv,[])) -> set_default_argv; true.
 
    
 
@@ -198,14 +184,14 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 :-  volatile(swish_trace:installed/1).
 
 :- if(exists_source(library(semweb/rdf_db))).
-:- use_module(pengine_sandbox:library(semweb/rdf_db)).
+%:- use_module(pengine_sandbox:library(semweb/rdf_db)).
 :- endif.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("SETUP LOGICMOO OPERATORS").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- locally(set_prolog_flag(access_level,system),
+setup_logicmoo_operators:- locally(set_prolog_flag(access_level,system),
  ((op(200,fy,'-'),op(300,fx,'-'),
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),
@@ -230,7 +216,7 @@ set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
 
 % :- before_boot((user:ensure_loaded(setup_paths))).
 
-:- user:use_module(library('file_scope')).
+% :- user:use_module(library('file_scope')).
 % :- use_module(library('clause_expansion')).
 
  % :- set_prolog_flag(subclause_expansion,true).
@@ -245,10 +231,10 @@ libhook:maybe_save_lm:- \+ current_prolog_flag(logicmoo_qsave,true),!.
 libhook:maybe_save_lm:- current_predicate(lmcache:qconsulted_kb7166/0),call(call,lmcache:qconsulted_kb7166),!.
 libhook:maybe_save_lm:- qsave_lm(lm_repl4),!.
 
-:- user:ensure_loaded(library(logicmoo_utils)).
+%:- user:ensure_loaded(library(logicmoo_utils)).
 
-:- multifile(prolog:make_hook/2).
-:- dynamic(prolog:make_hook/2).
+%:- multifile(prolog:make_hook/2).
+%:- dynamic(prolog:make_hook/2).
 % prolog:make_hook(before, C):- wdmsg(prolog:make_hook(before, C)),fail.
 % prolog:make_hook(after, C):- wdmsg(prolog:make_hook(after, C)),libhook:maybe_save_lm,fail.
 

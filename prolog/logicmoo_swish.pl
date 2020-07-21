@@ -1,5 +1,50 @@
 #!/usr/local/bin/swipl
 
+:- module(logicmoo_swish, [ ]).
+
+:- use_module(library(http/thread_httpd)).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(broadcast)).
+% :- user:use_module(library(logicmoo_utils)).
+
+%:- baseKB:use_module(library(pfc_lib)).
+
+% :- baseKB:use_module(library(logicmoo_clif)).
+
+:- multifile sandbox:safe_primitive/1.
+
+sandbox:safe_primitive(tlbugger:rtracing).
+sandbox:safe_primitive(tlbugger:dont_skip_bugger).
+sandbox:safe_primitive(tlbugger:skip_bugger).
+sandbox:safe_primitive(tlbugger:skipMust).
+:- forall(current_predicate(tlbugger:P),asserta(sandbox:safe_primitive(tlbugger:P))).
+
+
+:- set_prolog_flag(no_sandbox, true).
+
+% :- initialization(user:run_swish, program).
+:- remove_undef_search.
+%:- tdebug.
+%:- guitracer.
+:- add_history((repeat,sleep(10),make,join_threads,fail)).
+% :- interactor.
+run_logicmoo_swish:- 
+    set_prolog_flag(toplevel_goal, prolog),
+    current_prolog_flag(argv, Argv),
+    argv_options(Argv, _, Options),
+    option(port(Port), Options, 3020),
+    (   option((public true), Options)
+    ->  Address=Port
+    ;   Address=localhost:Port
+    ),
+    broadcast(http(pre_server_start)),
+	http_server(http_dispatch,
+		    [ port(Address),
+		      workers(6)
+		    ]),
+	broadcast(http(post_server_start)).
+
+
 end_of_file.
 end_of_file.
 end_of_file.
@@ -19,6 +64,7 @@ end_of_file.
           [ swish/0,
             swish/1                     % ?Port
           ]).
+
 
 /** <module>
 

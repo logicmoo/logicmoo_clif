@@ -198,7 +198,7 @@ prologEquality/1,pfcBcTrigger/1,
 :- dynamic(baseKB:safe_wrap/4).
 
 :- call_u(true).
-
+/*
 :-dynamic(   pm/1).
 :- dynamic((
    argIsa/3,
@@ -214,7 +214,7 @@ prologEquality/1,pfcBcTrigger/1,
    tms/1, %basePFC
    prologSingleValued/1)).
 
-
+*/
 
 :- multifile(baseKB:use_cyc_database/0).
 :- thread_local(baseKB:use_cyc_database/0).

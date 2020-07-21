@@ -225,14 +225,6 @@ start_one_second_timer:-
 % :-initialization(start_one_second_timer).
 
 
-	 
-
-%% hook_one_minute_timer_tick is semidet.
-%
-% Hook To [baseKB:hook_one_minute_timer_tick/0] For Module Mpred_agenda.
-% Hook One Minute Timer Tick.
-%
-baseKB:hook_one_minute_timer_tick.
 
 
 	 
@@ -568,8 +560,12 @@ finish_processing_dbase:- dmsginfo(saving_finish_processing_dbase),fail.
 finish_processing_dbase:- do_gc,dmsginfo(end_finish_processing_dbase),fail.
 finish_processing_dbase.
 
+%% hook_one_minute_timer_tick is semidet.
+%
+% Hook To [baseKB:hook_one_minute_timer_tick/0] For Module Mpred_agenda.
+% Hook One Minute Timer Tick.
+%
 baseKB:hook_one_minute_timer_tick:-agenda_slow_op_restart.
-
 
 %:-meta_predicate(rescandb/0).
 % rescandb:- forall(defaultAssertMt(World),(findall(File,baseKB:loaded_file_world_time(File,World,_),Files),forall(member(File,Files),ensure_plmoo_loaded_each(File)),call_u(finish_processing_world))).
