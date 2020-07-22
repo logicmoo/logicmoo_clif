@@ -57,7 +57,7 @@ noGenlPreds/1,
   write_assertions/0
   ]).
 
-:- include(library('pfc2.0/mpred_header.pi')).
+:- include(library('logicmoo/common_logic/common_header.pi')).
 
 %:- baseKB:ensure_loaded(library(pfc)).
 

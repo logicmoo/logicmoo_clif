@@ -191,7 +191,7 @@ TBE ::= always(TBE) | eventually(TBE) | until(TBE,TBE) |
 %=%    q(X,sk1(X)):- p(X).
 
 
-:- include(library('pfc2.0/mpred_header.pi')).
+:- include(library('logicmoo/common_logic/common_header.pi')).
 %:- user:ensure_loaded(library(pfc)).
 %:- endif.
 %:- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).

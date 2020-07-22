@@ -99,7 +99,9 @@ Per-Litteral features
             vg/1,
             vg/3]).
 
-:- include(library('pfc2.0/mpred_header.pi')).
+
+:- include(library('logicmoo/common_logic/common_header.pi')).
+
 %:- endif.
 :- reexport(baseKB:library('logicmoo/common_logic/common_logic_compiler.pl')). 
 

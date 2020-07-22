@@ -5,7 +5,7 @@
 :- module(common_logic_utils,
           [ ]).
 
-:- include(library('pfc2.0/mpred_header.pi')).
+:- include(library('logicmoo/common_logic/common_header.pi')).
 %:- endif.
 %% delistify_last_arg( ?Arg, :PredMiddleArgs, ?Last) is det.
 %

@@ -14,7 +14,7 @@
 %
 */
 % NEW
-:- include(library('pfc2.0/mpred_header.pi')).
+:- include(library('logicmoo/common_logic/common_header.pi')).
 :- '$set_source_module'(baseKB).
 
 %:- endif.
@@ -283,13 +283,13 @@ sk_set_maker(M,P0):-
 
 % skolem_tru(P):- strip_module(P,M,P0),M:deduce_tru(P0).
 
-:- dynamic(baseKB:nesc/1).
-:- export(baseKB:nesc/1).
-:- public(baseKB:nesc/1).
-:- system:import(baseKB:nesc/1).                                                                                
-:- system:export(baseKB:nesc/1).
-%:- module_transparent(system:nesc/1).
-%:- module_transparent(system:nesc/1).
+:- dynamic(baseKB:(nesc)/1).
+:- export(baseKB:(nesc)/1).
+:- public(baseKB:(nesc)/1).
+:- system:import(baseKB:(nesc)/1).                                                                                
+:- system:export(baseKB:(nesc)/1).
+%:- module_transparent(system:(nesc)/1).
+%:- module_transparent(system:(nesc)/1).
 %baseKB:nesc(MP):- strip_module(MP,M,P),no_repeats((nesc_lc(M,P))).
 :- module_transparent(nesc_lc/2).
 
@@ -299,8 +299,8 @@ nesc_lc(M,P):- !, nesc(M,P),ignore(show_failure(groundoid(P))).
 
 first_of([X|Rest]):- call(X) ; first_of(Rest).
 
-:- module_transparent(nesc/2).
-% :- dra_table(nesc/2).
+:- module_transparent((nesc)/2).
+% :- dra_table((nesc)/2).
 nesc(_M,isNamed(X,Y)):-!,isNamed_impl(X,Y),!.
 nesc(M,P):- swc, 
    
@@ -317,10 +317,10 @@ nesc(M,P):- swc,
 %nesc(M,P):- swc,!,nonvar(P), M:clause((P),B), B \= (_,_), M:B.
 %nesc(_,P):- swc, \+ (var(P);non_modal_positive(P);P=poss(_)),!,fail.
 %nesc(M,P):- swc, nonvar(P),M:clause(P,B), B \= call_tru(_,_), M:B.
-:- export(nesc/2).
-:- public(nesc/2).
-:- system:import(nesc/2).                                                                                
-:- system:export(nesc/2).
+:- export((nesc)/2).
+:- public((nesc)/2).
+:- system:import((nesc)/2).                                                                                
+:- system:export((nesc)/2).
 
 
 :-multifile(baseKB:proven_helper/1).
@@ -702,7 +702,7 @@ attvar_or_const(C):- attvar(C); (nonvar(C),nop((C==1->break,true))).
 :- kbe:import(baseKB:never_assert_u/2).
 :- system:import(baseKB:que/2).
 */
-:- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:nesc/1)})).
+:- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:(nesc)/1)})).
 :- baseKB:ain((mtHybrid(Mt)==> {kb_shared(Mt:proven_helper/1)})).
 :- baseKB:ain((mtHybrid(Mt)==> {assert_if_new((Mt:nesc(P):- (zwc, nesc_lc(Mt, P))))})).
 :- baseKB:ain(((mtHybrid(Mt)/(Mt\==baseKB)),mpred_prop(_,F,A,kbi_define))==> {kb_shared(Mt:F/A)}).
