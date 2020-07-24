@@ -53,7 +53,7 @@
 :- set_fileAssertMt(baseKB).
 
 %:- if(current_predicate(rdf_rewrite:arity/2)).
-:- kb_global(rdf_rewrite:arity/2).
+%:- kb_global(rdf_rewrite:arity/2).
 %:- endif.
 
 %:- use_module(library('filestreams')).

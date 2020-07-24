@@ -1,12 +1,7 @@
 %:- module(system_common,[]).
-:- set_module(class(development)).
+%:- set_module(class(development)).
 :- '$set_source_module'(baseKB).
-:- use_module(library(pfc_lib)).
-:- mpred_unload_file.
-:- ensure_abox(baseKB).
-:- set_fileAssertMt(baseKB).
-% ensure this file does not get unloaded with mpred_reset
-:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
+:- use_module(library(pfc)).
 
 
 /** <module> system_common
@@ -43,22 +38,6 @@
 */
 
 % :- require('system_base.pfc').
-:- system:op(1199,fx,('==>')).
-:- system:op(1190,xfx,('::::')).
-:- system:op(1180,xfx,('==>')).
-:- system:op(1170,xfx,('<==>')).
-:- system:op(1160,xfx,('<-')).
-
-:- system:op(1150,xfx,('=>')).
-:- system:op(1140,xfx,('<=')).
-:- system:op(1130,xfx,('<=>')).
-
-
-:-  system:op(600,yfx,('&')).
-:-  system:op(600,yfx,('v')).
-:-  system:op(350,xfx,('xor')).
-:-  system:op(300,fx,('~')).
-:-  system:op(300,fx,('-')).
 
 % :- autoload.
 :- mpred_unload_file.
@@ -1110,7 +1089,7 @@ ttUnverifiableType(vtDirection).
 %ttRelationType(ArgsIsa)==>tPred(ArgsIsa).
 %TODO isa(_,ArgsIsa)==>tCol(ArgsIsa).
 
-:- set_prolog_flag(report_error,true),set_prolog_flag(debug_on_error,true),set_prolog_flag(debug, true).
+%:- set_prolog_flag(report_error,true),set_prolog_flag(debug_on_error,true),set_prolog_flag(debug, true).
 
 
 /*
@@ -1135,7 +1114,7 @@ quotedDefnIff(ftAtom,atom).
 quotedDefnIff(ftString,is_ftString2).
 % ftString(X):- cwc, is_ftString2(X).
 quotedDefnIff(ftSimpleString,string).
-quotedDefnIff(ftCallable,is_callable).
+quotedDefnIff(ftCallable,pfc_is_callable).
 quotedDefnIff(ftCompound,is_ftCompound).
 quotedDefnIff(ftGround,ground).
 quotedDefnIff(ftID,is_id).

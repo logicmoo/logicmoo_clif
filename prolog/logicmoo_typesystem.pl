@@ -64,7 +64,7 @@
 */
 
 :- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+:- use_module(library(pfc_lib)).
 
 use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 

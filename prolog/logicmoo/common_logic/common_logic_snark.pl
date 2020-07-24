@@ -25,8 +25,8 @@
 :- meta_predicate call_l2r(2,?,?).
 
 
-:- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
-:- user:reexport(library('logicmoo_pttp')).
+:- use_module(library('logicmoo/common_logic/common_logic_boxlog.pl')).
+:- use_module(library('logicmoo_pttp')).
 
 
 
@@ -39,11 +39,11 @@
             op(1150,fx,(was_multifile)),
             op(1150,fy,(was_module_transparent)).
 
-:- load_library_system(library(logicmoo_typesystem)).
+:- use_module(library(logicmoo_typesystem)).
 
 :- set_how_virtualize_file(bodies).
 
-:-  system:((
+:-  ((
  op(1199,fx,('==>')), 
  op(1190,xfx,('::::')),
  op(1180,xfx,('==>')),

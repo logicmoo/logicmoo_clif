@@ -1,17 +1,13 @@
 
 %:- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 
-
-:- mpred_unload_file.
-:- set_fileAssertMt(baseKB).
-% ensure this file does not get unloaded with mpred_reset
-:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
-%:- listing(mpred_unload_option/2).
+%:- set_module(class(development)).
+:- '$set_source_module'(baseKB).
+:- use_module(library(pfc)).
 
 :- set_prolog_flag_until_eof(do_renames,term_expansion).
 :- install_constant_renamer_until_eof.
 
-:- file_begin(pfc).
 
 ttBarrierStr(A),{atomic_list_concat([A,"Type"],AType0),
   atomic_list_concat([A,''],Type0),

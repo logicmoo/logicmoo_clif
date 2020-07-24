@@ -1,3 +1,7 @@
+%:- set_module(class(development)).
+:- '$set_source_module'(baseKB).
+:- use_module(library(pfc)).
+
 /* <module>
 % =============================================
 % File 'autoexec.pfc'
@@ -102,16 +106,8 @@
 
 %:- ensure_abox(baseKB).
 
-%:- set_fileAssertMt(baseKB).
 :- set_prolog_flag(expect_pfc_file,always).
 
-%:- baseKB:ensure_loaded(library('pfclib/system_autoexec.pfc')).
-
-%:- mpred_unload_file.
-:- set_fileAssertMt(baseKB).
-% ensure this file does not get unloaded with mpred_reset
-:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
-%:- ensure_loaded(('pfclib/system_base.pfc')).
 
 :- ensure_loaded('system_basic.pfc').
 :- ensure_loaded('system_common.pfc').

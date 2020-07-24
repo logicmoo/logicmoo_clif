@@ -63,13 +63,13 @@ kif_hook(C,F,_):- is_sentence_functor(F),!,arg(_,C,E),kif_hook(E).
 %
 
 kif_hook_skel(forAll(_,_)).
-kif_hook_skel(_=>_).
-kif_hook_skel(_<=_).
-kif_hook_skel(_<=>_).
-kif_hook_skel((_ & _)).
+kif_hook_skel(=>(_,_)).
+kif_hook_skel(<=(_,_)).
+kif_hook_skel(<=>(_,_)).
+kif_hook_skel(&(_,_)).
 kif_hook_skel((_ /\ _)).
 kif_hook_skel((_ \/ _)).
-kif_hook_skel((_ v _)).
+kif_hook_skel(v(_ , _)).
 kif_hook_skel(nesc(_)).
 kif_hook_skel(poss(_)).
 kif_hook_skel(cir(_)).

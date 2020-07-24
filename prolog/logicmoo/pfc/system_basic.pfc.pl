@@ -1,14 +1,7 @@
 %:- module(system_basic,[]).
-:- set_module(class(development)).
-%:- mpred_unload_file.
+%:- set_module(class(development)).
 :- '$set_source_module'(baseKB).
-:- ensure_abox(baseKB).
-%:- use_module(library(rtrace)).
-:- use_module(library(pfc_lib)).
-:- use_module(library(logicmoo_utils_all)).
-:- set_fileAssertMt(baseKB).
-% ensure this file does not get unloaded with mpred_reset
-:- prolog_load_context(file,F), ain(mpred_unload_option(F,never)).
+:- use_module(library(pfc)).
 
 /** <module> system_basic
 % =============================================
@@ -571,7 +564,7 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 %:- rtrace.
 %:- kb_shared(mpred_prop/4).
-:- kb_global(baseKB:mpred_prop/4).
+%:- kb_global(baseKB:mpred_prop/4).
 %:- nortrace.
 
 

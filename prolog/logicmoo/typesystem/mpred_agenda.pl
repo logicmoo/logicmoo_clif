@@ -278,7 +278,7 @@ agenda_slow_op_restart:-
   forall(agenda_slow_op_todo(Slow),
     locally_hide(t_l:side_effect_ok,
       ((copy_term(Slow,CopySlow),
-          must((is_callable(Slow),gripe_time(1.0,must(Slow)),ignore(retract(agenda_slow_op_todo(CopySlow)))))))))).
+          must((pfc_is_callable(Slow),gripe_time(1.0,must(Slow)),ignore(retract(agenda_slow_op_todo(CopySlow)))))))))).
 
 :- was_export(agenda_rescan_mpred_ops/0).
 
