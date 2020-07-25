@@ -261,7 +261,7 @@ kif_to_pfc0(CLIF,Prolog):-
      must_det_l((
       kif_to_boxlog(CLIF,BOXLOG),
       boxlog_to_pfc(BOXLOG,Prolog),
-      (BOXLOG=@=Prolog -> true; (pfc_for_print_left(Prolog,PrintPFC),wdmsg(-PrintPFC))))),!.
+      (BOXLOG=@=Prolog -> true; (pfc_for_print_left(Prolog,PrintPFC),dmsg(-PrintPFC))))),!.
       
 
 

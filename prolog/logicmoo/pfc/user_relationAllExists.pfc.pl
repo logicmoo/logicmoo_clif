@@ -323,14 +323,15 @@ end_of_file.
 
 :- if(baseKB:startup_option(datalog,sanity);baseKB:startup_option(clif,sanity)).
 
+:- if((current_prolog_flag(runtime_debug,D),D>2)).
 :- listing(mudSubPart).
+:- endif.
 %:-rtrace((isa(Inst,tHumanNeck),mudSubPart(iExplorer1,Inst))).
 %:-rtrace((mudSubPart(iExplorer1,Inst),isa(Inst,tHumanNeck))).
 %:- must((isa(Inst,tHumanHair),mudSubPart(iExplorer1,Inst))).
 %:- must((mudSubPart(iExplorer1,Inst),isa(Inst,tHumanNeck))).
 %:- must((mudSubPart(iExplorer1,Inst),isa(Inst,tHumanHair))).
-
-:- listing(mudSubPart).
+%:- listing(mudSubPart).
 
 
 :- endif.

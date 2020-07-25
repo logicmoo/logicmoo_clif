@@ -246,7 +246,7 @@ tinyKB_All(PO,MT,STR):- % current_predicate(_:'TINYKB-ASSERTION'/5),!,
                memberchk(str(STR),PROPS), 
               (member(vars(VARS),PROPS)->(nput_variable_names( []),fixvars(P,0,VARS,PO),nput_variable_names( PO));PO=P ))).
 
-loadTinyKB:-forall((tinyKB(C,MT,STR),cyc_to_pdkb(C,P)),((print_assertion(P,MT,STR),wdmsg(ain(P))))).
+loadTinyKB:-forall((tinyKB(C,MT,STR),cyc_to_pdkb(C,P)),((print_assertion(P,MT,STR),dmsg(ain(P))))).
 % ssveTinyKB:-tinyKB_All(tinyKB(P,MT,STR),tell((print_assertion(P,MT,STR),ain(P)))).
 
 print_assertion(P,MT,STR):- P=..PL,append([exactlyAssertedELMT|PL],[MT,STR],PPL),PP=..PPL, 
@@ -368,7 +368,8 @@ exactlyAssertedEL_first(isa, xor, 'LogicalConnective', 'UniversalVocabularyMt', 
 exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', vStrDef).
 exactlyAssertedEL_first(isa, xor, 'CommutativeRelation', 'UniversalVocabularyMt', vStrDef).
 
-:- if( \+ current_prolog_flag(runtime_debug, 0)).
+
+:- if((current_prolog_flag(runtime_debug,D),D>2)).
 :- listing(exactlyAssertedEL_first/5).
 :- endif.
 :- sanity(clause_asserted(exactlyAssertedEL_first(isa, xor, rtLogicalConnective, iUniversalVocabularyMt, vStrDef))).
@@ -9517,9 +9518,9 @@ end_of_file.
 :- retractall(tinyKB9(_)).
 
 :- if((predicate_property(tinyKB9(_),number_of_clauses(N)),N==0)).
-:- wdmsg("Making tinyKB").
+:- dmsg("Making tinyKB").
 :- must(gripe_time(7.0,system:mwkb1)).
-:- wdmsg("Made tinyKB").
+:- dmsg("Made tinyKB").
 :- break.
 :- endif.
 

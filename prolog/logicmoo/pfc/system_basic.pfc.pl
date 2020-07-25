@@ -764,7 +764,7 @@ doRedelMe.
 %  % :- set_prolog_flag_until_eof(dialect_pfc,cwc).
 %  % :- mpred_trace_exec.
 
-% isa(I,C)==>{wdmsg(isa(I,C))}.
+% isa(I,C)==>{dmsg(isa(I,C))}.
 
 
 

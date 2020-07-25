@@ -1435,7 +1435,7 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   removeQ(KB,PNF,[], UnQ),
   cnf(KB,UnQ,CNF0),!,
   nnf(KB,CNF0,[],CNF,_), 
-  % wdmsg(cnf:-CNF),
+  % dmsg(cnf:-CNF),
  call(( conjuncts_to_list_det(CNF,Conj), make_clause_set([infer_by(Why)],Conj,EachClause),
   sanity(is_list(EachClause)),
   must_maplist_det(correct_cls(KB),EachClause,SOO),
@@ -1446,9 +1446,9 @@ cf(Why,KB,_Original,PNF, FlattenedOUT):-
   correct_boxlog(FlattenedM,KB,Why,FlattenedOOO),
   demodal_clauses(KB,FlattenedOOO,FlattenedO),  
   defunctionalize_each(FlattenedO,FlattenedOUT),
-  nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),wdmsg(boxlog:-PrintPFC),
+  nop((((pfc_for_print_left(FlattenedOOO,PrintPFC),dmsg(boxlog:-PrintPFC),
   maybe_notrace(boxlog_to_pfc(FlattenedO,PFCPreview)),
-  pfc_for_print_right(PFCPreview,PrintPFCPreview),wdmsg(preview:-PrintPFCPreview))),!,
+  pfc_for_print_right(PFCPreview,PrintPFCPreview),dmsg(preview:-PrintPFCPreview))),!,
   extract_conditions(PFCPreview,Conds), dmsg(conds= (Conds=>PFCPreview)))))).
 
 check_kif_varnames(KIF):-check_varnames(KIF),fail.
@@ -1542,7 +1542,7 @@ removeQ(KB,  ~( poss(BDT, (F))),Vars, XF):- !,removeQ(KB, nesc(BDT,  ~( F)),Vars
 % removeQ(KB, nesc(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( poss(BDT, F)),Vars, XF).
 % removeQ(KB, poss(BDT,  ~( F)),Vars, XF):- !,removeQ(KB,  ~( nesc(BDT, F)),Vars, XF).
 
-removeQ(KB,  exists(X,F),Vars, HH):- is_skolem_setting(removeQ),!,wdmsg(removeQ(skolemizing(exists(X,F)))),
+removeQ(KB,  exists(X,F),Vars, HH):- is_skolem_setting(removeQ),!,dmsg(removeQ(skolemizing(exists(X,F)))),
 	mk_skolem(KB,F,X,Vars,Fsk),
 	removeQ(KB,Fsk,Vars, HH).
 

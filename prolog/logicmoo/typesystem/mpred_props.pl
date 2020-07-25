@@ -202,7 +202,7 @@ decl_mpred_prolog(F,Other):-
 
 decl_mpred_prolog(Any,M,PI,MFAIn):-
   must_det_l((
-    pi_to_head_l(MFAIn,MFA),
+    first:pi_to_head_l(MFAIn,MFA),
     strip_module(MFA,_,FA),
     functor(FA,F,A),
     decl_mpred_prolog(Any,M,PI,F,A))).
@@ -526,7 +526,7 @@ no_need_to_import(baseKB).
 %
 kb_shared(Any,M,PI,MFAIn):-
   must_det_l((
-    pi_to_head_l(MFAIn,MFA),
+    first:pi_to_head_l(MFAIn,MFA),
     strip_module(MFA,_,FA),
     functor(FA,F,A),
     kb_shared(Any,M,PI,F,A))).

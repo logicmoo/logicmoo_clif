@@ -107,7 +107,7 @@ test_defunctionalize(I):-defunctionalize(I,O),sdmsg(O).
 sdmsg(Form):-
    if_defined(demodal_sents(_KB,Form,Out),Form=Out),
    % if_defined(local_pterm_to_sterm(OutM,Out),OutM=Out),
-   must(wdmsgl(wdmsg,Out)).
+   must(wdmsgl(dmsg,Out)).
 
 sdmsgf(Form):-
    if_defined(demodal_sents(_KB,Form,Out),Form=Out),
@@ -149,7 +149,7 @@ test_boxlog(KV,P):-
  \+ \+
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  wdmsg(:- test_boxlog(P)), 
+  dmsg(:- test_boxlog(P)), 
   b_implode_varnames(P),
   guess_varnames(P),
   kif_optionally_e(never,ain,clif(P)),
@@ -176,7 +176,7 @@ test_boxlog_88(P):-
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
   b_implode_varnames(P),flush_output,
-  wdmsg(:- test_boxlog(P)), 
+  dmsg(:- test_boxlog(P)), 
   with_assert_buffer(with_chaining(ain(P)),Buffer),
   undo_buffer(Buffer),
   sdmsgf(Buffer),flush_output)).
@@ -192,7 +192,7 @@ test_pfc0(P):-
  must_det_l((
   (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
   b_implode_varnames(P),flush_output,
-  wdmsg(:- test_pfc(P)), 
+  dmsg(:- test_pfc(P)), 
   kif_to_pfc(P,O),
   sdmsgf(O),flush_output)).
 

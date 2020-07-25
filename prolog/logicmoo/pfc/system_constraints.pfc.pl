@@ -98,7 +98,7 @@ weak_test("Weak0","weAk2").
 
 :- export(weak_test/2).
 :- public(weak_test/2).
-:- if((current_prolog_flag(runtime_debug,D),D>1)).
+:- if((current_prolog_flag(runtime_debug,D),D>2)).
 :- listing(weak_test/2).
 :- endif.
 
@@ -111,8 +111,8 @@ weak_test("Weak0","weAk2").
 :- if((current_prolog_flag(runtime_safety,D),D>2)).
 :- mpred_test((weak_test(weak1,"WeAK2")))->true;(writeln(mpred_test(weak_test(weak1,"WeAK2"))),break).
 :- if((current_prolog_flag(runtime_debug,D),D>1)).
-:- mpred_test(weak_test("Weak1","Weak2")).
-:- mpred_test(weak_test("Weak1","wEak2")).
+:- dmsg(call(mpred_test(weak_test("Weak1","Weak2")))).
+:- dmsg(call(mpred_test(weak_test("Weak1","wEak2")))).
 :- endif.
 :- endif.
 
@@ -130,10 +130,10 @@ weac_test("Weac0","weAc2").
 predicate_relaxed(weac_test/2).
 
 %:- listing(weac_test/2).
-
-:- mpred_test(weac_test("Weac1","Weac2")).
-:- mpred_test(weac_test("Weac1","wEac2")).
-:- mpred_test((weac_test(weac1,"WeAC2")))->true;(writeln(mpred_test(weac_test(weac1,"WeAC2"))),break).
+:- (dmsg(call(
+   mpred_test(weac_test("Weac1","Weac2")),
+   mpred_test(weac_test("Weac1","wEac2")),
+   mpred_test((weac_test(weac1,"WeAC2")))))->true;(writeln(mpred_test(weac_test(weac1,"WeAC2"))),break)).
 
 % =======================================================
 % =======================================================

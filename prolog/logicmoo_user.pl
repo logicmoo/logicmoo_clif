@@ -24,7 +24,7 @@ use_pfc_mod.
 :- if(\+ current_prolog_flag(lm_pfc_lean,_)).
 :- set_prolog_flag(lm_no_autoload,true).
 :- set_prolog_flag(lm_pfc_lean,false).
-:- wdmsg("WARNING: PFC_LEAN").
+:- dmsg("WARNING: PFC_LEAN").
 :- endif.
 
 
@@ -47,7 +47,7 @@ use_pfc_mod.
 :- retract(baseKB:'wusing_pfc'(M,CM,SM,pfc_mod)),
    (M==SM -> 
      (maybe_ensure_abox(SM),nop((M:ain(genlMt(SM,baseKB)))));
-     wdmsg(baseKB:'lusing_pfc'(M,CM,SM,pfc_mod))),
+     dmsg(baseKB:'lusing_pfc'(M,CM,SM,pfc_mod))),
    assert(baseKB:'using_pfc'(M,CM,SM,pfc_mod)),
    assert(baseKB:'using_pfc'(M,CM,SM,logicmoo_mod)).
 
@@ -119,7 +119,7 @@ end_of_file.
    assert(baseKB:'using_pfc'(M,CM,SM,pfc_mod)),
   (M==SM -> 
      ((maybe_ensure_abox(SM),nop((M:ain(genlMt(SM,baseKB)))));
-     wdmsg(baseKB:'lusing_pfc'(M,CM,SM,pfc_mod)))).
+     dmsg(baseKB:'lusing_pfc'(M,CM,SM,pfc_mod)))).
 
 
 

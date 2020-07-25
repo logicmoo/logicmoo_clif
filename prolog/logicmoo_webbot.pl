@@ -96,7 +96,7 @@ foo_broken2.
 :- logicmoo_webbot:import(http_dispatch:http_dispatch/1).
 
 
-:- threads.
+%:- threads.
 
 end_of_file.
 

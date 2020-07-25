@@ -435,7 +435,8 @@ end_of_file.
 :- user:use_module(library(prolog_clause)).
 :- user:use_module(library(occurs)).
 :- user:use_module(library(listing)).
-:- user:use_module(library(clpfd),except([sum/3,op(_,_,_)])).		% Make predicates defined
+:- system:reexport(library(clpfd),except([ins/2,sum/3,op(_,_,_)])).		% Make predicates defined
+%:- system:use_module(library(clpfd),except([sum/3,op(_,_,_)])).		% Make predicates defined
 :- user:use_module(library(qsave)).
 :- user:use_module(library(apply)).
 :- user:use_module(library(debug)).

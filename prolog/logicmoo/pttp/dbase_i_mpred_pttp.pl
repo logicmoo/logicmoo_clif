@@ -73,7 +73,7 @@ pttp_call(Goal,Max,Min,Inc,ProofIn,ProofOut,ShowProof):-
 :- was_export(pttp_load_wid/1).
 pttp_load_wid(Name):-must(pttp_logic(Name,Data)),!,must(pttp_load_wid(Name,Data)).
 :- was_export(pttp_load_wid/2).
-pttp_load_wid(Name,Data):- must(retractall_wid(Name)),wdmsg(pttp_load_wid(Name)),must(pttp_tell_wid(Name:0,Data)),!.
+pttp_load_wid(Name,Data):- must(retractall_wid(Name)),dmsg(pttp_load_wid(Name)),must(pttp_tell_wid(Name:0,Data)),!.
 uses_logic(Name):-pttp_logic(Name,Data),pttp_load_wid(Name,Data).
 
 

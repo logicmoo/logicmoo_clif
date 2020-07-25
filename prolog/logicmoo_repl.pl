@@ -156,7 +156,7 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 (=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) 
   (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) 
    (disjoint ?ITEM1 ?ITEM2))))"
-  ,O,Vs),!,wdmsg(O+Vs))).
+  ,O,Vs),!,dmsg(O+Vs))).
 
 /*
 :- must(input_to_forms("(=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) (disjoint ?ITEM1 ?ITEM2))))",O,Vs)),!,wdmsg(O+Vs).

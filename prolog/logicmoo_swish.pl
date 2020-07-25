@@ -77,7 +77,7 @@ Remote SWISH as an IDE for developing a Remote application.
 
 :- if(\+ current_prolog_flag(lm_no_autoload,_)).
 :- set_prolog_flag(lm_no_autoload,false).
-:- wdmsg("WARNING: PFC_AUTOLOAD").
+:- dmsg("WARNING: PFC_AUTOLOAD").
 :- endif.
 
 %:- set_prolog_flag(lm_pfc_lean,false).
@@ -268,12 +268,12 @@ currently_logged_in(Why,User):-
      http_session_data(oauth2(OAuth, _)),
      http_session_data(user_info(OAuth, Info))),
    User=Info.name,!,
-    nop(wdmsg(currently_logged_in(Why,User=Info.name))))),!.
+    nop(dmsg(currently_logged_in(Why,User=Info.name))))),!.
 
 currently_logged_in(Why,User):-
   from_http((http_session:
     (session_data(S,oauth2(OAuth, Y)),
-      nop(wdmsg(currently_logged_in(User=Why,
+      nop(dmsg(currently_logged_in(User=Why,
       session_data(S,oauth2(OAuth, Y)))))))),!,
   ignore(User="guest1"),!.
 
@@ -281,13 +281,13 @@ currently_logged_in(Why,User):-
 currently_logged_in(Why,D):- http_session:http_in_session(SessionID),!,
 
   from_http(
-  ((wdmsg(fail_dispite_http_in_session(SessionID,D,Why)),
+  ((dmsg(fail_dispite_http_in_session(SessionID,D,Why)),
     http_session:http_in_session(SessionID),
     listing(http_session: session_data(SessionID,_Data))))),!,fail.
 
 
 
-currently_logged_in(Why,D):- thread_self(S),wdmsg(fail_currently_logged_in(Why,S,D)),!,fail.
+currently_logged_in(Why,D):- thread_self(S),dmsg(fail_currently_logged_in(Why,S,D)),!,fail.
 
 
 no_auth_needed(Request):- is_list(Request),memberchk(path_info(Path),Request),mimetype:file_mime_type(Path,Type),memberchk(Type,[image/_,_/javascript]),!.
@@ -317,7 +317,7 @@ swish_config:authenticate(_Request, User) :-
 :- use_module(swish(swish)).
 
 
-% swish_config:authenticate(Request, "bad_user") :- wdmsg(swish_config:authenticate(Request, "bad_user")),!.
+% swish_config:authenticate(Request, "bad_user") :- dmsg(swish_config:authenticate(Request, "bad_user")),!.
 swish_config:authenticate(Request, User) :-
         swish_http_authenticate:logged_in(Request, User), !.
 
@@ -359,7 +359,7 @@ open_browser(Address) :-
         http_server_property(Port, scheme(Scheme)),
         http_absolute_location(root(.), Path, []),
         format(atom(URL), '~w://~w:~w~w', [Scheme, Host, Port, Path]),
-        wdmsg(www_open_url(URL)).
+        dmsg(www_open_url(URL)).
 
 host_port(Host:Port, Host, Port) :- !.
 host_port(Port,Host, Port):- gethostname(Host),!.
@@ -378,7 +378,7 @@ host_port(Port,_, Port):-!.
 % Or Sure we trust that our sandbox is good enough
 % pengines:allowed(_,_).
 
-:- listing(pengines:allowed/2).
+%:- listing(pengines:allowed/2).
 
 
 pet:- pengine_rpc("http://prologmoo.com:3020",
@@ -386,7 +386,7 @@ pet:- pengine_rpc("http://prologmoo.com:3020",
                        [ src_text(':- dynamic(sin_table/2). sin_table(1,2).'),
                          application(swish)
                        ]),
-   wdmsg(sin_table(X,Y)).
+   dmsg(sin_table(X,Y)).
 
 
 user:file_search_path(What, Alias):- % maybe confirm this is not SWISH?

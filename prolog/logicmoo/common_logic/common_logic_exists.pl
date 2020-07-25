@@ -403,8 +403,8 @@ query_tru(Qry) :- nrlc0((nesc(Qry))).
 
 query_ex(PQ):-   update_changed_files1,
   existentialize(PQ,P),
-   wdmsg(query_ex(P)),
-   sanity(((existentialize(P,PEx), ignore((PEx\==P,wdmsg(query_ex(PEx))))))),
+   dmsg(query_ex(P)),
+   sanity(((existentialize(P,PEx), ignore((PEx\==P,dmsg(query_ex(PEx))))))),
    gensym(skTrue,QryF),
    gensym(skFalse,NotQryF),
    term_variables(P,Vars),
@@ -413,8 +413,8 @@ query_ex(PQ):-   update_changed_files1,
    assert_kif((P => Qry)),
    subst(P,exists,all,PA),
    assert_kif(((~(PA)) => NotQry)),!,
-   (query_tru(Qry) *-> wdmsg(Qry); 
-     (query_tru(NotQry)*-> wdmsg(NotQry); wdmsg(unknown(Qry)))).
+   (query_tru(Qry) *-> dmsg(Qry); 
+     (query_tru(NotQry)*-> dmsg(NotQry); dmsg(unknown(Qry)))).
         
 
 % query_ex(P):-  ignore(show_failure(P)).
@@ -432,7 +432,7 @@ create_ex(Lit1,Prop,UniqeHead,Intersect,UniqeBody,BodyLits):-
    recorda_if_new(Lit1,head_body(Lit1,BodyLits,UniqeHead,Intersect,UniqeBody,Prop)).
 
 
-recorda_if_new(K,Lit1):- functor(Lit1,F,A),functor(Lit0,F,A),recorded(K,Lit0),Lit0=@=Lit1,!,wdmsg(skip_recorda(Lit0=@=Lit1)).
+recorda_if_new(K,Lit1):- functor(Lit1,F,A),functor(Lit0,F,A),recorded(K,Lit0),Lit0=@=Lit1,!,dmsg(skip_recorda(Lit0=@=Lit1)).
 recorda_if_new(K,Lit1):- show_call(recorda(K,Lit1)).
 
 recorda_if_new(Lit1):- context_module(M), recorda_if_new(M,Lit1). 
@@ -548,7 +548,7 @@ sk_some1(P,Conds):-
    sk_some_from_current(Set,P,NewConds),
    maplist(apply_cond(P),NewConds).
 
-% apply_cond(P,Y):-wdmsg(apply_cond(P,Y)),fail.
+% apply_cond(P,Y):-dmsg(apply_cond(P,Y)),fail.
 apply_cond(P,Y):- var(Y),throw(apply_cond(P,Y)).
 apply_cond(P,(G1,G2)):- !, apply_cond(P,G1),apply_cond(P,G2).
 apply_cond(P,(G1;G2)):- !, apply_cond(P,G1);apply_cond(P,G2).
@@ -556,7 +556,7 @@ apply_cond(P,apb(P,Goal)):-!,apply_cond(P,Goal).
 %TODO check to esures something is shared? 
 apply_cond(_P,Goal):- call(Goal).
 
-apb(X,Y):-wdmsg( apb(X,Y)),!,fail.
+apb(X,Y):-dmsg( apb(X,Y)),!,fail.
 
 specialize_1(X):- 
   setof(at_least_one_of(SOME,Conds),(has_cond(X,at_least_one_of(SOME,Conds))),CondSets),
@@ -670,7 +670,7 @@ disp_ex(X):-fmt9(X).
 
 lr:- quietly((listing(producing/1),listing(proven_tru/1),listing(make_existential/2),
   doall((current_key(K),recorded(K,P),
-    locally(set_prolog_flag(write_attributes,portray),wdmsg(P)))))).
+    locally(set_prolog_flag(write_attributes,portray),dmsg(P)))))).
 
 clr:-
   doall((current_key(K),recorded(K,_,Ref),erase(Ref))).
@@ -1192,9 +1192,9 @@ mpred_constrain_w_proxy(Goal):- \+ compound(Goal),!.
 mpred_constrain_w_proxy(Goal):- functor(Goal,F,_),  mpred_constrain_w_proxy_enter(1,F,Goal),
   term_attvars(Goal,Vars),
   maplist(show_attrs,Vars),
-  wdmsg(mpred_constrain_w_proxy(Goal)).
+  dmsg(mpred_constrain_w_proxy(Goal)).
 
-show_attrs(Var):- oo_get_attrs(Var,Atts),wdmsg(Var=Atts).
+show_attrs(Var):- oo_get_attrs(Var,Atts),dmsg(Var=Atts).
 
 % todo use: push_cond(X,Dom)
 mpred_set_arg_isa(Pred,N,Term,_Outer):- holds_attrs(Term),push_cond(Term,argIsaFn(Pred,N)),!.
@@ -1289,7 +1289,7 @@ sk:attr_unify_hook(Form, OtherValue):- var(OtherValue),!,push_skolem(OtherValue,
 
 sk:attr_portray_hook(Form, SkVar) :- writeq(sk(SkVar,Form)).
 
-%sk:project_attributes(QueryVars, ResidualVars):- fail,nop(wdmsg(sk:proj_attrs(skolem,QueryVars, ResidualVars))).
+%sk:project_attributes(QueryVars, ResidualVars):- fail,nop(dmsg(sk:proj_attrs(skolem,QueryVars, ResidualVars))).
 
 :- module_transparent(portray_sk/1).
 portray_sk(Sk) :- not_debugging, dictoo:oo_get_attr(Sk, sk, Form),!, printable_variable_name(Sk,Name), format('sk_avar(~w,~p)',[Name,Form]).
@@ -1370,7 +1370,7 @@ member_eqz(E, [H|T]) :-
 merge_forms(A,B,A):- A==B,!.
 merge_forms(A,B,B):- member_eqz(A,B),!.
 merge_forms(A,B,A):- member_eqz(B,A),!.
-merge_forms(A,B,A):- A=B,!,wdmsg(seeeeeeeeeeeee_merge_forms(A,B)),!.
+merge_forms(A,B,A):- A=B,!,dmsg(seeeeeeeeeeeee_merge_forms(A,B)),!.
 merge_forms(A,B,C):- flatten([A,B],AB),must(list_to_set(AB,C)),!.
 
 

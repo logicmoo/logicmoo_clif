@@ -556,7 +556,7 @@ can_use_hack(X):- did_use_hack(X).
 %
 % Did Use Hack.
 %
-did_use_hack(X):-wdmsg(did_use_hack(X)).
+did_use_hack(X):-dmsg(did_use_hack(X)).
 
 
 

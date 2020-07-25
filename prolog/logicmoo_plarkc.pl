@@ -105,15 +105,15 @@ loadNewTiny:- consult(tiny_kb_cache).
 :- baseKB:disable_mpred_expansion.
  % :- set_prolog_flag(subclause_expansion,false).
 :- if(exists_source(pldata('kb_7166.qlf'))).
-:- wdmsg("loading kb_7166").
+:- dmsg("loading kb_7166").
 :- set_prolog_flag_until_eof(do_renames,term_expansion).
 :- ensure_loaded(pldata('kb_7166.qlf')).
 :- else.
-:- wdmsg("qcompile kb_7166").
+:- dmsg("qcompile kb_7166").
 %:- set_prolog_flag_until_eof(do_renames,term_expansion).
 :- load_files(pldata(kb_7166),[if(not_loaded),qcompile(auto)]).
 :- endif.
-:- wdmsg("done loading kb_7166").
+:- dmsg("done loading kb_7166").
 :- set_module(kb_7166:class(library)).
 :- set_module(class(library)).
 :- enable_mpred_expansion.
@@ -196,17 +196,17 @@ end_of_file.
 :- baseKB:disable_mpred_expansion.
  % :- set_prolog_flag(subclause_expansion,false).
 :- if(exists_source(rs)).
-:- wdmsg("loading rns").
+:- dmsg("loading rns").
 :- load_files(rs,[if(not_loaded),qcompile(auto)]).
-:- wdmsg("done with rns").
+:- dmsg("done with rns").
 :- endif.
 
-:- wdmsg("loading current_renames").
+:- dmsg("loading current_renames").
 % :- time((user:load_files(pldata('kb_7166_current_renames'),[module(baseKB),redefine_module(false),qcompile(auto)]))).
 :- retractall(renames(_)).
 :- enable_mpred_expansion.
  % :- set_prolog_flag(subclause_expansion,true).
-:- wdmsg("done with current_renames").
+:- dmsg("done with current_renames").
 
 %:- set_prolog_stack(local, limit(32*10**9)).
 %:- set_prolog_stack(global, limit(32*10**9)).
@@ -226,7 +226,7 @@ end_of_file.
 
 end_of_file.
 %
-:-in_cmt(listing(cwtdl/3)).
+:- dmsg(call(in_cmt(listing(cwtdl/3)))).
 :- dmsg("Loading tinyKB should take under a minute").
 :- ltkb1.
 :- must((mudSubPart(iExplorer2,Inst),isa(Inst,tHumanNeck))).

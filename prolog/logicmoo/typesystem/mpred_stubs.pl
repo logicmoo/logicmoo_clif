@@ -740,12 +740,12 @@ mpred_t_storage_op(Op,X):- not(is_non_call_op(Op)),!,mpred_t_call_op(Op,X).
 mpred_t_storage_op(Op,(Head:-Body)):-
  reduce_mpred_op(Op,Op2),
   special_wrapper_body(Body,direct_to_prolog),!,
-  wdmsg(direct_to_prolog_special_wrapper_body(Op2,Head,Body)),
+  dmsg(direct_to_prolog_special_wrapper_body(Op2,Head,Body)),
    (mud_call_store_op(Op2,(Head:-Body))).  
 
 % OLD RULE HOOK (but we are using it in parallel)
 mpred_t_storage_op(Op,(Head:-Body)):- \+ if_defined(use_kif(Head,Body)),
-  wdmsg(saved_clause_in_hybridRule(Op,Head,Body)),!,
+  dmsg(saved_clause_in_hybridRule(Op,Head,Body)),!,
       (mud_call_store_op(Op,ruleBackward(Head,Body))).  
 
 % PTTP RULE HOOK   

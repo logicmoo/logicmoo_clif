@@ -143,7 +143,7 @@ wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),baseKB:c
 :- set_prolog_flag(read_attvars,false).
 
 :- ((hook_database:call(asserta_if_new,(ereq(G):- !, call_u(G))))).
-:- after_boot((wdmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, call_u(G))))).
+:- after_boot((dmsg(after_boot),hook_database:call(asserta_new,(ereq(G):- !, call_u(G))))).
 
 
 
