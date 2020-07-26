@@ -76,6 +76,8 @@ performance(Goal, Time, CountAll, Inferences) :-
 performance(Goal, Time, CountAll) :- 
   ctc_time(count(Goal, CountAll), Time).
 
+
+
 /*
  * Measure time to find and count all results of a Goal and
  * and also all unique results. 

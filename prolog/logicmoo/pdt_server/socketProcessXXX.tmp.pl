@@ -39,13 +39,13 @@ assertz_user_file_search_path(Name,Path):-
    assertz(user:file_search_path(Name,AbsPath)),
    format('~N :-~q.~n',[assertz(user:file_search_path(Name,AbsPath))]),!.
 
-:- assertz_user_file_search_path(pdt_contextview_pl, './org.cs3.pdt.graphicalviews_3.1.2.201603251848/pl').
-:- assertz_user_file_search_path(pdt_common_pl, './org.cs3.pdt.common_3.1.2.201603251848/pl').
-:- assertz_user_file_search_path(pdt_prolog_library, './org.cs3.prolog.library_3.1.2.201603251848/pl').
-:- assertz_user_file_search_path(pdt_builder_analyzer, './org.cs3.pdt.builder_3.1.2.201603251848/prolog-src/analyzer').
-:- assertz_user_file_search_path(lib_pdt_console_pl, './org.cs3.pdt.console_3.1.2.201603251848/pl').
-:- assertz_user_file_search_path(prolog_connector_pl, './org.cs3.pdt.connector_3.1.2.201603251848/pl').
-:- assertz_user_file_search_path(pdt_pl, './org.cs3.pdt.editor_3.1.2.201603251848/pl').
+:- assertz_user_file_search_path(pdt_contextview_pl, './pdt.graphicalviews/pl').
+:- assertz_user_file_search_path(pdt_common_pl, './pdt.common/pl').
+:- assertz_user_file_search_path(pdt_prolog_library, './prolog.library/pl').
+:- assertz_user_file_search_path(pdt_builder_analyzer, './pdt.builder/prolog-src/analyzer').
+:- assertz_user_file_search_path(lib_pdt_console_pl, './pdt.console/pl').
+:- assertz_user_file_search_path(prolog_connector_pl, './pdt.connector/pl').
+:- assertz_user_file_search_path(pdt_pl, './pdt.editor/pl').
 
 :- [prolog_connector_pl(load)].
 :- [pdt_common_pl(load)].
@@ -53,8 +53,10 @@ assertz_user_file_search_path(Name,Path):-
 :- [pdt_prolog_library('_load.pl')].
 :- [pdt_pl(load)].
 :- [lib_pdt_console_pl(loader)].
-:- ['./org.cs3.pdt.analysis_3.1.2.201603251848/pl/load.pl'].
+:- ['./pdt.analysis/pl/load.pl'].
+
 :- if(\+ thread_property(_,alias('consult_server@35421'))).
 :- must(consult_server(35421,'/tmp/fp_1522012126371_0.8230701758113668')).
 :- endif.
+
 :- must(write_pdt_startup_error_messages_to_file('/tmp/fp_1522012126371_0.6983157812319148')).

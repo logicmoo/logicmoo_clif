@@ -221,7 +221,6 @@ with_output_to_file(File,Mode,Goal,Encoding) :-
                        close(Stream)                 % cleanup
    ).
 
-
 % -- OBSOLETE, use with_output_to_file/3 instead:
 :- module_transparent with_output_to_file/2, export_goal_output/2.
 with_output_to_file(File,Goal) :-  with_output_to_file(File,write,Goal).

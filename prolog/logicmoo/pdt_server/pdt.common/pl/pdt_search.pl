@@ -375,8 +375,8 @@ find_primary_definition_visible_in_(File, _Line, _OffsetStart, _OffsetEnd, Term,
 
 % metacall in a transparent predicate
 find_primary_definition_visible_in_(File, Line, OffsetStart, OffsetEnd, Term, transparent, TargetFile, TargetLine, TargetLabel) :-
-	'$clause_from_source'(File, File, Line, ClauseRef),
-        % '$clause_from_source'(File, Line, ClauseRef),
+	'$clause_from_source'(File, Line, ClauseRef),
+	%'$clause_from_source'(File,File, Line, ClauseRef),
 	clause_property(ClauseRef, predicate(SrcModule:SrcName/SrcArity)),
 	functor(SrcHead, SrcName, SrcArity),
 	predicate_property(SrcModule:SrcHead, transparent),
