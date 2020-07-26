@@ -28,6 +28,7 @@
     list_to_conjunction/2,    % (+List,?Conjunction) is det.
     pretty_print_list/1,      % (+List)!io 
     pretty_print_list/2,      % (+List,+Indent)!io 
+    pp_list_body/2,
     list_2_comma_separated_list/2, % (+List,-Atom) is det.
     list_2_separated_list/3 % (+List,-Atom) is det.
 ] ).
@@ -331,6 +332,9 @@ pp_list([A|B], Current, Indent, Komma) :-
 	pp_list_body([A|B], Next, Indent),
 	write_line_indented(Current,']',Komma).   
           
+% for binary call from ctc_tracing.pl:
+pp_list_body(List, Indent) :- pp_list_body(List, Indent, Indent).
+
           
 pp_list_body([A  ], Current, Indent) :- !,
                                         pp_list_element(A,Current,Indent,' ') .
@@ -350,7 +354,7 @@ pp_list_element(A,Current,Indent,X) :-
 
 
 write_line_indented(Indent,What,Separator) :- 
-	atomic_list_concat(['~t~',Indent,'|~w~a~n'],Formatstring), 
+	atomic_list_concat(['~t~',Indent,'|~q~a~n'],Formatstring), 
 	format(Formatstring,[What,Separator]).
 
 

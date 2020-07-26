@@ -16,6 +16,7 @@
 	built_in/1,
 	repeat_n_times/2,
 	repeat_n_times_loop/2,
+	backtrack_at_most_n_times/2, % (Goal,N) 
 	all/1,
 	prolog_iteration_via_backtracking/1,
 	has_property/3,
@@ -68,6 +69,23 @@ repeat_n_times_loop(Goal,N) :-        % loop
   I2 is I + 1,
   nb_setval(repeat_counter,I2),           % increment counter
   repeat_n_times_loop(Goal,N).          % repeat
+
+  
+/*
+ * backtrack_at_most_n_times(+Goal,+N)
+ */
+backtrack_at_most_n_times(Goal,N) :-             
+  nb_setval(backtrack_counter,1),    % initialize counter        
+  call(Goal),                        % execute Goal once
+  nb_getval(backtrack_counter, I),
+  (  I == N
+  -> nb_setval(backtrack_counter,1)  % reset counter and succeed 
+  ;  ( I1 is I+1,
+       nb_setval(backtrack_counter,I1),% increment counter
+       fail                            % ... and backtrack 
+     )
+  ).
+backtrack_at_most_n_times(_,_).      % succeed always
 
    
 :- module_transparent prolog_iteration_via_backtracking/1, all/1.
