@@ -339,7 +339,7 @@ logicmoo_i_cyc_xform:- dmsg("Compiling tinyKB should take under a minute"),
 % :-style_check(-atom).
 % :-style_check(-string).
 :- set_prolog_flag(double_quotes,string).
-:- set_prolog_flag(access_level,system).
+%:- set_prolog_flag(access_level,system).
 %:- discontiguous elmt:exactlyAssertedELMT/5. 
 
 elmt:exactlyAssertedELMT(A,B,MT,STR):- exactlyAssertedEL_first(A,B,MT,STR),true.
