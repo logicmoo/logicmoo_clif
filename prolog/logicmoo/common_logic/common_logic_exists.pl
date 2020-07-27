@@ -911,6 +911,10 @@ subst_except_copy(Fml,X,Y,FmlY):- subst(Fml,X,Y,FmlY).
 % =================================
 % Typed (Exactly/AtMost/AtLeast 2 ((?x Man)(?y Woman)(?z Child)) ...                     )
 % =================================
+
+nnf_ex_nnf(KB,Fml,FreeV,NNF,Paths):- nnf_ex(KB,Fml,FreeV,NNF,Paths);nnf(KB,Fml,FreeV,NNF,Paths).
+
+
 :- discontiguous(nnf_ex/5).
 
 nnf_ex(KB,quant(exactly(N),XL,NNF),FreeV,FmlO,Paths):- is_list(XL),
@@ -972,7 +976,7 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths):-  \+ contains_var(X,Fml),dmsg(( \+ con
 % =================================
 
 nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths):- !,
-   nnf_ex(KB,quant(atleast(1),X,Fml),FreeV,NNF,Paths).
+   nnf_ex_nnf(KB,quant(atleast(1),X,Fml),FreeV,NNF,Paths).
 
 % ATTVAR WAY
 nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- fail, !,
@@ -987,17 +991,18 @@ nnf_ex(KB,exists(X,Fml),FreeV,NNF1,Paths):- fail, !,
 
 skv:attr_unify_hook(A,V):- dmsg(skv:attr_unify_hook(A,V)).
 
+
 % =================================
 % ==== AtLeast N ========
 % ==== Cardinality (quantifier macros) ========
 % =================================
 % AtLeast 1:  We simply create the existence of 1
 nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):- fail, N==1, !,
-   nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths).
+   nnf_ex_nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
 
 
 nnf_ex(KB, ~ quant(atleast(N),X,Fml), FreeV,NNF,Paths):- NN is N - 1,
-   nnf_ex(KB,quant(atmost(NN),X,Fml),FreeV,NNF,Paths).
+   nnf_ex_nnf(KB,quant(atmost(NN),X,Fml),FreeV,NNF,Paths).
 
 nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
  must_det_l((
@@ -1036,10 +1041,10 @@ nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):- N > 1, kif_option(false,sko
 % ==== Cardinality (quantifier macros) ========
 % =================================
 nnf_ex(KB,~quant(atmost(0),X,Fml),FreeV,NNF,Paths):-  !,
-  nnf_ex(KB, exists(X,Fml),FreeV,NNF,Paths).
+  nnf_ex_nnf(KB, exists(X,Fml),FreeV,NNF,Paths).
                                                
 nnf_ex(KB,quant(atmost(0),X,Fml),FreeV,NNF,Paths):-  !,
-  nnf_ex(KB,all(X,~Fml),FreeV,NNF,Paths).
+  nnf_ex_nnf(KB,all(X,~(Fml)),FreeV,NNF,Paths).
 
 nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
  must_det_l((
@@ -1079,10 +1084,10 @@ nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF,Paths):- NewN is N - 1, !,
 % ==== Cardinality (quantifier macros) ========
 % =================================
 nnf_ex(KB,quant(exactly(0),X,Fml),FreeV,NNF,Paths):- !,
-  nnf_ex(KB,all(X,~Fml),FreeV,NNF,Paths).
+  nnf(KB,all(X,~Fml),FreeV,NNF,Paths).
 
-nnf_ex(KB,~ quant(exactly(0),X,Fml),FreeV,NNF,Paths):- !,
-  nnf_ex(KB,exists(X,Fml),FreeV,NNF,Paths).
+nnf_ex(KB,~(quant(exactly(0),X,Fml)),FreeV,NNF,Paths):- !,
+  nnf(KB,exists(X,Fml),FreeV,NNF,Paths).
 
 % Exactly 1: "If there exists 1 there does not exist 1 other"
 nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- fail, N == 1, !,

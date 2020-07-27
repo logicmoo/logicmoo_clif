@@ -939,6 +939,8 @@ cant_distrubute_on(&,until,3).
 cant_distrubute_on(v,knows,2).
 cant_distrubute_on(&,beliefs,2).
 
+cant_distrubute_on(_,_,0):- fail.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % breakup_nnf(KB,+F1,?F2)
 % uses LTL equivalencies to split up LTL formulae

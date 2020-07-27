@@ -48,9 +48,9 @@
           ]).
 
 :- set_module(class(development)).
-
-:- use_module(library(pfc_lib)).
-:- set_fileAssertMt(baseKB).
+:- '$set_source_module'(baseKB).
+%:- use_module(library(pfc)).
+%:- set_fileAssertMt(baseKB).
 
 %:- if(current_predicate(rdf_rewrite:arity/2)).
 %:- kb_global(rdf_rewrite:arity/2).
@@ -165,8 +165,6 @@ reallyLoadTiny:- mpred_notrace.
 :- dynamic(lmcache:isCycAvailable_known/0).
 :- volatile(lmcache:isCycAvailable_known/0).
 
-isa_db(I,C):-clause(isa(I,C),true).
-
 :- asserta(elmt:elmt_is_a_module).
 :- set_module(elmt:class(development)).
 
@@ -184,6 +182,10 @@ isa_db(I,C):-clause(isa(I,C),true).
  % :- set_prolog_flag(subclause_expansion,true).
 
 :- dynamic(tinyKB0/1).
+
+:- dynamic(baseKB:tinyKB/3).
+:- multifile(baseKB:tinyKB/3).
+:- system:import(baseKB:tinyKB/3).
 
 
 tinyKB_wstr(P):-baseKB:mtUndressedMt(MT),tinyKB(P,MT,_).

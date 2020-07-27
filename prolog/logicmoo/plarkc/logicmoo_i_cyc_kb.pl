@@ -17,19 +17,54 @@
 */
 
 % File: /opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo/plarkc/logicmoo_i_cyc_kb.pl
-:- module(logicmoo_i_cyc_kb,[          
-          is_better_backchained/1,
+:- module(logicmoo_i_cyc_kb,[]).
+:- set_module(class(development)).
+isa_db(I,C):-clause(isa(I,C),true).
+:- '$set_source_module'(baseKB).
+
+/*
+:- multifile(kb7166:assertion_content/3).
+:- dynamic(kb7166:assertion_content/3).
+
+:- multifile(kb7166:assertion_content/4).
+:- dynamic(kb7166:assertion_content/4).
+
+:- multifile(kb7166:assertion_forward/1).
+:- dynamic(kb7166:assertion_forward/1).
+
+:- multifile(kb7166:assertion_code/1).
+:- dynamic(kb7166:assertion_code/1).
+
+:- multifile(kb7166:assertion_mt/2).
+:- dynamic(kb7166:assertion_mt/2).
+
+:- multifile(kb7166:assertion_variable_guard/2).
+:- dynamic(kb7166:assertion_variable_guard/2).
+
+:- multifile(kb7166:assertion_varnames/2).
+:- dynamic(kb7166:assertion_varnames/2).
+*/
+
+cyc_defined(assertion_content(A,B)):- if_defined(nlkb7166:acnl(A,B)).
+cyc_defined(assertion_content(A,B)):- !, if_defined(kb7166:assertion_content(A,B)).
+cyc_defined(assertion_content(A,B,C)):- if_defined(nlkb7166:acnl(A,B,C)).
+cyc_defined(assertion_content(A,B,C)):- !, if_defined(kb7166:assertion_content(A,B,C)).
+cyc_defined(assertion_content(A,B,C,D)):- if_defined(nlkb7166:acnl(A,B,C,D)).
+cyc_defined(assertion_content(A,B,C,D)):- !, if_defined(kb7166:assertion_content(A,B,C,D)).
+cyc_defined(assertion_content(A,B,C,D,E)):- if_defined(nlkb7166:acnl(A,B,C,D,E)).
+cyc_defined(assertion_content(A,B,C,D,E)):- !, if_defined(kb7166:assertion_content(A,B,C,D,E)).
+cyc_defined(ELSE):- if_defined(kb7166:ELSE).
+
+iface_tinyKB(P):- if_defined(tinyKB(P)).
+
+:- baseKB:export((is_better_backchained/1,
           addCycL/1,
           addCycL1/1,
           addCycL1/1,
           cycl_to_mpred/2,
           as_cycl/2,
           is_better_backchained/1,
-          rtEscapeFunction/1
-          
-          ]).
-:- set_module(class(development)).
-
+          rtEscapeFunction/1)).
 % ===================================================================
 % OPERATOR PRECEDANCE
 % ===================================================================
@@ -55,10 +90,6 @@
  op(350,xfx,'xor'),
  op(300,fx,'~'))).
 
-:- dynamic(baseKB:tinyKB/3).
-:- multifile(baseKB:tinyKB/3).
-:- baseKB:export(baseKB:tinyKB/3).
-:- system:import(baseKB:tinyKB/3).
 
 is_simple_gaf(V):-not(compound(V)),!.
 is_simple_gaf(V):-needs_canoncalization(V),!,fail.
@@ -77,17 +108,17 @@ rtEscapeFunction('uQuoteFn').
 rtEscapeFunction(X):- clause_b('rtUnreifiableFunction'(X)).
 
 needs_canoncalization(CycL):-is_ftVar(CycL),!,fail.
-needs_canoncalization(CycL):-functor(CycL,F,_),isa_db(F,'rtSentenceOperator').
+needs_canoncalization(CycL):-functor(CycL,F,_),logicmoo_u_cyc_kb_tinykb:isa_db(F,'rtSentenceOperator').
 needs_canoncalization(CycL):-needs_indexing(CycL).
 
 is_better_backchained(CycL):-is_ftVar(CycL),!,fail.
-is_better_backchained(CycL):-functor(CycL,F,_),isa_db(F,'rtSentenceOperator').
-is_better_backchained(V):-unnumbervars(V,FOO),(((each_subterm(FOO,SubTerm),nonvar(SubTerm),isa_db(SubTerm,rtAvoidForwardChain)))),!.
+is_better_backchained(CycL):-functor(CycL,F,_),logicmoo_u_cyc_kb_tinykb:isa_db(F,'rtSentenceOperator').
+is_better_backchained(V):-unnumbervars(V,FOO),(((each_subterm(FOO,SubTerm),nonvar(SubTerm),logicmoo_u_cyc_kb_tinykb:isa_db(SubTerm,rtAvoidForwardChain)))),!.
 
 
 as_cycl(VP,VE):-subst(VP,('-'),(~),V0),subst(V0,('v'),(or),V1),subst(V1,('exists'),(exists),V2),subst(V2,('&'),(and),VE),!.
 
-kif_to_boxlog_ex(I,O):- if_defined(kif_to_boxlog(I,M)),if_defined(boxlog_to_pfc(M,O)).
+kif_to_boxlog_ex(I,O):- cyc_defined(kif_to_boxlog(I,M)),cyc_defined(boxlog_to_pfc(M,O)).
 
 :- kb_global(baseKB:and/7).
 
@@ -98,8 +129,8 @@ load_order(isa(_,tFunction)).
 load_order(isa(_,ttExpressionType)).
 load_order(isa(_,tRelation)).
 load_order(isa(_,tCol)).
-load_order(P):- tinyKB(isa(F,rtWFFConstraintSatisfactionPredicate)),tinyKB(arity(F,A)),functor(P,F,A).
-load_order(P):- tinyKB(isa(F,rtWFFConstraintPredicate)),tinyKB(arity(F,A)),functor(P,F,A).
+load_order(P):- iface_tinyKB(isa(F,rtWFFConstraintSatisfactionPredicate)),iface_tinyKB(arity(F,A)),functor(P,F,A).
+load_order(P):- iface_tinyKB(isa(F,rtWFFConstraintPredicate)),iface_tinyKB(arity(F,A)),functor(P,F,A).
 load_order(P):- when(nonvar(P),\+ kif_hook(P)).
 load_order(P):- when(nonvar(P), kif_hook(P)).
 
@@ -112,7 +143,9 @@ addCycL1(V):-asserta(addTiny_added(V)),unnumbervars(V,VE),
   show_call(ain(VE)).
 
 
-sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL), ignore((tiny_support(CycL,_MT,CALL),retract(CALL))),must(cycl_to_mpred(CycL,Consequent)),!.
+sent_to_conseq(CycLIn,Consequent):- into_mpred_form_locally(CycLIn,CycL),
+  ignore((tiny_support(CycL,_MT,CALL),retract(CALL))),
+  must(cycl_to_mpred(CycL,Consequent)),!.
 
 
 cycl_to_mpred(V,Out):-cycl_to_mpred0(V,Out).
@@ -162,10 +195,10 @@ inner_connective(F) :- get_LogicalConnective(F), \+ connective_arity0(F,_).
 :- multifile(baseKB:istAsserted/2).
 :- kb_global(baseKB:istAsserted/2).
 
-:- assert(((istAsserted(MT,P):- if_defined(kb7166:assertion_content(ist,MT,P,_),fail)))).
-:- assert(((istAsserted(MT,P):- if_defined(nlkb7166:acnl(ist,MT,P,_),fail)))).
+
+:- assert(((istAsserted(MT,P):- cyc_defined(assertion_content(ist,MT,P,_))))).
 %istAsserted(P,MT):- as_compound(P),istAsserted0(P,MT).
-:- assert(((istAsserted(MT,P):- asserted_id(P,ID),if_defined(assertion_mt(ID,MT))))).
+:- assert(((istAsserted(MT,P):- asserted_id(P,ID),cyc_defined(assertion_mt(ID,MT))))).
 
 baseKB:tAsserted(ist(MT,P)):- !, istAsserted(MT,P).
 baseKB:tAsserted(P):- 
@@ -182,7 +215,7 @@ baseKB:tAsserted(P):-
 asserted_id(P,ID):- compound(P), P=..[F,F1|ARGS],append(ARGS,[ID],ARGSID),
    (F==t -> (AP=..[assertion_content,F1|ARGSID],nop(freeze_u(F1,\+ get_LogicalConnective(F1))));
             AP=..[assertion_content,F,F1|ARGSID]),!,
-   if_defined(kb7166:AP),
+   cyc_defined(AP),
    varnamify(ID),
    guardify(ID).
 asserted_id(PO,ID):- var(PO),
@@ -192,7 +225,7 @@ asserted_id(PO,ID):- var(PO),
    functor(AP,assertion_content,N),
    AP=..[assertion_content,F|PARGS],
    append(ARGS,[ID],PARGS),
-   if_defined(kb7166:AP),
+   cyc_defined(AP),
    ((
     varnamify(ID),
     ((atom(F) -> P=..[F|ARGS]; P=..[t,F|ARGS])),
@@ -220,12 +253,12 @@ guardify(ID):- get_guard(ID,Guard),!,must_det(and_conj_to_list(Guard,List)),must
 guardify(_).
 
 get_guard(ID,Guard):- compound(ID),functor(ID,F,A),get_guard(ID,F,A,Guard).
-get_guard(ID,_,1,Guard):- !, assertion_variable_guard(ID,Guard).
-get_guard(ID,F,_,Guard):- functor(GID,F,1),assertion_variable_guard(GID,Guard),!,
+get_guard(ID,_,1,Guard):- !, cyc_defined(assertion_variable_guard(ID,Guard)).
+get_guard(ID,F,_,Guard):- functor(GID,F,1),cyc_defined(assertion_variable_guard(GID,Guard)),!,
                           term_variables(GID+Guard,GVars), 
                           (GVars=[GV] -> ID=..[F,GV|_] ; (ID=..[F|GVars])).
 
-get_guard(ID,_,_,Guard):- assertion_variable_guard(ID,Guard).
+get_guard(ID,_,_,Guard):- cyc_defined(assertion_variable_guard(ID,Guard)).
 
   
 
@@ -242,7 +275,7 @@ and_conj_to_list(C,C):- \+ compound(C),!.
 and_conj_to_list(AND,List):- AND=..[and|List],!.
 and_conj_to_list(C,[C]).
 
-varnamify(ID):- assertion_varnames(ID,NAMES),!,ID=..[_|VARS],maplist(varnamify,VARS,NAMES).
+varnamify(ID):- cyc_defined(assertion_varnames(ID,NAMES)),!,ID=..[_|VARS],maplist(varnamify,VARS,NAMES).
 varnamify(_).
 varnamify(Var,String):- string_to_atom(String,Atom),nb_current('$variable_names',Was),!,b_setval('$variable_names',[Atom=Var|Was]),
  name_variable(Var,Atom).
@@ -253,10 +286,7 @@ badz:- asserted_id(t(zzzz,A,B),ID),dmsg(asserted_id(t(zzzz,A,B),ID)),fail.
 
 test_kb_boxlog:- asserted_id(P,ID),nl,nl,compound(ID),wdmsg(asserted_id(P,ID)),test_boxlog(P).
 
-:- multifile(kb7166:assertion_content/3).
-:- dynamic(kb7166:assertion_content/3).
-:- multifile(kb7166:assertion_content/4).
-:- dynamic(kb7166:assertion_content/4).
+
 :- baseKB:ain((tAsserted(rtLogicalConnective(F))==>rtLogicalConnective(F))).
 
 :- baseKB:ain(rtArgsVerbatum(tAsserted)).
@@ -276,13 +306,13 @@ pred_in_mt0(F,A,MT0,Type0):-
 
 pred_in_mt1(QQ,F,A,MT0,Type0):- 
   asserted_id(QQ,ID),
-  assertion_mt(ID,MT),
+  cyc_defined(assertion_mt(ID,MT)),
   append_dir(ID,fact,Type),  
   preds_fa_s(Type,Type0,MT,QQ,F,A,MT0).
 
-append_dir(ID,I,O):- assertion_forward(ID),!,append_dir0(f,I,O).
-append_dir(ID,I,O):- assertion_backward(ID),!,append_dir0(b,I,O).
-append_dir(ID,I,O):- assertion_code(ID),!,append_dir0(c,I,O).
+append_dir(ID,I,O):- cyc_defined(assertion_forward(ID)),!,append_dir0(f,I,O).
+append_dir(ID,I,O):- cyc_defined(assertion_backward(ID)),!,append_dir0(b,I,O).
+append_dir(ID,I,O):- cyc_defined(assertion_code(ID)),!,append_dir0(c,I,O).
 append_dir(_, I,O):- append_dir0(u,I,O).
 
 append_dir0(C,fact,C):-!.

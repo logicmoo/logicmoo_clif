@@ -29,6 +29,16 @@
 :- absolute_file_name(library('../ext/'),Dir,[file_type(directory)]),
    asserta_new(user:file_search_path(logicmoo,Dir)).
 
+
+:- dynamic(baseKB:tinyKB/3).
+:- multifile(baseKB:tinyKB/3).
+:- baseKB:export(baseKB:tinyKB/3).
+:- system:import(baseKB:tinyKB/3).
+:- dynamic(baseKB:tinyKB/1).
+:- multifile(baseKB:tinyKB/1).
+:- baseKB:export(baseKB:tinyKB/1).
+:- system:import(baseKB:tinyKB/1).
+
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_rewriting'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_u_cyc_kb_tinykb'))).
 :- gripe_time(60,baseKB:ensure_loaded(library('logicmoo/plarkc/logicmoo_i_cyc_kb'))).
@@ -67,10 +77,6 @@ Next Inside each "Microtheory"
 MLTT = is an extension to control the u ability to
 
 */
-
-:- dynamic(baseKB:tinyKB/3).
-:- multifile(baseKB:tinyKB/3).
-:- system:import(baseKB:tinyKB/3).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP CYC KB EXTENSIONS
