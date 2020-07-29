@@ -131,7 +131,7 @@ print_comment(Comment, Item, NAs, Type) :-
 	  Comment1 = Comment
 	; term_to_atom(Comment, Comment1) % *** or extract atoms...
 	),
-	xml_quote(Comment, [encoding('UTF-8')], XComment),
+	xml_quote(Comment1, [encoding('UTF-8')], XComment),
 	xml_name(Item, NAs, Item1),
 	( Type = 'Class' ->
 	  Indent1 = 0, Indent2 = 4

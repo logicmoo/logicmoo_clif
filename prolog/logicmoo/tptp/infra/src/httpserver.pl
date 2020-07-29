@@ -31,9 +31,10 @@
 
 :- use_module('swilib/err').
 :- use_module(xml_writer).
+:- use_module(config).
 
-% :- use_module(library('http/thread_httpd')).
-:- use_module(library('http/xpce_httpd')).
+:- use_module(library('http/thread_httpd')).
+%:- use_module(library('http/xpce_httpd')).
 :- use_module(library('http/http_dispatch')).
 :- use_module(library('http/http_header')).
 :- use_module(library('http/http_authenticate')).

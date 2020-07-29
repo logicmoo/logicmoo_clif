@@ -24,7 +24,7 @@
 	    rdf_name_space/1
 	  ]).
 :- use_module(patched_uri).
-:- use_module(library(rewrite)).
+:- use_module(library(rewrite_term)).
 
 :- op(500, fx, \?).			% Optional (attrs)
 

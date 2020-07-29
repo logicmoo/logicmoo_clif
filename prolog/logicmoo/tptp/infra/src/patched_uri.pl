@@ -10,7 +10,7 @@
     Copyright (C) 1990-2000 SWI, University of Amsterdam. All rights reserved.
 */
 
-:- module(uri,
+:- module(patched_uri,
 	  [ canonical_uri/3		% +URI, +BaseURI, -CanonicalURI
 	  ]).
 
