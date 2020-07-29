@@ -3,6 +3,12 @@
 :- module(logicmoo_webbot,[
  www_start/0,www_start/1]).
 
+% ==============================================
+% [Required] Load the Logicmoo Common Utils
+% ==============================================
+:- ensure_loaded(library(logicmoo_common)).
+
+
 :- whenever_flag_permits(load_network,load_library_system(library(logicmoo_network))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

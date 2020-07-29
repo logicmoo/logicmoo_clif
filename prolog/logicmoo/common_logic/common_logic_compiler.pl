@@ -1043,7 +1043,7 @@ leave_as_is_logically(F):-quietly(leave_as_is_logically0(F)).
 leave_as_is_logically0(Box):- var_or_atomic(Box),!.
 leave_as_is_logically0(_:P):-!,leave_as_is_logically0(P).
 %leave_as_is_logically0(\+ P):-!,leave_as_is_logically0(P).
-leave_as_is_logically0((P:-TRUE)):-!,is_true(TRUE),leave_as_is_logically0(P).
+leave_as_is_logically0((P:-TRUE)):-!,is_src_true(TRUE),leave_as_is_logically0(P).
 leave_as_is_logically0(DB):-functor(DB,F,A),leave_as_is_logically_fa(F,A),!.
 leave_as_is_logically0(NART):-functor(NART,nartR,_),!,ground(NART).
 

@@ -9,6 +9,11 @@
 :- set_module(class(library)).
 
 
+% ==============================================
+% [Required] Load the Logicmoo Common Utils
+% ==============================================
+:- ensure_loaded(library(logicmoo_common)).
+
 
 % ==============================================
 % SETUP KB EXTENSIONS
@@ -158,9 +163,50 @@
 set_default_argv:- dmsg("SETTING DEFAULT ARGV!!!!"),
    set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet','--unsafe','--']).
 
-:- (current_prolog_flag(os_argv,[swipl]) ; current_prolog_flag(argv,[])) -> set_default_argv; true.
+set_full_argv :-
+   set_default_argv,
+   current_prolog_flag(argv,WasArgV),
+   append(WasArgV,[
+   '--',   
 
+   '--mud', % Load MUD server
+   '--world', % Load MUD server World
+   %'--nonet' '--noworld',
+
+   '--clif', % Support for CLIF
+   '--sumo', % Support for SUMO
+   '--nlkb', % Load CYC NL 
+   '--cyckb', % Load CYC KB 
+   '--tinykb', % Support for LarKC
+
+   '--www', % https://logicmoo.org/*
+   '--no-fork', '--workers=16', '--port=3020',
+   %'--user=www-data',
+   '--sigma', % Sigma Inference Engine Server  https://logicmoo.org/logicmoo/
+   '--cliop',  % https://logicmoo.org/cliopatria/
+   '--irc', % Launch IRC Eggdrop Client
+   '--swish', % https://logicmoo.org/swish/
+   '--docs', % https://logicmoo.org/pldoc/
+   '--plweb',   % https://logicmoo.org/plweb/
    
+   % '--lispsock', % '--wamcl', % is already implied by --lispsock
+
+   '--logtalk', % Support Logtalk
+   '--elfinder', % Support Filesystem Browser   https://logicmoo.org/ef/
+   '--nopdt', % Prolog Development for Eclipse
+   '--planner', % Load any planners
+
+   '--all', % all default options (in case there are new ones!)
+   '--defaults'
+   ], NewArgV),
+   set_prolog_flag('argv',NewArgV),
+   current_prolog_flag('argv',Is),
+   asserta(lmconf:saved_app_argv(Is)),
+   writeq(set_prolog_flag('argv',Is)),!,nl.
+
+:- (current_prolog_flag(os_argv,[swipl]) ; current_prolog_flag(argv,[])) -> set_full_argv; true.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- dmsg("LOAD PARTS OF SYSTEM EARLY").

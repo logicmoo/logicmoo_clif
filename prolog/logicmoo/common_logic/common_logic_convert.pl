@@ -12,13 +12,18 @@
 
 % KIF BASED
 :- export((
-         must_map_preds/3, 
+         must_map_preds/3,
+         map_each_subterm/3,
+         if_changed/3,
          sumo_to_pdkb_p5/2,
          is_kif_string/1,
          from_kif_string/2,
          convert_if_kif_string/2,
          sumo_to_pdkb/2)).
 
+
+:- meta_predicate(if_changed(2,+,-)).
+:- meta_predicate(map_each_subterm(2,+,-)).
 
 
 delay_rule_eval(InOut,_Wrap,InOut):-ground(InOut),!.
@@ -94,11 +99,11 @@ last_chance_doc(Wff0,comment(Atom,NewStr)):-
 last_chance_doc(IO,IO).
 
 
-%% from_kif_string( ?String, ?Forms) is det.
+%% convert_1_kif_string( ?String, ?Forms) is det.
 %
 % Converted From Knowledge Interchange Format String.
 %
-convert_1_kif_string(I,Wff):- input_to_forms(I,Wff,Vs)->must(put_variable_names(Vs)),!.
+convert_1_kif_string(I,Wff):- with_kifvars(input_to_forms(I,Wff,Vs))->must(put_variable_names(Vs)),!.
 
 from_kif_string(Wff,Wff):- \+ atomic(Wff), \+ is_list(Wff),!.
 from_kif_string(I,Wff) :- string(I),convert_1_kif_string(string(I),Wff),!.
@@ -106,52 +111,90 @@ from_kif_string(I,Wff) :- atom(I),atom_contains(I,' '),convert_1_kif_string(atom
 from_kif_string([C|String],Wff) :- is_list(String),text_to_string_safe([C|String],Text),one_must(convert_1_kif_string(string(Text),Wff),codelist_to_forms(string(Text),Wff)),!.
 from_kif_string(Wff,Wff).
 
+                                                      
 
 :- module_transparent(must_map_preds/3).
 must_map_preds([],IO,IO):-!.
-must_map_preds([one(Pred)|ListOfPreds],IO,Out):- !, quietly(call(Pred,IO)),!,must_map_preds(ListOfPreds,IO,Out).
-must_map_preds([Pred|ListOfPreds],In,Out):- quietly(call(Pred,In,Mid)),!,must_map_preds(ListOfPreds,Mid,Out),!.
+must_map_preds([one(Pred)|ListOfPreds],In,Out):- !, (on_x_rtrace(call(Pred,In))->must_map_preds(ListOfPreds,In,Out);must_map_preds(ListOfPreds,In,Out)).
+must_map_preds([Pred|ListOfPreds],In,Out):- on_x_rtrace(call(Pred,In,Mid))->must_map_preds(ListOfPreds,Mid,Out);must_map_preds(ListOfPreds,In,Out).
 
 
 :- thread_local(t_l:no_db_expand_props/0).
 
 fully_expand_always(C0,C1):- locally_tl(no_db_expand_props,fully_expand('==>'(C0),C1)),!.
 
+fail_on_bind:attr_unify_hook(_,_):- fail.
+add_fail_on_bind(Var):- var(Var)->put_attr(Var,fail_on_bind,true); term_variables(Var,Vs),maplist(add_fail_on_bind,Vs),!.
+del_fail_on_bind(Var):- var(Var)->del_attr(Var,fail_on_bind); term_variables(Var,Vs),maplist(del_fail_on_bind,Vs),!.
+:- export(fully_expand_some_kif/2).
+
+fully_expand_some_kif(I,O):- 
+     compound(I),\+ is_list(I),
+     term_variables(I,Vars),
+     maplist(add_fail_on_bind,Vars),
+     copy_term(I,Copy),
+     term_variables(Copy,CopyVars),
+     fully_expand_kif_0k(I,M),
+     Vars=@=CopyVars,
+     maplist(del_fail_on_bind,Vars),O=M.
+
+fully_expand_kif_0k(isa(X,Y),Out):- atom(Y), Out=..[Y,X].
+fully_expand_kif_0k(isa(X,Y),instanceOf(X,Y)).
+fully_expand_kif_0k(uN(vTheListFn, ROW),ROW).
+fully_expand_kif_0k(['ListFn'|ROW],ROW).
+
+
 
 sumo_to_pdkb(CycL,CycL):- is_ftVar(CycL).
 sumo_to_pdkb('$COMMENT'(A),'$COMMENT'(A)):- !.
-sumo_to_pdkb(D,CycLOut):-
-         must_det_l((must_map_preds([
+sumo_to_pdkb(In,Out):-
+         must_det_l((must_map_preds([ 
            from_kif_string,
            sexpr_sterm_to_pterm,
-           sumo_to_pdkb_extra(sumo_to_pdkb_p5),
+           map_each_subterm(sumo_to_pdkb_p5),
+           map_each_subterm(pfc_lib:fully_expand(show_kif)),
            cyc_to_pdkb_maybe,
-           fully_expand_always,
            unnumbervars_with_names,
            sumo_to_pdkb_p9,
-           =],D,CycLOut))).
+           map_each_subterm(pfc_lib:fully_expand(show_kif))],
+           In,Out))).
 
 cyc_to_pdkb_maybe(I,O):- if_defined(cyc_to_pdkb(I,O),I=O),!.
 
-sumo_to_pdkb_p9(I,O):-sumo_to_pdkb_extra(sumo_to_pdkb_p9_e,I,O).
+sumo_to_pdkb_p9(I,O):-map_each_subterm(sumo_to_pdkb_p9_e,I,O).
 
-:- meta_predicate(sumo_to_pdkb_extra(2,?,?)).
+if_changed(Ex,I,O):- call(Ex,I,O)-> I\==O.
 
-sumo_to_pdkb_extra(_ ,O,O):- is_ftVar(O),!.
-sumo_to_pdkb_extra(Ex,I,O):- call(Ex,I,O),!.
-sumo_to_pdkb_extra(_ ,O,O):- \+ compound(O),!.
-sumo_to_pdkb_extra(Ex,(H,T),(HH,TT)):- !,sumo_to_pdkb_extra(Ex,H,HH),sumo_to_pdkb_extra(Ex,T,TT).
-sumo_to_pdkb_extra(Ex,[H|T],[HH|TT]):- !,sumo_to_pdkb_extra(Ex,H,HH),sumo_to_pdkb_extra(Ex,T,TT).
-sumo_to_pdkb_extra(Ex,SENT,SENTO):- SENT=..[CONNECTIVE|ARGS],sumo_to_pdkb_extra(Ex,[CONNECTIVE|ARGS],ARGSO),
-  (is_list(ARGSO)->SENTO=..ARGSO;SENTO=ARGSO),!.
-sumo_to_pdkb_extra(_ ,IO,IO).
+
+map_each_subterm_compound(Ex,SENT,SENTO):- 
+  compound_name_arguments(SENT,CONNECTIVE,ARGS),
+  map_each_subterm(Ex,ARGS,ARGSO),
+  compound_name_arguments(SENTO,CONNECTIVE,ARGSO),!.
+
+map_each_subterm(_ ,O,O):- is_ftVar(O),!.
+map_each_subterm(Ex,I,O):- on_x_rtrace(call(Ex,I,M)),!, 
+  ((compound(M),I\==M) -> map_each_subterm_compound(Ex,M,O); O = M).
+map_each_subterm(_ ,O,O):- \+ compound(O),!.
+map_each_subterm(Ex,[H|T],[HH|TT]):- !,map_each_subterm(Ex,H,HH),map_each_subterm(Ex,T,TT).
+map_each_subterm(Ex,(H,T),(HH,TT)):- !,map_each_subterm(Ex,H,HH),map_each_subterm(Ex,T,TT).
+
+map_each_subterm(Ex,SENT,SENTO):- 
+  compound_name_arguments(SENT,CONNECTIVE,ARGS),
+  map_each_subterm(Ex,[CONNECTIVE|ARGS],CARGSO),
+  ((is_list(CARGSO),CARGSO=[C|ARGSO],atom(C))->compound_name_arguments(SENTO,C,ARGSO);SENTO=CARGSO),!.
+
+map_each_subterm(_ ,IO,IO).
 
 sumo_to_pdkb_p5(documentation(C,'vEnglishLanguage',S),comment(C,S)):-!.
 sumo_to_pdkb_p5(Const,NConst):-atom(Const),(sumo_to_pdkb_const(Const,NConst)->true;Const=NConst),!.
 sumo_to_pdkb_p5(Const,NConst):-string(Const),string_to_mws(Const,NConst),!.
 sumo_to_pdkb_p5(I,O):-clause_b(ruleRewrite(I,O))->I\==O,!.
 
-sumo_to_pdkb_p9_e([P|List],OUT):- atom(P),\+ is_list(List),op_type_head(P,TYPE),make_var_arg(TYPE,P,List,OUT),!.
+sumo_to_pdkb_p9_e([P|List],OUT):- 
+  atom(P),
+  \+ is_list(List),                
+  op_type_head(P,TYPE),
+  make_var_arg(TYPE,P,List,OUT),!.
 
 op_type_head(P,uN):-atom(P), atom_concat(_,'Fn',P).
 op_type_head(P,tN):-atom(P).

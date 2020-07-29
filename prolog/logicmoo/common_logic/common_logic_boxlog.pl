@@ -320,7 +320,7 @@ boxlog_to_pfc_pass_2(TYPE,(H:-BB),OUTPUT):- !,boxlog_to_pfc_pass_3(TYPE,H,BB,OUT
 boxlog_to_pfc_pass_2(TYPE,~(H),OUTPUT):-  !,boxlog_to_pfc_pass_3(TYPE,~(H),true,OUTPUT).
 boxlog_to_pfc_pass_2(TYPE,H,OUTPUT):-     !,boxlog_to_pfc_pass_3(TYPE,H,true,OUTPUT).
 
-body_head_pfc(BBB,HH,HH):-is_true(BBB),!.
+body_head_pfc(BBB,HH,HH):-is_src_true(BBB),!.
 body_head_pfc(BBB,HH,(BBB==>HH)).
 
 %= 	 	 
@@ -572,7 +572,7 @@ boxlog_to_pfc_pass_4(IN,OUT):-once(demodal_sents('$VAR'('KB'),IN,MID)),IN\=@=MID
 boxlog_to_pfc_pass_4(IN,OUT):-once(subst_except(IN,not,~,MID)),IN\=@=MID,!,boxlog_to_pfc_pass_4(MID,OUT).
 boxlog_to_pfc_pass_4(IN,OUT):-once(subst_except(IN,poss,possible_t,MID)),IN\=@=MID,!,boxlog_to_pfc_pass_4(MID,OUT).
 
-boxlog_to_pfc_pass_4((V:- TRUE),VE):- is_true(TRUE),boxlog_to_pfc_pass_4(V,VE),!.
+boxlog_to_pfc_pass_4((V:- TRUE),VE):- is_src_true(TRUE),boxlog_to_pfc_pass_4(V,VE),!.
 boxlog_to_pfc_pass_4((H:- B),(HH:- BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to_pfc_pass_4(B,BB).
 boxlog_to_pfc_pass_4((H & B),(HH , BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to_pfc_pass_4(B,BB).
 boxlog_to_pfc_pass_4((H v B),(HH ; BB)):- !,boxlog_to_pfc_pass_4(H,HH),boxlog_to_pfc_pass_4(B,BB).

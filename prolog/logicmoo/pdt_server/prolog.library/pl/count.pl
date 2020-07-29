@@ -53,7 +53,7 @@ count_successes(Goal, Times) :-
 
 :- module_transparent count_and_print/2.
 
-count_and_print(Goal, _) :-
+count_and_print(Goal, N) :-
 	nb_setval(successcounter,0),
 	(	catch(Goal,_Any,fail),     % turn exceptions into failures
   			nb_getval(successcounter,N),

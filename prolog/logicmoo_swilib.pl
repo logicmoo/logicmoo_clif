@@ -119,12 +119,12 @@ add_history_ideas:-
        % use_module(library(editline)),
         use_module(library(prolog_history)),
 
-        add_history(start_telnet),
+       /* add_history(start_telnet),
         add_history(help(match_regex/2)),
         add_history(list_undefined),
         add_history(listing(lmconf:at_restore_goal/2)),
-	add_history(ensure_loaded(run_mud_game)),
-	add_history(statistics),        
+		add_history(ensure_loaded(run_mud_game)),
+		add_history(statistics),        
         add_history(qsave_lm(lm_repl)),        
         add_history(make),        
         add_history(mmake),
@@ -147,9 +147,10 @@ add_history_ideas:-
         add_history([user:init_mud_server]),
         add_history([user:run_mud_server]),
         add_history(consult(library(prologmud_sample_games/run_mud_server))),
+        */
         !.
 
-:- before_boot(add_history_ideas).
+% :- before_boot(add_history_ideas).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT GOALS

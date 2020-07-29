@@ -1,3 +1,4 @@
+:- encoding(iso_latin_1).
 /*****************************************************************************
  * This file is part of the Prolog Development Tool (PDT)
  * 

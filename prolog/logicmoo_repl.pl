@@ -7,7 +7,7 @@
 :- '$set_source_module'(baseKB).
 :- set_module(baseKB:class(development)).
 :- ensure_loaded(library(xlisting)).
-:- ensure_loaded(library(xlisting_web)).
+%:- ensure_loaded(library(xlisting_web)).
 :- ensure_loaded(library(logicmoo_lib)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,7 +40,7 @@ logicmoo_web :- whenever_flag_permits(load_network,with_no_mpred_expansions(user
 % INIT BASIC FORWARD CHAINING SUPPORT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- baseKB:ensure_loaded(library(pfc_lib)).
+:- baseKB:ensure_loaded(library(pfc)).
 
 init_mud_server:- ensure_loaded(library(prologmud_sample_games/run_mud_server)).
 
@@ -149,7 +149,22 @@ system:iRR7_test:-
 :- system:use_module(library(wam_cl/sreader)).
 :- endif.
 
-show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
+show_kif(Str):- 
+   with_kifvars(
+    locally(set_prolog_flag(logicmoo_modality,none),
+     on_x_rtrace((
+       input_to_forms_debug(Str,[ 
+           from_kif_string,
+           sexpr_sterm_to_pterm,
+           map_each_subterm(fully_expand_some_kif),
+           map_each_subterm(sumo_to_pdkb_p5),
+           fully_expand_always,
+           cyc_to_pdkb_maybe,
+           unnumbervars_with_names,
+           sumo_to_pdkb_p9,
+           map_each_subterm(fully_expand_some_kif),
+           qualify_modality]))))).
+
 :- export(show_kif/1).
 
 :- add_history((input_to_forms("
@@ -163,15 +178,23 @@ show_kif(Str):- sanity(must(input_to_forms_debug(Str,sumo_to_pdkb))).
 :- must(((input_to_forms("(=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) (disjoint ?ITEM1 ?ITEM2))))",O,Vs)),!,wdmsg(O+Vs))).
 :- must(input_to_forms_debug("(=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) (disjoint ?ITEM1 ?ITEM2))))",sumo_to_pdkb)).
 */
-:- show_kif("(=> (disjointDecomposition ?CLASS @ROW) (forall (?ITEM1 ?ITEM2) (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) (disjoint ?ITEM1 ?ITEM2))))").
-:- show_kif("(=> (isa ?NUMBER ImaginaryNumber) (exists (?REAL) (and (isa ?REAL RealNumber) (equal ?NUMBER (MultiplicationFn ?REAL (SquareRootFn -1))))))").
-:- show_kif("(=> (isa ?PROCESS DualObjectProcess) (exists (?OBJ1 ?OBJ2) (and (patient ?PROCESS ?OBJ1) (patient ?PROCESS ?OBJ2) (not (equal ?OBJ1 ?OBJ2)))))").
-:- show_kif("(=> (contraryAttribute @ROW) (=> (inList ?ELEMENT (ListFn @ROW)) (isa ?ELEMENT Attribute)))").
-:- show_kif("(=> (and (contraryAttribute @ROW1) (identicalListItems (ListFn @ROW1) (ListFn @ROW2))) (contraryAttribute @ROW2))").
-:- show_kif("(=> (contraryAttribute @ROW) (forall (?ATTR1 ?ATTR2) (=> (and (equal ?ATTR1 (ListOrderFn (ListFn @ROW) ?NUMBER1)) (equal ?ATTR2 (ListOrderFn (ListFn @ROW) ?NUMBER2)) (not (equal ?NUMBER1 ?NUMBER2))) (=> (property ?OBJ ?ATTR1) (not (property ?OBJ ?ATTR2))))))").
-:- show_kif("(=> (equal ?NUMBER (MultiplicationFn 1 ?NUMBER)) (equal (MeasureFn ?NUMBER CelsiusDegree) (MeasureFn (DivisionFn (SubtractionFn ?NUMBER 32) 1.8) FahrenheitDegree)))").
-:- show_kif("(DivisionFn (SubtractionFn ?NUMBER 32) 1.8 #C(1.2 9))").
+show_kif_ex :- show_kif("disjointDecomposition").
+show_kif_ex :- show_kif("(=> P Q)").
+show_kif_ex :- show_kif("(=> ?VAR-P ?VAR-Q)").
+show_kif_ex :- show_kif("(=> (disjointDecomposition ?CLASS @ROW) 
+                 (forall (?ITEM1 ?ITEM2)
+                    (=> (and (inList ?ITEM1 (ListFn @ROW)) (inList ?ITEM2 (ListFn @ROW)) (not (equal ?ITEM1 ?ITEM2))) (disjoint ?ITEM1 ?ITEM2))))").
+show_kif_ex :- show_kif("(=> (isa ?NUMBER ImaginaryNumber) (exists (?REAL) (and (isa ?REAL RealNumber) (equal ?NUMBER (MultiplicationFn ?REAL (SquareRootFn -1))))))").
+show_kif_ex :- show_kif("(=> (isa ?PROCESS DualObjectProcess) (exists (?OBJ1 ?OBJ2) (and (patient ?PROCESS ?OBJ1) (patient ?PROCESS ?OBJ2) (not (equal ?OBJ1 ?OBJ2)))))").
+show_kif_ex :- show_kif("(=> (contraryAttribute @ROW) (=> (inList ?ELEMENT (ListFn @ROW)) (isa ?ELEMENT Attribute)))").
+show_kif_ex :- show_kif("(=> (and (contraryAttribute @ROW1) (identicalListItems (ListFn @ROW1) (ListFn @ROW2))) (contraryAttribute @ROW2))").
+show_kif_ex :- show_kif("(=> (contraryAttribute @ROW) (forall (?ATTR1 ?ATTR2) (=> (and (equal ?ATTR1 (ListOrderFn (ListFn @ROW) ?NUMBER1)) (equal ?ATTR2 (ListOrderFn (ListFn @ROW) ?NUMBER2)) (not (equal ?NUMBER1 ?NUMBER2))) (=> (property ?OBJ ?ATTR1) (not (property ?OBJ ?ATTR2))))))").
+show_kif_ex :- show_kif("(=> (equal ?NUMBER (MultiplicationFn 1 ?NUMBER)) (equal (MeasureFn ?NUMBER CelsiusDegree) (MeasureFn (DivisionFn (SubtractionFn ?NUMBER 32) 1.8) FahrenheitDegree)))").
+show_kif_ex :- show_kif("(DivisionFn (SubtractionFn ?NUMBER 32) 1.8 #C(1.2 9))").
 
+show_kif:- mmake, forall(clause(show_kif_ex,Body),ignore((Body))).
+
+:- baseKB:show_kif.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LOAD LOGICMOO KB EXTENSIONS

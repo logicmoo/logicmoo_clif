@@ -8,7 +8,11 @@
 */
 :- module(logicmoo_plarkc,[]).
 
+% ==============================================
+% [Required] Load the Logicmoo User System
+% ==============================================
 :- ensure_loaded(library(logicmoo_lib)).
+
 
 :- multifile(baseKB:cycBetween/3).
 :- dynamic(baseKB:cycBetween/3).

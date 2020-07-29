@@ -308,7 +308,7 @@ really_add_mpred_storage_op(Head):-
 %
 % Renumbervar Z.
 %
-renumbervarZ((H:-B),GGG):-is_true(B),!,copy_term(H,GG),unnumbervars(GG,GGG),numbervars(GGG,0,_).
+renumbervarZ((H:-B),GGG):-is_src_true(B),!,copy_term(H,GG),unnumbervars(GG,GGG),numbervars(GGG,0,_).
 renumbervarZ(H,GGG):-copy_term(H,GG),unnumbervars(GG,GGG),numbervars(GGG,0,_).
 
 %= 	 	 
@@ -642,7 +642,7 @@ tf_result(Call,TF):-(Call->TF=true;TF=fail).
 %
 % Assert Managed Predicate True Stucture.
 %
-assert_mpred_t((G:-B)):-is_true(B),!,must(assert_mpred_t(G)).
+assert_mpred_t((G:-B)):-is_src_true(B),!,must(assert_mpred_t(G)).
 assert_mpred_t(DB):-once(fully_expand(change(assert,ain),DB,MP)),DB\=@=MP,!,must(assert_mpred_t(MP)).
 assert_mpred_t((G1,G2)):-!,assert_mpred_t(G1),assert_mpred_t(G2).
 assert_mpred_t(G):-add_from_file(G).
@@ -721,7 +721,7 @@ baseKB:mpred_provide_storage_op(Op,HB):-
 %
 % Managed Predicate True Structure Storage Oper..
 %
-mpred_t_storage_op(Op,(Head:-Body)):- is_true(Body),!,mpred_t_storage_op(Op,Head).
+mpred_t_storage_op(Op,(Head:-Body)):- is_src_true(Body),!,mpred_t_storage_op(Op,Head).
 
 
 mpred_t_storage_op(Op,H):- baseKB:pfcManageHybrids,!,baseKB:mpred_provide_storage_op(Op,H).
@@ -776,7 +776,7 @@ mpred_t_storage_op(Op,HeadBody):-
 %
 % Application Call Storage Oper..
 %
-mud_call_store_op(Op,(H:-B)):- is_true(B),!,mud_call_store_op(Op,H).
+mud_call_store_op(Op,(H:-B)):- is_src_true(B),!,mud_call_store_op(Op,H).
 mud_call_store_op(Op,t('$si$':'$was_imported_kb_content$', _, OPRAND)):-!,loop_check(mpred_op(Op,OPRAND),true).
 mud_call_store_op(Op,OPRAND):- show_success(why,wff_check_failed(Op,OPRAND,_WHY)),!.
 mud_call_store_op(Op,OPRAND):- reduce_mpred_op(Op,Op2),show_call(why,call(Op2,OPRAND)).

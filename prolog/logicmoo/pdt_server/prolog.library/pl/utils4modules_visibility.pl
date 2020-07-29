@@ -1,3 +1,4 @@
+:- encoding(iso_latin_1).
 /*****************************************************************************
  * This file is part of the Prolog Development Tool (PDT)
  * 
@@ -27,7 +28,7 @@
            module_of_file/2,               % File, Module
            
            empty_module/1,                 % (Module)
-           hidden_module/1,                % Module
+           pdt_hidden_module/1,                % Module
            
            visible_in_module/3,	           % Module, Name, Arity
            declared_in_module/2,           % Module, Head
@@ -49,9 +50,9 @@
 :- use_module(pdt_support, [pdt_support/1]).
 :- use_module(library(lists), [member/2]).
 
-%% hidden_module(M)
+%% pdt_hidden_module(M)
 %
-hidden_module(M) :- starts_with_dollar(M).
+pdt_hidden_module(M) :- starts_with_dollar(M).
 
 starts_with_dollar(Atom) :- sub_atom( Atom, 0, 1, _, '$'). 
         

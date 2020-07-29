@@ -45,7 +45,7 @@
 :- use_module(pdt_manual_entry).
 :- use_module(library(charsio)). 
 :- use_module(library(lists)). 
-:- use_module(library(prolog_clause)).
+%:- use_module(library(prolog_clause), except([hidden_module/1])).
 :- use_module(library(prolog_source), [
 	read_source_term_at_location/3
 ]).

@@ -19,7 +19,7 @@
 :- if(current_prolog_flag(dialect, swi)).
 
 :- use_module(library(lists)).
-:- use_module(library(helpidx)).
+%:- use_module(library(helpidx)).
 :- use_module(library(memfile)).
 :- use_module(library(quintus)).
 
@@ -29,7 +29,7 @@
 :- use_module(library(help)).
 :- use_module(library(make)).
 :- use_module(library('pldoc')).
-:- use_module(library('pldoc/doc_html')).
+%:- use_module(library('pldoc/doc_html'),except([op_type/2])).
 :- use_module(library('http/html_write')).
 
 :- use_module(pdt_prolog_library(utils4modules)).

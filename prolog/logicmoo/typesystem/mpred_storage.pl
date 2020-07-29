@@ -1295,7 +1295,7 @@ mpred_modify(Op,                 G):- trace_or_throw(unknown_database_modify(Op,
 %
 database_modify_0(Op,                       M:G):- atom(M),!, database_modify_0(Op,G).
 database_modify_0(Op,                   (C1,C2)):- !, must(database_modify_0(Op,C1)), must(database_modify_0(Op,C2)).
-database_modify_0(change(Assert,AorZ),(G:-TRUE)):- is_true(TRUE),!,database_modify_0(change(Assert,AorZ),G).
+database_modify_0(change(Assert,AorZ),(G:-TRUE)):- is_src_true(TRUE),!,database_modify_0(change(Assert,AorZ),G).
 database_modify_0(change(retract,a),          G):- !, del(G).
 database_modify_0(change(retract,one),        G):- !, del(G),!.
 database_modify_0(change(retract,all),          G):- !, clr(G).

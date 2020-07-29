@@ -153,9 +153,9 @@ cycl_to_mpred(V,Out):-cycl_to_mpred0(V,Out).
 cycl_to_mpred0(V,V):- var(V),!.
 cycl_to_mpred0((V1 , V2),Out):-!,cycl_to_mpred0(V1,Out),cycl_to_mpred0(V2,Out),!.
 cycl_to_mpred0([V1 | V2],Out):-!,cycl_to_mpred0(V1,Out),cycl_to_mpred0(V2,Out),!.
-cycl_to_mpred0((TRUE=>V),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
-cycl_to_mpred0(<=(V , TRUE),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
-cycl_to_mpred0((V :- TRUE),Out):-is_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0((TRUE=>V),Out):-is_src_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0(<=(V , TRUE),Out):-is_src_true(TRUE),cycl_to_mpred0(V,Out),!.
+cycl_to_mpred0((V :- TRUE),Out):-is_src_true(TRUE),cycl_to_mpred0(V,Out),!.
 cycl_to_mpred0(V,Out):- into_mpred_form_locally(V,M),V\=@=M,!,cycl_to_mpred0(M,Out),!.
 cycl_to_mpred0((V :- A),(V :- A)):- !.
 cycl_to_mpred0(V,Out):- cyc_to_pdkb(V,VE),cycl_to_mpred1(VE,Out).

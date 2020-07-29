@@ -25,6 +25,8 @@
 
 :- use_module(pdt_common_pl('callgraph/pdt_call_graph')).
 
+:- encoding(iso_latin_1).
+
 %:- ensure_loaded('../pdt_factbase.pl').
 %:- use_module('../modules_and_visibility').
     /*********************************************

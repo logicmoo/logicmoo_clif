@@ -1,3 +1,4 @@
+:- encoding(iso_latin_1).
 /*****************************************************************************
  * This file is part of the Prolog Development Tool (PDT)
  * 
@@ -21,7 +22,7 @@
 :- use_module(pdt_common_pl('metainference/pdt_meta_specification')).
 :- use_module(pdt_common_pl(pdt_entry_points)).
 :- use_module(pdt_common_pl(properties)).
-:- use_module(library(prolog_clause)).
+%:- use_module(library(prolog_clause),except([hidden_module/1])).
 :- use_module(pdt_prolog_library(compatibility), [
 	pdt_source_file/2
 ]).

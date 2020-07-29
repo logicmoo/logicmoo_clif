@@ -1,9 +1,10 @@
 
-:- multifile user:message_hook/3.
-:- dynamic user:message_hook/3.
 :- dynamic pdt_startup_error_message/1.
 :- dynamic collect_pdt_startup_error_messages/0.
 collect_pdt_startup_error_messages.
+
+:- multifile user:message_hook/3.
+:- dynamic user:message_hook/3.
 user:message_hook(_,Level,Lines):- 
     collect_pdt_startup_error_messages,
     (Level == error; Level == warning),
@@ -55,8 +56,16 @@ assertz_user_file_search_path(Name,Path):-
 :- [lib_pdt_console_pl(loader)].
 :- ['./pdt.analysis/pl/load.pl'].
 
-:- if(\+ thread_property(_,alias('consult_server@35421'))).
-:- must(consult_server(35421,'/tmp/fp_1522012126371_0.8230701758113668')).
-:- endif.
+start_pdt:- start_pdt(35421).
+
+start_pdt(Port):- atom_concat('consult_server@',Port,ThreadAlias),thread_property(_,alias(ThreadAlias)),!.
+start_pdt(Port):- consult_server(Port,'/tmp/fp_1522012126371_0.8230701758113668').
 
 :- must(write_pdt_startup_error_messages_to_file('/tmp/fp_1522012126371_0.6983157812319148')).
+
+
+%:- if(app_argv('--pdt')).
+%:- break.
+:- start_pdt. %during_net_boot()
+%:- endif.
+
