@@ -317,7 +317,7 @@ this doesnt nesc imply defeasably, but implies elaboration tollerance
 (A v ~A) in order to deal with   ?(A v ~A)   ?A ? ~<>A
 []A v ~<>A
 */
-body_contains(B,Cont):- notrace((compound(Cont),compound(SK),sub_term(SK,B),compound(SK),SK=Cont)),!.
+body_contains(B,Cont):- enotrace((compound(Cont),compound(SK),sub_term(SK,B),compound(SK),SK=Cont)),!.
 
 
 % demodal_head(_KB,proven_not_reify(A),'$unused'(proven_not_reify(A)),_Body,true):- nonvar(A),!.
