@@ -55,7 +55,7 @@ kif_hook(_,F,_):- atom_concat('sk',_,F),atom_concat(_,'Fn',F),!.
 kif_hook(C,_,_):- leave_as_is(C),!,fail.
 kif_hook(C,F,_):- is_sentence_functor(F),!,arg(_,C,E),kif_hook(E).
 
-: - fixup_exports.
+:- fixup_exports.
 
 %% kif_hook_skel(+TermC) is det.
 %

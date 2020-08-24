@@ -788,6 +788,7 @@ ttExpressionType(ftPercent).
 % :- rtrace, visible(-all),visible(+exception).
 isa(vRed,vtColor).
 
+
 completelyAssertedCollection(vtValue).
 
 
