@@ -185,6 +185,8 @@ reallyLoadTiny:- mpred_notrace.
 
 :- dynamic(baseKB:tinyKB/3).
 :- multifile(baseKB:tinyKB/3).
+:- export(baseKB:tinyKB/3).
+:- kb_global(baseKB:tinyKB/3).
 :- system:import(baseKB:tinyKB/3).
 
 

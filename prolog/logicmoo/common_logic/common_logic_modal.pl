@@ -265,30 +265,6 @@ unusable_body(_,falsify(skolem(_,_))).
 negations_of_each_other(A,B):- A  =<>=  ~B.
 negations_of_each_other(A,B):- ~A  =<>=  B.
 
-
-guess_varnames(IO):-guess_varnames(IO,_).
-guess_varnames(I,O):-guess_varnames(add_var_to_env,I,O).
-
-:- meta_predicate guess_varnames(2,*,*).
-guess_varnames(_Each,G,G):- \+ compound(G),!.
-guess_varnames(Each, subrelation(V,N), subrelation(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
-guess_varnames(Each, isNamed(V,N), isNamed(V,N)):- var(V), \+ variable_name(V,_), atomic(N),call(Each,N,V),!.
-guess_varnames(Each, isNamed(V,H), isNamed(V,H)):- var(V), \+ variable_name(V,_),
-   compound(H),functor(H,F,_),
-   flag(skolem_count,SKN,SKN+1),
-   toCamelcase(F,UF),atom_concat(UF,SKN,UF1),
-   call(Each,UF1,V),!.
-guess_varnames(Each,H,H ):- H=..[F,V],var(V),
-  \+ variable_name(V,_), 
-  \+ atom_concat('sk',_,F), 
-  \+ atom_concat(_,'Of',F), 
-  \+ atom_concat(_,'Fn',F),
-  flag(skolem_count,SKN,SKN+1),
-  toCamelcase(F,UF),atom_concat(UF,SKN,UF1),
-  call(Each,UF1,V),!.
-guess_varnames(Each,H,HH ):- H=..[F|ARGS],!,must_maplist_det(guess_varnames(Each),ARGS,ARGSO),!,HH=..[F|ARGSO].
-guess_varnames(_Each, (G), (G)):- !.
-
 /*
 LEM asserts (A v ~A) is nesisarily true.. But what if we rejected this? 
 We still need to prove things.. like "prove A" or even "prove ~A" thus we are better of with:  <>(A v ~A)
