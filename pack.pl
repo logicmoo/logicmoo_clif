@@ -1,5 +1,5 @@
 name(logicmoo_base).
-version('1.4.111').
+version('2.0.1').
 author('Douglas R. Miles','logicmoo@gmail.com').
 title('LogicMOO - Extends Prolog Programming to support Dynamic Epistemic Logic (DEL) with Constraints').
 keywords([pfc,extension,clif,datalog,del,fol,snark,logicmoo,memoization]).
