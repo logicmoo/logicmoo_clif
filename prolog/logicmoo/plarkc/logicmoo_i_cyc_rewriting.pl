@@ -1837,6 +1837,7 @@ load_renames(File):- load_with_asserter(File,_,add_rename(baseKB),[]).
 :- forall((baseKB:rnc(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rnc(N,Y)))).
 :- forall((baseKB:rn_new(N,Y),(\+atom(N);\+atom(Y))),throw(retract(baseKB:rn_new(N,Y)))).
 
+azzert_rename(C,P):- C=P,!.
 azzert_rename(C,P):- builtin_rn(C,P),!.
 azzert_rename(C,P):- baseKB:rnc(C,P),!.
 azzert_rename(C,P):- baseKB:rn_new(C,P),!.

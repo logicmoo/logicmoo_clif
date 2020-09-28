@@ -64,7 +64,12 @@
             mpred_type_constraints_file/0
           ]).
 
-:- set_prolog_flag(generate_debug_info, true).
+%:- set_prolog_flag(generate_debug_info, true).
+:- user:use_module(library(logicmoo_common)).
+:- user:use_module(library(gvar_globals_api)).
+% :- use_module(library(logicmoo/common_logic/common_logic_snark)).
+
+
 
 :- meta_predicate my_when(+,0).
 :- meta_predicate nrlc(0).
@@ -74,11 +79,27 @@
 :- meta_predicate xnr(*,0).
 %:- include('mpred_header.pi').
 
+%:- rtrace.
+:- kb_shared(baseKB:admittedArgument/3).
+:- kb_shared(baseKB:argIsa/3).
+:- kb_shared(baseKB:genls/2).
+
+:- kb_global(baseKB:nesc/1).
+:- kb_global(baseKB:proven_tru/1).
+
+:- export_everywhere(mpred_hooks,holds_t,2).
+
+:- kb_global(mpred_hooks:holds_t/3).
+:- kb_global(mpred_storage:equals_call/2).
+
+:- kb_global(baseKB:call_e_tru/2).
+:- kb_global(baseKB:is_fort/1).
+:- kb_global(common_logic_snark:kif_option_value/2).
+:- kb_global(baseKB:member_eqz/2).
+
+:- op(300,fx,('~')).
+
 % :- endif.
-
-:- use_module(library(logicmoo/common_logic/common_logic_snark)).
-
-:- user:use_module(library(gvar_globals_api)).
 
 :- module_transparent((
             add_cond/2,           
@@ -125,15 +146,16 @@
             mpred_type_constraints_file/0)).
 
 :- if(exists_source(library(multivar))).
-:- use_module(library(multivar)).
+%:- use_module(library(multivar)).
 :- endif.
 
+%:- rtrace.
 :- if(exists_source(library(vhar))).
-:- use_module(library(vhar)).
+%:- use_module(library(vhar)).
 :- endif.
 
 :- if(exists_source(library(vprox))).
-:- use_module(library(vprox)).
+%:- use_module(library(vprox)).
 :- endif.
 
 
@@ -257,7 +279,7 @@ compound_lit(Arg):- compound(Arg).
 enforce_bound(G):-args_enforce_bound(G,Closure),maplist(call,Closure).
 
 :- during_boot(add_history(( 
-  G=(loves(X,Y),~knows(Y,tHuman(X))),must(args_enforce_bound(G,Out)),writeq(Out)
+  G=(loves(X,Y),~(knows(Y,tHuman(X)))),must(args_enforce_bound(G,Out)),writeq(Out)
    ))).
 
 :- export(args_enforce_bound/2).
@@ -491,9 +513,22 @@ my_when(If,Goal):- when(If,Goal).
 %
 lazy(G):- var(G),!,freeze(G,lazy(G)).
 lazy(G):- ground(G),!,call(G).
+lazy((G1,G2)):- !, lazy(G1),lazy(G2).
 lazy(is(X,G)):- !,clpr:{X =:= G}.
+lazy(G):- functor(G,F,2),clp_r_arithmetic(F),!,clpr:{G}.
+lazy(G):- term_variables(G,Vs),maplist(freeze_rev(lazy_1(G)),Vs).
+
+
+lazy_1(G):- var(G),!,freeze(G,lazy_1(G)).
+lazy_1(G):- ground(G),!,call(G).
+lazy_1((G1,G2)):- !, lazy_1(G1),lazy_1(G2).
+lazy_1(is(X,G)):- !,clpr:{X =:= G}.
+lazy_1(G):- functor(G,F,2),clp_r_arithmetic(F),!,clpr:{G}.
+lazy_1(G):- term_variables(G,[_]),!,call(G).
+lazy_1(G):- term_variables(G,Vs),maplist(freeze_rev(lazy_1(G)),Vs).
+
+freeze_rev(G,V):- freeze(V,G).
 % lazy(is(X,G)):-!,term_variables(G,Vs),lazy(Vs,is(X,G)).
-lazy(G):- functor(G,F,A),lazy_pfa(G,F,A).
 
 clp_r_arithmetic(=<).
 clp_r_arithmetic(=:=).
@@ -503,12 +538,16 @@ clp_r_arithmetic(>=).
 clp_r_arithmetic(>).
 
 lazy_pfa(G,F,2):- clp_r_arithmetic(F),!,clpr:{G}.
+/*
 lazy_pfa(G,_,1):- term_variables(G,[V1|Vs1]),!,
       (Vs1 = [V2|Vs0] -> lazy([V1,V2|Vs0],G)
                       ; freeze(V1,G)).
+
 lazy_pfa(G,_,_):- term_variables(G,[V1|Vs1]),
       (Vs1 = [V2|Vs0] -> lazy([V1,V2|Vs0],G)
                       ; freeze(V1,G)).
+*/
+
 
 %% lazy( ?V, :GoalG) is semidet.
 %
@@ -525,11 +564,27 @@ or_any_var([V|Vs],(nonvar(V);C)):-or_any_var(Vs,C).
 
 % test  lazy(isa(X,Y)),!,X=tCol,melt(Y).
 
-%% thaw( ?G) is semidet.
+%% thaw( ?Var) is semidet.
 %
 % Thaw.
 %
-thaw(G):- call_residue_vars(G,Vs),maplist(melt,Vs).
+thaw(Var):- var(Var),!,thaw_var(Var).
+thaw(G):- term_attvars(G,Vs),maplist(thaw,Vs).
+
+thaw_var(Var):- term_attvars_deep(Var,Vs),Vs\==[Var],!,maplist(melt,Vs).
+thaw_var(Var):- frozen(Var,G),call(G).
+
+term_attvars_deep(Term,VsO):- term_attvars_deep([],Term,VsO).
+
+term_attvars_deep(Sofar,Term,Vs):- notrace(ground(Term)),!,Vs=Sofar.
+term_attvars_deep(Sofar,Term,Vs):- \+ var(Term),!, term_attvars(Term,AVs), 
+  maplist(term_attvars_deep(Sofar),AVs,VVs),ord_union([Sofar|VVs],Vs),!.
+term_attvars_deep(Sofar,Var,VsO):- ord_memberchk(Var,Sofar),!,VsO=Sofar.
+term_attvars_deep(Sofar,Var,VsO):- get_attrs(Var,Term),term_attvars(Term,AVs),
+ ord_del_element(AVs,Var,Rest),ord_subtract(Rest,Sofar,NewVars),ord_add_element(Sofar,Var,WithNewVar),!,
+ (NewVars==[] -> VsO=WithNewVar;  maplist(term_attvars_deep(WithNewVar),NewVars,VVs),ord_union([WithNewVar|VVs],VsO)),!.
+term_attvars_deep(Sofar,_,Sofar).
+
 
 
 %% melt( ?G) is semidet.
@@ -1267,7 +1322,7 @@ attempt_attribute_one_arg(_Hint,F,N,A):-call_u(argQuotedIsa(F,N,Type)),Type\=ftT
 attempt_attribute_one_arg(_Hint,F,N,A):-call_u(argIsa(F,N,Type)),Type\=ftTerm,!,attempt_attribute_args(and,Type,A).
 attempt_attribute_one_arg(_Hint,F,N,A):-attempt_attribute_args(and,argi(F,N),A).
 
-
+                                     
 
 :- was_export((samef/2,same/2)).
 
