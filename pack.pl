@@ -7,9 +7,7 @@ home('https://github.com/TeamSPoon/logicmoo_base/').
 download('https://github.com/TeamSPoon/logicmoo_base.git/release/*.tgz').
 requires(pfc).
 requires(multimodal_dcg).
-%requires(s_expression).
 requires(instant_prolog_docs).
-requires(eggdrop).
 requires(logicmoo_utils).
 requires(wam_common_lisp).
 autoload(false).
