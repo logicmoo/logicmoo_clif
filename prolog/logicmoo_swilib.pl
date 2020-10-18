@@ -31,8 +31,16 @@
 :- use_module(library(prolog_stack)).
  prolog_stack:stack_guard(none).
 :- endif.
+/*
+:- system:use_module(library(gui_tracer)).
+:- system:use_module(library(threadutil)).
+:- system:use_module(library(swi_ide)).
+:- system:use_module(library(swi_compatibility)).
+:- system:use_module(library(pce)).
+:- system:use_module(library('../boot/pce_realise')).
+*/
 
-
+/*
 :- if(current_prolog_flag(xpce,true) ).
 
 :- if(current_prolog_flag(xpce,false)).
@@ -49,11 +57,13 @@
 
 :- endif.
 
-:- if( (current_prolog_flag(xpce,false); current_prolog_flag(logicmoo_headless, true); ( \+ getenv('DISPLAY',_)) ; ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
+:- if( (current_prolog_flag(xpce,false); current_prolog_flag(logicmoo_headless, true); ( \+ getenv('DISPLAY',_)) ;
+    ((app_argv(List),  (member('--nopce',List) ; member('--nogui',List)) )))).
 :- set_prolog_flag(logicmoo_headless,true).
 :- set_prolog_flag(xpce,false).
 :- unsetenv('DISPLAY').
 :- endif.
+*/
 
 /*
 :- set_prolog_flag(access_level,system).
