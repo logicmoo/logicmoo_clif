@@ -1794,13 +1794,15 @@ thconsult(( File )):-
 \index{read\_all}
 \begin{verbatim} */
 
+:- meta_predicate(th_call(*)).
+th_call(explain(T)):- !, explain_cmd(T).
+th_call(T):- call(T).
 
 :- meta_predicate(read_all(*)).
 read_all(end_of_file) :- !.
-
 read_all(T) :-
    ((th_flag(( asserting,on))),!; format('~n% ~p.~n',[T])),
-   (call(T) *-> true ; format('% Warning: ~p failed~n',[T])),
+   (th_call(T) *-> true ; format('% Warning: ~p failed~n',[T])),
    th_read(T2),
    read_all(T2).
                  
