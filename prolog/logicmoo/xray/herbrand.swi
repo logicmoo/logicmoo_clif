@@ -5,7 +5,7 @@
 
 :- if(current_prolog_flag(logicmoo_xray,true)).
 
-:- was_dynamic(herbrandize).
+:- was_dynamic(herbrandize/0).
 herbrandize.
 :- retractall(herbrandize).
 
@@ -59,7 +59,6 @@ add_answer_preds((query :- Query),(query :- (Query,nl,nl,write(answer:Vars),nl))
 add_answer_preds(R,R).
 
 %%% constants returns a list of the constants appearing in a formula.
-
 constants(Wff,L) :-
         Wff = (A :- B) ->
                 constants(A,L1),

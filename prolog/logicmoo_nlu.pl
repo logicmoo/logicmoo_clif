@@ -7,6 +7,7 @@
 % ==============================================
 :- ensure_loaded(library(logicmoo_lib)).
 
+/*
 :- if( \+ exists_source(library('logicmoo_nlu/nl_pipeline.pl'))).
 :- add_pack_path(packs_xtra).
 :- endif.
@@ -15,6 +16,7 @@
 :- if( \+ exists_source(library('logicmoo_nlu/parser_sharing.pl'))).
 :- add_pack_path(packs_sys).
 :- endif.
+*/
 
 :- use_module(library(logicmoo_nlu/nl_pipeline)).
 :- use_module(library(logicmoo_nlu/parser_sharing)).
@@ -22,6 +24,11 @@
 :- use_module(library(logicmoo_nlu/parser_tokenize)).
 :- use_module(library(logicmoo_nlu/parser_chat80)).
 :- use_module(library(logicmoo_nlu/parser_e2c)).
+
+:- current_prolog_flag(access_level,WAS),!,
+   set_prolog_flag(access_level,user),
+   reexport(library(logicmoo_nlu/nl_pipeline)),
+   set_prolog_flag(access_level,WAS).
 
 
 /*
@@ -53,9 +60,5 @@
 */
 
 
-:- current_prolog_flag(access_level,WAS),!,
-   set_prolog_flag(access_level,user),
-   reexport(library('logicmoo_nlu/nl_pipeline.pl')),
-   set_prolog_flag(access_level,WAS).
 
 
