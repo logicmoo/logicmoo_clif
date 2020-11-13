@@ -12,3 +12,5 @@ prolog/cpack/
 *.qlf
 INDEX.pl
 *.o
+prolog/logicmoo/tptp/kbset/
+prolog/logicmoo/tptp/pie/
