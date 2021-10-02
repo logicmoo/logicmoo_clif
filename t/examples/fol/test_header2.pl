@@ -111,11 +111,11 @@ add_pack_path(Rel):-
 
 %:- ensure_loaded(library(script_files)).
 :- if(( \+ current_module(pfc_lib) )).
-:- use_module(library(pfc)).
+:- expects_dialect(pfc).
 :- prolog_load_context(source,File),(atom_contains(File,'.pfc')-> sanity(is_pfc_file) ; must_not_be_pfc_file).
 :- endif.
 
-:- ensure_loaded(library(pfc_test)).
+:- ensure_loaded(library(logicmoo_test)).
 
 :- kb_global(baseKB:ttExpressionType/1).
 

@@ -15,12 +15,12 @@
 */
 % NEW
 :- include(library('logicmoo/common_logic/common_header.pi')).
-:- '$set_source_module'(baseKB).
+:- nop('$set_source_module'( baseKB)).
 
 %:- endif.
 %:- use_module(library(dictoo)).
 
-% :- '$set_source_module'(baseKB).
+% :- nop('$set_source_module'( baseKB)).
 :- meta_predicate skolem_test(0).
 :- meta_predicate skolem_unify(*,0).
 
@@ -41,7 +41,7 @@ with_no_kif_var_coroutines(Goal):- locally_each(local_override(no_kif_var_corout
  :- meta_predicate bless_ex(*,*).
  :- meta_predicate reify(?).
  :- meta_predicate test_count(0,*).
- :- meta_predicate undo(0).
+% :- meta_predicate undo(0).
 
 :-  system:((
  op(1199,fx,('==>')), 
@@ -191,11 +191,24 @@ subtract_eq([X|Xs],Ys,[X|T],Intersect) :-   subtract_eq(Xs,Ys,T,Intersect).
 modal_functor((poss)).
 modal_functor((nesc)).
 modal_functor((falsify)).
-modal_functor((~)).
+%modal_functor((~)).
 
+% chainable_literal(P,_):- is_ftVar(P),!,fail.
+chainable_literal(P,_):- \+ ground(P),!,fail.
+chainable_literal('$VAR'(_),_):- !, fail.
+chainable_literal( \+ _ ,_):- !,fail.
+chainable_literal(~P,~G):- !, chainable_literal(P,G).
+chainable_literal(P,P):- non_modal_positive(P),!.
+:- export(chainable_literal/2).
+:- system:import(chainable_literal/2).
+:- system:export(chainable_literal/2).
+
+check_non_modal_positive(P):- !, non_modal_positive(P).
+check_non_modal_positive(P):- \+ non_modal_positive(P),!,dumpST,break.
+check_non_modal_positive(_).
 
 non_modal_positive(P):- atomic(P),!.
-non_modal_positive(P):- compound(P),functor(P,F,_), \+ modal_functor(F).
+non_modal_positive(P):- compound(P),functor(P,F,_), F\=='$VAR', F\=='\\+', F\=='~', \+ modal_functor(F).
 :- export(non_modal_positive/1).
 :- system:import(non_modal_positive/1).
 :- system:export(non_modal_positive/1).
@@ -232,9 +245,9 @@ falsify_lc(M,P):-loop_check(falsify(M, P)),groundoid(P).
 :- system:export(falsify/1).
 
 %:- baseKB:ain((proven_tru(P):- (proven_tru_0(P),groundoid(P)))).
-:- baseKB:ain(((poss(P)) :- (non_modal_positive(P),(falsify(poss(~P));nesc(P)),groundoid(P)))).
-:- baseKB:ain(((poss(P)) :- (nesc(P)))).
-:- baseKB:ain(((poss(~P)) :- (non_modal_positive(P),(falsify(poss(P));falsify(P)),groundoid(P)))).
+%:- baseKB:ain(((poss(P)) :- (non_modal_positive(P),(falsify(poss(~P));nesc(P)),groundoid(P)))).
+%:- baseKB:ain(((poss(P)) :- (nesc(P)))).
+%:- baseKB:ain(((poss(~P)) :- (non_modal_positive(P),(falsify(poss(P));falsify(P)),groundoid(P)))).
 
 functor_skell(P0,P0):- var(P0),!.
 functor_skell(P0,_):- \+ compound(P0),!.
@@ -650,7 +663,7 @@ skolem_from_set(Set,X,SKF):-
 
 range_int(Which,N,Cardin):- '#>='(Which,N), '#=<'(Which, Cardin).
 
-which_skv_soft(_SkV,Cardin,Which):- kif_option_value(gvar_skolem_combine,true),!, range_int(Which,1,Cardin),!.
+which_skv_soft(_SkV,Cardin,Which):- common_logic_utils:kif_option_value(gvar_skolem_combine,true),!, range_int(Which,1,Cardin),!.
 which_skv(SkV,Cardin,Which):- var(SkV),!, between(1,Cardin,Which).
 which_skv(SkV,Cardin,Which):-
   nb_get_next(SkV,Cardin,Offset),between(1,Cardin,For),
@@ -684,7 +697,7 @@ test_count(Goal,N):-
 
 
 %undo(Goal):- Redo = call(Goal), super_call_cleanup(true, (true; (Redo,setarg(1,Redo,true))), Redo).
-undo(Goal):- true; (Goal,fail).
+%undo(Goal):- true; (Goal,fail).
 
 /*
 % one list note on PNF  the Way i convert loves(joe,mary) to PNF...
@@ -720,6 +733,7 @@ system:call_tru(M,X):- call(M:call,nesc(X)).
 call_e_tru(_E,X):- proven_tru(X), \+ proven_neg((X)).
 
 call_e_tru(_,X):- context_module(M), inherit_above(M, (X)).
+:- kb_global(call_e_tru/2).
 
 
 % call_tru(P):- is_recorded(P).
@@ -745,7 +759,7 @@ man(X):- context_module(M), inherit_above(M, man(X)).
 
 /*
 
-  rejiggle_quants( +FmlIn, -FmlOut, [options...]).
+  moveInwardQuants( +FmlIn, -FmlOut, [options...]).
 
 
       converts terms like...
@@ -765,32 +779,52 @@ man(X):- context_module(M), inherit_above(M, man(X)).
 % Quanitifier Expansions
 % =================================
 
-rejiggle_quants(KB,In,Out2):-
+correct_special_quantifiers(KB,In,Out2):-
   expandQuants(KB,In,Mid1),
   kif_optionally_e(false,moveInwardQuants([],elim(all),KB),Mid1,Mid2),
   un_quant3(KB,Mid2,Out),
   Out2 = Out.
 
+% expandQuants(KB,X,_):- dmsg(expandQuants(KB,X,_)),fail.
+expandQuants(_,X,X):- is_ftVar(X),!.
 expandQuants(_,Fml,Fml):- is_leave_alone(Fml),!.
 expandQuants(_,[],[]):- !.
 expandQuants(KB,[A|B],[AO|BO]):- expandQuants(KB,A,AO),expandQuants(KB,B,BO),!.
-
-expandQuants(KB,all(XL,NNF),FmlO):- is_list(XL),
+%expandQuants(KB,PAB,FmlO):- PAB=..[F|AB], must_maplist_det(expandQuants(KB),AB,ABO), FmlO=..[F|ABO].
+expandQuants(KB,exactly(N,X,NNF),FmlO):- expandQuants(KB,quant(exactly(N),X,NNF),FmlO).
+expandQuants(KB,atleast(N,X,NNF),FmlO):- expandQuants(KB,quant(atleast(N),X,NNF),FmlO).
+expandQuants(KB,atmost(N,X,NNF),FmlO):- expandQuants(KB,quant(atmost(N),X,NNF),FmlO).
+expandQuants(KB,exists(X,NNF),FmlO):- expandQuants(KB,quant(atleast(1),X,NNF),FmlO).
+expandQuants(KB,all(X,NNF),FmlO):- expandQuants(KB,quant(all(),X,NNF),FmlO).
+expandQuants(KB,exists(X,NNF),FmlO):- expandQuants(KB,quant(exists(),X,NNF),FmlO).
+expandQuants(KB,some(X,NNF),FmlO):- expandQuants(KB,quant(exactly(1),X,NNF),FmlO).
+expandQuants(KB,the(X,NNF),FmlO):- expandQuants(KB,quant(exactly(1),X,NNF),FmlO).
+%expandQuants(KB,quant(exactly(0),X,NNF),FmlO):- expandQuants(KB,~exists(X,NNF),FmlO).
+%expandQuants(KB,quant(atmost(0),X,NNF),FmlO):- expandQuants(KB,quant(exactly(0),X,NNF),FmlO).
+/*expandQuants(KB,all(XL,NNF),FmlO):- is_list(XL),
     (get_quantifier_isa(XL,X,Col) -> 
       expandQuants(KB,all(X,isa(X,Col) => NNF),FmlO);
       (XL=[X|MORE],!,
       (MORE==[] -> 
             expandQuants(KB,all(X,NNF),FmlO);
             expandQuants(KB,all(X,all(MORE,NNF)),FmlO)))).
+*/
+% Actual Var
+expandQuants(KB,quant(Quant,V,Expr),quant(Quant,V,ExprO)):-is_ftVar(V),!,expandQuants(KB,Expr,ExprO).
+% No more
+expandQuants(KB,quant(_Quant,L,Expr),ExprO):-L==[],!,expandQuants(KB,Expr,ExprO).
+% List of One
+expandQuants(KB,quant(Quant,[V],Expr),ExprO):- \+ is_list(V),!,expandQuants(KB,quant(Quant,V,Expr),ExprO).
+% Atom Name
+expandQuants(KB,quant(Quant,V,Expr),ExprO):-atom(V),!,svar_fixvarname(V,L),subst(Expr,V,'$VAR'(L),ExprM),!,
+  expandQuants(KB,quant(Quant,'$VAR'(L),ExprM),ExprO).
 
-expandQuants(KB,exactly(N,X,NNF),FmlO):- expandQuants(KB,quant(exactly(N),X,NNF),FmlO).
-expandQuants(KB,atleast(N,X,NNF),FmlO):- expandQuants(KB,quant(atleast(N),X,NNF),FmlO).
-expandQuants(KB,atmost(N,X,NNF),FmlO):- expandQuants(KB,quant(atmost(N),X,NNF),FmlO).
-expandQuants(KB,exists(X,NNF),FmlO):- expandQuants(KB,quant(atleast(1),X,NNF),FmlO).
-expandQuants(KB,some(X,NNF),FmlO):- expandQuants(KB,quant(exactly(1),X,NNF),FmlO).
-expandQuants(KB,quant(exactly(0),X,NNF),FmlO):- expandQuants(KB,~exists(X,NNF),FmlO).
-expandQuants(KB,quant(atmost(0),X,NNF),FmlO):- expandQuants(KB,quant(exactly(0),X,NNF),FmlO).
-
+% Name and Types
+expandQuants(KB,quant(Quant,[[Var|Types]],Expr),ExprO):- nonvar(Types),!,
+  prepend_isas(Quant,Expr,Var,Types,IsaExpr), 
+  expandQuants(KB,quant(Quant,Var,IsaExpr),ExprO).
+% List Of
+expandQuants(KB,quant(Quant,[L|List],Expr),ExprO):-is_list(List),expandQuants(KB,quant(Quant,[L],quant(Quant,List,Expr)),ExprO).
 
 expandQuants(KB,quant(Quant,XL,NNF),FmlO):- is_list(XL),
     (get_quantifier_isa(XL,X,Col) -> 
@@ -800,14 +834,22 @@ expandQuants(KB,quant(Quant,XL,NNF),FmlO):- is_list(XL),
             expandQuants(KB,quant(Quant,X,NNF),FmlO);
             expandQuants(KB,quant(Quant,X,quant(Quant,MORE,NNF)),FmlO)))).
 
+expandQuants(KB,quant(Quant,V,Expr),quant(Quant,V,ExprO)):- !,expandQuants(KB,Expr,ExprO).
+
 expandQuants(KB,PAB,FmlO):- PAB=..[F|AB], must_maplist_det(expandQuants(KB),AB,ABO), FmlO=..[F|ABO].
 
-un_quant3(_,Fml,Fml):- is_leave_alone(Fml),!.
-un_quant3(KB,all(X,NNF),all(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
-un_quant3(KB,exists(X,NNF),exists(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
+un_quant3(_,Fml,FmlO):- is_leave_alone(Fml),!,Fml=FmlO.
+%un_quant3(KB,all(X,NNF),all(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
+%un_quant3(KB,exists(X,NNF),exists(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
+un_quant3(KB,quant(exactly(0),X,NNF),FmlO):- un_quant3(KB,~exists(X,NNF),FmlO).
+un_quant3(KB,quant(atmost(0),X,NNF),FmlO):- un_quant3(KB,quant(exactly(0),X,NNF),FmlO).
+un_quant3(KB,quant(all(),X,NNF),all(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
+un_quant3(KB,quant(_,Nil,NNF),FmlO):- Nil==[],!,un_quant3(KB,NNF,FmlO).
+un_quant3(KB,quant(exists(),X,NNF),exists(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
 un_quant3(KB,quant(atleast(1),X,NNF),exists(X,FmlO)):- !,un_quant3(KB,NNF,FmlO).
 un_quant3(KB,quant(isa(K),X,NNF),FmlO):- un_quant3(KB,NNF,NNFO),un_quant3(KB,isa(X,K) & NNFO,FmlO).
-un_quant3(KB,quant(Quant,X,NNF),quant(Quant,X,FmlO)):- un_quant3(KB,NNF,FmlO).
+%un_quant3(KB,quant(Quant,X,NNF),FmlO):- append_termlist(Quant,[X,NNF],TODO), un_quant3(KB,TODO,FmlO).
+%un_quant3(KB,quant(Quant,X,NNF),quant(Quant,X,FmlO)):- un_quant3(KB,NNF,FmlO).
 % un_quant3(KB,quant(Quant,X,NNF),FmlO):- un_quant3(KB,NNF,NNFO),Quant=..[Q|AUNT],append([Q|AUNT],[X,NNFO],STERM),FmlO=..STERM.
 un_quant3(KB,PAB,FmlO):- PAB=..[F|AB], must_maplist_det(un_quant3(KB),AB,ABO), FmlO=..[F|ABO].
 
@@ -887,8 +929,6 @@ fair_equality_3rd(SkV,X,(A,B),[AA,BB]):-!,fair_equality_3rd(SkV,X,A,AA),fair_equ
 fair_equality_3rd(SkV,X,~(A),AA=false):- !,fair_equality_lit(SkV,X,A,AA).
 fair_equality_3rd(SkV,X,poss(A),AA=poss):- !,fair_equality_lit(SkV,X,A,AA).
 fair_equality_3rd(SkV,X,nesc(A),AA=true):- !,fair_equality_lit(SkV,X,A,AA).
-fair_equality_3rd(SkV,X,poss(_,A),AA=poss):- !,fair_equality_lit(SkV,X,A,AA).
-fair_equality_3rd(SkV,X,nesc(_,A),AA=true):- !,fair_equality_lit(SkV,X,A,AA).
 fair_equality_3rd(SkV,X,(A),AA=true):- !,fair_equality_lit(SkV,X,A,AA).
 fair_equality_3rd(_SkV,_X,A,A):-!.
 fair_equality_3rd(SkV,X,(A),AA):-fair_equality_3rd(SkV,X,nesc(A),AA).
@@ -1004,7 +1044,7 @@ nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):- fail, N==1, !,
 nnf_ex(KB, ~ quant(atleast(N),X,Fml), FreeV,NNF,Paths):- NN is N - 1,
    nnf_ex_nnf(KB,quant(atmost(NN),X,Fml),FreeV,NNF,Paths).
 
-nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
+nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF1,Paths):-  use_kif_option(skolem_in_nnf,true), !,
  must_det_l((
     % add_cond(X,extensional(X)),
     term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
@@ -1031,7 +1071,7 @@ nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):-  N==2, !,
   % NEWFORM =  (different(X,Y) <=> (exists(X,Fml) & exists(Y,FmlY))),
   nnf(KB,NEWFORM,FreeV,NNF,Paths).
 
-nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):- N > 1, kif_option(false,skolem(setOf)),!,  
+nnf_ex(KB,quant(atleast(N),X,Fml),FreeV,NNF,Paths):- N > 1, use_kif_option(skolem(setOf),true),!,  
    NEWFORM =  (all(X, exists(Set, (sizeOfLeast(Set,N) & elem(X,Set)))) <=> Fml), add_var_to_env("Set",Set),
    nnf(KB,NEWFORM,FreeV,NNF,Paths).
 */
@@ -1046,7 +1086,7 @@ nnf_ex(KB,~quant(atmost(0),X,Fml),FreeV,NNF,Paths):-  !,
 nnf_ex(KB,quant(atmost(0),X,Fml),FreeV,NNF,Paths):-  !,
   nnf_ex_nnf(KB,all(X,~(Fml)),FreeV,NNF,Paths).
 
-nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF1,Paths):-  kif_option(true,skolem(nnf)), !,
+nnf_ex(KB,quant(atmost(N),X,Fml),FreeV,NNF1,Paths):-  use_kif_option(skolem_in_nnf,true), !,
  must_det_l((
     % add_cond(X,extensional(X)),
     term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),
@@ -1116,7 +1156,7 @@ nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF,Paths):- !,
 
 
 nnf_ex(KB,quant(exactly(N),X,Fml),FreeV,NNF1,Paths):- fail,
- kif_option(true,skolem(nnf)), !,
+ use_kif_option(skolem_in_nnf,true), !,
  must_det_l((
     % add_cond(X,extensional(X)),
     term_slots(KB+FreeV+Fml,SSlots),list_to_set(SSlots,Slots),

@@ -7,13 +7,11 @@
 */
 :- module(sanity_neg,[]).
 
-:- ensure_loaded(library(pfc)).
-
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 ==>(isEach(system(X),system(Y)) :- related(X,Y)).
 
-:- process_this_script.
+% :- process_this_script.
 
 :- dynamic(fooBar/0).
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+#!/usr/bin/env lmoo-junit
 
 :- ensure_loaded(system:library(logicmoo_utils)).
 

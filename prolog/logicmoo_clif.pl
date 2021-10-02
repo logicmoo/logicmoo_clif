@@ -16,25 +16,33 @@
  op(300,fx,'~'),
  op(300,fx,'-').
 
-/** <module> logicmoo_plarkc - special module hooks into the logicmoo engine allow
-   clif syntax to be recocogized via our CycL/KIF handlers 
+:- if(use_module(library(logicmoo_utils))). :- endif.
+%:- in_lm_ws(use_module(library(logicmoo_webui))).
+%:- webui_load_swish_and_clio.
+
+
+:- reexport(library('logicmoo/common_logic/common_logic_utils.pl')).
+
+:- reexport(library(sigma_ace)).
+
+/** <module> MODULE LOGICMOO CLIF / logicmoo_plarkc
+Logicmoo CLIF - Base Libraries that extend Prolog to support Dynamic Epistemic Logic (DEL) with Constraints.
+This special module hooks into the logicmoo engine allow clif syntax to be recocogized via our CycL/KIF handlers 
  
- Logicmoo Project: A LarKC Server written in Prolog
- Maintainer: Douglas Miles
+ Logicmoo Projects LarKC Server written in Prolog
  Dec 13, 2035
-
- ?- ensure_loaded(library(logicmoo_clif)).
-
-:- set_prolog_flag(verbose_autoload,true).
+@author Douglas R. Miles
+@license LGPL
 */
 
-:- '$set_source_module'(baseKB).
+
+:- nop('$set_source_module'( baseKB)).
 
 :- ensure_loaded(library(logicmoo_lib)).
 
 
 :- pfc_lib:use_module(library(pfc_lib)).
-:- set_fileAssertMt(baseKB).
+%:- set_fileAssertMt(baseKB).
 
 %:- set_defaultAssertMt(baseKB).
 
@@ -42,9 +50,10 @@
 
 :- user:use_module(library(logicmoo_common)).
 
-:- if((exists_source(library(wam_cl/sreader)))).
+:- if((exists_source(library(wam_cl/sreader)), \+ current_module(wmclrt))).
 :- use_module(library(wam_cl/sreader)).
 :- endif.
+
 
 :- dynamic   user:file_search_path/2.
 :- multifile user:file_search_path/2.
@@ -52,7 +61,7 @@
    DirFor = library,
    before_boot((( \+ user:file_search_path(DirFor,Dir)) ->asserta(user:file_search_path(DirFor,Dir));true)),!.
 
-:- '$set_source_module'(baseKB).
+:- nop('$set_source_module'( baseKB)).
 
 :- asserta_new(user:file_search_path(logicmoo,library('logicmoo/.'))).
 :- prolog_load_context(directory,Dir), asserta_new(user:file_search_path(logicmoo,Dir)).
@@ -61,7 +70,6 @@
 % :- add_library_search_path('./logicmoo/common_logic/',[ 'common_*.pl']).
 
 
-:- reexport(library('logicmoo/common_logic/common_logic_utils.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_boxlog.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_modal.pl')).
 :- reexport(library('logicmoo/common_logic/common_logic_exists.pl')).
@@ -93,19 +101,29 @@ maybe_load_clif_file(Spec, Options):-
   exists_file(Found),!,
   really_load_clif_file(Found, Options).
 
-:- fixup_exports.
+:- baseKB:ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
+
+%:- kif_compile.
+
+%:-system:use_module(library(make)).
+
+:- add_history(use_module(library(logicmoo_clif))).
+
+:- use_module(library(logicmoo_cg)).
+:- use_module(library(logicmoo_ec)).
+:- use_module(library(logicmoo_nlu)).
+
+:- add_history(qsave_bin(clif)).
 
 :- dynamic user:prolog_load_file/2.
 :- multifile user:prolog_load_file/2.
 %:- use_module(library(logicmoo_common)).
 user:prolog_load_file(Spec, Options):- maybe_load_clif_file(Spec, Options),!.
 
+:- fixup_exports.
 
-:- baseKB:ensure_loaded(baseKB:library('logicmoo/common_logic/common_logic_clif.pfc')).
-
-:- kif_compile.
-
-
+:- if(qsave_bin(clif)).
+% :- break.
+:- endif.
 
 
-   

@@ -1,6 +1,7 @@
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+%:- expects_dialect(pfc).
+:- ensure_loaded(library('logicmoo/common_logic/common_logic_utils.pl')).
+:- nop('$set_source_module'( baseKB)).
 
 /* <module>
 % =============================================
@@ -107,6 +108,7 @@
 %:- ensure_abox(baseKB).
 
 :- set_prolog_flag(expect_pfc_file,always).
+:- expects_dialect(pfc).
 
 
 :- ensure_loaded('system_basic.pfc').

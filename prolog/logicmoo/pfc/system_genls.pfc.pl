@@ -1,6 +1,6 @@
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+:- nop('$set_source_module'( baseKB)).
+:- expects_dialect(pfc).
 
 :- set_prolog_flag(do_renames,restore).
 :- set_prolog_flag_until_eof(do_renames,term_expansion).
@@ -37,7 +37,7 @@ genlsUpTo(ttTypeType).
 
 % to load this files use  ?- ensure_mpred_file_loaded('logicmoo/pfc/system_genls.pfc').
 :- dynamic(mudIsa/2).
-:- file_begin(pfc).
+:- expects_dialect(pfc).
 
 
 tooSlow==>((type_checking ==> (((genls(X,Y),{X\=Y},genls(Y,X))) ==> {mpred_withdraw(genls(Y,X))}))).

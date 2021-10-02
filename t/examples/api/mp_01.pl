@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+#!/usr/bin/env lmoo-junit
 
 :- module(sm1,[]).
 

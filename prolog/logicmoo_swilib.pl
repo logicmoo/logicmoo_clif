@@ -2,19 +2,46 @@
 % ===================================================================
     File:         'logicmoo_swilib.'
     Purpose:       To load the logicmoo libraries as needed
-    Contact:       $Author: dmiles $@users.sourceforge.net ;
+    Contact:       $Author: dmiles logicmoo@gmail.com ;
     Version:       'logicmoo_swilib.' 1.0.0
     Revision:      $Revision: 1.7 $
-    Revised At:    $Date: 2002/07/11 21:57:28 $
+    Revised At:    $Date: 2021/07/11 21:57:28 $
     Author:        Douglas R. Miles
-    Maintainers:   TeamSPoon
+    Maintainers:   logicmoo
     E-mail:        logicmoo@gmail.com
-    WWW:           http://www.prologmoo.com
-    SCM:           https://github.com/TeamSPoon/PrologMUD/tree/master/pack/logicmoo_base
-    Copyleft:      1999-2015, LogicMOO Prolog Extensions
+    WWW:           http://www.logicmoo.org
+    SCM:           https://github.com/logicmoo/PrologMUD/tree/master/pack/logicmoo_base
+    Copyleft:      1999-2021, LogicMOO Prolog Extensions
     License:       Lesser GNU Public License
 % ===================================================================
 */
+
+:- module(logicmoo_swilib,[]).
+/** <module> Utility LOGICMOO_COMMON
+This module makes sure any SWI libraries are loaded Early to mitigate swi-library changes over time. 
+
+@author Douglas R. Miles
+@license LGPL 
+*/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MISC UTILS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- user:use_module(library(logicmoo_common)).
+
+start_x_ide:- current_prolog_flag(logicmoo_headless,true),!.
+start_x_ide:- 
+  quietly((prolog_ide(thread_monitor),prolog_ide(debug_monitor),
+   % prolog_ide(open_debug_status),
+   guitracer,
+   use_module(library(pce_prolog_xref)),
+   noguitracer)).
+
+:- add_history(start_x_ide).
+
+:- fixup_exports.
+
+end_of_file.
+
 
 :- module(logicmoo_swilib,[logicmoo_goal/0,logicmoo_run_goal/0,logicmoo_toplevel/0,add_history_ideas/0,start_x_ide/0]).
 
@@ -95,7 +122,7 @@
 :- system:use_module(library(statistics),[time/1]).
 :- user:use_module(library(statistics)).
 :- baseKB:use_module(library(statistics),[time/1]).
-%:- autoload([verbose(false)]).
+%:- autoload_all([verbose(false)]).
 */
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,7 +224,7 @@ logicmoo_toplevel:- dmsg("logicmoo_toplevel"),
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % (X)WINDOWS (DE)BUGGERY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-start_x_ide:- !.
+
 start_x_ide:- current_prolog_flag(logicmoo_headless,true),!.
 start_x_ide:- 
   quietly((prolog_ide(thread_monitor),prolog_ide(debug_monitor),

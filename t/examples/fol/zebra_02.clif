@@ -1,4 +1,4 @@
-:- include(test_header).
+:- include(library(logicmoo_test_header)).
 ;;
 ;; deduct-einstein.scm
 ;;
@@ -75,7 +75,7 @@
 (fact "person3" "Nationality" "Dane")
 (fact "person3" "Drinks" "tea")
 
-;; 4. The green house is just to the left of the white one.
+;; 4. The green house is just to the left of the white_house one.
 (left-of "green house" "white house")
 
 ;; 5. The owner of the green house drinks coffee.
@@ -185,11 +185,11 @@
 (is-a "Blend" "tobacco")
 (is-a "Blue Master" "tobacco")
 
-(is-a "fish" "pet")
-(is-a "dogs" "pet")
-(is-a "birds" "pet")
-(is-a "cats" "pet")
-(is-a "horses" "pet")
+(is-a "fish" "keeps_as_pet")
+(is-a "dogs" "keeps_as_pet")
+(is-a "birds" "keeps_as_pet")
+(is-a "cats" "keeps_as_pet")
+(is-a "horses" "keeps_as_pet")
 
 (is-a "Englishman" "citizenship")
 (is-a "Swede" "citizenship")
@@ -738,3 +738,9 @@
 
 
 
+
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/zebra_02.clif 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/ZEBRA_02/logicmoo_base_examples_fol_ZEBRA_02_JUnit/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AZEBRA_02 
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/636

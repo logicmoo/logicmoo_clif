@@ -64,6 +64,9 @@
             mpred_type_constraints_file/0
           ]).
 
+:- multifile(same/2).
+:- dynamic(same/2).
+
 %:- set_prolog_flag(generate_debug_info, true).
 :- user:use_module(library(logicmoo_common)).
 :- user:use_module(library(gvar_globals_api)).
@@ -92,10 +95,7 @@
 :- kb_global(mpred_hooks:holds_t/3).
 :- kb_global(mpred_storage:equals_call/2).
 
-:- kb_global(baseKB:call_e_tru/2).
-:- kb_global(baseKB:is_fort/1).
-:- kb_global(common_logic_snark:kif_option_value/2).
-:- kb_global(baseKB:member_eqz/2).
+:- kb_global(common_logic_utils:kif_option_value/2).
 
 :- op(300,fx,('~')).
 
@@ -146,7 +146,7 @@
             mpred_type_constraints_file/0)).
 
 :- if(exists_source(library(multivar))).
-%:- use_module(library(multivar)).
+:- use_module(library(multivar)).
 :- endif.
 
 %:- rtrace.
@@ -458,9 +458,8 @@ relax_N(_,_,Val):- var(Val),!, ((mtc_get_attr(Val,iz,_);mtc_get_attr(Val,iza,_))
 relax_N(G,N,Val):- dont_relax(Val)->true;(nb_setarg(N,G,NewVar),put_value(NewVar,Val)).
 
 :- if(exists_source(library(multivar))).
-% put_value(Var,Value):- multivar(Var),iz(Var,[Value]),mv_set1(Var,Value).
-
-% put_value(Var,Value):- Var==Value,!.
+put_value(Var,Value):- var(Var),multivar(Var),iz(Var,[Value]),mv_set1(Var,Value).
+put_value(Var,Value):- Var==Value,!.
 put_value(Var,Value):- is_dict(Value,Tag),!,
      (Tag==Var->true;put_value(Var,Tag)),
      dict_pairs(Value,_Tag2,Pairs),
@@ -493,10 +492,12 @@ relax_args(G,N,[A|RGS]):-relax_N(G,N,A),!,N2 is N + 1,relax_args(G,N2,RGS).
 relax_args(_,_,[]).
 
 %:- set_prolog_flag(verbose_file_search,true).
+% @TODO DMILES RE-ADD 
 :- use_module(library(clpfd),except([ins/2,sum/3,op(_,_,_)])).		% Make predicates defined
 %:- absolute_file_name(library('clp/clpr.pl'),File),writeln(File).
-%:- use_module(user:library(clpr)).		% Make predicates defined
-:- use_module(library(clpr),except([{}/1])).		% Make predicates defined
+%
+:- use_module(user:library(clpr),[]).		% Make predicates defined
+% @TODO DMILES RE-ADD :- use_module(library(clpr),except(['{}'/1])).		% Make predicates defined
 :- use_module(user:library(simplex)).		% Make predicates defined
 
 %:- set_prolog_flag(verbose_file_search,false).
@@ -974,7 +975,6 @@ add_cond_list_val(_Pred,Pred,X,FreeVars):- P=..[Pred,X,FreeVars],add_cond(X,P).
 
 
 :- meta_predicate never_cond(?,*).
-never_cond(Var,nesc(b_d(_,nesc,poss), ~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,nesc(~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(Var,(~ P )):- !, ensure_cond(Var,poss(P)).
 never_cond(NonVar,Closure):- nonvar(NonVar),!, \+ call_e_tru(NonVar,Closure).
@@ -1073,8 +1073,9 @@ add_cond3(Var,Dom1,Prop):- as_constraint_for(Var,Prop,Constraint),
 
 map_one_or_list(Call2,ArgOrL):- is_list(ArgOrL)->maplist(Call2,ArgOrL);call(Call2,ArgOrL).
 
-has_cond(Var,Prop):- obtain_conds(Var,Doms),map_one_or_list(has_cond(Doms,Var),Prop).
-has_cond(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),member(C,Doms).
+has_cond(Var,Prop):- obtain_conds(Var,Doms),nonvar(Doms),map_one_or_list(has_cond(Doms,Var),Prop).
+has_cond(Doms,Var,Prop):- must_be(nonvar,Doms),
+ as_constraint_for(Var,Prop,C),member(C,Doms).
 
 rem_cond(Var,Prop):- obtain_conds(Var,Doms),map_one_or_list(rem_cond(Doms,Var),Prop).
 rem_cond(Doms,Var,Prop):- as_constraint_for(Var,Prop,C),select(C,Doms,NewDoms),mtc_put_attr(Var,iza,NewDoms).
@@ -1871,4 +1872,6 @@ mpred_type_constraints_file.
 %
 % system:goal_expansion(G,O):- \+ current_prolog_flag(xref,true),\+ pldoc_loading, nonvar(G),boxlog_goal_expansion(G,O).
 
+:- baseKB:import(is_fort/1).
+:- baseKB:import(member_eqz/2).
 

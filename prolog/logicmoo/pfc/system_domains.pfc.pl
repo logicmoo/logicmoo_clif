@@ -1,6 +1,6 @@
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+:- nop('$set_source_module'( baseKB)).
+:- expects_dialect(pfc).
 
 
 :- sanity(ttRelationType(prologMultiValued)).
@@ -13,7 +13,7 @@ feature_setting(assume_wff, true).
 
 % set false so make_wff/1 will be noticed (default is true)
 feature_setting(make_wff,true)==> (feature_setting(add_admitted_arguments,true), feature_setting(assume_wff, false)).
-feature_setting(add_admitted_arguments,true) ==> 
+feature_setting(add_admitted_arguments,true)/fail ==> 
  ( (P/(compound(P),\+is_ftVar(P)) ==> 
   {with_current_why(P,ignore(\+ addAdmittedArguments(P)))})).
 
@@ -54,7 +54,7 @@ argIsa(F,N,Type):- var(N),arity_no_bc(F,A),!,system_between(1,A,N),argIsa(F,N,Ty
 
 /*
 argIsa(F,_,ftTerm):-member(F/_, [argIsa/3,predProxyAssert/2,negate_wrapper0/2,mudFacing/_,registered_module_type/2,       
-                                ruleBackward/2,formatted_resultIsa/2, pt/_,rhs/_,nt/_,bt/_,bracket/3]),!.
+                                ruleBackward/2,formatted_resultIsa/2, '$pt'/_,rhs/_,'$nt'/_,'$bt'/_,bracket/3]),!.
 argIsa(Prop,N1,Type):- is_2nd_order_holds(Prop),dmsg(todo(define(argIsa(Prop,N1,'Second_Order_TYPE')))),dumpST,dtrace,Type=argIsaFn(Prop,N1),!.
 */
 /*
@@ -145,7 +145,7 @@ argIsa(must,1,ftCallable).
 
 
 
-% argIsa(baseKB:agent_text_command,_,ftTerm).
+% argIsa(agent_text_command,_,ftTerm).
 
 
 argIsa('<=>',_,ftTerm).
@@ -183,7 +183,7 @@ rtArgsVerbatum(functor_module).
 ==>argsIsa(isEach(predProxyRetract,predProxyAssert,predProxyQuery,genlInverse),tPred).
 argsIsa(disjointWith,tCol).
 argQuotedIsa(ftFormFn,ftTerm).
-argQuotedIsa(mudTermAnglify,ftTerm).
+%argQuotedIsa(mudTermAnglify,ftTerm).
 argsIsa(genls,tCol).
 argsIsa(subFormat,ttExpressionType).
 

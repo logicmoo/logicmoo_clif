@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+#!/usr/bin/env lmoo-junit
 
 :- module(t123,[]).
 
@@ -6,6 +6,7 @@
 :- module(t123).
 
 :- dynamic(t123:ttExpressionType/1).
+
 
 % :- process_this_script.
 
@@ -51,7 +52,7 @@ do_subtest(List):- must_maplist(call,List).
 :- add_test(t125,
   (all(Human,isa(Human,tAnimal) => exists(Heart, (isa(Heart,tHeart)  =>  hasOrgan(Human,Heart)))))).
 
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 :- t121.
 
@@ -137,4 +138,10 @@ the other year.. i was creating a helpsystem for a commandline util for playing 
 so human controlled commands had crazy help system .. i had written this in C#
 what i was going to say about why cyc ended up the way it did was jus tthe concxept that you know there can be  many cfg for english out there and temproary onces
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/418 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_exists_02.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_EXISTS_02/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_EXISTS_02 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+#!/usr/bin/env lmoo-clif
 
 % :- module(t123,[]).
 
@@ -10,7 +10,7 @@
 
 :- set_prolog_flag(logicmoo_modality,full).
 
-:- process_this_script.
+% :- process_this_script.
 
 :- statistics.
 
@@ -973,13 +973,13 @@ File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\fol\tiny_k
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\pfc\pfc_sanity.pl.txt
   298 1:atLeastOneParent(X,Y) :- (motherOf(Z,X), motherOf(Z,Y) ; fatherOf(W,X), fatherOf(W,Y) ).
   299 1:atLeastTwoParents(X,Y) :- (motherOf(Z,X), motherOf(Z,Y) , fatherOf(W,X), fatherOf(W,Y) ).
-  300 21:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+pet(X), \+pet(Y), X \= Y.
-  300 46:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+pet(X), \+pet(Y), X \= Y.
+  300 21:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+keeps_as_pet(X), \+keeps_as_pet(Y), X \= Y.
+  300 46:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+keeps_as_pet(X), \+keeps_as_pet(Y), X \= Y.
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_base\t\examples\pfc\pfc_test1.pl.txt
   182 1:atLeastOneParent(X,Y) :- (motherOf(Z,X), motherOf(Z,Y) ; fatherOf(W,X), fatherOf(W,Y) ).
   183 1:atLeastTwoParents(X,Y) :- (motherOf(Z,X), motherOf(Z,Y) , fatherOf(W,X), fatherOf(W,Y) ).
-  184 21:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+pet(X), \+pet(Y), X \= Y.
-  184 46:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+pet(X), \+pet(Y), X \= Y.
+  184 21:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+keeps_as_pet(X), \+keeps_as_pet(Y), X \= Y.
+  184 46:stepSibling(X,Y) :- atLeastOneParent(X,Y), \+atLeastTwoParents(X,Y), \+keeps_as_pet(X), \+keeps_as_pet(Y), X \= Y.
 File W:\home\prologmud_server\lib\swipl\pack\logicmoo_packages\prolog\Back52\abox.pl
   942 11:a5obj_add_atleast(X,Obj,Min,Role,N_Obj) :- 
   944 18:        b5nf_add_atleast(NF,Min,Role,N_NF).
@@ -1595,4 +1595,10 @@ File W:\home\prologmud_server\lib\swipl\pack\prologmud_samples\prolog\prologmud_
   1055 68:PurposefulAction rdfs:comment "A specialization of both Action and AtLeastPartiallyMentalEvent. Each instance of PurposefulAction is an action consciously, volitionally, and purposefully done by (see performedBy) at least one actor.".
 File W:\home\prologmud_server\lib\swipl\pack\prologmud_samples\prolog\prologmud_sample_games\tempDir\lib\swipl\pack\colore\ontologies\gwml2\Module7.clif
   49 47:(cl-comment 'A CHGB is a HGB that consists of atleast two distinct SHGBs')
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/419 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_at_least_most_exactly_02.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_AT_LEAST_MOST_EXACTLY_02/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_AT_LEAST_MOST_EXACTLY_02 
 

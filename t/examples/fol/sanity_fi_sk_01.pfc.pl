@@ -101,7 +101,7 @@ N=((min_isa, max_isa),dom,[pred])
 
 
 %=  setup pfc
-:- begin_pfc.
+:- expects_dialect(pfc).
 :- kif_compile.
 
 % :- process_this_script.
@@ -172,3 +172,9 @@ father(eileen,bob).
 
 
 
+
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_fi_sk_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_FI_SK_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_FI_SK_01 
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/610

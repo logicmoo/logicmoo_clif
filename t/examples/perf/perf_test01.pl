@@ -2,7 +2,7 @@
 
 :- ensure_loaded('../../../prolog/logicmoo_utils').
 :- statistics.
-:- use_module(library(pfc)).
+:- expects_dialect(pfc).
 :- statistics.
 :- include('/opt/PrologMUD/pack/logicmoo_base/prolog/logicmoo_user.pl').
 :- statistics.
@@ -23,7 +23,7 @@
 
 :- baseKB:file_begin(pfc).
 
-:- module(baseKB).
+:- nop(module( baseKB)).
 
 ==>(aaa,bbb(1)).
 aaa.

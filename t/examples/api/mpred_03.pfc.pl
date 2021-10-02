@@ -1,10 +1,8 @@
-% #!/usr/bin/env swipl
+% #!/usr/bin/env lmoo-junit
 
 :- module(myMicrotheory,[]).
 
-:- ensure_loaded(library(pfc)).
-
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 :- mpred_trace_exec.
 

@@ -8,7 +8,7 @@
 
 :- debug_logicmoo(_).
 :- nodebug_logicmoo(http(_)).
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 :- dynamic(parent/2).
 
@@ -56,3 +56,9 @@ grandparent(douglas,trudy).
 :- mpred_test(parent(douglas,_X)).
 :- mpred_test(parent(_X,trudy)).
 :- listing(parent).
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/416 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_sk_two_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_SK_TWO_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_SK_TWO_01 
+

@@ -4,7 +4,7 @@
 
 :- ensure_loaded(library(script_files)).
 
-:- process_this_script.
+% :- process_this_script.
 
 % Initially Dmiles thought LEM was the culprit, it was not.
 % this is a more generalized problem in Nomics
@@ -16,8 +16,8 @@
 % Turn off modal extensions (default was full)
 
 %:- rtrace.
-:- set_kif_option(qualify_modality,none).
-:- must(kif_option_value(qualify_modality,none)).
+:- set_kif_option(qualify_modality,false).
+:- must(kif_option_value(qualify_modality,false)).
 %:- break.
 
 
@@ -253,3 +253,9 @@ end_of_file.
 
 
 
+
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/boxlog_sanity_02.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/BOXLOG_SANITY_02/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ABOXLOG_SANITY_02 
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/614

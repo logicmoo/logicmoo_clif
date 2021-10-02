@@ -1,18 +1,16 @@
+
 :- include(test_header).
-
-
-
-
-end_of_file.
-
-
-
 
 
 % Tests that you can express regular semweb cardinatility though in FOL
 
 /*
-
+EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/family_regress_01.pfc.pl 
+JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/FAMILY_REGRESS_01/ 
+PREVIOUS: https://jenkins.logicmoo.org/job/logicmoo_workspace/69/testReport/logicmoo.base.examples.fol/FAMILY_REGRESS_01/ 
+ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AFAMILY_REGRESS_01 
+GITLAB: https://gitlab.logicmoo.org/gitlab/logicmoo/logicmoo_workspace/-/blob/013514de819eead21c818af170c91f9052a89466/packs_sys/logicmoo_base/t/examples/fol/family_regress_01.pfc.pl 
+GITHUB: https://github.com/logicmoo/logicmoo_workspace/commit/013514de819eead21c818af170c91f9052a89466 
 
 
 #import: written-on(word,paper).
@@ -143,11 +141,13 @@ equal_papers_v1(paper1,paper2) <->
 
 :- debug_logicmoo(_).
 :- nodebug_logicmoo(http(_)).
-:- begin_pfc.
 
-house(red).
-house(blue).
-% house(green).
+:- expects_dialect(pfc).
+
+
+house(red_house).
+house(blue_house).
+% house(green_house).
 
 :- must((existing_count(X,house(X),EC),EC==2)).
 
@@ -174,8 +174,8 @@ exists_count(3, A, house(A)).
 
 need_plugs(1, A, house(A)).
 
-house(red).
-house(blue).
+house(red_house).
+house(blue_house).
 house(skFn(1, house(_))).
 
 */
@@ -185,3 +185,4 @@ house(skFn(1, house(_))).
 :- must((existing_count(X,house(X),EC),EC==3)).
 :- break.
 
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/607

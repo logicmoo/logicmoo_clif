@@ -10,11 +10,11 @@ existing_count(X,G,EC):- findall(X,G,List),length(List,EC).
 
 :- debug_logicmoo(_).
 :- nodebug_logicmoo(http(_)).
-:- begin_pfc.
+:- expects_dialect(pfc).
 
-house(red).
-house(blue).
-% house(green).
+house(red_house).
+house(blue_house).
+% house(green_house).
 
 :- must((existing_count(X,house(X),EC),EC==2)).
 
@@ -41,8 +41,8 @@ exists_count(3, A, house(A)).
 
 need_plugs(1, A, house(A)).
 
-house(red).
-house(blue).
+house(red_house).
+house(blue_house).
 house(skFn(1, house(_))).
 
 */
@@ -51,4 +51,10 @@ house(skFn(1, house(_))).
 
 :- must((existing_count(X,house(X),EC),EC==3)).
 :- break.
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/448 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/missing_count_04.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/MISSING_COUNT_04/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AMISSING_COUNT_04 
 

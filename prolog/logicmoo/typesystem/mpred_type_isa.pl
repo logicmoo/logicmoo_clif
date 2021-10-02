@@ -948,9 +948,10 @@ isa_backchaing_1(I,C):- fail,
 %  (isa/2) asserted.
 %
 
-isa_asserted(I,C):-  compound(I),!,no_repeats(loop_check(isa_asserted_0(I,C))).
-isa_asserted(I,C):-  ground(I:C),!,no_loop_check(no_repeats(loop_check(isa_asserted_0(I,C)))).
-isa_asserted(I,C):-  no_repeats(loop_check(isa_asserted_0(I,C))).
+%isa_asserted(I,C):-  compound(I),!,no_repeats(loop_check(isa_asserted_0(I,C))).
+%isa_asserted(I,C):-  ground(I:C),!,no_loop_check(no_repeats(loop_check(isa_asserted_0(I,C)))).
+%isa_asserted(I,C):-  no_repeats(loop_check(isa_asserted_0(I,C))).
+isa_asserted(I,C):- isa_asserted_0(I,C).
 % isa_asserted(I,C):- !, call_u(isa(I,C)).
 %isa_asserted(I,C):- ((lc_tcall(isa(I,C),no_repeats(loop_check(isa_asserted_0(I,C)))))).
 %isa_asserted(I,CC):-no_repeats((isa_asserted_0(I,C),call_u(genls(C,CC)))).
@@ -972,7 +973,7 @@ isa_asserted_0(I,C):-  clause_b(mudIsa(I,C)).
 %isa_asserted_0(I,C):- ((t_l:useOnlyExternalDBs,!);baseKB:use_cyc_database),(kbp_t([isa,I,C]);kbp_t([C,I])).
 
 isa_asserted_0(I,C):- quietly((atom(C),G=..[C,I],current_predicate(C,M:G))),!,on_x_fail(M:G).
-isa_asserted_0(I,C):-  not_mud_isa(I,C),!,fail.
+isa_asserted_0(I,C):- nonvar(I),nonvar(C),not_mud_isa(I,C),!,fail.
 isa_asserted_0(_,C):- nonvar(C),sanity(\+ is_ftVar(C)), clause_b(completelyAssertedCollection(C)),!,fail.
 % isa_asserted_0(I,_):- sanity(\+ is_ftVar(I)), clause_b(completeIsaAsserted(I)),!,fail.
 isa_asserted_0(I,C):- var(I),!,tSetOrdered(C),isa_asserted_0(I,C).
@@ -1236,11 +1237,20 @@ isa_mpred_provide_storage_clauses(H,true,hasInstanceCI):-
 %isa_mpred_provide_storage_clauses(isa(I,C),B,W):-nonvar(C),append_term(C,I,H),mpred_t_mpred_storage_clauses_rules(H,B,W).
 
 
+%% decl_type( :TermVar) is nondet.
+%
+% Declare Type.
+%
+
+decl_type(_):-!.
+decl_type(All):- map_list_conj(decl_type,All),!.
+decl_type(Spec):- show_call(why,ain(tCol(Spec))),!,guess_supertypes(Spec).
+decl_type(Spec):- never_type_why(Spec,Why),!,trace_or_throw(never_type_why(Spec,Why)).
+:- export(decl_type/1).
 
 
 
-
-
+:- expects_dialect(pfc).
 % ============================================
 % decl_type/1
 % ============================================
@@ -1255,17 +1265,8 @@ decl_type_safe(All):- map_list_conj(decl_type_safe,All),!.
 decl_type_safe(T):- ignore((atom(T), \+ (never_type_why(T,_)), \+ (number(T)),decl_type(T))).
 
 
-baseKB:prologBuiltin(decl_type/1).
+==>baseKB:prologBuiltin(decl_type/1).
 
-%% decl_type( :TermVar) is nondet.
-%
-% Declare Type.
-%
-
-decl_type(_):-!.
-decl_type(All):- map_list_conj(decl_type,All),!.
-decl_type(Spec):- show_call(why,ain(tCol(Spec))),!,guess_supertypes(Spec).
-decl_type(Spec):- never_type_why(Spec,Why),!,trace_or_throw(never_type_why(Spec,Why)).
 
 
 
@@ -1273,9 +1274,10 @@ decl_type(Spec):- never_type_why(Spec,Why),!,trace_or_throw(never_type_why(Spec,
 % assert_isa/2
 % ============================================
 
-baseKB:prologBuiltin(assert_isa_safe/2).
-baseKB:prologBuiltin(assert_isa/2).
-  
+==>baseKB:prologBuiltin(assert_isa_safe/2).
+==>baseKB:prologBuiltin(assert_isa/2).
+
+:- expects_dialect(swi).
 
 :- set_prolog_flag(expect_pfc_file,never).
 

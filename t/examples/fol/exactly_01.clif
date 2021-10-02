@@ -1,5 +1,7 @@
 #!/usr/bin/env swipl
-:- include(test_header).
+:- if(use_module(library(logicmoo_utils))). :- endif.
+:- include(library(logicmoo_test_header)).
+:- kif_io.
 ;; Module - Test Puzzle in CLIF for SWI-Prolog
 ;; Maintainer: Douglas Miles
 ;; Load with  ?- load_clif(pack(logicmoo_base/t/examples/fol/'exactly_01.clif'))
@@ -8,11 +10,7 @@
 (set-kif-option :assume-wff)
 (kif-mode tell)
 
-(call-prolog #|
-
 :- dbreq(retractall(clif(_))).
-
-|#)
 
 (domain hasName 1 tAgent)
 (domain hasName 2 tName)
@@ -70,3 +68,13 @@ And at least 5 houses.
 
 
 ")
+
+:- listing(clif).
+
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/466 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/exactly_01.clif 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/EXACTLY_01/logicmoo_base_examples_fol_EXACTLY_01_JUnit/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AEXACTLY_01 
+

@@ -1,7 +1,8 @@
 %:- module(system_basic,[]).
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+:- nop('$set_source_module'( baseKB)).
+%:- expects_dialect(pfc).
+:- expects_dialect(pfc).
 
 /** <module> system_basic
 % =============================================
@@ -15,7 +16,7 @@
 % =============================================
 */
 
-
+%:- cls.
 % :- xlisting( (==>) /2 ).
 
 :- set_prolog_flag_until_eof(runtime_debug, 1). % 2 = important but dont sacrifice other features for it
@@ -33,23 +34,31 @@
 :- set_prolog_flag_until_eof(unsafe_speedups, false).
 
 
-
 :- kb_shared(quotedIsa/2).
 :- kb_shared(tCol/1).
 
+:- sanity(is_pfc_file).
 
 arity(is_never_type,1).
 arity(F,1):- cwc, tCol(F). % current_predicate(F/1)).  % is_ftNameArity(F,1), , (col_as_unary(F);ttTypeType(F)), \+((call((dif:dif(Z,1))), arity(F,Z))).
 ~(tCol('$VAR')).
 
-ttRelationType(tFunction).
-ttRelationType(tPred).
+==> ttRelationType(tFunction).
+==> ttRelationType(tPred).
+
+%:- listing(ttRelationType/1).
+
+%:- mpred_trace_exec.
+
 completelyAssertedCollection(tRelation).
 completelyAssertedCollection(tPred).
+%:- listing(completelyAssertedCollection/1).
+%:- break.
 
 :- (ain((completelyAssertedCollection(tFunction)))).
-:- mpred_notrace_exec.
 :- (ain((ttRelationType(X)/sanity(atom(X))==>(arity(X,1),pfcControlled(X))))).
+
+:- mpred_notrace_exec.
 
 ttTypeType(C)==>completelyAssertedCollection(C).
 completelyAssertedCollection(ttTypeType).
@@ -222,7 +231,7 @@ never_assert_u(meta_argtypes(tSet(ftAssertable)),badRules).
 :- kb_shared(tCol/1).
 :- kb_shared(ttTypeFacet/1).
 
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 
 % ((prologHybrid(F),arity(F,A))==>{kb_shared(F/A)}).
@@ -409,6 +418,8 @@ typeGenls(ttIndividualType,tIndividual).
 typeGenls(ttTypeFacet,tCol).
 typeGenls(ttValueType,vtValue).
 
+:- kb_shared(tRegion/1).
+
 typeGenls(ttSpatialType,tSpatialThing).
 typeGenls(ttAgentType,tAgent).
 typeGenls(ttObjectType,tObj).
@@ -544,9 +555,9 @@ mudEquals(X,Y):-equals_call(X,Y).
 
 %:- set_fileAssertMt(baseKB).
 
-:- kb_shared(agent_call_command/2).
-:- export(agent_call_command/2).
-:- system:import(agent_call_command/2).
+:- kb_shared(baseKB:agent_call_command/2).
+:- export(baseKB:agent_call_command/2).
+:- system:import(baseKB:agent_call_command/2).
 
 
 :- kb_global(baseKB:decided_not_was_isa/2).
@@ -595,9 +606,9 @@ tAtemporalNecessarilyEssentialCollectionType(ANECT)==>
 
 % prologHybrid(arity/2).
 
-:- begin_pfc.
-:- sanity(get_lang(pfc)).
-:- set_file_lang(pfc).
+:- expects_dialect(pfc).
+%:- sanity(get_lang(pfc)).
+%:- set_file_lang(pfc).
 % :- mpred_ops.
 
 :- mpred_notrace_exec.
@@ -781,7 +792,7 @@ isa(iBar,tFoo).
 
 
 /*
-:- locally(set_prolog_flag_until_eof(expect_pfc_file,always),autoload([verbose(true)]))).
+:- locally(set_prolog_flag_until_eof(expect_pfc_file,always),autoload_all([verbose(true)]))).
 */
 % :- xlisting(tFoo).
 

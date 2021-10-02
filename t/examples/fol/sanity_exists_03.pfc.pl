@@ -1,4 +1,4 @@
-#!/usr/bin/env swipl
+#!/usr/bin/env lmoo-junit
 
 :- module(t123,[]).
 
@@ -10,33 +10,6 @@
 % :- process_this_script.
 
 :- statistics.
-
-
-subtest_assert(I):-kif_assert(I).
-
-subtest([subtest_assert(tAnimal(joe)),
-        mpred_test(isa(_,tHeart))]).
-
-subtest([subtest_assert(tAnimal(joe)),
-        mpred_test(hasOrgan(joe,_))]).
-
-subtest([subtest_assert(tHeart(_)),
-        mpred_test(~hasOrgan(jack,_))]).
-
-
-dbanner:- nl,nl,dmsg('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'),nl,nl.
-
-add_test(Name,Assert):- 
-   % test_boxlog(Assert),
-   assert(( Name:- dbanner,
-      test_assert(Assert))).
-
-test_assert(A):-
-  kif_assert(A),
-  nop(forall(subtest(T),do_subtest(T))).
-
-
-do_subtest(List):- must_maplist(call,List).
 
 
 :- add_test(t121, (all([[Human,tAnimal]],exists([[Heart,tHeart]],hasOrgan(Human,Heart))))).
@@ -51,7 +24,7 @@ do_subtest(List):- must_maplist(call,List).
 
 :- cls.
 
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 tAnimal(iBob).
 
@@ -59,7 +32,7 @@ tAnimal(iBob).
          
 
 :-  listing(needs).
-:-  listing(pt).
+:-  listing('$pt').
 
 
 :- '$set_source_module'(t123).
@@ -148,4 +121,10 @@ the other year.. i was creating a helpsystem for a commandline util for playing 
 so human controlled commands had crazy help system .. i had written this in C#
 what i was going to say about why cyc ended up the way it did was jus tthe concxept that you know there can be  many cfg for english out there and temproary onces
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/417 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_exists_03.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_EXISTS_03/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_EXISTS_03 
 

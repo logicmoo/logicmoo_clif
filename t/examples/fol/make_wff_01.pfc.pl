@@ -1,8 +1,6 @@
 :- include(test_header).
 
 
-
-
 % =================================================================================
 % Load the system
 % =================================================================================
@@ -12,33 +10,22 @@
 % :- set_prolog_flag(gc,false).
 
 % =================================================================================
-% Load the system options
+% Set our engine up
 % =================================================================================
 
-:- set_lang(clif).
-:- begin_pfc.  
-
-:- module(baseKB).
-:- '$set_source_module'(baseKB).
-
+:- expects_dialect(clif).
 % deduce instances from usages in args having the effect of deducing human,dwelling,beverage_class are classes
-
 ==> feature_setting(make_wff,true).
-
 ==> feature_setting(add_admitted_arguments,true).
-
 % set truth maintainance system to remove previous assertions that new assertions disagree with 
 ==> feature_setting(tms_mode,remove_conflicting).
-
-
-:- set_prolog_flag_until_eof(runtime_debug,3). % mention it when we remove previous assertions
-:- set_prolog_flag_until_eof(runtime_speed,0). % but dont gripe about speed
-
+:- set_prolog_flag(runtime_debug,3). % mention it when we remove previous assertions
 :- set_prolog_flag_until_eof(do_renames,mpred_expansion).
-
-
+%:- set_prolog_flag_until_eof(runtime_speed,0). % but dont gripe about speed
 :- kif_compile.
 
+:- nop(module( baseKB)).
+:- nop('$set_source_module'( baseKB)).
 
 % =================================================================================
 % Define a couple predicates
@@ -133,4 +120,10 @@ prove_not_holds_t(F,A,B)==> ~t(F,A,B).
 :- mpred_why(isa(sue,drinker)).
 failure:- mpred_test(\+ isa(sue,drinker)).
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/74 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/make_wff_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/MAKE_WFF_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AMAKE_WFF_01 
 

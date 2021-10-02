@@ -1,4 +1,4 @@
-
+#!env swipl
 
 % :- module(kbii,[]).
 
@@ -13,7 +13,7 @@
 :- set_fileAssertMt(kbii).
 
 
-:- process_this_script.
+% :- process_this_script.
 
 
 :- set_prolog_flag(os_argv,[swipl, '-f', '/dev/null','--nonet']).
@@ -728,4 +728,10 @@ make_existential(X, count(5, inf, skF(skIsCuteIsPuppyX_0FnSk, vv(KB, X, KB))), _
 
 
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/427 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/boxlog_sanity_04.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/BOXLOG_SANITY_04/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ABOXLOG_SANITY_04 
 

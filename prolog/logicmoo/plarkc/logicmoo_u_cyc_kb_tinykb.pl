@@ -49,7 +49,8 @@
 
 :- set_module(class(development)).
 :- '$set_source_module'(baseKB).
-%:- use_module(library(pfc)).
+:- expects_dialect(pfc).
+%:- expects_dialect(pfc).
 %:- set_fileAssertMt(baseKB).
 
 %:- if(current_predicate(rdf_rewrite:arity/2)).
@@ -373,7 +374,7 @@ exactlyAssertedEL_first(isa, xor, 'ELRelation-OneWay', 'UniversalVocabularyMt', 
 exactlyAssertedEL_first(isa, xor, 'CommutativeRelation', 'UniversalVocabularyMt', vStrDef).
 
 
-:- if((current_prolog_flag(runtime_debug,D),D>2)).
+:- if((current_prolog_flag(runtime_debug,D),D>3)).
 :- listing(exactlyAssertedEL_first/5).
 :- endif.
 :- sanity(clause_asserted(exactlyAssertedEL_first(isa, xor, rtLogicalConnective, iUniversalVocabularyMt, vStrDef))).

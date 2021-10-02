@@ -4,11 +4,11 @@
 :- module(cute6,[]).
 
 :- include(test_header).
-:- user:use_module(library(editline)).
+%:- user:use_module(library(editline)).
 :- use_module(library(occurs)). % sub_term/2
 :- use_module(library(sort)). % predsort/3
 :- use_module(library(backcomp)). % concat_atom/2
-:- user:autoload.
+:- user:autoload_all.
 
 :- module_transparent(system: = /2).
 :- module_transparent('$attvar':'$wakeup'/1).
@@ -20,7 +20,7 @@
 :- install_retry_undefined(user,error).
 :- install_retry_undefined(kbii,error).
 :- install_retry_undefined(kbi,error).
-% :- set_prolog_flag(autoload,false).
+% :- set_prolog_flag(autoload_all,false).
 :- set_prolog_flag(retry_undefined, false).
 :- set_prolog_flag(access_level, system).
 
@@ -736,4 +736,10 @@ nesc({findall(X,  (puppy(X), poss(ugly(X))), L), length(L, 1)}).
 % after_boot
 % autoloading editline:use_foreign_library/1 from /home/prologmud_server/lib/swipl-7.5.15/library/shlib
 cute6:  ?-
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/414 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/exactly_poss_cute_06.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/EXACTLY_POSS_CUTE_06/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AEXACTLY_POSS_CUTE_06 
 

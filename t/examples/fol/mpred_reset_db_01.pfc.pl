@@ -1,6 +1,6 @@
 :- include(test_header).
 
-:- process_this_script.
+% :- process_this_script.
 
 :- prolog_load_context(module,Module),
    listing(Module:_).
@@ -34,4 +34,10 @@ broke(joan).
 
 
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/445 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/mpred_reset_db_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/MPRED_RESET_DB_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AMPRED_RESET_DB_01 
 

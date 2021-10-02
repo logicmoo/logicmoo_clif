@@ -14,13 +14,11 @@
 % :- guitracer,leash(-all),visible(-all),trace,member(_,[_]),!,notrace,leash(+all),visible(+all).
 */
 
- 
-
-:- file_begin(pfc).
+:- expects_dialect(pfc).
 
 :- ensure_mpred_file_loaded('logicmoo/pfc/autoexec.pfc').
 % :- ensure_mpred_file_loaded('logicmoo/pfc/system_genls.pfc').
-
+:- mpred_trace_exec.
 % :- mpred_autoload(genls/2).
 
 tCol(tFly).
@@ -60,4 +58,10 @@ tPenguin(X) ==>  ~(tFly(X)).
 :-mpred_test(( ~(tFly(iChilly)))).
 
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/415 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/zenls_01z.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/ZENLS_01Z/logicmoo_base_examples_fol_ZENLS_01Z_JUnit/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3AZENLS_01Z 
 

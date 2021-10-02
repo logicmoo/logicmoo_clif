@@ -619,7 +619,7 @@ defunctionalize_did(OP,Wff,PredifiedFunction,NextWff,Function,NewVar):-
 
 is_precond_like(Var):- \+ compound(Var),!.
 is_precond_like(SubTerm):- is_ftEquality(SubTerm),!.
-is_precond_like(spft(_,_,_)):- !.
+is_precond_like('$spft'(_MZ,_,_,_)):- !.
 is_precond_like({_}).
 
 has_function(OP,Term):- 
@@ -685,7 +685,7 @@ is_modal(MODAL,BDT):- (MODAL = nesc(BDT) ; MODAL = poss(BDT)),!.
 is_modal(MODAL,BDT):- arg(_,MODAL,ARG),is_modal(ARG,BDT).
 
 
-contains_modal(G):- is_modal(G,_),!.
+contains_modal(G):- subst_each(G,[poss=modal,nesc=modal],GC),GC\=@=G,!.
 contains_modal(G):- contains_modalization_pred(G),!.
 
 
@@ -765,7 +765,7 @@ is_colection_name(IT,T,TT):- atom(T),atom_length(T,TL),TL>2,not(atom_contains(T,
 % Leave Converted To If Is A.
 %
 leave_as_is(V):- is_ftVar(V),!.
-leave_as_is(V):- \+ compound(V),!.
+%leave_as_is(V):- \+ compound(V),!.
 leave_as_is(poss(_,_)):-!,fail.
 leave_as_is((_,_)):-!,fail.
 leave_as_is((_ :-_ )):-!,fail.
@@ -958,7 +958,7 @@ has_ftVar(Body):-compound(Body),arg(_,Body,Arg),has_ftVar(Arg),!.
 % If Is A Function.
 %
 is_function_pfa(_,_,F,_):- \+ atom(F),!,fail.
-is_function_pfa(_,_,spft,_):-!,fail.
+is_function_pfa(_,_,'$spft',_):-!,fail.
 is_function_pfa(_,_,'uSubLQuoteFn',_):- !,fail.
 is_function_pfa(_,_,'xQuoteFn',_):- !,fail.
 is_function_pfa(_,_,'uNARTFn',_):- !,fail.

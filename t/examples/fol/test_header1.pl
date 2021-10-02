@@ -47,11 +47,11 @@ test_header_include.
 
 :- use_module(library(pfc_lib)).
 %:- if(( \+ current_module(pfc_lib) )).
-:- use_module(library(pfc)).
+:- expects_dialect(pfc).
 %:- endif.
 
 
-:- ensure_loaded(library(pfc_test)).
+:- ensure_loaded(library(logicmoo_test)).
 
 %:- endif. % current_prolog_flag(test_header,_).
 

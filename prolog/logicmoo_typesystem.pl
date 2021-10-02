@@ -2,7 +2,7 @@
 %
 %
 % Dec 13, 2035
-% Douglas Miles
+% Douglas Miles logicmoo@gmail.com
 
 */
 :- module(logicmoo_typesystem,
@@ -22,34 +22,12 @@
  op(300,fx,'~'),
  op(300,fx,'-')*/  ]).
 
-:- set_module(class(library)).
-
-/*
-
-:- current_prolog_flag(readline,Was),writeln(readline=Was).
-:- if(exists_source(library(editline))).
-:- set_prolog_flag(readline,editline).
-:- endif.
-% :- set_prolog_flag(readline,true).
-
-:- if(current_prolog_flag(readline,editline)).
-:- system:ensure_loaded(library(readline)).
-:- listing(prolog:history/2).
-:- abolish(prolog:history/2).
-:- system:reconsult(library(editline)).
-:- else.
-:- if(exists_source(library(readline))).
-:- if(exists_source(library(editline))).
-:- system:ensure_loaded(library(editline)).
-:- listing(prolog:history/2).
-:- abolish(prolog:history/2).
-:- endif.
-:- unload_file(library(readline)).
-:- system:consult(library(readline)).
-:- endif.
-:- endif.
-:- current_prolog_flag(readline,Was),writeln(readline=Was).
+/** <module> MODULE LOGICMOO TYPESYSTEM
+This module constrains arguments for faster and more exact search. 
+ - @author Douglas R. Miles
+ - @license LGPL 
 */
+:- set_module(class(library)).
 
 :- set_prolog_flag(report_error,true).
 %:- set_prolog_flag(access_level,system).
@@ -63,7 +41,7 @@
 :- debug.
 */
 
-:- '$set_source_module'(baseKB).
+:- nop('$set_source_module'( baseKB)).
 :- use_module(library(pfc_lib)).
 
 use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
@@ -74,7 +52,8 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- use_shared_module(library(dictoo)).
 %:- use_shared_module(library(pfc_lib)).
 %:- use_shared_module(library(xlisting)).
-:- with_no_mpred_expansions(use_shared_module(logicmoo_swilib)).
+%:- with_no_mpred_expansions(use_shared_module(logicmoo_swilib)).
+:- use_shared_module(logicmoo_swilib).
 
 %:- kb_shared(col_as_isa/1). % members are used thru  isa(ELEM,COL).
 %:- kb_shared(col_as_static/1). % hard coded like: compound/1
@@ -109,22 +88,22 @@ use_shared_module(USM):- with_no_mpred_expansions(baseKB:reexport(USM)).
 :- kb_shared(baseKB:never_retract_u/2).
 :- kb_shared(baseKB:mpred_prop/4).
 :- kb_shared(baseKB:do_and_undo/2).
-:- kb_shared(baseKB:spft/3).
-:- kb_shared(baseKB:bt/2).
+:- kb_shared(baseKB:'$spft'/4).
+:- kb_shared(baseKB:'$bt'/2).
 :- kb_shared(baseKB:hs/1).
-:- kb_shared(baseKB:nt/3).
+:- kb_shared(baseKB:'$nt'/3).
 :- kb_shared(baseKB:pk/3).
-:- kb_shared(baseKB:pt/2).
+:- kb_shared(baseKB:'$pt'/3).
 :- kb_shared(baseKB:que/2).
 :- kb_shared(baseKB:pm/1).
-:- kb_shared(baseKB:spft/3).
+:- kb_shared(baseKB:'$spft'/4).
 :- kb_shared(baseKB:tms/1).
 */
 :- system:use_module(library(logicmoo/subclause_expansion)).
 :- system:use_module(library(logicmoo/virtualize_source)).
 :- system:use_module(library(logicmoo/filesystem)).
 
-wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),baseKB:consult(W))).
+wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),ensure_loaded(W))).
 :- wsce(library('logicmoo/typesystem/mpred_agenda.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_hooks.pl')).
 :- wsce(library('logicmoo/typesystem/mpred_storage.pl')).
@@ -161,7 +140,7 @@ wsce(W):- with_subclause_expansion((set_how_virtualize_file(bodies,W,0),baseKB:c
 % SETUP KB EXTENSIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%:- '$set_source_module'(baseKB).
+%:- nop('$set_source_module'( baseKB)).
 %:- '$set_typein_module'(baseKB).
 
 %:- clause(user:term_expansion(I,O),M:Body).
@@ -201,7 +180,7 @@ checkKB:m1:- gripe_time(40,wsce(library(xlisting_web))),if_defined(ensure_webser
 ensure_autoexec:- !. % call_u(consult(logicmoo(pfc/'autoexec.pfc'))).
 
 %:- use_listing_vars.
-%:- autoload([verbose(false)]).
+%:- autoload_all([verbose(false)]).
 %:- use_listing_vars.
 %:- nop((autoload,scan_for_varnames)).
 

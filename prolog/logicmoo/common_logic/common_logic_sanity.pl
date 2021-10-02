@@ -35,6 +35,7 @@
  op(300, fx, '~'),
  op(300, fx, '-'))).
 
+:- ensure_loaded(common_logic_utils).
 :- ensure_loaded(library(logicmoo_clif)).
 
 %:- use_module(library(script_files)).
@@ -59,6 +60,7 @@ boxlog :- ensure_loaded(pack(logicmoo_base/t/examples/fol/'fol_sanity.pl')).
 
 kif_uncompile:- pfclog_uncompile, boxlog_uncompile, clif_uncompile.
 kif_compile:- clif_compile, boxlog_compile, pfclog_compile.
+
 kif_recompile:- kif_uncompile, kif_compile.
 kif_show:-  baseKB:listing(clif/1), baseKB:listing(boxlog/1), baseKB:listing(pfclog/1).
 :- export(kif_recompile/0).
@@ -67,35 +69,35 @@ kif_show:-  baseKB:listing(clif/1), baseKB:listing(boxlog/1), baseKB:listing(pfc
 :- export(kif_show/0).
 
 
-:- kb_shared(compile_clif/0).
-clif_uncompile:-  ain(==>( \+ compile_clif)), clif_show.
-clif_recompile:-  ain(==>( \+ compile_clif)), ain(==> compile_clif), clif_show.
-clif_compile:-  ain(==> compile_clif). % clif_show.
+:- kb_shared(compiled_clif/0).
+clif_uncompile:-  ain(==>( \+ compiled_clif)), clif_show.
+clif_recompile:-  ain(==>( \+ compiled_clif)), ain(==> compiled_clif), clif_show.
+clif_compile:-  ain(==> compiled_clif). % clif_show.
 clif_show:-  baseKB:listing(clif/1), baseKB:listing(boxlog/1).
 :- export(clif_recompile/0).
 :- export(clif_compile/0).
 :- export(clif_uncompile/0).
 :- export(clif_show/0).
 
-:- kb_shared(compile_boxlog/0).
+:- kb_shared(compiled_boxlog/0).
 :- export(boxlog_recompile/0).
 :- export(boxlog_compile/0).
 :- export(boxlog_uncompile/0).
 :- export(boxlog_show/0).
-boxlog_uncompile:-  ain(==>( \+ compile_boxlog)), boxlog_show.
-boxlog_recompile:-  ain(==>( \+ compile_boxlog)), ain(==> compile_boxlog), boxlog_show.
-boxlog_compile:-  ain(==> compile_boxlog). % boxlog_show.
+boxlog_uncompile:-  ain(==>( \+ compiled_boxlog)), boxlog_show.
+boxlog_recompile:-  ain(==>( \+ compiled_boxlog)), ain(==> compiled_boxlog), boxlog_show.
+boxlog_compile:-  ain(==> compiled_boxlog). % boxlog_show.
 boxlog_show:-  baseKB:listing(boxlog/1), baseKB:listing(pfclog/1).
 
-:- kb_shared(compile_pfclog/0).
+:- kb_shared(compiled_pfclog/0).
 :- export(pfclog_recompile/0).
 :- export(pfclog_compile/0).
 :- export(pfclog_uncompile/0).
 :- export(pfclog_show/0).
 
-pfclog_uncompile:-  ain(==>( \+ compile_pfclog)), pfclog_show.
-pfclog_recompile:-  ain(==>( \+ compile_pfclog)), ain(==> compile_pfclog), pfclog_show.
-pfclog_compile:-  ain(==> compile_pfclog). %pfclog_show.
+pfclog_uncompile:-  ain(==>( \+ compiled_pfclog)), pfclog_show.
+pfclog_recompile:-  ain(==>( \+ compiled_pfclog)), ain(==> compiled_pfclog), pfclog_show.
+pfclog_compile:-  ain(==> compiled_pfclog). %pfclog_show.
 pfclog_show:-  baseKB:listing(pfclog/1).
 
 
@@ -107,7 +109,8 @@ test_defunctionalize(I):-defunctionalize(I, O), sdmsg(O).
 sdmsg(Form):-
    if_defined(demodal_sents(_KB, Form, Out), Form=Out),
    % if_defined(local_pterm_to_sterm(OutM, Out), OutM=Out),
-   must(wdmsgl(dmsg, Out)).
+   guess_pretty(Form),
+   must(in_cmt(wdmsgl(wdmsg, Out))).
 
 sdmsgf(Form):-
    if_defined(demodal_sents(_KB, Form, Out), Form=Out),
@@ -122,15 +125,10 @@ test_boxlog(P):- source_location(_, _), !, nl, nl, b_implode_varnames(P), test_b
 
 
 add_boxlog_history(P0):-
-  (nb_current('$variable_names', Vs0)->true;Vs0=[]),
-  copy_term(P0+Vs0, P+Vs),
-  \+ \+
-  ((b_setval('$variable_names', Vs),
-  b_implode_varnames0(Vs),
-  b_implode_varnames(P),
-  guess_varnames(P),
+  must_det_l((
+  pretty_numbervars_ground(P0,P),
   with_output_to(string(S),
-    write_term(P, [numbervars(true), variable_names(Vs), character_escapes(true), ignore_ops(false), quoted(true), fullstop(true)])),
+    write_term(P, [numbervars(true), character_escapes(true), ignore_ops(false), quoted(true), fullstop(true)])),
    stream_property(In, file_no(0)),
    prolog:history(In, add(S)))), !.
 
@@ -138,24 +136,19 @@ add_boxlog_history(P0):-
 test_boxlog(P):- test_boxlog([], P).
 
 
-test_boxlogq(P):- test_boxlog([+qualify], P), !.
+test_boxlogq(P):- test_boxlog([+qualify_modality=full], P), !.
 
 :- export(test_boxlog/2).
 % test_boxlog_m(P, BoxLog):-logicmoo_motel:kif_to_motelog(P, BoxLog), !.
-test_boxlog(KV, P):-
+test_boxlog(KV, P0):-
  locally_tl(kif_option_list(KV), (
-  mmake,
-  % ignore(source_location(_, _) -> add_boxlog_history(test_boxlog(KV, P)) ; true),
+  %update_changed_files, % ignore(source_location(_, _) -> add_boxlog_history(test_boxlog(KV, P)) ; true),
  \+ \+
  must_det_l((
-  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  dmsg(:- test_boxlog(P)),
-  b_implode_varnames(P),
-  guess_varnames(P),
+  pretty_numbervars_ground(P0,P),
   kif_optionally_e(never, ain, clif(P)),
   kif_to_boxlog(P, O),
-  guess_varnames(O), flush_output,
-  kif_optionally_e(true, sdmsgf, O), flush_output,
+  kif_optionally_e(true, show_boxlog, O), flush_output,
   kif_optionally(false, assert_to_boxlog, O),
   kif_optionally(false, print_boxlog_to_pfc, O))))), !.
 
@@ -171,11 +164,10 @@ print_boxlog_to_pfc(O):-
 
 assert_boxlog(G):- ain(boxlog(G)).
 
-test_boxlog_88(P):-
+test_boxlog_88(P0):-
  \+ \+
  must_det_l((
-  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  b_implode_varnames(P), flush_output,
+  pretty_numbervars_ground(P0,P),
   dmsg(:- test_boxlog(P)),
   with_assert_buffer(with_chaining(ain(P)), Buffer),
   undo_buffer(Buffer),
@@ -184,14 +176,14 @@ test_boxlog_88(P):-
 
 
 :- export(test_pfc/1).
-test_pfc(P):- mmake, must_det(test_pfc0(P)), !.
-test_pfcq(P):- mmake, locally_tl(qualify_modally, must_det(test_pfc0(P))), !.
+test_pfc(P):- update_changed_files, must_det(test_pfc0(P)), !.
+test_pfcq(P):- update_changed_files, locally_tl(kif_option(qualify_modality,full), must_det(test_pfc0(P))), !.
 
-test_pfc0(P):-
+test_pfc0(P0):-
  \+ \+
  must_det_l((
-  (nb_current('$variable_names', Vs)->b_implode_varnames0(Vs);true),
-  b_implode_varnames(P), flush_output,
+  pretty_numbervars_ground(P0,P),
+  flush_output,
   dmsg(:- test_pfc(P)),
   kif_to_pfc(P, O),
   sdmsgf(O), flush_output)).
@@ -276,13 +268,13 @@ test_assert(A):-
 
 do_subtest(List):- must_maplist(call, List).
 
-add_test(Name, Assert):-
-  b_implode_varnames(Name+Assert),
+add_test(Name0, Assert0):-
+  pretty_numbervars_ground(Name0+Assert0,Name+Assert),
   assert(is_test(Name)),
    dbanner, dmsg(test_boxlog(Name)), dbanner,
   test_boxlog(Assert),
    dbanner, dmsg(completed_test_boxlog(Name)), dbanner,
-   assert(( Name:- mmake, dbanner, dmsg(running_test(Name)), dbanner,
+   assert(( Name:- update_changed_files, dbanner, dmsg(running_test(Name)), dbanner,
       test_assert(Assert),
       dbanner, dmsg(completed_running_test(Name)), dbanner)).
 

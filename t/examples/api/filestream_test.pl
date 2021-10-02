@@ -7,17 +7,19 @@
 */
 :- module(sanity_neg,[]).
 
-:- ensure_loaded(library(pfc)).
+:- expects_dialect(pfc).
 
-:- begin_pfc.
+% :- process_this_script.
 
-:- process_this_script.
+% this is a file stream 1
 
 :- dynamic(fooBar/0).
 
 ~fooBar.
 
 :- mpred_test(~fooBar).
+
+% this is a file stream 2
 
 fooBar.
 

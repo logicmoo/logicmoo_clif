@@ -3,7 +3,7 @@
 
 
 :- include('test_header.pfc').
-:- process_this_script.
+% :- process_this_script.
 
 %=  setup pfc
 :- file_begin(pfc).
@@ -86,4 +86,10 @@
 %= Thus we can deduce he is lefty now 
 :- show_call(example_known_is_success( lefty(pat ))).
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/75 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/lefty_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/LEFTY_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ALEFTY_01 
 

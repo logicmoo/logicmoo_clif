@@ -1,4 +1,4 @@
-
+#!/usr/bin/env lmoo-junit
 
 :- module(kbii,[]).
 
@@ -604,4 +604,10 @@ end_of_file.
 
 :- test_boxlog(exactly(5,X, puppy(X) & cute(X))).
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/428 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/boxlog_sanity_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/BOXLOG_SANITY_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ABOXLOG_SANITY_01 
 

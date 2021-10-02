@@ -1,8 +1,8 @@
 %:- module(system_common,[]).
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
-
+:- nop('$set_source_module'( baseKB)).
+%:- expects_dialect(pfc).
+:- expects_dialect(pfc).
 
 /** <module> system_common
 % =============================================
@@ -59,11 +59,11 @@ without_depth_limit(G):-
 
 %:- use_module(library(rtrace)).
 :- mpred_unload_file.
-:- begin_pfc.
-% :- '$set_source_module'(baseKB).
+:- expects_dialect(pfc).
+% :- nop('$set_source_module'( baseKB)).
 % :- prolog_load_context(module,Mod),sanity(Mod==baseKB),writeq(prolog_load_context(module,Mod)),nl.
 
-:- ensure_abox(baseKB).
+%:- ensure_abox(baseKB).
 
 
 
@@ -176,14 +176,15 @@ ttExpressionType(C)==> \+ completelyAssertedCollection(C).
 rtArgsVerbatum(onSpawn).
 
 onSpawn(When==>State)/nonvar(State) ==> ( When ==> onSpawn(State)).
-onSpawn(State)/mpred_literal(State) ==> {doSpawn(State)}.
+onSpawn(State)/mpred_literal(State) ==> {addSpawn(State)}.
 
 
 %:-ain(((ttModuleType(ModType),isa(Thing,ModType),isLoaded(Thing), \+ ttExpressionType(ModType) ==> isLoadedType(ModType)))).
 %==>(((onSpawn(Idea)==> ((isLoadedType(tSourceData),isRuntime) ==> {ain_expanded(Idea,())})))).
 
-onStart(Idea)/definitional(Idea) ==> Idea.
+onAlways(Idea)==>Idea.
 
+onStart(Idea)/definitional(Idea) ==> onAlways(Idea).
 ((onStart(Idea)/ ( \+ definitional(Idea))) ==> 
   (isRuntime ==> {get_startup_uu(UU),ain_expanded(Idea,UU)})).
 
@@ -740,7 +741,8 @@ arity(typeProps,2).
 % :- ain_expanded(==>(isa(isEach(prologMultiValued,prologOrdered,prologNegByFailure,meta_argtypes,prologPTTP,prologHybrid,predCanHaveSingletons,prologDynamic,prologBuiltin,functorIsMacro,prologListValued,prologSingleValued),functorDeclares))).
 % ==>(genls(isEach(prologMultiValued,prologOrdered,prologNegByFailure,prologHybrid,prologPTTP,prologDynamic,prologBuiltin,prologKIF,functorIsMacro,prologListValued,prologSingleValued),tPred)).
 :- assert_hasInstance(tCol,tCol).
-:- file_begin(pfc).
+:- expects_dialect(pfc).
+:- expects_dialect(pfc).
 
  
 % FIXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxx
@@ -1238,14 +1240,17 @@ ttAgentType(mobPhilosopher).
 %:- mpred_trace_all.
 isa(iPlato7,mobPhilosopher).
 
-:-must(isa(iPlato7,mobPhilosopher)).
+:- sanity(isa(iPlato7,mobPhilosopher)).
 
 :- if((current_prolog_flag(runtime_debug,D),D>2)).
-:- mpred_test(\+ isa(iPlato7,ftAtom)).
 
 %:- mpred_test(\+ quotedIsa(iPlato7,mobPhilosopher)).
-%:- sanity(mpred_test(~quotedIsa(iPlato7,mobPhilosopher))).
-:- sanity(mpred_test(quotedIsa(iPlato7,ftAtom))).
+%:- sanity((~quotedIsa(iPlato7,mobPhilosopher))).
+
+:- sanity((quotedIsa(iPlato7,ftAtom))).
+
+% :- sanity(\+ isa(iPlato7,ftAtom)).
+
 :- mpred_notrace_all.
 :- endif.
 

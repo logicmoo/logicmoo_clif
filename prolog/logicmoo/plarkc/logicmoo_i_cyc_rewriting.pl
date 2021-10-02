@@ -56,7 +56,10 @@
 
 :- set_module(class(library)).
 :- use_module(library(file_scope)).
+
+:- if((exists_source(library(wam_cl/sreader)), \+ current_module(wmclrt))).
 :- use_module(library(wam_cl/sreader)).
+:- endif.
 
 :- absolute_file_name(library('../ext/pldata/'),Dir,[file_type(directory)]),
    asserta_new(user:file_search_path(pldata,Dir)).
@@ -1817,6 +1820,8 @@ makeCycRenames1:-
     forall(builtin_rn_or_rn_new(C,P),format('(safely-rename-or-merge "~w" "~w")~n',[C,P])),
     told.
 
+add_rename(_KB,M:(:-Goal)):- !, M:call(Goal).
+add_rename(KB,(:-Goal)):- !, KB:call(Goal).
 add_rename(KB,MRNCP):- strip_module(MRNCP,_,RNCP),asserta(KB:RNCP).
 
 load_renames(File):- \+ exists_source(File), !, dmsg(warning(missing_file(File))).

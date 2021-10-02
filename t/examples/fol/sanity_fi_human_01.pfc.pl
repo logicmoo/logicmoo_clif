@@ -5,7 +5,7 @@
 :- include('sanity_fi_sk.pfc').
 :- rtrace(kb_shared((<-)/2)).
 
-:- begin_pfc.
+:- expects_dialect(pfc).
 
 %= simply retract (so we can re-deduce)
 ==> \+ human(douglas).
@@ -32,4 +32,10 @@ human(P2)<-human(P1),related_to(P1,P2).
 :- rtrace(ain_expanded(~human(hum1))).
 
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/72 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/sanity_fi_human_01.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/SANITY_FI_HUMAN_01/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ASANITY_FI_HUMAN_01 
 

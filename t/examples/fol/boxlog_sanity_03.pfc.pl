@@ -240,7 +240,7 @@ end_of_file.
 % ==============================================================
 
 % Turn modal extensions to partial
-:- set_prolog_flag(logicmoo_modality,part).
+:- set_prolog_flag(logicmoo_modality,simple_nesc).
 
 
 % ==============================================================
@@ -313,4 +313,10 @@ computer systems that represent what they know about the world by sentences in a
 It achieves goals by inferring that a certain strategy of action is appropriate to achieve the goal. 
 It then carries out that strategy, using observations also expressed as logical sentences.
 
+
+
+% ISSUE: https://github.com/logicmoo/logicmoo_workspace/issues/457 
+% EDIT: https://github.com/logicmoo/logicmoo_workspace/edit/master/packs_sys/logicmoo_base/t/examples/fol/boxlog_sanity_03.pfc.pl 
+% JENKINS: https://jenkins.logicmoo.org/job/logicmoo_workspace/lastBuild/testReport/logicmoo.base.examples.fol/BOXLOG_SANITY_03/ 
+% ISSUE_SEARCH: https://github.com/logicmoo/logicmoo_workspace/issues?q=is%3Aissue+label%3ABOXLOG_SANITY_03 
 

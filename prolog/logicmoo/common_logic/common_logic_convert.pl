@@ -25,6 +25,7 @@
 :- meta_predicate(if_changed(2,+,-)).
 :- meta_predicate(map_each_subterm(2,+,-)).
 
+:- ensure_loaded(common_logic_utils).
 
 delay_rule_eval(InOut,_Wrap,InOut):-ground(InOut),!.
 delay_rule_eval(In,Wrap,WIn):- WIn=..[Wrap,In].
@@ -144,17 +145,44 @@ fully_expand_kif_0k(uN(vTheListFn, ROW),ROW).
 fully_expand_kif_0k(['ListFn'|ROW],ROW).
 
 
+clif_to_modal_clif(In,THINOUT):-   
+   pretty_numbervars_ground(In,In0),
+   %add_history(kif_to_boxlog(In0)),
+   % In=In0,
+   sumo_to_pdkb(In0,WffIn),
+   must_be_unqualified(WffIn),
+   KB = '$KB',
+   kif_optionally_e(true,as_dlog,WffIn,DLOGKIF),!,
+   % in_cmt((write('dlog= ' ),display(DLOGKIF))),
+   kif_optionally_e(false,existentialize_objs,DLOGKIF,EXTOBJ),
+   kif_optionally_e(false,existentialize_rels,EXTOBJ,EXT),
+   kif_optionally_e(false,ensure_quantifiers,EXT,OuterQuantKIF),
+   check_is_kb(KB),
+   %kif_optionally_e(true,un_quant3(KB),OuterQuantKIF,NormalOuterQuantKIF),
+   kif_optionally_e(always,correct_special_quantifiers(KB),OuterQuantKIF,FullQuant),   
+  b_setval('$nnf_outermost',FullQuant),
+   qualify_modality(FullQuant,ModalKIF),
+   kif_optionally_e(true,adjust_kif(KB),ModalKIF,ModalKBKIFM),
+   kif_optionally_e(true,correct_special_quantifiers(KB),ModalKBKIFM,ModalKBKIF),   
+   kif_optionally_e(false,removeQ_3(KB),ModalKBKIF,UnQ),   
+   current_outer_modal_t(HOLDS_T),
+   % true cause poss loss
+   kif_optionally_e(false,to_tlog(HOLDS_T,KB),UnQ,UnQ666),
+   kif_optionally_e(never,as_prolog_hook,UnQ666,THIN),
+   if_debugging2(kif,ignore((In0\=@=THIN,wdmsg(kifi=In)))),
+   if_debugging2(kif,wdmsg(kifm=THIN)),
+   must(THINOUT=THIN),nop(THINOUT=THIN).
 
 sumo_to_pdkb(CycL,CycL):- is_ftVar(CycL).
 sumo_to_pdkb('$COMMENT'(A),'$COMMENT'(A)):- !.
 sumo_to_pdkb(In,Out):-
          must_det_l((must_map_preds([ 
-           from_kif_string,
+           from_kif_string,           
            sexpr_sterm_to_pterm,
+           pretty_numbervars_ground,
            map_each_subterm(sumo_to_pdkb_p5),
            map_each_subterm(pfc_lib:fully_expand(show_kif)),
-           cyc_to_pdkb_maybe,
-           unnumbervars_with_names,
+           cyc_to_pdkb_maybe,           
            sumo_to_pdkb_p9,
            map_each_subterm(pfc_lib:fully_expand(show_kif))],
            In,Out))).

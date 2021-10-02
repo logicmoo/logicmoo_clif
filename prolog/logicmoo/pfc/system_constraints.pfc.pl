@@ -1,7 +1,6 @@
 %:- module(system_constraints,[]).
 %:- set_module(class(development)).
-:- '$set_source_module'(baseKB).
-:- use_module(library(pfc)).
+:- nop('$set_source_module'( baseKB)).
 
 /** <module> system_constraints
 % =============================================
@@ -36,8 +35,9 @@
 % Douglas Miles
 */
 
+:- expects_dialect(pfc).
 
-:- file_begin(pfc).
+:- expects_dialect(pfc).
 
 :- kb_shared(predicate_relaxed/1).
 
@@ -98,21 +98,23 @@ weak_test("Weak0","weAk2").
 
 :- export(weak_test/2).
 :- public(weak_test/2).
-:- if((current_prolog_flag(runtime_debug,D),D>2)).
+:- if((current_prolog_flag(runtime_debug,D),D>3)).
 :- listing(weak_test/2).
 :- endif.
 
 %:- listing(weak_test/2).
 
-:- if(\+ current_predicate(mpred_test/1)).
-:- use_module(library(pfc_test)).
+%:- mpred_trace_exec.
+:- if(\+ current_predicate(sanity/1)).
+%:- use_module(library(logicmoo_test)).
 :- endif.
+%:- mpred_notrace_exec.
 
 :- if((current_prolog_flag(runtime_safety,D),D>2)).
-:- mpred_test((weak_test(weak1,"WeAK2")))->true;(writeln(mpred_test(weak_test(weak1,"WeAK2"))),break).
-:- if((current_prolog_flag(runtime_debug,D),D>1)).
-:- dmsg(call(mpred_test(weak_test("Weak1","Weak2")))).
-:- dmsg(call(mpred_test(weak_test("Weak1","wEak2")))).
+:- sanity((weak_test(weak1,"WeAK2")))->true;(writeln(sanity(weak_test(weak1,"WeAK2"))),break).
+:- if((current_prolog_flag(runtime_debug,D),D>3)).
+:- dmsg(call(sanity(weak_test("Weak1","Weak2")))).
+:- dmsg(call(sanity(weak_test("Weak1","wEak2")))).
 :- endif.
 :- endif.
 
@@ -131,9 +133,9 @@ predicate_relaxed(weac_test/2).
 
 %:- listing(weac_test/2).
 :- (dmsg(call(
-   mpred_test(weac_test("Weac1","Weac2")),
-   mpred_test(weac_test("Weac1","wEac2")),
-   mpred_test((weac_test(weac1,"WeAC2")))))->true;(writeln(mpred_test(weac_test(weac1,"WeAC2"))),break)).
+   sanity(weac_test("Weac1","Weac2")),
+   sanity(weac_test("Weac1","wEac2")),
+   sanity((weac_test(weac1,"WeAC2")))))->true;(writeln(sanity(weac_test(weac1,"WeAC2"))),break)).
 
 % =======================================================
 % =======================================================
